@@ -1,0 +1,622 @@
+{
+  "protocol": "visual-multimedia-delivery-report",
+  "version": 1,
+  "generated_at": "2026-07-28T02:38:59.987862+00:00",
+  "spec": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-delivery.json",
+  "profile": "final",
+  "output": {
+    "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
+    "exists": true,
+    "bytes": 110288,
+    "sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873"
+  },
+  "probe": {
+    "format": {
+      "filename": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
+      "nb_streams": 2,
+      "nb_programs": 0,
+      "nb_stream_groups": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "4.750000",
+      "size": "110288",
+      "bit_rate": "185748",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "isom",
+        "minor_version": "512",
+        "compatible_brands": "isomiso2avc1mp41",
+        "encoder": "Lavf62.12.100"
+      }
+    },
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "mime_codec_string": "avc1.64001f",
+        "width": 720,
+        "height": 720,
+        "coded_width": 720,
+        "coded_height": 720,
+        "has_b_frames": 2,
+        "sample_aspect_ratio": "43575:43549",
+        "display_aspect_ratio": "43575:43549",
+        "pix_fmt": "yuv420p",
+        "level": 31,
+        "chroma_location": "left",
+        "field_order": "progressive",
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "id": "0x1",
+        "r_frame_rate": "24/1",
+        "avg_frame_rate": "24/1",
+        "time_base": "1/12288",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 58368,
+        "duration": "4.750000",
+        "bit_rate": "74182",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "114",
+        "extradata_size": 50,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler",
+          "encoder": "Lavc62.28.100 libx264"
+        }
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_long_name": "AAC (Advanced Audio Coding)",
+        "profile": "LC",
+        "codec_type": "audio",
+        "codec_tag_string": "mp4a",
+        "codec_tag": "0x6134706d",
+        "mime_codec_string": "mp4a.40.2",
+        "sample_fmt": "fltp",
+        "sample_rate": "48000",
+        "channels": 2,
+        "channel_layout": "stereo",
+        "bits_per_sample": 0,
+        "initial_padding": 0,
+        "id": "0x2",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/48000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 228000,
+        "duration": "4.750000",
+        "bit_rate": "103076",
+        "nb_frames": "224",
+        "extradata_size": 5,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "SoundHandler"
+        }
+      }
+    ],
+    "video_streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "mime_codec_string": "avc1.64001f",
+        "width": 720,
+        "height": 720,
+        "coded_width": 720,
+        "coded_height": 720,
+        "has_b_frames": 2,
+        "sample_aspect_ratio": "43575:43549",
+        "display_aspect_ratio": "43575:43549",
+        "pix_fmt": "yuv420p",
+        "level": 31,
+        "chroma_location": "left",
+        "field_order": "progressive",
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "id": "0x1",
+        "r_frame_rate": "24/1",
+        "avg_frame_rate": "24/1",
+        "time_base": "1/12288",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 58368,
+        "duration": "4.750000",
+        "bit_rate": "74182",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "114",
+        "extradata_size": 50,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler",
+          "encoder": "Lavc62.28.100 libx264"
+        }
+      }
+    ],
+    "audio_streams": [
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_long_name": "AAC (Advanced Audio Coding)",
+        "profile": "LC",
+        "codec_type": "audio",
+        "codec_tag_string": "mp4a",
+        "codec_tag": "0x6134706d",
+        "mime_codec_string": "mp4a.40.2",
+        "sample_fmt": "fltp",
+        "sample_rate": "48000",
+        "channels": 2,
+        "channel_layout": "stereo",
+        "bits_per_sample": 0,
+        "initial_padding": 0,
+        "id": "0x2",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/48000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 228000,
+        "duration": "4.750000",
+        "bit_rate": "103076",
+        "nb_frames": "224",
+        "extradata_size": 5,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "SoundHandler"
+        }
+      }
+    ],
+    "duration_seconds": 4.75
+  },
+  "adopted_sources": [
+    {
+      "id": "case-avatar",
+      "present": true,
+      "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\25\\255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+      "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+      "integrity_verified": true,
+      "rights_status": "confirmed",
+      "rights_eligible": true
+    },
+    {
+      "id": "case-narration",
+      "present": true,
+      "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\a7\\a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+      "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+      "integrity_verified": true,
+      "rights_status": "confirmed",
+      "rights_eligible": true
+    }
+  ],
+  "evidence": {
+    "captions": {
+      "required": false,
+      "file": null,
+      "font_status": "not-applicable"
+    },
+    "human_review": {
+      "status": "passed",
+      "notes": "能力案例已按最终视频、联系表和完整声音检查；不代表其它项目可以继承该状态。"
+    },
+    "rights_review": {
+      "status": "passed",
+      "notes": "案例只采用项目自有头像和现有本地测试语音。"
+    },
+    "clip_selections": {
+      "ok": true,
+      "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\clip-selections.json",
+      "maximum_clips": 3,
+      "selected_count": 1,
+      "clips": [
+        {
+          "id": "complete-narration",
+          "source_id": "case-narration",
+          "source_file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\a7\\a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+          "source_duration_seconds": 4.750113,
+          "start_seconds": 0,
+          "end_seconds": 4.75,
+          "duration_seconds": 4.75,
+          "transcript_sha256": "163fc49d094206c261977f73fa939e77e7e5923c3e07e03c95df3d80ebc05f2e"
+        }
+      ],
+      "errors": []
+    },
+    "contact_sheet": {
+      "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\reports\\contact-sheet.jpg",
+      "metadata": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\reports\\contact-sheet.jpg.json",
+      "frames": 8
+    }
+  },
+  "checks": [
+    {
+      "id": "output-exists",
+      "status": "passed",
+      "required": true,
+      "summary": "交付文件存在且非空",
+      "details": {
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
+        "bytes": 110288,
+        "sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873"
+      }
+    },
+    {
+      "id": "probe",
+      "status": "passed",
+      "required": true,
+      "summary": "FFprobe 已读取真实媒体流",
+      "details": null
+    },
+    {
+      "id": "media-kind",
+      "status": "passed",
+      "required": true,
+      "summary": "输出包含 video 主媒体轨",
+      "details": null
+    },
+    {
+      "id": "positive-duration",
+      "status": "passed",
+      "required": true,
+      "summary": "实际时长大于 0",
+      "details": {
+        "actual_seconds": 4.75
+      }
+    },
+    {
+      "id": "expected-duration",
+      "status": "passed",
+      "required": true,
+      "summary": "实际时长符合合同",
+      "details": {
+        "actual_seconds": 4.75,
+        "expected_seconds": 4.75,
+        "tolerance_seconds": 0.1
+      }
+    },
+    {
+      "id": "expected-width",
+      "status": "passed",
+      "required": true,
+      "summary": "实际 width 符合合同",
+      "details": {
+        "actual": 720,
+        "expected": 720
+      }
+    },
+    {
+      "id": "expected-height",
+      "status": "passed",
+      "required": true,
+      "summary": "实际 height 符合合同",
+      "details": {
+        "actual": 720,
+        "expected": 720
+      }
+    },
+    {
+      "id": "expected-frame-rate",
+      "status": "passed",
+      "required": true,
+      "summary": "实际帧率符合合同",
+      "details": {
+        "actual": 24.0,
+        "expected": 24.0,
+        "tolerance": 0.02
+      }
+    },
+    {
+      "id": "audio-required",
+      "status": "passed",
+      "required": true,
+      "summary": "输出包含必需音轨",
+      "details": null
+    },
+    {
+      "id": "decode",
+      "status": "passed",
+      "required": true,
+      "summary": "FFmpeg 已完整解码交付文件",
+      "details": null
+    },
+    {
+      "id": "media-sources-contract",
+      "status": "passed",
+      "required": true,
+      "summary": "素材账本使用唯一的 v2 合同",
+      "details": {
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-sources.json"
+      }
+    },
+    {
+      "id": "adopted-sources",
+      "status": "passed",
+      "required": true,
+      "summary": "所有已采用 source id 都能在素材账本中找到",
+      "details": {
+        "ids": [
+          "case-avatar",
+          "case-narration"
+        ]
+      }
+    },
+    {
+      "id": "source-integrity",
+      "status": "passed",
+      "required": true,
+      "summary": "所有已采用独立素材的文件、字节数和哈希一致",
+      "details": [
+        {
+          "id": "case-avatar",
+          "present": true,
+          "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\25\\255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+          "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+          "integrity_verified": true,
+          "rights_status": "confirmed",
+          "rights_eligible": true
+        },
+        {
+          "id": "case-narration",
+          "present": true,
+          "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\a7\\a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+          "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+          "integrity_verified": true,
+          "rights_status": "confirmed",
+          "rights_eligible": true
+        }
+      ]
+    },
+    {
+      "id": "source-rights",
+      "status": "passed",
+      "required": false,
+      "summary": "所有已采用素材均已确认权利或无需外部许可",
+      "details": [
+        {
+          "id": "case-avatar",
+          "present": true,
+          "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\25\\255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+          "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+          "integrity_verified": true,
+          "rights_status": "confirmed",
+          "rights_eligible": true
+        },
+        {
+          "id": "case-narration",
+          "present": true,
+          "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\a7\\a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+          "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+          "integrity_verified": true,
+          "rights_status": "confirmed",
+          "rights_eligible": true
+        }
+      ]
+    },
+    {
+      "id": "clip-selections",
+      "status": "passed",
+      "required": true,
+      "summary": "真实片段范围、数量、去重和完整语义审核已通过",
+      "details": {
+        "ok": true,
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\clip-selections.json",
+        "maximum_clips": 3,
+        "selected_count": 1,
+        "clips": [
+          {
+            "id": "complete-narration",
+            "source_id": "case-narration",
+            "source_file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\a7\\a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+            "source_duration_seconds": 4.750113,
+            "start_seconds": 0,
+            "end_seconds": 4.75,
+            "duration_seconds": 4.75,
+            "transcript_sha256": "163fc49d094206c261977f73fa939e77e7e5923c3e07e03c95df3d80ebc05f2e"
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "captions",
+      "status": "passed",
+      "required": true,
+      "summary": "当前交付不要求字幕",
+      "details": {
+        "required": false,
+        "file": null,
+        "font_status": "not-applicable"
+      }
+    },
+    {
+      "id": "human_review-contract",
+      "status": "passed",
+      "required": true,
+      "summary": "人工完整审看状态已记录",
+      "details": {
+        "status": "passed",
+        "notes": "能力案例已按最终视频、联系表和完整声音检查；不代表其它项目可以继承该状态。"
+      }
+    },
+    {
+      "id": "rights_review-contract",
+      "status": "passed",
+      "required": true,
+      "summary": "素材权利复核状态已记录",
+      "details": {
+        "status": "passed",
+        "notes": "案例只采用项目自有头像和现有本地测试语音。"
+      }
+    },
+    {
+      "id": "contact-sheet",
+      "status": "passed",
+      "required": true,
+      "summary": "已从最终视频生成联系表",
+      "details": {
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\reports\\contact-sheet.jpg",
+        "metadata": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\reports\\contact-sheet.jpg.json",
+        "frames": 8,
+        "error": null
+      }
+    },
+    {
+      "id": "loudness",
+      "status": "passed",
+      "required": true,
+      "summary": "响度已经测量并符合合同",
+      "details": {
+        "integrated_lufs": -22.92,
+        "true_peak_dbfs": -3.71,
+        "loudness_range_lu": 4.3,
+        "threshold_lufs": -33.63,
+        "target_lufs": null,
+        "tolerance_lu": null,
+        "true_peak_ceiling_dbfs": null
+      }
+    },
+    {
+      "id": "silence",
+      "status": "passed",
+      "required": true,
+      "summary": "异常静音扫描完成且符合合同",
+      "details": {
+        "noise_db": -50.0,
+        "minimum_duration_seconds": 0.5,
+        "maximum_unacknowledged_seconds": 0.8,
+        "detected": [
+          {
+            "start_seconds": 4.031438,
+            "end_seconds": 4.757333,
+            "duration_seconds": 0.725896
+          }
+        ],
+        "unacknowledged": [
+          {
+            "start_seconds": 4.031438,
+            "end_seconds": 4.757333,
+            "duration_seconds": 0.725896
+          }
+        ]
+      }
+    },
+    {
+      "id": "black-frames",
+      "status": "passed",
+      "required": true,
+      "summary": "全片黑场扫描完成且符合合同",
+      "details": {
+        "picture_black_ratio": 0.98,
+        "pixel_threshold": 0.1,
+        "minimum_duration_seconds": 0.1,
+        "maximum_unacknowledged_seconds": 0.1,
+        "detected": [],
+        "unacknowledged": []
+      }
+    }
+  ],
+  "summary": {
+    "required_checks": 21,
+    "passed_required_checks": 21,
+    "failed_required_check_ids": [],
+    "technical_ready": true,
+    "human_review_passed": true,
+    "rights_review_passed": true,
+    "delivery_ready": true
+  }
+}

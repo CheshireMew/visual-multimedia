@@ -1,0 +1,62 @@
+{
+  "protocol": "visual-multimedia-delivery",
+  "version": 1,
+  "profile": "preview",
+  "output": {
+    "file": "renders/preview.mp4"
+  },
+  "media_sources": "media-sources.json",
+  "clip_selections": null,
+  "adopted_source_ids": [],
+  "expected": {
+    "media_kind": "video",
+    "audio_required": true,
+    "duration_seconds": null,
+    "duration_tolerance_seconds": 0.25,
+    "width": null,
+    "height": null,
+    "frame_rate": null,
+    "frame_rate_tolerance": 0.02
+  },
+  "analysis": {
+    "loudness": {
+      "target_lufs": null,
+      "tolerance_lu": null,
+      "true_peak_ceiling_dbfs": null
+    },
+    "silence": {
+      "noise_db": -50,
+      "minimum_duration_seconds": 0.5,
+      "maximum_unacknowledged_seconds": null,
+      "allowed_ranges": []
+    },
+    "black_frames": {
+      "picture_black_ratio": 0.98,
+      "pixel_threshold": 0.1,
+      "minimum_duration_seconds": 0.1,
+      "maximum_unacknowledged_seconds": 0.1,
+      "allowed_ranges": []
+    }
+  },
+  "evidence": {
+    "captions": {
+      "required": false,
+      "file": "",
+      "font_status": "not-applicable"
+    },
+    "contact_sheet": {
+      "file": "reports/contact-sheet.jpg",
+      "frames": 8,
+      "columns": 4
+    },
+    "human_review": {
+      "status": "pending",
+      "notes": ""
+    },
+    "rights_review": {
+      "status": "pending",
+      "notes": ""
+    }
+  },
+  "report": "reports/media-delivery-report.json"
+}

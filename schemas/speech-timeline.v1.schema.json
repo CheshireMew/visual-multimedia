@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.speech-timeline.v1",
+  "title": "Visual Multimedia Mandarin Speech Timeline v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "language",
+    "audio_source_id",
+    "text",
+    "trim_start_seconds",
+    "trim_end_seconds",
+    "timing",
+    "units"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-speech-timeline"
+    },
+    "version": {
+      "const": 1
+    },
+    "language": {
+      "const": "zh-CN"
+    },
+    "audio_source_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trim_start_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "trim_end_seconds": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "exclusiveMinimum": 0
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "reviewed",
+        "notes"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "provider-boundary",
+            "forced-alignment",
+            "manual-confirmed"
+          ]
+        },
+        "reviewed": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "start_seconds",
+          "end_seconds"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1
+          },
+          "start_seconds": {
+            "type": "number",
+            "minimum": 0
+          },
+          "end_seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        }
+      }
+    }
+  }
+}

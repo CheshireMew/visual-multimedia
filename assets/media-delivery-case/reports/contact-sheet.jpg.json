@@ -1,0 +1,45 @@
+{
+  "source": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
+  "output": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\reports\\contact-sheet.jpg",
+  "source_probe": {
+    "format": {
+      "filename": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
+      "duration": "4.750000",
+      "size": "110288"
+    },
+    "stream": {
+      "index": 0,
+      "codec_name": "h264",
+      "codec_type": "video",
+      "width": 720,
+      "height": 720,
+      "r_frame_rate": "24/1",
+      "duration": "4.750000"
+    },
+    "duration": 4.75,
+    "width": 720,
+    "height": 720
+  },
+  "window": {
+    "start_seconds": 0.0,
+    "duration_seconds": 4.75,
+    "end_seconds": 4.75
+  },
+  "sheet": {
+    "frames": 8,
+    "columns": 4,
+    "rows": 2,
+    "cell_width": 360,
+    "cell_height": 360,
+    "sample_times_seconds": [
+      0.296875,
+      0.890625,
+      1.484375,
+      2.078125,
+      2.671875,
+      3.265625,
+      3.859375,
+      4.453125
+    ]
+  }
+}

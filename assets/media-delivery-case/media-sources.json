@@ -1,0 +1,85 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 2,
+  "sources": [
+    {
+      "id": "case-avatar",
+      "media_type": "photo",
+      "file": "assets/by-sha256/25/255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+      "acquisition": {
+        "method": "project-owned",
+        "source_url": "",
+        "captured_at": "2026-07-27T00:00:00.000Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "project-owned",
+        "attribution": "柴郡@0xCheshire",
+        "terms_url": ""
+      },
+      "usage": "最终交付案例的画面主体",
+      "integrity": {
+        "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+        "bytes": 902095,
+        "mime_type": "image/png"
+      },
+      "generation": null,
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-27T00:00:00.000Z",
+          "provider": "local-project",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "crops": {},
+      "notes": "验证素材导入、场景采用与最终报告链路。"
+    },
+    {
+      "id": "case-narration",
+      "media_type": "audio",
+      "file": "assets/by-sha256/a7/a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+      "acquisition": {
+        "method": "project-owned",
+        "source_url": "",
+        "captured_at": "2026-07-27T00:00:00.000Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "project-owned",
+        "attribution": "",
+        "terms_url": ""
+      },
+      "usage": "最终交付案例的完整讲解声音",
+      "integrity": {
+        "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+        "bytes": 209526,
+        "mime_type": "audio/wav"
+      },
+      "generation": null,
+      "speech": {
+        "provider_voice_id": "local-poc-voice-a794c1a9",
+        "voice_name": "本地 POC 测试声音",
+        "language": "zh-CN",
+        "text_sha256": "b4f7b7d6e6299ae06ac277f41c8d47cd4324995f92e2171a53b6dc1840f2d708",
+        "exact_identity": true
+      },
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-27T00:00:00.000Z",
+          "provider": "local-project",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": null,
+      "crops": {},
+      "notes": "精确声音身份只适用于本案例，不成为其它项目默认声音。"
+    }
+  ]
+}

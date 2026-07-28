@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-project.v1",
+  "title": "Visual Multimedia Anime Avatar Project v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "character",
+    "motion_source",
+    "library_file",
+    "render"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-anime-avatar-project"
+    },
+    "version": {
+      "const": 1
+    },
+    "character": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "origin",
+        "specification",
+        "master_source_id",
+        "master_status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin": {
+          "enum": [
+            "reference-image",
+            "description"
+          ]
+        },
+        "specification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "master_source_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "master_status": {
+          "enum": [
+            "missing",
+            "draft",
+            "confirmed"
+          ]
+        }
+      }
+    },
+    "motion_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "status",
+        "source_crop_xywh",
+        "mouth_review_crop_xywh"
+      ],
+      "properties": {
+        "source_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "status": {
+          "enum": [
+            "missing",
+            "needs-review",
+            "accepted"
+          ]
+        },
+        "source_crop_xywh": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/xywh"
+            }
+          ]
+        },
+        "mouth_review_crop_xywh": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/xywh"
+            }
+          ]
+        }
+      }
+    },
+    "library_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "render": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "internal_fps",
+        "delivery_fps",
+        "output_size"
+      ],
+      "properties": {
+        "language": {
+          "const": "zh-CN"
+        },
+        "internal_fps": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 60
+        },
+        "delivery_fps": {
+          "type": "integer",
+          "minimum": 24,
+          "maximum": 60
+        },
+        "output_size": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "integer",
+              "minimum": 256
+            },
+            {
+              "type": "integer",
+              "minimum": 256
+            }
+          ],
+          "items": false
+        }
+      }
+    }
+  },
+  "$defs": {
+    "xywh": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "integer",
+          "minimum": 1
+        }
+      ],
+      "items": false
+    }
+  }
+}

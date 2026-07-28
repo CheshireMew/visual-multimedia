@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.clip-selections.v1",
+  "title": "Visual Multimedia Clip Selections v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "media_sources",
+    "maximum_clips",
+    "clips"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-clip-selections"
+    },
+    "version": {
+      "const": 1
+    },
+    "media_sources": {
+      "type": "string",
+      "minLength": 1
+    },
+    "maximum_clips": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "clips": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/clip"
+      }
+    }
+  },
+  "$defs": {
+    "clip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "start_seconds",
+        "end_seconds",
+        "purpose",
+        "spoken_content",
+        "transcript",
+        "semantic_boundary_review",
+        "intentional_repeat_reason"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "spoken_content": {
+          "type": "boolean"
+        },
+        "transcript": {
+          "type": "string"
+        },
+        "semantic_boundary_review": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "listened",
+            "waveform_checked",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "enum": ["pending", "passed", "failed"]
+            },
+            "listened": {
+              "type": "boolean"
+            },
+            "waveform_checked": {
+              "type": "boolean"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "intentional_repeat_reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

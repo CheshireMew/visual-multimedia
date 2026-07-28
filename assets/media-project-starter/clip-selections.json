@@ -1,0 +1,7 @@
+{
+  "protocol": "visual-multimedia-clip-selections",
+  "version": 1,
+  "media_sources": "media-sources.json",
+  "maximum_clips": 8,
+  "clips": []
+}

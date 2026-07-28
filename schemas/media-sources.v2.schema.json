@@ -1,0 +1,354 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-sources.v2",
+  "title": "Visual Multimedia Media Sources v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "sources"],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-media-sources"
+    },
+    "version": {
+      "const": 2
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "media_type",
+        "file",
+        "acquisition",
+        "rights",
+        "usage",
+        "integrity",
+        "generation",
+        "speech",
+        "provenance_runs",
+        "subject",
+        "crops",
+        "notes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "media_type": {
+          "enum": [
+            "photo",
+            "screenshot",
+            "video",
+            "video-frame",
+            "audio",
+            "subtitle",
+            "icon",
+            "document",
+            "generated"
+          ]
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acquisition": {
+          "$ref": "#/$defs/acquisition"
+        },
+        "rights": {
+          "$ref": "#/$defs/rights"
+        },
+        "usage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "integrity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/integrity"
+            }
+          ]
+        },
+        "generation": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/generation"
+            }
+          ]
+        },
+        "speech": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/speech"
+            }
+          ]
+        },
+        "provenance_runs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/provenanceRun"
+          }
+        },
+        "subject": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["x", "y"],
+              "properties": {
+                "x": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "y": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          ]
+        },
+        "crops": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object_position": {
+                "type": "string"
+              },
+              "rect": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["x", "y", "width", "height"],
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "width": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1
+                  },
+                  "height": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1
+                  }
+                }
+              }
+            },
+            "anyOf": [
+              {
+                "required": ["object_position"]
+              },
+              {
+                "required": ["rect"]
+              }
+            ]
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "acquisition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "source_url", "captured_at"],
+      "properties": {
+        "method": {
+          "enum": [
+            "user-provided",
+            "project-owned",
+            "external-download",
+            "generated",
+            "generated-in-project"
+          ]
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "captured_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "license", "attribution", "terms_url"],
+      "properties": {
+        "status": {
+          "enum": ["confirmed", "pending", "not-required"]
+        },
+        "license": {
+          "type": "string"
+        },
+        "attribution": {
+          "type": "string"
+        },
+        "terms_url": {
+          "type": "string"
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "bytes", "mime_type"],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mime_type": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "model",
+        "prompt",
+        "seed",
+        "created_at"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "seed": {
+          "type": ["string", "number", "null"]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "speech": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider_voice_id",
+        "voice_name",
+        "language",
+        "text_sha256",
+        "exact_identity"
+      ],
+      "properties": {
+        "provider_voice_id": {
+          "type": "string"
+        },
+        "voice_name": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "text_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "exact_identity": {
+          "type": "boolean"
+        }
+      }
+    },
+    "provenanceRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recorded_at",
+        "provider",
+        "job_id",
+        "capture"
+      ],
+      "properties": {
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "job_id": {
+          "type": "string"
+        },
+        "capture": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/capture"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

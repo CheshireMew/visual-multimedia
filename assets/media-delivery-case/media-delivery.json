@@ -1,0 +1,65 @@
+{
+  "protocol": "visual-multimedia-delivery",
+  "version": 1,
+  "profile": "final",
+  "output": {
+    "file": "renders/final.mp4"
+  },
+  "media_sources": "media-sources.json",
+  "clip_selections": "clip-selections.json",
+  "adopted_source_ids": [
+    "case-avatar",
+    "case-narration"
+  ],
+  "expected": {
+    "media_kind": "video",
+    "audio_required": true,
+    "duration_seconds": 4.75,
+    "duration_tolerance_seconds": 0.1,
+    "width": 720,
+    "height": 720,
+    "frame_rate": 24,
+    "frame_rate_tolerance": 0.02
+  },
+  "analysis": {
+    "loudness": {
+      "target_lufs": null,
+      "tolerance_lu": null,
+      "true_peak_ceiling_dbfs": null
+    },
+    "silence": {
+      "noise_db": -50,
+      "minimum_duration_seconds": 0.5,
+      "maximum_unacknowledged_seconds": 0.8,
+      "allowed_ranges": []
+    },
+    "black_frames": {
+      "picture_black_ratio": 0.98,
+      "pixel_threshold": 0.1,
+      "minimum_duration_seconds": 0.1,
+      "maximum_unacknowledged_seconds": 0.1,
+      "allowed_ranges": []
+    }
+  },
+  "evidence": {
+    "captions": {
+      "required": false,
+      "file": "",
+      "font_status": "not-applicable"
+    },
+    "contact_sheet": {
+      "file": "reports/contact-sheet.jpg",
+      "frames": 8,
+      "columns": 4
+    },
+    "human_review": {
+      "status": "passed",
+      "notes": "能力案例已按最终视频、联系表和完整声音检查；不代表其它项目可以继承该状态。"
+    },
+    "rights_review": {
+      "status": "passed",
+      "notes": "案例只采用项目自有头像和现有本地测试语音。"
+    }
+  },
+  "report": "reports/media-delivery-report.json"
+}

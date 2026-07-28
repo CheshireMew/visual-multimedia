@@ -1,0 +1,24 @@
+{
+  "protocol": "visual-multimedia-clip-selections",
+  "version": 1,
+  "media_sources": "media-sources.json",
+  "maximum_clips": 3,
+  "clips": [
+    {
+      "id": "complete-narration",
+      "source_id": "case-narration",
+      "start_seconds": 0,
+      "end_seconds": 4.75,
+      "purpose": "为最终案例视频提供一段语义完整的讲解",
+      "spoken_content": true,
+      "transcript": "大家好，我是夜希，现在来测试嘴型同步。",
+      "semantic_boundary_review": {
+        "status": "passed",
+        "listened": true,
+        "waveform_checked": true,
+        "notes": "从真实 WAV 的开头听到尾句自然结束，未按标点自动截取。"
+      },
+      "intentional_repeat_reason": ""
+    }
+  ]
+}

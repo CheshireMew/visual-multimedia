@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-inset.v1",
+  "title": "Visual Multimedia Anime Avatar Inset v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "job_id",
+    "base_source_id",
+    "avatar_source_id",
+    "timing",
+    "window",
+    "audio"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-anime-avatar-inset"
+    },
+    "version": {
+      "const": 1
+    },
+    "job_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "base_source_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "avatar_source_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timeline_start_seconds",
+        "avatar_start_seconds",
+        "duration_seconds",
+        "end_behavior"
+      ],
+      "properties": {
+        "timeline_start_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "avatar_start_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "duration_seconds": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          ]
+        },
+        "end_behavior": {
+          "enum": [
+            "require-full-track",
+            "hide"
+          ]
+        }
+      }
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shape",
+        "x",
+        "y",
+        "size",
+        "avatar_crop_xywh",
+        "border",
+        "shadow"
+      ],
+      "properties": {
+        "shape": {
+          "enum": [
+            "circle",
+            "square"
+          ]
+        },
+        "x": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "y": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 4096
+        },
+        "avatar_crop_xywh": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            }
+          ],
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "border": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "width",
+            "color"
+          ],
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64
+            },
+            "color": {
+              "type": "string",
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            }
+          }
+        },
+        "shadow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "offset_x",
+            "offset_y",
+            "blur_radius",
+            "color",
+            "opacity"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "offset_x": {
+              "type": "integer",
+              "minimum": -128,
+              "maximum": 128
+            },
+            "offset_y": {
+              "type": "integer",
+              "minimum": -128,
+              "maximum": 128
+            },
+            "blur_radius": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 128
+            },
+            "color": {
+              "type": "string",
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            },
+            "opacity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "base_gain_db",
+        "avatar_gain_db"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "avatar",
+            "base",
+            "mix",
+            "none"
+          ]
+        },
+        "base_gain_db": {
+          "type": "number",
+          "minimum": -60,
+          "maximum": 12
+        },
+        "avatar_gain_db": {
+          "type": "number",
+          "minimum": -60,
+          "maximum": 12
+        }
+      }
+    }
+  }
+}

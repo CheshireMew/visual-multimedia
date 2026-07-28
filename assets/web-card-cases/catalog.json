@@ -1,0 +1,34 @@
+{
+  "cases": [
+    {
+      "id": "warm-paper-project-list",
+      "path": "warm-paper-project-list",
+      "files": {
+        "preview": "preview.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json"
+      },
+      "use_when": "多个项目、工具或资源按名称、说明、链接和数值等重复字段排成一张清单式图片",
+      "reuse": "单画布层级、共享列与分隔线、共同对齐关系、可编辑字段和固定尺寸导出链路",
+      "adapt": "标题、字段、条目数量、画布尺寸、密度、配色和署名位置由当前内容与品牌素材决定",
+      "verify": "普通浏览器窗口能看全画布，所有文字角色在整图显示时可读，捕获图与网页真源一致"
+    },
+    {
+      "id": "social-evidence-variants",
+      "path": "social-evidence-variants",
+      "files": {
+        "preview": "preview-portrait-3x4.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json"
+      },
+      "use_when": "同一份主张与证据需要制作社交卡、平台横版封面和方形封面，并为方形使用独立短标题",
+      "reuse": "清单驱动的三输出变体、稳定图层 ID、编辑证据卡风格、比例专用标题、量化检查和来源记录",
+      "adapt": "当前内容决定逐页职责、文案、证据类型、布局数量和视觉变量；只创建用户点名的比例",
+      "verify": "对每个要求布局运行 validate-editable-media.mjs，查看真实画布截图，并在 360px 缩略图尺寸检查活动标题和主体"
+    }
+  ]
+}
