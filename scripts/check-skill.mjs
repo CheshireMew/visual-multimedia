@@ -217,6 +217,8 @@ for (const avatarResource of [
   "assets/anime-avatar-prompts/master-image.md",
   "assets/anime-avatar-prompts/motion-source-video.md",
   "scripts/anime_avatar_common.py",
+  "scripts/anime_avatar_motion.py",
+  "scripts/anime_avatar_blend.py",
   "scripts/anime-avatar-project.py",
   "scripts/synthesize-avatar-speech.py",
   "scripts/render-anime-avatar.py",
@@ -391,6 +393,30 @@ if (failures.length === 0) {
   const avatarProjectSchema = readJson(
     path.join(skillRoot, "schemas", "anime-avatar-project.v1.schema.json")
   );
+  const visualVisemeSchema = readJson(
+    path.join(skillRoot, "schemas", "visual-viseme-library.v1.schema.json")
+  );
+  const gestureClipSchema = visualVisemeSchema?.$defs?.gestureClip;
+  const transitionSpanSchema = visualVisemeSchema?.$defs?.transitionSpan;
+  const vowelVisemes = ["A", "I", "U", "E", "O"];
+  if (
+    !gestureClipSchema?.required?.includes("peak_strength_level")
+    || gestureClipSchema?.properties?.peak_strength_level?.minimum !== 1
+    || gestureClipSchema?.properties?.peak_strength_level?.maximum !== 4
+  ) {
+    fail("视觉口型库没有把 1.0–4.0 的绝对峰值强度设为必填唯一契约");
+  }
+  for (const endpoint of ["from", "to"]) {
+    const enumValues = transitionSpanSchema?.properties?.[endpoint]?.enum;
+    if (
+      !Array.isArray(enumValues)
+      || enumValues.length !== vowelVisemes.length
+      || !vowelVisemes.every((viseme) => enumValues.includes(viseme))
+      || enumValues.includes("CLOSED")
+    ) {
+      fail("自然过渡片段仍接受 CLOSED，生产者与动作调度器契约不一致");
+    }
+  }
   const avatarRenderSchema = avatarProjectSchema?.properties?.render;
   if (
     avatarRenderSchema?.required?.includes("tail_seconds")
@@ -410,9 +436,139 @@ if (failures.length === 0) {
   }
   if (
     !avatarRendererSource.includes("silent_intervals")
-    || !avatarRendererSource.includes("silence_closed_match_rate")
+    || !avatarRendererSource.includes(
+      "planned_annotation_stable_pause_closed_match_rate"
+    )
+    || !avatarRendererSource.includes(
+      "planned_annotation_coarticulation_clusters"
+    )
   ) {
-    fail("二次元口播渲染器没有把所有无声区间纳入连续闭嘴动态报告");
+    fail("二次元口播渲染器没有区分稳定停顿闭嘴与协同发音微停顿");
+  }
+  for (const required of [
+    "plan_gesture_motion",
+    "blend_compatible_join_window_in_place",
+    "source_position_by_internal_frame",
+    "deterministic_join_plan",
+    "route_retry_count",
+    "micro_optical_flow_transition_count",
+    "preflight_output_resolution_join_windows",
+    "encode_silent_stream",
+    "stream_reproduction_verified",
+    "build_disk_backed_source_store",
+    "source_frame_store_is_disk_backed",
+    "maximum_resident_cached_source_frames",
+    "write_review_pages_from_video",
+    "maximum_resident_thumbnail_count",
+    "planned_annotation_realized_strength_mean_absolute_error",
+    "planned_annotation_realized_strength_p95_absolute_error",
+    "planned_annotation_required_unique_gesture_clip_count",
+    "planned_annotation_required_unique_gesture_take_count",
+    "planned_annotation_gesture_diversity_contract_satisfied",
+    "selected_gesture_take_count",
+    "unique_gesture_clip_count",
+    "maximum_same_clip_in_recent_5",
+  ]) {
+    if (!avatarRendererSource.includes(required)) {
+      fail(`二次元口播渲染器缺少新动作片段链路：${required}`);
+    }
+  }
+  for (const removed of [
+    "plan_continuous_motion",
+    "choose_source_path",
+    "allowed_jump_frames",
+    "one_frame_flow_joins",
+    "\"continuous_source_frame_by_internal_frame\"",
+    "blend_compatible_joins_in_place",
+    "forbidden_transition_pairs",
+    "full_resolution_replanning",
+    "sample_source_positions",
+    "extract_review_thumbnails",
+    "load_cropped_frames",
+    "fixed_source_library_frames_may_reside_in_memory",
+    "forbidden_transition_keys",
+    "join_window_replanning",
+    "planning-attempt-",
+    "rejected-edge replanning",
+  ]) {
+    if (avatarRendererSource.includes(removed)) {
+      fail(`二次元口播渲染器仍残留旧帧级架构：${removed}`);
+    }
+  }
+  const avatarMotionSource = fs.readFileSync(
+    path.join(scriptDir, "anime_avatar_motion.py"),
+    "utf8"
+  );
+  for (const removed of [
+    "runtime_low",
+    "plan_continuous_motion",
+    "_explicit_frame",
+    "endpoint_level",
+    "forbidden_transition_key",
+    "forbidden_transition_keys",
+  ]) {
+    if (avatarMotionSource.includes(removed)) {
+      fail(`动作片段调度器仍残留未审核帧入口或旧规划器：${removed}`);
+    }
+  }
+  if (
+    !avatarMotionSource.includes(
+      "from anime_avatar_common import VISEMES"
+    )
+    || !avatarMotionSource.includes("def plan_gesture_motion")
+    || !avatarMotionSource.includes("_MAX_SOURCE_SPEED = 2.0")
+    || !avatarMotionSource.includes(
+      "planned_annotation_coarticulation_clusters"
+    )
+    || !avatarMotionSource.includes(
+      "planned_annotation_required_minimum_boundary_gap"
+    )
+    || !avatarMotionSource.includes(
+      "planned_annotation_large_mouth_realized_core_coverage_rate"
+    )
+    || !avatarMotionSource.includes("option_pair_key")
+    || !avatarMotionSource.includes("target_strength_error")
+    || !avatarMotionSource.includes(
+      "planned_annotation_realized_strength_mean_absolute_error"
+    )
+    || !avatarMotionSource.includes(
+      "planned_annotation_selected_gesture_take_count"
+    )
+    || !avatarMotionSource.includes(
+      "planned_annotation_gesture_diversity_contract_satisfied"
+    )
+    || !avatarMotionSource.includes("entry_intensity_level")
+    || !avatarMotionSource.includes("exit_intensity_level")
+    || !avatarMotionSource.includes(
+      "compatible_matched_same_viseme_endpoint_seam"
+    )
+    || !avatarMotionSource.includes(
+      "compatible_matched_cross_viseme_endpoint_seam"
+    )
+    || !avatarMotionSource.includes("dense_chain_realized_cluster_count")
+  ) {
+    fail("动作片段调度器缺少单一真源、协同发音或物理限速");
+  }
+  const avatarBlendSource = fs.readFileSync(
+    path.join(scriptDir, "anime_avatar_blend.py"),
+    "utf8"
+  );
+  if (
+    !avatarBlendSource.includes(
+      "def blend_compatible_join_window_in_place"
+    )
+    || !avatarBlendSource.includes(
+      "full_resolution_photometric_verification"
+    )
+    || !avatarBlendSource.includes(
+      "micro_optical_flow_luma_fallback"
+    )
+    || !avatarBlendSource.includes(
+      "applied_micro_optical_flow_transition"
+    )
+    || avatarBlendSource.includes("def blend_compatible_joins_in_place")
+  ) {
+    fail("接缝器没有使用唯一四帧窗口入口或缺少输出像素复核");
   }
   runChecked(
     python,
@@ -420,12 +576,24 @@ if (failures.length === 0) {
       "-m",
       "py_compile",
       path.join(scriptDir, "anime_avatar_common.py"),
+      path.join(scriptDir, "anime_avatar_motion.py"),
+      path.join(scriptDir, "anime_avatar_blend.py"),
       path.join(scriptDir, "anime-avatar-project.py"),
       path.join(scriptDir, "synthesize-avatar-speech.py"),
       path.join(scriptDir, "render-anime-avatar.py"),
       path.join(scriptDir, "compose-anime-avatar-inset.py"),
     ],
     "二次元口播脚本语法检查"
+  );
+  runChecked(
+    python,
+    [path.join(scriptDir, "anime_avatar_motion.py"), "--self-test"],
+    "二次元口播动作片段调度器混合语音自测"
+  );
+  runChecked(
+    python,
+    [path.join(scriptDir, "anime_avatar_blend.py"), "--self-test"],
+    "二次元口播输出分辨率四帧接缝窗口自测"
   );
   runChecked(
     python,

@@ -282,19 +282,23 @@ def render_library_review(args: argparse.Namespace) -> dict:
     outputs: list[str] = []
 
     level_cells = []
-    gestures_by_id = {item["id"]: item for item in library["gesture_clips"]}
     for viseme in VOWEL_VISEMES:
         clips = [
             item for item in library["gesture_clips"] if item["viseme"] == viseme
         ]
         for clip in sorted(clips, key=lambda item: item["take"]):
+            peak_strength = float(clip["peak_strength_level"])
             for level, frame_index in enumerate(
                 clip["representative_frames_by_intensity"]
             ):
                 level_cells.append(
                     (
                         bgr_to_pil(frames[frame_index]),
-                        f"{viseme}{level} {clip['id']} f{frame_index}",
+                        (
+                            f"{viseme} rel-stage {level}/4 | "
+                            f"peak {peak_strength:g} | "
+                            f"{clip['id']} f{frame_index}"
+                        ),
                     )
                 )
     level_path = output_dir / "viseme-levels.jpg"
@@ -313,13 +317,18 @@ def render_library_review(args: argparse.Namespace) -> dict:
             [item for item in library["gesture_clips"] if item["viseme"] == viseme],
             key=lambda item: item["take"],
         ):
+            peak_strength = float(clip["peak_strength_level"])
             for level, frame_index in enumerate(
                 clip["representative_frames_by_intensity"]
             ):
                 eo_cells.append(
                     (
                         bgr_to_pil(frames[frame_index]),
-                        f"{viseme}{level} {clip['id']} f{frame_index}",
+                        (
+                            f"{viseme} rel-stage {level}/4 | "
+                            f"peak {peak_strength:g} | "
+                            f"{clip['id']} f{frame_index}"
+                        ),
                     )
                 )
     eo_path = output_dir / "E-vs-O-levels.jpg"
@@ -354,13 +363,17 @@ def render_library_review(args: argparse.Namespace) -> dict:
     )
     outputs.append(str(closed_path))
 
-    strip_cells = []
-    for clip in library["gesture_clips"]:
+    gesture_reviews = []
+    for clip_index, clip in enumerate(library["gesture_clips"], start=1):
+        entry_frame = clip["rise_frames_by_intensity"][0]
+        exit_frame = clip["fall_frames_by_intensity"][0]
+        peak_start, peak_end = clip["peak_frame_range_inclusive"]
+        peak_strength = float(clip["peak_strength_level"])
         sequence = (
             clip["rise_frames_by_intensity"]
             + list(range(
-                clip["peak_frame_range_inclusive"][0],
-                clip["peak_frame_range_inclusive"][1] + 1,
+                peak_start,
+                peak_end + 1,
             ))
             + list(reversed(clip["fall_frames_by_intensity"]))
         )
@@ -374,39 +387,216 @@ def render_library_review(args: argparse.Namespace) -> dict:
                 for index in range(13)
             ]
             selected = [selected[index] for index in positions]
+
+        strip_cells = []
         for frame_index in selected:
+            if frame_index == entry_frame:
+                role = "ENTRY=consumer"
+            elif frame_index == exit_frame:
+                role = "EXIT=consumer"
+            elif peak_start <= frame_index <= peak_end:
+                role = "PEAK"
+            else:
+                role = "path"
             strip_cells.append(
                 (
                     bgr_to_pil(frames[frame_index]),
-                    f"{clip['id']} f{frame_index}",
+                    (
+                        f"{role} | peak {peak_strength:g} | "
+                        f"f{frame_index}"
+                    ),
                 )
             )
-    for page_index, page in enumerate(
-        [strip_cells[index : index + 65] for index in range(0, len(strip_cells), 65)],
-        start=1,
-    ):
-        strip_path = output_dir / f"gesture-continuity-{page_index:02d}.jpg"
+        safe_clip_id = "".join(
+            character
+            if character.isalnum() or character in {"-", "_"}
+            else "-"
+            for character in clip["id"]
+        )
+        strip_path = output_dir / (
+            f"gesture-{clip_index:02d}-{safe_clip_id}-continuity.jpg"
+        )
         contact_sheet(
-            page,
+            strip_cells,
             strip_path,
-            columns=13,
+            columns=min(13, len(strip_cells)),
             cell_width=125,
             cell_height=125,
-            label_height=34,
+            label_height=44,
         )
         outputs.append(str(strip_path))
+        gesture_reviews.append(
+            {
+                "id": clip["id"],
+                "viseme": clip["viseme"],
+                "take": clip["take"],
+                "start_frame": clip["start_frame"],
+                "end_frame_exclusive": clip["end_frame_exclusive"],
+                "peak_strength_level": peak_strength,
+                "relative_stage_frames": {
+                    "rise_0_to_4": clip["rise_frames_by_intensity"],
+                    "fall_0_to_4": clip["fall_frames_by_intensity"],
+                    "representative_0_to_4": (
+                        clip["representative_frames_by_intensity"]
+                    ),
+                },
+                "peak_frame_range_inclusive": [peak_start, peak_end],
+                "consumer_and_review_entry_frame": entry_frame,
+                "consumer_and_review_exit_frame": exit_frame,
+                "reviewed_frame_sequence": selected,
+                "review_file": str(strip_path),
+                "ai_visual_checks": [
+                    (
+                        f"绝对峰值张口强度是 {peak_strength:g}；"
+                        "相对阶段 4 只表示本动作的峰值阶段，"
+                        "不能据此改写为绝对强度 4"
+                    ),
+                    (
+                        f"审核入口与消费者入口同为 f{entry_frame}，"
+                        f"审核出口与消费者出口同为 f{exit_frame}"
+                    ),
+                    "按低口型入口→峰值→低口型出口正序检查完整动作",
+                ],
+            }
+        )
+
+    natural_transition_reviews = []
+    for span_index, span in enumerate(
+        library["natural_transition_spans"],
+        start=1,
+    ):
+        start = span["start_frame"]
+        end = span["end_frame_exclusive"]
+        context_start = max(0, start - 1)
+        context_end = min(len(frames), end + 1)
+        span_frames = list(range(start, end))
+        span_length = len(span_frames)
+
+        transition_cells = []
+        for frame_index in range(context_start, context_end):
+            if frame_index == start - 1:
+                role = f"context before {span['from']}"
+            elif frame_index == start:
+                role = f"ENTRY {span['from']} ->"
+            elif frame_index == end - 1:
+                role = f"EXIT -> {span['to']}"
+            elif frame_index == end:
+                role = f"context after {span['to']}"
+            else:
+                role = f"path {frame_index - start + 1}/{span_length}"
+            transition_cells.append(
+                (
+                    bgr_to_pil(frames[frame_index]),
+                    f"f{frame_index} {role}",
+                )
+            )
+
+        transition_path = output_dir / (
+            f"natural-transition-{span_index:02d}-"
+            f"{span['from'].lower()}-to-{span['to'].lower()}-"
+            f"take-{span['take']}-f{start}-f{end - 1}.jpg"
+        )
+        contact_sheet(
+            transition_cells,
+            transition_path,
+            columns=min(15, len(transition_cells)),
+            cell_width=140,
+            cell_height=140,
+            label_height=34,
+        )
+        outputs.append(str(transition_path))
+        natural_transition_reviews.append(
+            {
+                "from": span["from"],
+                "to": span["to"],
+                "take": span["take"],
+                "start_frame": start,
+                "end_frame_exclusive": end,
+                "context_frame_range_inclusive": [
+                    context_start,
+                    context_end - 1,
+                ],
+                "directed_review": {
+                    "entry": {
+                        "frame": start,
+                        "expected_state": span["from"],
+                    },
+                    "ordered_span_frames": span_frames,
+                    "exit": {
+                        "frame": end - 1,
+                        "expected_state": span["to"],
+                    },
+                    "sequence": (
+                        f"{span['from']}@f{start} -> "
+                        f"every source frame in [{start}, {end}) -> "
+                        f"{span['to']}@f{end - 1}"
+                    ),
+                    "consumer_entry_frame": start,
+                    "consumer_exit_frame": end - 1,
+                    "runtime_use": (
+                        "只能按此正向完整连续区间审核；区间中间帧"
+                        "不是任意入口，也不能反向播放。"
+                    ),
+                },
+                "file": str(transition_path),
+                "ai_visual_checks": [
+                    (
+                        f"入口 f{start} 必须仍属于 {span['from']}，"
+                        f"出口 f{end - 1} 必须已经属于 {span['to']}"
+                    ),
+                    (
+                        "按 entry→完整 span→exit 的源帧正序逐格检查，"
+                        "不能跳帧、倒放或把中间帧当成另一个入口"
+                    ),
+                    "口型沿声明方向连续变化，类别由 AI 视觉判断",
+                    "头部位置与运动速度方向连续，没有瞬间跳变",
+                    "眨眼、眼神、头发、呆毛、耳朵和饰品运动方向连续",
+                ],
+            }
+        )
 
     report = {
         "ok": True,
         "validation": validation,
         "outputs": outputs,
+        "gesture_peak_strengths_by_viseme": validation[
+            "gesture_peak_strengths_by_viseme"
+        ],
+        "gesture_review_files": [
+            item["review_file"] for item in gesture_reviews
+        ],
+        "gesture_reviews": gesture_reviews,
+        "natural_transition_review_files": [
+            item["file"] for item in natural_transition_reviews
+        ],
+        "natural_transition_reviews": natural_transition_reviews,
         "required_human_or_ai_checks": [
             "A/I/U/E/O visual identity is correct",
-            "0-4 is monotonic within each vowel, not across vowels",
-            "largest openings were actually reviewed",
+            (
+                "rise/fall/representative 的 0-4 是单条动作内的相对阶段；"
+                "peak_strength_level 才是 1.0-4.0 的绝对峰值强度"
+            ),
+            (
+                "按元音核对验证报告中的可用 peak strength 与"
+                " has_strength_variation；同强度 take 不能冒充强弱素材"
+            ),
+            "每条动作标注的绝对峰值张口强度确实经过视觉审核",
             "E and O remain visually distinct",
-            "every gesture strip has a continuous rise, peak and fall",
+            (
+                "每条 gesture 审查图从消费者实际入口开始，"
+                "经过峰值，并在消费者实际出口结束"
+            ),
             "closed clips preserve natural secondary motion",
+            (
+                "每条 natural transition 必须按 entry→完整 span→exit 的"
+                "源帧正序审核；from/to 只能是 A/I/U/E/O，"
+                "中间帧不是任意入口，反向路径也不成立"
+            ),
+            (
+                "由 AI 视觉确认 natural transition 的口型方向、头部速度、"
+                "眨眼、头发和耳朵运动在完整区间内没有跳变"
+            ),
+            "代码只呈现带帧号的连续画面，不检测或推断口型",
         ],
     }
     write_json(output_dir / "library-review.json", report)
@@ -446,14 +636,29 @@ def parse_args() -> argparse.Namespace:
 
     validate_parser = subparsers.add_parser(
         "validate-library",
-        help="检查 AI 已写好的素材库结构、帧边界和质量数量",
+        help=(
+            "检查 AI 素材库的严格帧边界、绝对峰值强度、"
+            "元音自然过渡和质量数量"
+        ),
+        description=(
+            "严格验证每条 gesture 的 peak_strength_level、"
+            "[start_frame, end_frame_exclusive) 内真实帧、"
+            "fall[0] 唯一出口，以及仅限 A/I/U/E/O 的自然过渡。"
+        ),
     )
     validate_parser.add_argument("--project", required=True)
     validate_parser.set_defaults(handler=validate_library)
 
     render_parser = subparsers.add_parser(
         "render-library-review",
-        help="从 AI 标注反向生成类别、强度和连续动作审查图",
+        help=(
+            "生成明确显示绝对峰值强度及消费者实际入口/出口的"
+            "连续动作审查图"
+        ),
+        description=(
+            "为每条动作生成低→峰→低联系表，并在图片和 JSON 中"
+            "明确标出绝对峰值强度与消费者实际使用的入口、出口帧。"
+        ),
     )
     render_parser.add_argument("--project", required=True)
     render_parser.set_defaults(handler=render_library_review)

@@ -4,11 +4,17 @@
 from __future__ import annotations
 
 import argparse
+import copy
+import gc
+import hashlib
 import json
 import math
+import shutil
 import subprocess
 import sys
+import uuid
 import wave
+from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -17,15 +23,14 @@ import cv2
 import numpy as np
 from pypinyin import Style, pinyin
 
+from anime_avatar_blend import blend_compatible_join_window_in_place
 from anime_avatar_common import (
-    VISEMES,
     bgr_to_pil,
     contact_sheet,
     ensure_crop,
     executable,
     frame_cells,
     library_path,
-    load_cropped_frames,
     load_project,
     parse_xywh,
     probe_video,
@@ -35,18 +40,7 @@ from anime_avatar_common import (
     validate_media_manifest,
     write_json,
 )
-
-
-VISEME_DISTANCE = {
-    ("A", "E"): 1.1,
-    ("E", "A"): 1.1,
-    ("I", "E"): 1.3,
-    ("E", "I"): 1.3,
-    ("U", "O"): 1.2,
-    ("O", "U"): 1.2,
-    ("A", "O"): 2.2,
-    ("O", "A"): 2.2,
-}
+from anime_avatar_motion import plan_gesture_motion
 
 
 @dataclass(frozen=True)
@@ -241,7 +235,7 @@ def extract_audio(
         "-hide_banner",
         "-loglevel",
         "error",
-        "-y",
+        "-n",
         "-i",
         str(source),
         "-vn",
@@ -445,13 +439,24 @@ def source_annotation(
         if span["viseme"] == "CLOSED":
             continue
         clip = clips_by_id[span["clip_id"]]
+        peak_strength = float(clip["peak_strength_level"])
+        relative_scale = peak_strength / 4.0
         points: list[tuple[float, float]] = []
         for intensity, frame_index in enumerate(clip["rise_frames_by_intensity"]):
-            points.append((float(frame_index), float(intensity)))
+            points.append(
+                (float(frame_index), float(intensity) * relative_scale)
+            )
         peak_start, peak_end = clip["peak_frame_range_inclusive"]
-        points.extend([(float(peak_start), 4.0), (float(peak_end), 4.0)])
+        points.extend(
+            [
+                (float(peak_start), peak_strength),
+                (float(peak_end), peak_strength),
+            ]
+        )
         for intensity, frame_index in enumerate(clip["fall_frames_by_intensity"]):
-            points.append((float(frame_index), float(intensity)))
+            points.append(
+                (float(frame_index), float(intensity) * relative_scale)
+            )
         ordered: dict[float, float] = {}
         for frame_index, intensity in sorted(points):
             ordered[frame_index] = max(intensity, ordered.get(frame_index, 0.0))
@@ -462,641 +467,459 @@ def source_annotation(
     return labels, levels, takes
 
 
-def visual_descriptors(
-    frames: list[np.ndarray],
+def build_disk_backed_source_store(
+    source: Path,
+    crop: tuple[int, int, int, int],
     mouth_crop: tuple[int, int, int, int],
-) -> np.ndarray:
+    expected_frame_count: int,
+    destination: Path,
+) -> tuple[np.memmap, float, np.ndarray, dict[str, Any]]:
+    """Decode once into an exact disk-backed frame store and compact descriptors."""
+    if expected_frame_count <= 0:
+        raise ValueError("视觉口型库没有声明有效 source_frame_count")
+    capture = cv2.VideoCapture(str(source))
+    if not capture.isOpened():
+        raise ValueError(f"无法打开校准视频：{source}")
+    fps = float(capture.get(cv2.CAP_PROP_FPS))
+    frame_width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    metadata_frame_count = int(
+        round(float(capture.get(cv2.CAP_PROP_FRAME_COUNT)))
+    )
+    if (
+        metadata_frame_count > 0
+        and metadata_frame_count != expected_frame_count
+    ):
+        capture.release()
+        raise ValueError(
+            "校准视频容器帧数与视觉口型库不一致："
+            f"视频 {metadata_frame_count}，素材库 {expected_frame_count}"
+        )
+    try:
+        ensure_crop(crop, frame_width, frame_height, "source_crop_xywh")
+        x, y, width, height = crop
+        ensure_crop(mouth_crop, width, height, "mouth_review_crop_xywh")
+    except Exception:
+        capture.release()
+        raise
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    frames = np.memmap(
+        destination,
+        dtype=np.uint8,
+        mode="w+",
+        shape=(expected_frame_count, height, width, 3),
+    )
     descriptor_size = 32
-    source_height, source_width = frames[0].shape[:2]
-    x, y, width, height = mouth_crop
-    left = max(0, int(math.floor(x / source_width * descriptor_size)) - 1)
+    mouth_x, mouth_y, mouth_width, mouth_height = mouth_crop
+    left = max(0, int(math.floor(mouth_x / width * descriptor_size)) - 1)
     right = min(
         descriptor_size,
-        int(math.ceil((x + width) / source_width * descriptor_size)) + 1,
+        int(
+            math.ceil(
+                (mouth_x + mouth_width) / width * descriptor_size
+            )
+        )
+        + 1,
     )
-    top = max(0, int(math.floor(y / source_height * descriptor_size)) - 1)
+    top = max(
+        0,
+        int(math.floor(mouth_y / height * descriptor_size)) - 1,
+    )
     bottom = min(
         descriptor_size,
-        int(math.ceil((y + height) / source_height * descriptor_size)) + 1,
+        int(
+            math.ceil(
+                (mouth_y + mouth_height) / height * descriptor_size
+            )
+        )
+        + 1,
     )
-    descriptors = []
-    for frame in frames:
-        small = cv2.resize(
-            frame,
-            (descriptor_size, descriptor_size),
-            interpolation=cv2.INTER_AREA,
-        )
-        lab = cv2.cvtColor(small, cv2.COLOR_BGR2LAB).astype(np.float32) / 255.0
-        weights = np.ones((descriptor_size, descriptor_size, 1), dtype=np.float32)
-        weights[top:bottom, left:right] = 0.0
-        descriptors.append((lab * weights).reshape(-1))
-    return np.asarray(descriptors, dtype=np.float32)
-
-
-def build_idle_path(
-    library: dict[str, Any],
-    descriptors: np.ndarray,
-    frame_count: int,
-    previous_source_frame: int | None,
-    next_source_frame: int | None,
-) -> tuple[np.ndarray, dict[str, Any]]:
-    if frame_count <= 0:
-        return (
-            np.zeros(0, dtype=np.int32),
-            {"frame_count": 0, "clip_sequence": []},
-        )
-    clips: list[dict[str, Any]] = []
-    for item in library["closed_motion_clips"]:
-        start = int(item["start_frame"])
-        end = int(item["end_frame_exclusive"])
-        if end - start < 3:
-            continue
-        clips.append(
-            {
-                "id": item["id"],
-                "start": start,
-                "end": end,
-                "frames": np.arange(start, end, dtype=np.int32),
-            }
-        )
-    if not clips:
-        raise ValueError("素材库没有可用于无声待机的连续闭嘴动作段")
-
-    output: list[int] = []
-    sequence: list[dict[str, Any]] = []
-    usage = {clip["id"]: 0 for clip in clips}
-    previous_clip_id: str | None = None
-    previous = (
-        int(previous_source_frame)
-        if previous_source_frame is not None
-        else None
+    weights = np.ones(
+        (descriptor_size, descriptor_size, 1),
+        dtype=np.float32,
     )
-    while len(output) < frame_count:
-        remaining = frame_count - len(output)
-        candidates: list[tuple[float, dict[str, Any], np.ndarray]] = []
-        for clip in clips:
-            clip_frames = clip["frames"]
-            if remaining <= len(clip_frames):
-                chunks = [
-                    clip_frames[offset : offset + remaining]
-                    for offset in range(len(clip_frames) - remaining + 1)
-                ]
-            else:
-                chunks = [clip_frames]
-            for chunk in chunks:
-                start_cost = (
-                    float(
-                        np.sqrt(
-                            np.mean(
-                                (
-                                    descriptors[previous]
-                                    - descriptors[int(chunk[0])]
-                                )
-                                ** 2
-                            )
-                        )
-                    )
-                    if previous is not None
-                    else 0.0
+    weights[top:bottom, left:right] = 0.0
+    descriptors = np.empty(
+        (expected_frame_count, descriptor_size * descriptor_size * 3),
+        dtype=np.float32,
+    )
+    decoded = 0
+    try:
+        while decoded < expected_frame_count:
+            ok, frame = capture.read()
+            if not ok:
+                raise ValueError(
+                    "校准视频实际帧数少于视觉口型库声明："
+                    f"声明 {expected_frame_count}，读取 {decoded}"
                 )
-                finishes_interval = len(chunk) == remaining
-                end_cost = (
-                    float(
-                        np.sqrt(
-                            np.mean(
-                                (
-                                    descriptors[int(chunk[-1])]
-                                    - descriptors[int(next_source_frame)]
-                                )
-                                ** 2
-                            )
-                        )
-                    )
-                    if finishes_interval and next_source_frame is not None
-                    else 0.0
-                )
-                repeat_penalty = (
-                    0.04 if clip["id"] == previous_clip_id else 0.0
-                )
-                usage_penalty = 0.006 * usage[clip["id"]]
-                coverage_reward = 0.0002 * len(chunk)
-                candidates.append(
-                    (
-                        start_cost
-                        + 0.9 * end_cost
-                        + repeat_penalty
-                        + usage_penalty
-                        - coverage_reward,
-                        clip,
-                        chunk,
-                    )
-                )
-        _, chosen, chunk = min(
-            candidates,
-            key=lambda item: (
-                item[0],
-                item[1]["id"],
-                int(item[2][0]),
-            ),
-        )
-        output_start = len(output)
-        output.extend(int(value) for value in chunk)
-        sequence.append(
-            {
-                "clip_id": chosen["id"],
-                "source_start_frame": int(chunk[0]),
-                "source_end_frame_exclusive": int(chunk[-1]) + 1,
-                "output_start_frame": output_start,
-                "output_end_frame_exclusive": len(output),
-            }
-        )
-        usage[chosen["id"]] += 1
-        previous_clip_id = chosen["id"]
-        previous = output[-1]
+            cropped = frame[y : y + height, x : x + width]
+            frames[decoded] = cropped
+            small = cv2.resize(
+                cropped,
+                (descriptor_size, descriptor_size),
+                interpolation=cv2.INTER_AREA,
+            )
+            lab = (
+                cv2.cvtColor(small, cv2.COLOR_BGR2LAB).astype(np.float32)
+                / 255.0
+            )
+            descriptors[decoded] = (lab * weights).reshape(-1)
+            decoded += 1
+        extra_ok, _ = capture.read()
+        if extra_ok:
+            raise ValueError(
+                "校准视频实际帧数多于视觉口型库声明："
+                f"声明 {expected_frame_count}"
+            )
+    finally:
+        capture.release()
+        frames.flush()
+    if fps <= 0:
+        raise ValueError(f"校准视频没有有效帧率：{source}")
+    shape = (expected_frame_count, height, width, 3)
+    store_bytes = int(frames.size * frames.dtype.itemsize)
+    writable_mmap_handle = getattr(frames, "_mmap", None)
+    if writable_mmap_handle is not None:
+        writable_mmap_handle.close()
+    frames = np.memmap(
+        destination,
+        dtype=np.uint8,
+        mode="r",
+        shape=shape,
+    )
     return (
-        np.asarray(output, dtype=np.int32),
+        frames,
+        fps,
+        descriptors,
         {
-            "method": (
-                "AI-reviewed continuous CLOSED clips, joined by whole-frame "
-                "visual continuity at both ends"
-            ),
-            "frame_count": frame_count,
-            "clip_sequence": sequence,
-            "clip_usage": usage,
+            "storage": "disk_backed_uint8_memmap",
+            "path": str(destination),
+            "shape": list(shape),
+            "bytes": store_bytes,
+            "descriptor_shape": list(descriptors.shape),
+            "container_reported_frame_count": metadata_frame_count,
+            "full_resolution_source_frames_loaded_as_python_objects": 0,
         },
     )
 
 
-def boolean_runs(mask: np.ndarray, value: bool) -> list[tuple[int, int]]:
-    runs: list[tuple[int, int]] = []
-    start: int | None = None
-    for index, item in enumerate(mask):
-        if bool(item) == value and start is None:
-            start = index
-        if bool(item) != value and start is not None:
-            runs.append((start, index))
-            start = None
-    if start is not None:
-        runs.append((start, len(mask)))
-    return runs
+class SourceFrameSampler:
+    """Random-access source sampler with a fixed-size resize cache."""
 
-
-def summarize_timeline_path(
-    path: np.ndarray,
-    target_labels: list[str],
-    target_levels: np.ndarray,
-    anchors: list[str | None],
-    roles: list[str],
-    source_labels: list[str],
-    source_levels: np.ndarray,
-    source_takes: np.ndarray,
-    active_segments: list[dict[str, Any]],
-    silent_intervals: list[dict[str, Any]],
-) -> tuple[list[int], dict[str, Any]]:
-    steps = np.diff(path)
-    boundaries = [
-        index + 1 for index, step in enumerate(steps) if step not in (1, 2)
-    ]
-    exact_match = np.asarray(
-        [
-            target_labels[index] == source_labels[source_index]
-            for index, source_index in enumerate(path)
-        ],
-        dtype=bool,
-    )
-    target_nonclosed = np.asarray(target_labels) != "CLOSED"
-    anchor_mask = np.asarray([anchor is not None for anchor in anchors], dtype=bool)
-    anchor_match = np.asarray(
-        [
-            anchor is None or anchor == source_labels[source_index]
-            for anchor, source_index in zip(anchors, path)
-        ],
-        dtype=bool,
-    )
-    silence_mask = np.asarray([role == "silence" for role in roles], dtype=bool)
-    selected_takes = source_takes[path]
-    takes_by_viseme: dict[str, list[int]] = {}
-    for viseme in VISEMES:
-        takes_by_viseme[viseme] = sorted(
-            {
-                int(selected_takes[index])
-                for index, label in enumerate(target_labels)
-                if label == viseme
-            }
+    def __init__(
+        self,
+        frames: np.ndarray,
+        width: int,
+        height: int,
+        *,
+        cache_size: int = 8,
+    ) -> None:
+        if len(frames) == 0:
+            raise ValueError("校准视频没有可采样帧")
+        if width <= 0 or height <= 0:
+            raise ValueError("输出尺寸必须大于 0")
+        if cache_size < 2:
+            raise ValueError("采样缓存至少需要容纳两帧")
+        self.frames = frames
+        self.width = width
+        self.height = height
+        self.cache_size = cache_size
+        source_height, source_width = frames[0].shape[:2]
+        self.source_width = source_width
+        self.source_height = source_height
+        self.interpolation = (
+            cv2.INTER_AREA
+            if source_width >= width and source_height >= height
+            else cv2.INTER_CUBIC
         )
-    silence_steps = np.asarray(
-        [
-            int(path[index]) - int(path[index - 1])
-            for index in range(1, len(path))
-            if silence_mask[index] and silence_mask[index - 1]
-        ],
-        dtype=np.int32,
-    )
-    report = {
-        "method": (
-            "Mandarin phone nuclei on speaking intervals plus AI-reviewed "
-            "continuous CLOSED motion on every silent interval"
-        ),
-        "active_segments": active_segments,
-        "silent_intervals": silent_intervals,
-        "path_jump_count": len(boundaries),
-        "boundary_output_frames": boundaries,
-        "identical_source_frame_holds": int(np.sum(steps == 0)),
-        "silence_identical_source_frame_holds": (
-            int(np.sum(silence_steps == 0)) if len(silence_steps) else 0
-        ),
-        "exact_viseme_match_rate": round(float(np.mean(exact_match)), 5),
-        "speech_viseme_match_rate": round(
-            float(np.mean(exact_match[target_nonclosed]))
-            if np.any(target_nonclosed)
-            else 1.0,
-            5,
-        ),
-        "silence_closed_match_rate": round(
-            float(
-                np.mean(
-                    np.asarray(source_labels, dtype=object)[path[silence_mask]]
-                    == "CLOSED"
-                )
+        self.resized_cache: OrderedDict[int, np.ndarray] = OrderedDict()
+        self.maximum_resident_cached_frames = 0
+
+    def validate_positions(self, source_positions: np.ndarray) -> np.ndarray:
+        positions = np.asarray(source_positions, dtype=np.float64)
+        if positions.ndim != 1 or not len(positions):
+            raise ValueError("source_positions 必须是一维非空数组")
+        if not np.isfinite(positions).all():
+            raise ValueError("source_positions 含非有限数值")
+        if (
+            float(np.min(positions)) < 0
+            or float(np.max(positions)) > len(self.frames) - 1
+        ):
+            raise ValueError("source_positions 超出校准视频帧范围")
+        return positions
+
+    def _resized(self, index: int) -> np.ndarray:
+        cached = self.resized_cache.get(index)
+        if cached is not None:
+            self.resized_cache.move_to_end(index)
+            return cached
+        source = self.frames[index]
+        value = (
+            source
+            if (self.source_width, self.source_height)
+            == (self.width, self.height)
+            else cv2.resize(
+                source,
+                (self.width, self.height),
+                interpolation=self.interpolation,
             )
-            if np.any(silence_mask)
-            else 1.0,
-            5,
-        ),
-        "phone_nucleus_match_rate": round(
-            float(np.mean(anchor_match[anchor_mask]))
-            if np.any(anchor_mask)
-            else 1.0,
-            5,
-        ),
-        "takes_used_by_target_viseme": takes_by_viseme,
-        "source_step_counts": {
-            str(step): int(np.sum(steps == step))
-            for step in sorted(set(int(value) for value in steps))
-        },
-    }
-    return boundaries, report
-
-
-def plan_timeline_path(
-    target_labels: list[str],
-    target_levels: np.ndarray,
-    anchors: list[str | None],
-    roles: list[str],
-    source_labels: list[str],
-    source_levels: np.ndarray,
-    source_takes: np.ndarray,
-    descriptors: np.ndarray,
-    library: dict[str, Any],
-    fps: int,
-) -> tuple[np.ndarray, list[int], dict[str, Any]]:
-    frame_count = len(target_labels)
-    silence_mask = np.asarray([role == "silence" for role in roles], dtype=bool)
-    path = np.full(frame_count, -1, dtype=np.int32)
-    active_segments: list[dict[str, Any]] = []
-
-    for start, end in boolean_runs(silence_mask, False):
-        segment_path, _, segment_report = choose_source_path(
-            target_labels[start:end],
-            target_levels[start:end],
-            anchors[start:end],
-            source_labels,
-            source_levels,
-            source_takes,
-            descriptors,
         )
-        path[start:end] = segment_path
-        active_segments.append(
-            {
-                "start_frame": start,
-                "end_frame_exclusive": end,
-                "start_seconds": round(start / fps, 6),
-                "end_seconds": round(end / fps, 6),
-                "selection": segment_report,
-            }
+        self.resized_cache[index] = value
+        self.resized_cache.move_to_end(index)
+        while len(self.resized_cache) > self.cache_size:
+            self.resized_cache.popitem(last=False)
+        self.maximum_resident_cached_frames = max(
+            self.maximum_resident_cached_frames,
+            len(self.resized_cache),
         )
+        return value
 
-    silent_intervals: list[dict[str, Any]] = []
-    for start, end in boolean_runs(silence_mask, True):
-        previous_source = int(path[start - 1]) if start > 0 else None
-        next_source = int(path[end]) if end < frame_count else None
-        idle_path, idle_report = build_idle_path(
-            library,
-            descriptors,
-            end - start,
-            previous_source,
-            next_source,
-        )
-        path[start:end] = idle_path
-        if start == 0:
-            kind = "leading"
-        elif end == frame_count:
-            kind = "trailing"
-        else:
-            kind = "internal"
-        silent_intervals.append(
-            {
-                "kind": kind,
-                "start_frame": start,
-                "end_frame_exclusive": end,
-                "start_seconds": round(start / fps, 6),
-                "end_seconds": round(end / fps, 6),
-                **idle_report,
-            }
-        )
-
-    if np.any(path < 0):
-        raise RuntimeError("完整时间线仍有未规划的角色帧")
-    boundaries, selection = summarize_timeline_path(
-        path,
-        target_labels,
-        target_levels,
-        anchors,
-        roles,
-        source_labels,
-        source_levels,
-        source_takes,
-        active_segments,
-        silent_intervals,
-    )
-    return path, boundaries, selection
-
-
-def pairwise_rms(values: np.ndarray) -> np.ndarray:
-    squared = np.sum(values * values, axis=1)
-    distances = squared[:, None] + squared[None, :] - 2.0 * values @ values.T
-    np.maximum(distances, 0.0, out=distances)
-    return np.sqrt(distances / values.shape[1])
-
-
-def viseme_cost(target: str, source: str) -> float:
-    if target == source:
-        return 0.0
-    if target == "CLOSED" or source == "CLOSED":
-        return 7.0
-    return VISEME_DISTANCE.get((target, source), 3.2)
-
-
-def allowed_jump_frames(anchors: list[str | None]) -> list[int]:
-    candidates: set[int] = set()
-    for frame_index, anchor in enumerate(anchors):
-        if anchor is None:
-            continue
-        candidates.add(frame_index)
-        if frame_index > 0:
-            candidates.add(frame_index - 1)
-    return sorted(candidates)
-
-
-def choose_source_path(
-    target_labels: list[str],
-    target_levels: np.ndarray,
-    anchors: list[str | None],
-    source_labels: list[str],
-    source_levels: np.ndarray,
-    source_takes: np.ndarray,
-    descriptors: np.ndarray,
-) -> tuple[np.ndarray, list[int], dict[str, Any]]:
-    frame_count = len(target_labels)
-    source_count = len(source_labels)
-    visual_distance = pairwise_rms(descriptors)
-
-    transition = (
-        0.95
-        + 52.0 * visual_distance
-        + 0.10 * np.abs(source_levels[:, None] - source_levels[None, :])
-        + 0.18 * (source_takes[:, None] == source_takes[None, :])
-    ).astype(np.float32)
-    np.fill_diagonal(transition, np.inf)
-    for source_index in range(source_count):
-        if source_index + 1 < source_count:
-            transition[source_index, source_index + 1] = 0.0
-        if source_index + 2 < source_count:
-            transition[source_index, source_index + 2] = 0.08
-
-    source_phase = np.linspace(0.0, 1.0, source_count, dtype=np.float32)
-    output_phase = np.linspace(0.0, 1.0, frame_count, dtype=np.float32)
-    emission = np.zeros((frame_count, source_count), dtype=np.float32)
-    source_labels_array = np.asarray(source_labels)
-    for output_index, target_label in enumerate(target_labels):
-        emission[output_index] = (
-            3.0
-            * np.asarray(
-                [
-                    viseme_cost(target_label, source_label)
-                    for source_label in source_labels
-                ],
-                dtype=np.float32,
-            )
-            + 2.35 * (source_levels - target_levels[output_index]) ** 2
-            + 0.38 * np.abs(source_phase - output_phase[output_index])
-        )
-        anchor = anchors[output_index]
-        if anchor is not None:
-            emission[output_index, source_labels_array != anchor] = np.inf
-            emission[output_index] += (
-                1.8 * (source_levels - target_levels[output_index]) ** 2
-            )
-
-    natural_edge = np.zeros((source_count, source_count), dtype=bool)
-    rows = np.arange(source_count - 1)
-    natural_edge[rows, rows + 1] = True
-    rows = np.arange(source_count - 2)
-    natural_edge[rows, rows + 2] = True
-    jump_frames = allowed_jump_frames(anchors)
-    jump_set = set(jump_frames)
-
-    back_dtype = np.int16 if source_count < np.iinfo(np.int16).max else np.int32
-    back = np.zeros((frame_count, source_count), dtype=back_dtype)
-    previous = emission[0].copy()
-    for output_index in range(1, frame_count):
-        scores = previous[:, None] + transition
-        if output_index not in jump_set:
-            scores = np.where(natural_edge, scores, np.inf)
-        best_previous = np.argmin(scores, axis=0)
-        best_cost = scores[best_previous, np.arange(source_count)]
-        back[output_index] = best_previous.astype(back_dtype)
-        previous = best_cost + emission[output_index]
-        if not np.isfinite(previous).any():
-            raise RuntimeError(
-                f"第 {output_index} 个输出帧没有可行素材路径；检查素材库覆盖和音节核心标签"
-            )
-
-    path = np.zeros(frame_count, dtype=np.int32)
-    path[-1] = int(np.argmin(previous))
-    for output_index in range(frame_count - 1, 0, -1):
-        path[output_index - 1] = back[output_index, path[output_index]]
-
-    steps = np.diff(path)
-    boundaries = [
-        index + 1 for index, step in enumerate(steps) if step not in (1, 2)
-    ]
-    exact_match = np.asarray(
-        [
-            target_labels[index] == source_labels[source_index]
-            for index, source_index in enumerate(path)
-        ],
-        dtype=bool,
-    )
-    target_nonclosed = np.asarray(target_labels) != "CLOSED"
-    anchor_mask = np.asarray([anchor is not None for anchor in anchors], dtype=bool)
-    anchor_match = np.asarray(
-        [
-            anchor is None or anchor == source_labels[source_index]
-            for anchor, source_index in zip(anchors, path)
-        ],
-        dtype=bool,
-    )
-    selected_takes = source_takes[path]
-    takes_by_viseme: dict[str, list[int]] = {}
-    for viseme in VISEMES:
-        takes_by_viseme[viseme] = sorted(
-            {
-                int(selected_takes[index])
-                for index, label in enumerate(target_labels)
-                if label == viseme
-            }
-        )
-    report = {
-        "method": (
-            "Mandarin phone nuclei + within-syllable acoustic intensity + "
-            "AI-reviewed whole-frame viseme library + coarticulated motion graph"
-        ),
-        "phone_nucleus_anchor_count": int(np.sum(anchor_mask)),
-        "candidate_jump_output_frames": jump_frames,
-        "path_jump_count": len(boundaries),
-        "boundary_output_frames": boundaries,
-        "identical_source_frame_holds": int(np.sum(steps == 0)),
-        "exact_viseme_match_rate": round(float(np.mean(exact_match)), 5),
-        "speech_viseme_match_rate": round(
-            float(np.mean(exact_match[target_nonclosed]))
-            if np.any(target_nonclosed)
-            else 1.0,
-            5,
-        ),
-        "phone_nucleus_match_rate": round(
-            float(np.mean(anchor_match[anchor_mask]))
-            if np.any(anchor_mask)
-            else 1.0,
-            5,
-        ),
-        "takes_used_by_target_viseme": takes_by_viseme,
-        "source_step_counts": {
-            str(step): int(np.sum(steps == step))
-            for step in sorted(set(int(value) for value in steps))
-        },
-    }
-    return path, boundaries, report
-
-
-def resize_frames(
-    frames: list[np.ndarray],
-    width: int,
-    height: int,
-) -> list[np.ndarray]:
-    interpolation = (
-        cv2.INTER_AREA
-        if frames[0].shape[1] >= width and frames[0].shape[0] >= height
-        else cv2.INTER_CUBIC
-    )
-    return [
-        cv2.resize(frame, (width, height), interpolation=interpolation)
-        for frame in frames
-    ]
-
-
-def one_frame_flow_joins(
-    portraits: list[np.ndarray],
-    boundaries: list[int],
-) -> list[np.ndarray]:
-    result = [portrait.copy() for portrait in portraits]
-    full_height, full_width = result[0].shape[:2]
-    grid_x, grid_y = np.meshgrid(
-        np.arange(full_width, dtype=np.float32),
-        np.arange(full_height, dtype=np.float32),
-    )
-    flow_scale = min(1.0, 480.0 / max(full_width, full_height))
-    flow_width = max(2, int(round(full_width * flow_scale)))
-    flow_height = max(2, int(round(full_height * flow_scale)))
-    for boundary in boundaries:
-        if boundary < 1 or boundary >= len(result):
-            continue
-        first = portraits[boundary - 1]
-        second = portraits[boundary]
-        first_gray = cv2.resize(
-            cv2.cvtColor(first, cv2.COLOR_BGR2GRAY),
-            (flow_width, flow_height),
-            interpolation=cv2.INTER_AREA,
-        )
-        second_gray = cv2.resize(
-            cv2.cvtColor(second, cv2.COLOR_BGR2GRAY),
-            (flow_width, flow_height),
-            interpolation=cv2.INTER_AREA,
-        )
-        estimator = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_MEDIUM)
-        estimator.setFinestScale(0)
-        forward = estimator.calc(first_gray, second_gray, None)
-        backward = estimator.calc(second_gray, first_gray, None)
-        if flow_scale < 1.0:
-            forward = cv2.resize(
-                forward,
-                (full_width, full_height),
-                interpolation=cv2.INTER_LINEAR,
-            )
-            backward = cv2.resize(
-                backward,
-                (full_width, full_height),
-                interpolation=cv2.INTER_LINEAR,
-            )
-            forward[..., 0] *= full_width / flow_width
-            forward[..., 1] *= full_height / flow_height
-            backward[..., 0] *= full_width / flow_width
-            backward[..., 1] *= full_height / flow_height
-        amount = 0.58
-        first_warped = cv2.remap(
-            first,
-            grid_x - amount * forward[..., 0],
-            grid_y - amount * forward[..., 1],
-            cv2.INTER_CUBIC,
-            borderMode=cv2.BORDER_REPLICATE,
-        )
-        second_warped = cv2.remap(
-            second,
-            grid_x - (1.0 - amount) * backward[..., 0],
-            grid_y - (1.0 - amount) * backward[..., 1],
-            cv2.INTER_CUBIC,
-            borderMode=cv2.BORDER_REPLICATE,
-        )
-        result[boundary] = cv2.addWeighted(
-            first_warped,
+    def sample(self, position: float) -> np.ndarray:
+        value = float(position)
+        if not math.isfinite(value) or value < 0 or value > len(self.frames) - 1:
+            raise ValueError(f"源时间位置越界：{value}")
+        left = int(math.floor(value))
+        right = min(len(self.frames) - 1, left + 1)
+        amount = value - left
+        if right == left or amount <= 1e-6:
+            return self._resized(left).copy()
+        if amount >= 1.0 - 1e-6:
+            return self._resized(right).copy()
+        return cv2.addWeighted(
+            self._resized(left),
             1.0 - amount,
-            second_warped,
+            self._resized(right),
             amount,
             0.0,
         )
-    return result
+
+    def close(self) -> None:
+        self.resized_cache.clear()
+        if isinstance(self.frames, np.memmap):
+            self.frames.flush()
+            mmap_handle = getattr(self.frames, "_mmap", None)
+            if mmap_handle is not None:
+                mmap_handle.close()
 
 
-def encode_silent(
+def frame_sha256(frame: np.ndarray) -> str:
+    contiguous = np.ascontiguousarray(frame)
+    return hashlib.sha256(memoryview(contiguous).cast("B")).hexdigest()
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        while chunk := source.read(1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def validate_task_id(value: str) -> str:
+    if (
+        not value
+        or len(value) > 120
+        or any(
+            character
+            not in "abcdefghijklmnopqrstuvwxyz"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+            for character in value
+        )
+        or value in {".", ".."}
+        or value.startswith(".")
+    ):
+        raise ValueError(
+            "task-id 只能使用 1 至 120 个字母、数字、点、横线或下划线，"
+            "且不能以点开头"
+        )
+    return value
+
+
+def normalized_boundaries(
+    boundaries: list[int],
+    frame_count: int,
+) -> list[int]:
+    values = [int(value) for value in boundaries]
+    if values != sorted(set(values)):
+        raise RuntimeError("规划器返回的接缝必须严格递增且不能重复")
+    for boundary in values:
+        if boundary < 1 or boundary >= frame_count:
+            raise RuntimeError(f"规划器返回越界接缝：{boundary}")
+    crowded = [
+        [first, second]
+        for first, second in zip(values, values[1:])
+        if second - first < 3
+    ]
+    if crowded:
+        raise RuntimeError(
+            "规划器返回的接缝窗口相互重叠："
+            + json.dumps(crowded, ensure_ascii=False)
+        )
+    return values
+
+
+def preflight_output_resolution_join_windows(
+    sampler: SourceFrameSampler,
+    source_positions: np.ndarray,
+    boundaries: list[int],
+    cache: dict[tuple[int, ...], dict[str, Any]],
+) -> list[dict[str, Any]]:
+    positions = sampler.validate_positions(source_positions)
+    values = normalized_boundaries(boundaries, len(positions))
+    reports: list[dict[str, Any]] = []
+    for input_index, boundary in enumerate(values):
+        if boundary < 2 or boundary + 1 >= len(positions):
+            raise RuntimeError(
+                f"接缝 {boundary} 没有完整的前后自然动作上下文"
+            )
+        window_start = boundary - 2
+        window_end = boundary + 2
+        local_boundary = boundary - window_start
+        key = tuple(
+            int(value)
+            for value in np.asarray(
+                positions[window_start:window_end],
+                dtype=np.float32,
+            ).view(np.uint32)
+        )
+        cached = cache.get(key)
+        cache_hit = cached is not None
+        if cached is None:
+            window = [
+                sampler.sample(float(positions[frame_index]))
+                for frame_index in range(window_start, window_end)
+            ]
+            local_report = blend_compatible_join_window_in_place(
+                window,
+                local_boundary,
+            )
+            cached = {
+                "local_report": copy.deepcopy(local_report),
+                "blended_window_sha256": (
+                    [frame_sha256(frame) for frame in window]
+                    if local_report.get("applied") is True
+                    else None
+                ),
+            }
+            cache[key] = cached
+        report = copy.deepcopy(cached["local_report"])
+        local_output_indices = [
+            int(value)
+            for value in report.get("output_frame_indices") or []
+        ]
+        if report.get("applied") is True and not local_output_indices:
+            raise RuntimeError(
+                f"接缝 {boundary} 已应用，但 blend 未声明写回帧"
+            )
+        if any(
+            value < 0 or value >= window_end - window_start
+            for value in local_output_indices
+        ):
+            raise RuntimeError(
+                f"接缝 {boundary} 的 blend 写回位置越出小窗口"
+            )
+        global_output_indices = [
+            window_start + value for value in local_output_indices
+        ]
+        report.update(
+            {
+                "input_index": input_index,
+                "boundary": boundary,
+                "window": [boundary - 1, boundary],
+                "blend_input_window": [window_start, window_end],
+                "blend_input_frame_indices": list(
+                    range(window_start, window_end)
+                ),
+                "local_boundary": local_boundary,
+                "local_output_frame_indices": local_output_indices,
+                "output_frame_indices": global_output_indices,
+                "preflight_output_resolution_join_window": True,
+                "preflight_cache_hit": cache_hit,
+            }
+        )
+        if report.get("applied") is True:
+            report["preflight_blended_window_sha256"] = list(
+                cached["blended_window_sha256"]
+            )
+            report["preflight_output_frame_sha256"] = [
+                report["preflight_blended_window_sha256"][index]
+                for index in local_output_indices
+            ]
+        reports.append(report)
+
+    accepted = [
+        report for report in reports if report.get("applied") is True
+    ]
+    for index, first in enumerate(accepted):
+        first_outputs = set(first["output_frame_indices"])
+        for second in accepted[index + 1 :]:
+            second_outputs = set(second["output_frame_indices"])
+            second_input = set(second["blend_input_frame_indices"])
+            first_input = set(first["blend_input_frame_indices"])
+            if (
+                first_outputs & second_outputs
+                or first_outputs & second_input
+                or second_outputs & first_input
+            ):
+                raise RuntimeError(
+                    "相邻接缝的小窗口写回范围相互影响，无法独立预检并"
+                    "确定性流式复现："
+                    + json.dumps(
+                        [
+                            int(first["boundary"]),
+                            int(second["boundary"]),
+                        ],
+                        ensure_ascii=False,
+                    )
+                )
+    return reports
+
+
+def write_raw_frame(stream: Any, frame: np.ndarray) -> None:
+    contiguous = np.ascontiguousarray(frame)
+    stream.write(memoryview(contiguous).cast("B"))
+
+
+def encode_silent_stream(
     ffmpeg: str,
-    frames: list[np.ndarray],
+    sampler: SourceFrameSampler,
+    source_positions: np.ndarray,
+    boundaries: list[int],
+    join_reports: list[dict[str, Any]],
     fps: int,
     destination: Path,
-) -> None:
-    height, width = frames[0].shape[:2]
+) -> dict[str, Any]:
+    positions = sampler.validate_positions(source_positions)
+    values = normalized_boundaries(boundaries, len(positions))
+    if len(join_reports) != len(values):
+        raise RuntimeError("流式编码前的接缝报告数量与最终接缝数量不一致")
+    report_by_boundary = {
+        int(report["boundary"]): report for report in join_reports
+    }
+    if sorted(report_by_boundary) != values:
+        raise RuntimeError("流式编码前的接缝报告与最终接缝位置不一致")
+    if any(report.get("applied") is not True for report in join_reports):
+        raise RuntimeError("存在未通过完整分辨率预检的接缝，拒绝开始编码")
+    operations = sorted(
+        join_reports,
+        key=lambda report: min(report["output_frame_indices"]),
+    )
+    if any(not report["output_frame_indices"] for report in operations):
+        raise RuntimeError("接缝报告没有声明需要流式写回的画面帧")
+
     destination.parent.mkdir(parents=True, exist_ok=True)
     command = [
         ffmpeg,
         "-hide_banner",
         "-loglevel",
         "error",
-        "-y",
+        "-n",
         "-f",
         "rawvideo",
         "-pix_fmt",
         "bgr24",
         "-s:v",
-        f"{width}x{height}",
+        f"{sampler.width}x{sampler.height}",
         "-r",
         str(fps),
         "-i",
@@ -1116,9 +939,122 @@ def encode_silent(
     ]
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     assert process.stdin is not None
+    frames_written = 0
+    reproduced_joins = 0
+    maximum_resident_output_frames = 1
     try:
-        for frame in frames:
-            process.stdin.write(np.ascontiguousarray(frame).tobytes())
+        frame_index = 0
+        operation_index = 0
+        pending_frames: dict[int, np.ndarray] = {}
+        while frame_index < len(positions):
+            while operation_index < len(operations):
+                expected = operations[operation_index]
+                output_indices = [
+                    int(value)
+                    for value in expected["output_frame_indices"]
+                ]
+                first_output = min(output_indices)
+                if first_output > frame_index:
+                    break
+                if first_output < frame_index:
+                    raise RuntimeError(
+                        "接缝流式复现启动过晚："
+                        f"boundary={expected['boundary']}, "
+                        f"first_output={first_output}, current={frame_index}"
+                    )
+                window_start, window_end = [
+                    int(value) for value in expected["blend_input_window"]
+                ]
+                window = [
+                    sampler.sample(float(positions[index]))
+                    for index in range(window_start, window_end)
+                ]
+                maximum_resident_output_frames = max(
+                    maximum_resident_output_frames,
+                    len(window) + len(pending_frames),
+                )
+                local_boundary = int(expected["local_boundary"])
+                stream_report = blend_compatible_join_window_in_place(
+                    window,
+                    local_boundary,
+                )
+                if stream_report.get("applied") is not True:
+                    raise RuntimeError(
+                        "接缝通过预检后在流式复现阶段失败："
+                        + json.dumps(
+                            {
+                                "boundary": expected["boundary"],
+                                "reason": stream_report.get("reason"),
+                                "failed_checks": stream_report.get(
+                                    "failed_checks"
+                                ),
+                            },
+                            ensure_ascii=False,
+                        )
+                    )
+                window_hashes = [frame_sha256(frame) for frame in window]
+                expected_window_hashes = expected.get(
+                    "preflight_blended_window_sha256"
+                )
+                if window_hashes != expected_window_hashes:
+                    raise RuntimeError(
+                        f"接缝 {expected['boundary']} 的流式小窗口结果"
+                        "与预检结果不一致"
+                    )
+                local_output_indices = [
+                    int(value)
+                    for value in expected["local_output_frame_indices"]
+                ]
+                stream_output_indices = [
+                    int(value)
+                    for value in stream_report.get(
+                        "output_frame_indices"
+                    )
+                    or []
+                ]
+                if stream_output_indices != local_output_indices:
+                    raise RuntimeError(
+                        f"接缝 {expected['boundary']} 的流式写回范围"
+                        "与预检不一致"
+                    )
+                output_hashes = [
+                    frame_sha256(window[index])
+                    for index in local_output_indices
+                ]
+                if output_hashes != expected.get(
+                    "preflight_output_frame_sha256"
+                ):
+                    raise RuntimeError(
+                        f"接缝 {expected['boundary']} 的流式写回帧"
+                        "与预检不一致"
+                    )
+                for local_index, output_index in zip(
+                    local_output_indices,
+                    output_indices,
+                    strict=True,
+                ):
+                    if output_index in pending_frames:
+                        raise RuntimeError(
+                            f"多个接缝尝试写回同一帧：{output_index}"
+                        )
+                    pending_frames[output_index] = window[local_index]
+                expected[
+                    "stream_reproduction_verified"
+                ] = True
+                expected["stream_blended_window_sha256"] = window_hashes
+                expected["stream_output_frame_sha256"] = output_hashes
+                reproduced_joins += 1
+                operation_index += 1
+            frame = pending_frames.pop(frame_index, None)
+            if frame is None:
+                frame = sampler.sample(float(positions[frame_index]))
+            write_raw_frame(process.stdin, frame)
+            frames_written += 1
+            frame_index += 1
+        if operation_index != len(operations) or pending_frames:
+            raise RuntimeError(
+                "流式编码结束时仍有接缝操作或写回帧未消费"
+            )
         process.stdin.close()
         stderr = process.stderr.read() if process.stderr is not None else b""
         return_code = process.wait()
@@ -1129,11 +1065,41 @@ def encode_silent(
             "FFmpeg 编码管道提前关闭："
             + stderr.decode("utf-8", errors="replace")
         ) from error
+    except BaseException:
+        try:
+            process.stdin.close()
+        except BrokenPipeError:
+            pass
+        if process.stderr is not None:
+            process.stderr.read()
+        process.wait()
+        raise
     if return_code != 0:
         raise RuntimeError(
             "FFmpeg 无法编码无声视频："
             + stderr.decode("utf-8", errors="replace")
         )
+    if frames_written != len(positions):
+        raise RuntimeError(
+            f"流式编码帧数不一致：写入 {frames_written}，"
+            f"计划 {len(positions)}"
+        )
+    if reproduced_joins != len(values):
+        raise RuntimeError(
+            f"流式复现接缝数不一致：复现 {reproduced_joins}，"
+            f"预检 {len(values)}"
+        )
+    return {
+        "frames_written": frames_written,
+        "preflight_join_count": len(values),
+        "stream_reproduced_join_count": reproduced_joins,
+        "all_join_hashes_reproduced": True,
+        "maximum_resident_output_frames": maximum_resident_output_frames,
+        "maximum_resident_cached_source_frames": (
+            sampler.maximum_resident_cached_frames
+        ),
+        "source_cache_capacity_frames": sampler.cache_size,
+    }
 
 
 def mux_audio(
@@ -1148,7 +1114,7 @@ def mux_audio(
         "-hide_banner",
         "-loglevel",
         "error",
-        "-y",
+        "-n",
         "-i",
         str(silent),
         "-i",
@@ -1191,7 +1157,7 @@ def interpolate_delivery(
         "-hide_banner",
         "-loglevel",
         "error",
-        "-y",
+        "-n",
         "-i",
         str(source),
         "-vf",
@@ -1226,81 +1192,261 @@ def interpolate_delivery(
         )
 
 
-def save_render_review(
+def review_thumbnail(frame: np.ndarray, max_dimension: int = 320) -> Any:
+    height, width = frame.shape[:2]
+    scale = min(1.0, max_dimension / max(width, height))
+    if scale < 1.0:
+        frame = cv2.resize(
+            frame,
+            (
+                max(1, int(round(width * scale))),
+                max(1, int(round(height * scale))),
+            ),
+            interpolation=cv2.INTER_AREA,
+        )
+    return bgr_to_pil(frame)
+
+
+def write_review_pages_from_video(
+    video: Path,
+    records: list[tuple[int, str]],
     destination: Path,
-    portraits: list[np.ndarray],
-    path: np.ndarray,
+    *,
+    expected_fps: float,
+    filename_prefix: str,
+    page_size: int,
+    columns: int,
+    cell_width: int,
+    cell_height: int,
+) -> tuple[list[str], int, float]:
+    if page_size < 1:
+        raise ValueError("review page_size 必须大于 0")
+    capture = cv2.VideoCapture(str(video))
+    if not capture.isOpened():
+        raise RuntimeError(f"无法打开最终视频生成审核图：{video}")
+    actual_fps = float(capture.get(cv2.CAP_PROP_FPS))
+    declared_count = int(round(capture.get(cv2.CAP_PROP_FRAME_COUNT)))
+    if actual_fps <= 0:
+        capture.release()
+        raise RuntimeError("最终视频没有可读取帧率")
+    if abs(actual_fps - expected_fps) > 0.05:
+        capture.release()
+        raise RuntimeError(
+            f"审核视频帧率不一致：预期 {expected_fps:.6f}，"
+            f"实际 {actual_fps:.6f}"
+        )
+    if declared_count <= 0:
+        capture.release()
+        raise RuntimeError("最终视频没有可读取画面帧")
+    if not records:
+        capture.release()
+        return [], declared_count, actual_fps
+    delivery_indices = [index for index, _ in records]
+    if delivery_indices != sorted(delivery_indices):
+        capture.release()
+        raise RuntimeError("审核抽帧记录必须按最终视频帧号递增")
+    if min(delivery_indices) < 0 or max(delivery_indices) >= declared_count:
+        capture.release()
+        raise RuntimeError(
+            "审核抽帧位置越界："
+            f"范围 {min(delivery_indices)}..{max(delivery_indices)}，"
+            f"视频共 {declared_count} 帧"
+        )
+
+    records_by_frame: dict[int, list[str]] = {}
+    for frame_index, label in records:
+        records_by_frame.setdefault(frame_index, []).append(label)
+    last_requested = max(records_by_frame)
+    outputs: list[str] = []
+    page: list[tuple[Any, str]] = []
+    consumed_records = 0
+    page_index = 1
+    frame_index = 0
+    try:
+        while frame_index <= last_requested:
+            ok, frame = capture.read()
+            if not ok:
+                break
+            for label in records_by_frame.get(frame_index, []):
+                page.append((review_thumbnail(frame), label))
+                consumed_records += 1
+                if len(page) == page_size:
+                    output = (
+                        destination
+                        / f"{filename_prefix}-{page_index:02d}.jpg"
+                    )
+                    contact_sheet(
+                        page,
+                        output,
+                        columns=columns,
+                        cell_width=cell_width,
+                        cell_height=cell_height,
+                    )
+                    outputs.append(str(output))
+                    for image, _ in page:
+                        image.close()
+                    page.clear()
+                    page_index += 1
+            frame_index += 1
+    finally:
+        capture.release()
+    if consumed_records != len(records):
+        for image, _ in page:
+            image.close()
+        raise RuntimeError(
+            "最终视频审核抽帧不完整："
+            f"预期 {len(records)} 条，实际 {consumed_records} 条"
+        )
+    if page:
+        output = destination / f"{filename_prefix}-{page_index:02d}.jpg"
+        contact_sheet(
+            page,
+            output,
+            columns=columns,
+            cell_width=cell_width,
+            cell_height=cell_height,
+        )
+        outputs.append(str(output))
+        for image, _ in page:
+            image.close()
+    return outputs, declared_count, actual_fps
+
+
+def save_render_review_from_video(
+    destination: Path,
+    video: Path,
+    source_positions: np.ndarray,
     boundaries: list[int],
     target_labels: list[str],
     target_levels: np.ndarray,
     source_labels: list[str],
     source_levels: np.ndarray,
-    fps: int,
+    internal_fps: int,
+    delivery_fps: int,
 ) -> list[str]:
-    destination.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        existing = list(destination.iterdir())
+        if existing:
+            raise FileExistsError(
+                "审核目录已有内容，不会覆盖旧报告或审核图："
+                f"{destination}"
+            )
+    else:
+        destination.mkdir(parents=True, exist_ok=False)
     outputs: list[str] = []
-    indices = sorted(
+    frame_count = len(source_positions)
+    contact_indices = sorted(
         set(
-            list(range(0, len(portraits), max(1, fps // 2)))
+            list(range(0, frame_count, max(1, internal_fps // 2)))
             + boundaries
             + [max(0, boundary - 1) for boundary in boundaries]
-            + [len(portraits) - 1]
+            + [frame_count - 1]
         )
     )
-    cells = []
-    for index in indices:
-        source_index = int(path[index])
-        cells.append(
+    boundary_records = [
+        (boundary, index)
+        for boundary in boundaries
+        for index in range(
+            max(0, boundary - 2),
+            min(frame_count, boundary + 3),
+        )
+    ]
+    requested_internal_indices = set(contact_indices) | {
+        index for _, index in boundary_records
+    }
+    internal_to_delivery = {
+        index: int(round(index / internal_fps * delivery_fps))
+        for index in requested_internal_indices
+    }
+    contact_records: list[tuple[int, str]] = []
+    for index in contact_indices:
+        source_position = float(source_positions[index])
+        source_index = int(
+            np.clip(
+                round(source_position),
+                0,
+                len(source_labels) - 1,
+            )
+        )
+        contact_records.append(
             (
-                bgr_to_pil(portraits[index]),
+                internal_to_delivery[index],
                 (
-                    f"o{index} {index / fps:.3f}s "
+                    f"o{index} {index / internal_fps:.3f}s "
                     f"T={target_labels[index]}{target_levels[index]:.1f} "
-                    f"S=f{source_index}:{source_labels[source_index]}"
+                    f"S={source_position:.2f}/{source_labels[source_index]}"
                     f"{source_levels[source_index]:.1f}"
                 ),
             )
         )
-    for page_index, page in enumerate(
-        [cells[index : index + 30] for index in range(0, len(cells), 30)],
-        start=1,
-    ):
-        output = destination / f"final-contact-sheet-{page_index:02d}.jpg"
-        contact_sheet(
-            page,
-            output,
+    contact_outputs, delivery_frame_count, actual_delivery_fps = (
+        write_review_pages_from_video(
+            video,
+            contact_records,
+            destination,
+            expected_fps=float(delivery_fps),
+            filename_prefix="final-contact-sheet",
+            page_size=30,
             columns=5,
             cell_width=260,
             cell_height=260,
         )
-        outputs.append(str(output))
+    )
+    outputs.extend(contact_outputs)
 
-    boundary_cells = []
-    for boundary in boundaries:
-        for index in range(max(0, boundary - 2), min(len(portraits), boundary + 3)):
-            boundary_cells.append(
-                (
-                    bgr_to_pil(portraits[index]),
-                    f"cut@{boundary} o{index} src{int(path[index])}",
+    boundary_page_records = [
+        (
+            internal_to_delivery[index],
+            (
+                f"cut@{boundary} o{index} "
+                f"src{float(source_positions[index]):.2f}"
+            ),
+        )
+        for boundary, index in boundary_records
+    ]
+    boundary_outputs, boundary_delivery_count, boundary_delivery_fps = (
+        write_review_pages_from_video(
+            video,
+            boundary_page_records,
+            destination,
+            expected_fps=float(delivery_fps),
+            filename_prefix="boundary-strips",
+            page_size=50,
+            columns=5,
+            cell_width=240,
+            cell_height=240,
+        )
+    )
+    if (
+        boundary_delivery_count != delivery_frame_count
+        or abs(boundary_delivery_fps - actual_delivery_fps) > 1e-9
+    ):
+        raise RuntimeError("两轮最终视频审核抽帧读取到不一致的媒体属性")
+    outputs.extend(boundary_outputs)
+    extraction_manifest = destination / "review-frame-source.json"
+    write_json(
+        extraction_manifest,
+        {
+            "protocol": "visual-multimedia-avatar-render-review-source",
+            "version": 1,
+            "source_video": str(video),
+            "source_is_final_encoded_delivery": True,
+            "internal_fps": internal_fps,
+            "delivery_fps": round(actual_delivery_fps, 6),
+            "delivery_frame_count": delivery_frame_count,
+            "internal_to_delivery_frame": {
+                str(index): delivery_index
+                for index, delivery_index in sorted(
+                    internal_to_delivery.items()
                 )
-            )
-    if boundary_cells:
-        for page_index, page in enumerate(
-            [
-                boundary_cells[index : index + 50]
-                for index in range(0, len(boundary_cells), 50)
-            ],
-            start=1,
-        ):
-            output = destination / f"boundary-strips-{page_index:02d}.jpg"
-            contact_sheet(
-                page,
-                output,
-                columns=5,
-                cell_width=240,
-                cell_height=240,
-            )
-            outputs.append(str(output))
+            },
+            "full_resolution_frames_retained": 0,
+            "thumbnail_maximum_dimension": 320,
+            "maximum_resident_thumbnail_count": 50,
+            "thumbnail_image_memory_complexity": "O(1)",
+        },
+    )
+    outputs.append(str(extraction_manifest))
     return outputs
 
 
@@ -1311,6 +1457,23 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
     if project["motion_source"].get("status") != "accepted":
         raise ValueError("校准视频尚未通过检查，不能正式渲染")
     manifest = validate_media_manifest(paths["manifest"])
+    timeline_path = Path(args.timeline).expanduser().resolve()
+    task_id = validate_task_id(args.task_id or timeline_path.stem)
+    working = paths["root"] / "working" / "anime-avatar" / task_id
+    report_dir = paths["root"] / "reports" / "avatar-renders" / task_id
+    output = Path(args.output).expanduser().resolve()
+    if output.exists():
+        raise FileExistsError(f"不会覆盖已有输出：{output}")
+    for immutable_directory, label in (
+        (working, "working task-id"),
+        (report_dir, "report task-id"),
+    ):
+        if immutable_directory.exists():
+            raise FileExistsError(
+                f"{label} 已存在，不会复用或覆盖：{immutable_directory}；"
+                "请使用新的 --task-id"
+            )
+
     _, motion_path = resolve_source(
         manifest,
         paths["root"],
@@ -1325,10 +1488,67 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         project["motion_source"].get("mouth_review_crop_xywh"),
         "motion_source.mouth_review_crop_xywh",
     )
-    source_frames, source_fps = load_cropped_frames(motion_path, crop)
     ensure_crop(mouth_crop, crop[2], crop[3], "mouth_review_crop_xywh")
 
-    library = read_json(library_path(project, paths))
+    library_file = library_path(project, paths)
+    library = read_json(library_file)
+    raw_source_frame_count = library.get("source_frame_count")
+    if (
+        isinstance(raw_source_frame_count, bool)
+        or not isinstance(raw_source_frame_count, int)
+        or raw_source_frame_count <= 0
+    ):
+        raise ValueError("视觉口型库 source_frame_count 必须是正整数")
+    expected_source_frame_count = int(raw_source_frame_count)
+
+    render_config = project["render"]
+    fps = int(render_config["internal_fps"])
+    delivery_fps = int(render_config["delivery_fps"])
+    width, height = [int(value) for value in render_config["output_size"]]
+
+    timeline = read_json(timeline_path)
+    units = validate_timeline(timeline)
+    _, audio_path = resolve_source(
+        manifest,
+        paths["root"],
+        timeline.get("audio_source_id"),
+        {"audio", "video", "generated"},
+    )
+    ffmpeg = executable("ffmpeg", args.ffmpeg)
+    ffprobe = executable("ffprobe", args.ffprobe)
+
+    run_id = uuid.uuid4().hex
+    trimmed_audio = working / "trimmed-audio.wav"
+    source_frame_store_file = working / "source-frames-bgr-u8.bin"
+    silent_video = working / "motion-match-silent.mp4"
+    motion_match_video = working / "motion-match-with-audio.mp4"
+    working.mkdir(parents=True, exist_ok=False)
+    report_dir.mkdir(parents=True, exist_ok=False)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    script_directory = Path(__file__).resolve().parent
+    provenance_paths = {
+        "renderer_script": script_directory / "render-anime-avatar.py",
+        "motion_planner_script": script_directory / "anime_avatar_motion.py",
+        "join_blender_script": script_directory / "anime_avatar_blend.py",
+        "shared_avatar_runtime_script": (
+            script_directory / "anime_avatar_common.py"
+        ),
+        "visual_viseme_library": library_file.resolve(),
+        "speech_timeline": timeline_path,
+    }
+    provenance_sha256 = {
+        key: file_sha256(path) for key, path in provenance_paths.items()
+    }
+
+    source_frames, source_fps, descriptors, source_store_report = (
+        build_disk_backed_source_store(
+            motion_path,
+            crop,
+            mouth_crop,
+            expected_source_frame_count,
+            source_frame_store_file,
+        )
+    )
     library_validation = validate_library_payload(
         library,
         source_id=project["motion_source"]["source_id"],
@@ -1341,41 +1561,11 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             "视觉口型库未通过质量门：\n- "
             + "\n- ".join(library_validation["errors"])
         )
-
-    render_config = project["render"]
-    fps = int(render_config["internal_fps"])
     if abs(source_fps - fps) > 0.02:
         raise ValueError(
             f"校准视频为 {source_fps:.6f} fps，但项目 internal_fps={fps}。"
             "先统一帧率和标注边界，不能在运行时静默换算帧号。"
         )
-    delivery_fps = int(render_config["delivery_fps"])
-    width, height = [int(value) for value in render_config["output_size"]]
-
-    timeline_path = Path(args.timeline).expanduser().resolve()
-    timeline = read_json(timeline_path)
-    units = validate_timeline(timeline)
-    _, audio_path = resolve_source(
-        manifest,
-        paths["root"],
-        timeline.get("audio_source_id"),
-        {"audio", "video", "generated"},
-    )
-    ffmpeg = executable("ffmpeg", args.ffmpeg)
-    ffprobe = executable("ffprobe", args.ffprobe)
-
-    task_id = args.task_id or timeline_path.stem
-    working = paths["root"] / "working" / "anime-avatar" / task_id
-    report_dir = paths["root"] / "reports" / "avatar-renders" / task_id
-    working.mkdir(parents=True, exist_ok=True)
-    report_dir.mkdir(parents=True, exist_ok=True)
-    trimmed_audio = working / "trimmed-audio.wav"
-    silent_video = working / "motion-match-silent.mp4"
-    motion_match_video = working / "motion-match-with-audio.mp4"
-    output = Path(args.output).expanduser().resolve()
-    if output.exists():
-        raise FileExistsError(f"不会覆盖已有输出：{output}")
-    output.parent.mkdir(parents=True, exist_ok=True)
 
     audio_duration = extract_audio(
         ffmpeg,
@@ -1424,26 +1614,428 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         library,
         len(source_frames),
     )
-    descriptors = visual_descriptors(source_frames, mouth_crop)
-    path, boundaries, selection = plan_timeline_path(
-        target_labels,
-        target_levels,
-        anchors,
-        roles,
-        source_labels,
-        source_levels,
-        source_takes,
-        descriptors,
-        library,
-        fps,
-    )
-    selection["total_internal_frames"] = len(path)
-    resized_source = resize_frames(source_frames, width, height)
-    portraits = [resized_source[int(source_index)].copy() for source_index in path]
-    portraits = one_frame_flow_joins(portraits, boundaries)
+    silent_intervals = [
+        {
+            "start_frame": start,
+            "end_frame_exclusive": end,
+            "start_seconds": round(start / fps, 6),
+            "end_seconds": round(end / fps, 6),
+            "behavior": "continuous closed-mouth source motion",
+        }
+        for start, end, role in label_runs(roles)
+        if role == "silence"
+    ]
+    join_preflight_cache: dict[tuple[int, ...], dict[str, Any]] = {}
+    sampler = SourceFrameSampler(source_frames, width, height)
 
-    encode_silent(ffmpeg, portraits, fps, silent_video)
-    video_duration = len(portraits) / fps
+    def plan_and_validate_selection() -> tuple[
+        np.ndarray,
+        list[int],
+        dict[str, Any],
+    ]:
+        source_positions, boundaries, selection = plan_gesture_motion(
+            library,
+            source_labels,
+            source_levels,
+            source_takes,
+            descriptors,
+            target_labels,
+            target_levels,
+            anchors,
+            roles,
+            fps=fps,
+        )
+        selection["total_internal_frames"] = len(source_positions)
+        selection["silent_intervals"] = silent_intervals
+
+        minimum_quality_gate = {
+            "planned_annotation_speech_viseme_match_rate": 0.50,
+            "planned_annotation_large_mouth_realized_core_coverage_rate": 0.80,
+            "planned_annotation_stable_pause_closed_match_rate": 1.0,
+            "planned_annotation_silence_dynamic_rate": 1.0,
+        }
+        failed_quality = {
+            key: {
+                "observed": float(selection.get(key, -1.0)),
+                "required_minimum": minimum,
+            }
+            for key, minimum in minimum_quality_gate.items()
+            if float(selection.get(key, -1.0)) + 1e-9 < minimum
+        }
+        source_speed = selection.get(
+            "planned_annotation_maximum_continuous_source_speed"
+        )
+        source_speed_limit = selection.get(
+            "planned_annotation_source_speed_limit"
+        )
+        source_acceleration = selection.get(
+            "planned_annotation_maximum_continuous_source_acceleration"
+        )
+        source_acceleration_limit = selection.get(
+            "planned_annotation_source_acceleration_limit"
+        )
+        boundary_count = selection.get(
+            "planned_annotation_boundary_count"
+        )
+        minimum_boundary_gap = selection.get(
+            "planned_annotation_minimum_boundary_gap"
+        )
+        required_boundary_gap = selection.get(
+            "planned_annotation_required_minimum_boundary_gap"
+        )
+        upper_bound_checks = {
+            "planned_annotation_maximum_continuous_source_speed": (
+                source_speed,
+                source_speed_limit,
+            ),
+            "planned_annotation_maximum_continuous_source_acceleration": (
+                source_acceleration,
+                source_acceleration_limit,
+            ),
+            "planned_annotation_realized_strength_mean_absolute_error": (
+                selection.get(
+                    "planned_annotation_realized_strength_mean_absolute_error"
+                ),
+                1.25,
+            ),
+            "planned_annotation_realized_strength_p95_absolute_error": (
+                selection.get(
+                    "planned_annotation_realized_strength_p95_absolute_error"
+                ),
+                1.75,
+            ),
+        }
+        for key, (observed, maximum) in upper_bound_checks.items():
+            if (
+                not isinstance(observed, (int, float))
+                or not isinstance(maximum, (int, float))
+                or float(observed) > float(maximum) + 1e-9
+            ):
+                failed_quality[key] = {
+                    "observed": observed,
+                    "required_maximum": maximum,
+                }
+        if (
+            not isinstance(boundary_count, int)
+            or not isinstance(required_boundary_gap, int)
+            or (
+                boundary_count >= 2
+                and (
+                    not isinstance(minimum_boundary_gap, int)
+                    or minimum_boundary_gap < required_boundary_gap
+                )
+            )
+        ):
+            failed_quality["planned_annotation_minimum_boundary_gap"] = {
+                "observed": minimum_boundary_gap,
+                "required_minimum": required_boundary_gap,
+                "boundary_count": boundary_count,
+            }
+
+        accounting_fields = (
+            "planned_annotation_original_anchor_count",
+            "planned_annotation_realized_anchor_count",
+            "planned_annotation_absorbed_or_unrealized_anchor_count",
+            "planned_annotation_original_vowel_anchor_count",
+            "planned_annotation_realized_vowel_anchor_count",
+            "planned_annotation_absorbed_vowel_anchor_count",
+        )
+        accounting_values = {
+            key: selection.get(key) for key in accounting_fields
+        }
+        accounting_consistent = all(
+            isinstance(value, int) and value >= 0
+            for value in accounting_values.values()
+        )
+        if accounting_consistent:
+            accounting_consistent = (
+                accounting_values[
+                    "planned_annotation_original_anchor_count"
+                ]
+                == accounting_values[
+                    "planned_annotation_realized_anchor_count"
+                ]
+                + accounting_values[
+                    "planned_annotation_absorbed_or_unrealized_anchor_count"
+                ]
+                and accounting_values[
+                    "planned_annotation_original_vowel_anchor_count"
+                ]
+                == accounting_values[
+                    "planned_annotation_realized_vowel_anchor_count"
+                ]
+                + accounting_values[
+                    "planned_annotation_absorbed_vowel_anchor_count"
+                ]
+            )
+        coverage_pairs = (
+            (
+                "planned_annotation_original_anchor_count",
+                "planned_annotation_realized_anchor_count",
+                "planned_annotation_realized_anchor_coverage_rate",
+            ),
+            (
+                "planned_annotation_original_vowel_anchor_count",
+                "planned_annotation_realized_vowel_anchor_count",
+                "planned_annotation_realized_vowel_anchor_coverage_rate",
+            ),
+        )
+        for original_key, realized_key, coverage_key in coverage_pairs:
+            original = accounting_values.get(original_key)
+            realized = accounting_values.get(realized_key)
+            observed_coverage = selection.get(coverage_key)
+            expected_coverage = (
+                realized / original
+                if isinstance(original, int)
+                and original > 0
+                and isinstance(realized, int)
+                else 1.0
+            )
+            if (
+                not isinstance(observed_coverage, (int, float))
+                or abs(float(observed_coverage) - expected_coverage) > 1e-6
+            ):
+                accounting_consistent = False
+        clusters = selection.get(
+            "planned_annotation_coarticulation_clusters"
+        )
+        if not isinstance(clusters, list):
+            accounting_consistent = False
+        minimum_realized_event_gap = selection.get(
+            "planned_annotation_minimum_realized_event_gap"
+        )
+        required_event_gap = selection.get(
+            "planned_annotation_required_minimum_event_gap"
+        )
+        realized_vowel_count = accounting_values.get(
+            "planned_annotation_realized_vowel_anchor_count"
+        )
+        if (
+            not isinstance(required_event_gap, int)
+            or not isinstance(realized_vowel_count, int)
+            or (
+                realized_vowel_count >= 2
+                and (
+                    not isinstance(minimum_realized_event_gap, int)
+                    or minimum_realized_event_gap < required_event_gap
+                )
+            )
+        ):
+            accounting_consistent = False
+        if not accounting_consistent:
+            failed_quality["coarticulation_anchor_accounting"] = {
+                "counts": accounting_values,
+                "clusters_present": isinstance(clusters, list),
+                "minimum_realized_event_gap": (
+                    minimum_realized_event_gap
+                ),
+                "required_minimum_event_gap": required_event_gap,
+                "realized_anchor_coverage_rate": selection.get(
+                    "planned_annotation_realized_anchor_coverage_rate"
+                ),
+                "realized_vowel_anchor_coverage_rate": selection.get(
+                    "planned_annotation_realized_vowel_anchor_coverage_rate"
+                ),
+            }
+        gesture_block_count = selection.get(
+            "planned_annotation_gesture_block_count"
+        )
+        selected_gesture_take_count = selection.get(
+            "planned_annotation_selected_gesture_take_count"
+        )
+        unique_gesture_clip_count = selection.get(
+            "planned_annotation_unique_gesture_clip_count"
+        )
+        maximum_recent_same_clip = selection.get(
+            "planned_annotation_maximum_same_gesture_clip_occurrences_in_recent_5"
+        )
+        required_unique_clips = selection.get(
+            "planned_annotation_required_unique_gesture_clip_count"
+        )
+        required_unique_takes = selection.get(
+            "planned_annotation_required_unique_gesture_take_count"
+        )
+        required_maximum_recent_same_clip = selection.get(
+            "planned_annotation_required_maximum_same_gesture_clip_occurrences_in_recent_5"
+        )
+        diversity_contract_satisfied = selection.get(
+            "planned_annotation_gesture_diversity_contract_satisfied"
+        )
+        diversity_contract = selection.get(
+            "planned_annotation_gesture_diversity_contract"
+        )
+        if not all(
+            isinstance(value, int)
+            and not isinstance(value, bool)
+            and value >= 0
+            for value in (
+                gesture_block_count,
+                selected_gesture_take_count,
+                unique_gesture_clip_count,
+                maximum_recent_same_clip,
+                required_unique_clips,
+                required_unique_takes,
+                required_maximum_recent_same_clip,
+            )
+        ) or not isinstance(diversity_contract, dict):
+            failed_quality["gesture_diversity_accounting"] = {
+                "gesture_block_count": gesture_block_count,
+                "selected_gesture_take_count": selected_gesture_take_count,
+                "unique_gesture_clip_count": unique_gesture_clip_count,
+                "maximum_same_clip_in_recent_5": maximum_recent_same_clip,
+                "required_unique_gesture_clip_count": required_unique_clips,
+                "required_unique_gesture_take_count": required_unique_takes,
+                "required_maximum_same_clip_in_recent_5": (
+                    required_maximum_recent_same_clip
+                ),
+                "contract": diversity_contract,
+            }
+        else:
+            diversity_failures = {}
+            if selected_gesture_take_count < required_unique_takes:
+                diversity_failures["selected_gesture_take_count"] = {
+                    "observed": selected_gesture_take_count,
+                    "required_minimum": required_unique_takes,
+                }
+            if unique_gesture_clip_count < required_unique_clips:
+                diversity_failures["unique_gesture_clip_count"] = {
+                    "observed": unique_gesture_clip_count,
+                    "required_minimum": required_unique_clips,
+                }
+            if (
+                maximum_recent_same_clip
+                > required_maximum_recent_same_clip
+            ):
+                diversity_failures[
+                    "maximum_same_gesture_clip_occurrences_in_recent_5"
+                ] = {
+                    "observed": maximum_recent_same_clip,
+                    "required_maximum": required_maximum_recent_same_clip,
+                }
+            if diversity_contract_satisfied is not True:
+                diversity_failures["planner_contract_satisfied"] = {
+                    "observed": diversity_contract_satisfied,
+                    "required": True,
+                }
+            contract_global = diversity_contract.get("global")
+            if (
+                not isinstance(contract_global, dict)
+                or contract_global.get("satisfied") is not True
+                or diversity_contract.get("satisfied") is not True
+            ):
+                diversity_failures["reported_contract"] = diversity_contract
+            if diversity_failures:
+                failed_quality["gesture_diversity"] = diversity_failures
+        selection["planned_annotation_quality_gate"] = {
+            "minimum_thresholds": minimum_quality_gate,
+            "maximum_thresholds": {
+                key: maximum
+                for key, (_, maximum) in upper_bound_checks.items()
+            },
+            "minimum_boundary_gap": required_boundary_gap,
+            "coarticulation_anchor_accounting": {
+                "counts": accounting_values,
+                "consistent": accounting_consistent,
+                "minimum_realized_event_gap": (
+                    minimum_realized_event_gap
+                ),
+                "required_minimum_event_gap": required_event_gap,
+                "realized_anchor_coverage_rate": selection.get(
+                    "planned_annotation_realized_anchor_coverage_rate"
+                ),
+                "realized_vowel_anchor_coverage_rate": selection.get(
+                    "planned_annotation_realized_vowel_anchor_coverage_rate"
+                ),
+            },
+            "gesture_diversity": {
+                "gesture_block_count": gesture_block_count,
+                "selected_gesture_take_count": selected_gesture_take_count,
+                "unique_gesture_clip_count": unique_gesture_clip_count,
+                "maximum_same_clip_in_recent_5": maximum_recent_same_clip,
+                "required_unique_gesture_clip_count": required_unique_clips,
+                "required_unique_gesture_take_count": required_unique_takes,
+                "required_maximum_same_clip_in_recent_5": (
+                    required_maximum_recent_same_clip
+                ),
+                "planner_contract_satisfied": diversity_contract_satisfied,
+                "contract": diversity_contract,
+            },
+            "passed": not failed_quality,
+            "failures": failed_quality,
+        }
+        if failed_quality:
+            raise RuntimeError(
+                "动作片段规划没有达到可交付口型下限："
+                + json.dumps(failed_quality, ensure_ascii=False)
+            )
+        return source_positions, boundaries, selection
+
+    source_positions, boundaries, selection = plan_and_validate_selection()
+    join_smoothing = preflight_output_resolution_join_windows(
+        sampler,
+        source_positions,
+        boundaries,
+        join_preflight_cache,
+    )
+    failed_joins = [
+        item for item in join_smoothing if item.get("applied") is not True
+    ]
+    if failed_joins:
+        failed_details = [
+            {
+                "boundary": int(item.get("boundary", -1)),
+                "reason": item.get("reason"),
+                "failed_checks": item.get("failed_checks"),
+            }
+            for item in failed_joins
+        ]
+        raise RuntimeError(
+            "一次性接缝检查发现无法安全过渡的角色状态，拒绝开始编码："
+            + json.dumps(failed_details, ensure_ascii=False)
+        )
+    strict_join_count = sum(
+        item.get("transition_mode") == "strict_optical_flow"
+        for item in join_smoothing
+    )
+    micro_transition_count = sum(
+        item.get("transition_mode")
+        == "micro_optical_flow_luma_fallback"
+        for item in join_smoothing
+    )
+    selection["deterministic_join_plan"] = {
+        "planning_pass_count": 1,
+        "boundary_count": len(boundaries),
+        "strict_optical_flow_join_count": strict_join_count,
+        "micro_optical_flow_transition_count": micro_transition_count,
+        "micro_transition_internal_frames": 2,
+        "micro_transition_seconds": round(2 / fps, 6),
+        "cached_exact_join_windows": len(join_preflight_cache),
+        "all_boundaries_preflighted_before_encoding": True,
+        "all_boundaries_smoothed": True,
+        "route_retry_count": 0,
+    }
+    print(
+        "一次性接缝预检通过："
+        f"boundaries={len(boundaries)}, "
+        f"strict={strict_join_count}, "
+        f"micro={micro_transition_count}",
+        flush=True,
+    )
+    streaming_result = encode_silent_stream(
+        ffmpeg,
+        sampler,
+        source_positions,
+        boundaries,
+        join_smoothing,
+        fps,
+        silent_video,
+    )
+    sampler.close()
+    del sampler
+    del source_frames
+    gc.collect()
+
+    video_duration = len(source_positions) / fps
     mux_audio(
         ffmpeg,
         silent_video,
@@ -1452,7 +2044,13 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         video_duration,
     )
     if delivery_fps == fps:
-        output.write_bytes(motion_match_video.read_bytes())
+        with motion_match_video.open("rb") as source_video:
+            with output.open("xb") as destination_video:
+                shutil.copyfileobj(
+                    source_video,
+                    destination_video,
+                    length=1024 * 1024,
+                )
     else:
         interpolate_delivery(
             ffmpeg,
@@ -1462,16 +2060,10 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             video_duration,
         )
 
-    review_outputs = save_render_review(
-        report_dir,
-        portraits,
-        path,
-        boundaries,
-        target_labels,
-        target_levels,
-        source_labels,
-        source_levels,
-        fps,
+    nearest_source_indices = np.clip(
+        np.rint(source_positions).astype(np.int32),
+        0,
+        len(source_labels) - 1,
     )
     output_probe = probe_video(output, ffprobe)
     duration_tolerance = max(0.002, 0.5 / delivery_fps)
@@ -1481,9 +2073,42 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             f"预期 {video_duration:.6f}s，"
             f"实际 {output_probe['video_duration_seconds']:.6f}s"
         )
+    final_provenance_sha256 = {
+        key: file_sha256(path) for key, path in provenance_paths.items()
+    }
+    if final_provenance_sha256 != provenance_sha256:
+        raise RuntimeError(
+            "渲染期间脚本、口型库或时间线发生变化，拒绝写出混合版本报告"
+        )
+    review_outputs = save_render_review_from_video(
+        report_dir,
+        output,
+        source_positions,
+        boundaries,
+        target_labels,
+        target_levels,
+        source_labels,
+        source_levels,
+        fps,
+        delivery_fps,
+    )
     report = {
         "protocol": "visual-multimedia-anime-avatar-render",
-        "version": 1,
+        "version": 3,
+        "task_id": task_id,
+        "run_id": run_id,
+        "immutable_run_directories": {
+            "working": str(working),
+            "report": str(report_dir),
+            "task_id_reuse_rejected": True,
+        },
+        "input_provenance": {
+            key: {
+                "path": str(provenance_paths[key]),
+                "sha256": provenance_sha256[key],
+            }
+            for key in provenance_paths
+        },
         "character_id": project["character"]["id"],
         "motion_source_id": project["motion_source"]["source_id"],
         "audio_source_id": timeline["audio_source_id"],
@@ -1506,8 +2131,13 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         "architecture": (
             "confirmed speech timeline -> Mandarin phoneme/viseme nuclei -> "
             "within-syllable acoustic intensity -> reusable AI-reviewed "
-            "whole-frame library -> continuity-constrained motion graph -> "
-            "one-frame optical-flow joins -> motion-compensated delivery"
+            "whole-frame gesture/idle clip scheduler -> directed natural chains "
+            "or compatibility-gated low-mouth endpoints -> bounded monotonic "
+            "source-time mapping -> output-resolution four-frame join-window "
+            "validation in one pass -> strict or luminance-only fallback "
+            "two-frame optical-flow micro transition -> deterministic "
+            "writeback while streaming directly into FFmpeg -> "
+            "motion-compensated delivery"
         ),
         "classification_boundary": {
             "source_classification": "read only from visual-viseme-library.json",
@@ -1524,29 +2154,89 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
                 "intensity": round(float(target_levels[index]), 4),
                 "energy": round(float(energy[index]), 4),
             }
-            for index in range(len(path))
+            for index in range(len(source_positions))
         ],
-        "source_frame_by_internal_frame": [int(value) for value in path],
+        "source_position_by_internal_frame": [
+            round(float(value), 6) for value in source_positions
+        ],
         "selected_annotation_by_internal_frame": [
             {
-                "source_frame": int(source_index),
+                "source_position": round(
+                    float(source_positions[output_index]),
+                    6,
+                ),
+                "nearest_source_frame": int(source_index),
                 "viseme": source_labels[source_index],
                 "intensity": round(float(source_levels[source_index]), 4),
                 "take": int(source_takes[source_index]),
             }
-            for source_index in path
+            for output_index, source_index in enumerate(
+                nearest_source_indices
+            )
         ],
         "selection": selection,
+        "join_smoothing": join_smoothing,
+        "speed_configuration": {
+            "internal_fps": fps,
+            "delivery_fps": delivery_fps,
+            "planner_source_speed_limit": selection.get(
+                "planned_annotation_source_speed_limit"
+            ),
+            "planner_source_acceleration_limit": selection.get(
+                "planned_annotation_source_acceleration_limit"
+            ),
+            "observed_minimum_continuous_source_speed": selection.get(
+                "planned_annotation_minimum_continuous_source_speed"
+            ),
+            "observed_maximum_continuous_source_speed": selection.get(
+                "planned_annotation_maximum_continuous_source_speed"
+            ),
+            "observed_maximum_continuous_source_acceleration": selection.get(
+                "planned_annotation_maximum_continuous_source_acceleration"
+            ),
+            "required_minimum_boundary_gap": selection.get(
+                "planned_annotation_required_minimum_boundary_gap"
+            ),
+            "delivery_motion_interpolation": (
+                "disabled"
+                if delivery_fps == fps
+                else (
+                    "FFmpeg minterpolate mci/aobmc/bidir/vsbmc=1 "
+                    f"to {delivery_fps} fps"
+                )
+            ),
+        },
         "technical_result": {
             "output": str(output),
             "internal_fps": fps,
-            "internal_frame_count": len(path),
+            "internal_frame_count": len(source_positions),
             "delivery_probe": output_probe,
             "fixed_source_crop_xywh": list(crop),
             "output_size": [width, height],
             "fixed_anchor_policy": (
                 "one source crop for every frame; no per-frame landmark or accessory tracking"
             ),
+            "streaming_memory_policy": {
+                "source_frame_store": source_store_report,
+                "source_frame_store_is_disk_backed": True,
+                "full_resolution_source_frames_held_in_python_list": 0,
+                "target_duration_full_resolution_frames_retained": 0,
+                "maximum_resident_output_frames": streaming_result[
+                    "maximum_resident_output_frames"
+                ],
+                "maximum_resident_cached_source_frames": streaming_result[
+                    "maximum_resident_cached_source_frames"
+                ],
+                "source_cache_capacity_frames": streaming_result[
+                    "source_cache_capacity_frames"
+                ],
+                "full_resolution_image_heap_complexity": "O(1)",
+                "timeline_metadata_memory_complexity": "O(target_frames)",
+                "final_video_copy_uses_bounded_buffer": delivery_fps == fps,
+                "review_frames_read_from_final_encoded_delivery": True,
+                "review_full_resolution_frames_retained": 0,
+            },
+            "streaming_result": streaming_result,
         },
         "review_artifacts": review_outputs,
         "human_full_review": {
@@ -1554,11 +2244,14 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             "completed": False,
             "checks": [
                 "watch the complete output with sound",
-                "inspect every boundary strip",
+                "inspect every smoothed two-frame boundary strip",
+                "confirm motion remains continuous across speech and silence rather than restarting per interval",
+                "confirm bounded clip time-stretch does not make head, hair, ears or shoulders move unnaturally fast",
+                "confirm no unsmoothed hard cut remains at any planned source transition",
                 "confirm no rapid meaningless open-close",
                 "confirm large openings appear on sufficiently strong vowel nuclei",
-                "confirm late sections do not mechanically repeat one take",
-                "confirm every silent interval uses closed-mouth motion rather than a frozen frame",
+                "confirm late sections keep varied continuous motion rather than mechanically repeating one take",
+                "confirm every silent interval uses moving closed-mouth source frames rather than a frozen frame",
                 "confirm no fixed post-speech tail was added beyond the requested timeline",
                 "confirm identity, chin, hair, ears, accessories and shoulders stay coherent",
             ],
@@ -1568,10 +2261,12 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
     write_json(report_path, report)
     return {
         "ok": True,
+        "task_id": task_id,
+        "run_id": run_id,
         "output": str(output),
         "report": str(report_path),
         "audio_duration_seconds": round(audio_duration, 6),
-        "internal_frames": len(path),
+        "internal_frames": len(source_positions),
         "delivery_fps": delivery_fps,
         "selection": selection,
         "review_artifacts": review_outputs,

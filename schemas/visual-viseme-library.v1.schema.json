@@ -316,6 +316,7 @@
         "take",
         "start_frame",
         "end_frame_exclusive",
+        "peak_strength_level",
         "rise_frames_by_intensity",
         "peak_frame_range_inclusive",
         "fall_frames_by_intensity",
@@ -348,8 +349,15 @@
           "type": "integer",
           "minimum": 1
         },
+        "peak_strength_level": {
+          "type": "number",
+          "minimum": 1.0,
+          "maximum": 4.0,
+          "description": "AI 视觉审核得到的整条低→峰→低动作的绝对峰值张口强度；不同 take 不保证强度不同。"
+        },
         "rise_frames_by_intensity": {
-          "$ref": "#/$defs/fiveFrames"
+          "$ref": "#/$defs/fiveFrames",
+          "description": "动作内部相对阶段 0..4 的上升帧；所有帧都必须位于 [start_frame, end_frame_exclusive)。"
         },
         "peak_frame_range_inclusive": {
           "type": "array",
@@ -366,10 +374,12 @@
           "items": false
         },
         "fall_frames_by_intensity": {
-          "$ref": "#/$defs/fiveFrames"
+          "$ref": "#/$defs/fiveFrames",
+          "description": "动作内部相对阶段 0..4 的下降帧；索引 0 必须严格等于 end_frame_exclusive - 1。"
         },
         "representative_frames_by_intensity": {
-          "$ref": "#/$defs/fiveFrames"
+          "$ref": "#/$defs/fiveFrames",
+          "description": "动作内部相对阶段 0..4 的代表帧；不是绝对张口强度。"
         },
         "notes": {
           "type": "string"
@@ -379,6 +389,45 @@
     "transitionSpan": {
       "type": "object",
       "additionalProperties": false,
+      "not": {
+        "anyOf": [
+          {
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "const": "A" },
+              "to": { "const": "A" }
+            }
+          },
+          {
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "const": "I" },
+              "to": { "const": "I" }
+            }
+          },
+          {
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "const": "U" },
+              "to": { "const": "U" }
+            }
+          },
+          {
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "const": "E" },
+              "to": { "const": "E" }
+            }
+          },
+          {
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "const": "O" },
+              "to": { "const": "O" }
+            }
+          }
+        ]
+      },
       "required": [
         "from",
         "to",
@@ -389,7 +438,6 @@
       "properties": {
         "from": {
           "enum": [
-            "CLOSED",
             "A",
             "I",
             "U",
@@ -399,7 +447,6 @@
         },
         "to": {
           "enum": [
-            "CLOSED",
             "A",
             "I",
             "U",
