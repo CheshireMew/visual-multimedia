@@ -7,7 +7,7 @@ import process from "node:process";
 import { validateMediaSources } from "./validate-media-sources.mjs";
 
 const PROTOCOL = "visual-multimedia-media-sources";
-const VERSION = 2;
+const VERSION = 3;
 const ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 const MEDIA_TYPES = new Set([
   "photo",
@@ -441,6 +441,12 @@ function main() {
     id,
     media_type: mediaType,
     file: imported.file,
+    representation: {
+      kind: "source",
+      source_id: null,
+      build: null,
+      verification: null,
+    },
     acquisition: {
       method,
       source_url: args.get("source-url") || "",

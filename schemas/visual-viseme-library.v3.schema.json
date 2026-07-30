@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.visual-viseme-library.v3",
+  "title": "AI-Reviewed Whole-Frame Visual Viseme Library v3",
+  "type": "object",
+  "required": [
+    "protocol",
+    "version",
+    "source_id",
+    "source_fps",
+    "source_frame_count",
+    "source_crop_xywh",
+    "annotation",
+    "runtime_state_spans",
+    "closed_motion_clips",
+    "gesture_clips",
+    "natural_transitions"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-visual-viseme-library"},
+    "version": {"const": 3},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_fps": {"type": "number", "exclusiveMinimum": 0},
+    "source_frame_count": {"type": "integer", "minimum": 1},
+    "source_crop_xywh": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "integer", "minimum": 0},
+        {"type": "integer", "minimum": 0},
+        {"type": "integer", "minimum": 1},
+        {"type": "integer", "minimum": 1}
+      ],
+      "items": false
+    },
+    "annotation": {
+      "type": "object",
+      "required": [
+        "method",
+        "reviewed_contact_sheets",
+        "closed_motion_exhaustive_review"
+      ],
+      "properties": {
+        "method": {"const": "ai-visual-review"},
+        "reviewed_contact_sheets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "closed_motion_exhaustive_review": {
+          "type": "object",
+          "required": ["exhaustive", "reviewed_frame_range", "decision"],
+          "properties": {
+            "exhaustive": {"const": true},
+            "reviewed_frame_range": {
+              "type": "array",
+              "prefixItems": [
+                {"const": 0},
+                {"type": "integer", "minimum": 1}
+              ],
+              "items": false
+            },
+            "decision": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "runtime_state_spans": {"type": "array", "minItems": 1},
+    "closed_motion_clips": {"type": "array", "minItems": 1},
+    "gesture_clips": {"type": "array", "minItems": 5},
+    "natural_transitions": {"type": "array"}
+  }
+}

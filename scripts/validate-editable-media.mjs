@@ -210,7 +210,7 @@ function structuralChecks(manifest, manifestPath) {
     }
   }
   if (typeof manifest.media_sources !== "string" || !manifest.media_sources) {
-    fail("S3", "media_sources 必须指向唯一的 v2 素材账本");
+    fail("S3", "media_sources 必须指向唯一的 v3 素材账本");
   }
   const mediaSourcesPath = typeof manifest.media_sources === "string"
     ? path.resolve(manifestDir, manifest.media_sources)
@@ -847,7 +847,7 @@ async function inspectTarget(
     inspection.mediaSources?.protocol !== "visual-multimedia-media-sources"
     || inspection.mediaSources?.version !== 2
   ) {
-    fail("B2", "浏览器运行时没有读取 v2 素材账本");
+    fail("B2", "浏览器运行时没有读取 v3 素材账本");
   }
   for (const binding of inspection.mediaBindings || []) {
     if (!binding.sourceId || !binding.expectedSrc) {

@@ -1,0 +1,90 @@
+{
+  "protocol": "visual-multimedia-anime-avatar-library-package",
+  "version": 2,
+  "id": "yexi",
+  "library_version": "1.0.0",
+  "display_name": "夜希",
+  "status": "registered",
+  "character": {
+    "id": "yexi",
+    "name": "夜希",
+    "origin": "reference-image",
+    "specification": "黑色短发、蓝色发梢、黑色猫耳、红色眼睛、金色月牙星星发饰、黑色哥特服装与红宝石胸针的年轻女性二次元角色。保持清晰日系线条和赛璐璐上色。",
+    "master_source_id": "avatar-master",
+    "master_status": "confirmed"
+  },
+  "motion_source": {
+    "source_id": "avatar-motion-source",
+    "status": "accepted",
+    "source_crop_xywh": [
+      6,
+      0,
+      900,
+      900
+    ],
+    "mouth_review_crop_xywh": [
+      280,
+      420,
+      340,
+      300
+    ]
+  },
+  "media_sources_file": "media-sources.json",
+  "library_file": "visual-viseme-library.json",
+  "capabilities": {
+    "language": "zh-CN",
+    "whole_frame": true,
+    "visemes": [
+      "CLOSED",
+      "A",
+      "I",
+      "U",
+      "E",
+      "O"
+    ],
+    "dynamic_closed_idle": true
+  },
+  "parameter_provenance": {
+    "protocol_invariants": [
+      "library protocol and frame boundaries",
+      "source id, fps, frame count and crop equality"
+    ],
+    "algorithm_defaults": [
+      "project render.internal_fps",
+      "project render.delivery_fps",
+      "project render.output_size"
+    ],
+    "asset_calibration": [
+      "motion_source.source_crop_xywh",
+      "motion_source.mouth_review_crop_xywh",
+      "visual-viseme-library frame spans and strengths"
+    ]
+  },
+  "validation": {
+    "validated_at": "2026-07-30T03:00:00+00:00",
+    "source_frame_count": 361,
+    "source_fps": 24.0,
+    "review_evidence_files": [
+      "reports/avatar-source-review/overview.jpg",
+      "reports/avatar-source-review/full-8fps-01.jpg",
+      "reports/avatar-source-review/full-8fps-02.jpg",
+      "reports/avatar-source-review/full-8fps-03.jpg",
+      "reports/avatar-source-review/full-8fps-04.jpg",
+      "reports/avatar-source-review/full-8fps-05.jpg",
+      "reports/avatar-source-review/mouth-12fps-01.jpg",
+      "reports/avatar-source-review/mouth-12fps-02.jpg",
+      "reports/avatar-source-review/mouth-12fps-03.jpg",
+      "reports/avatar-source-review/mouth-12fps-04.jpg",
+      "reports/avatar-source-review/mouth-12fps-05.jpg",
+      "reports/avatar-source-review/mouth-12fps-06.jpg",
+      "reports/avatar-source-review/mouth-12fps-07.jpg"
+    ],
+    "accepted_production_evidence_file": "validation/accepted-production.json",
+    "library_sha256": "9fc8c87d43bf3b0bc2d2e824d5ff661ddf4062db667bfff42d1f1771ad375a4f"
+  },
+  "provenance": {
+    "registration_method": "recovered-from-user-accepted-production",
+    "source_project_hint": null,
+    "registered_at": "2026-07-30T02:25:24.721404+00:00"
+  }
+}

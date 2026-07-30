@@ -12,7 +12,7 @@
 
 网页的 `editable-media.json`、视频时间线或音频项目是素材采用关系的真源。导入素材只说明候选文件已经可靠进入项目；只有消费者显式引用 `source id`，素材才算进入当前成品。禁止在 `media-sources.json` 中再保存一份场景绑定或时间线顺序。
 
-结构分别以 `schemas/media-sources.v2.schema.json`、`schemas/clip-selections.v1.schema.json` 和 `schemas/media-delivery.v1.schema.json` 为准。新项目从 `assets/media-project-starter/` 开始，不创建第二套 `assets-manifest.json`、供应商清单或交付状态文件。
+结构分别以 `schemas/media-sources.v3.schema.json`、`schemas/clip-selections.v1.schema.json` 和 `schemas/media-delivery.v1.schema.json` 为准。新项目从 `assets/media-project-starter/` 开始，不创建第二套 `assets-manifest.json`、供应商清单或交付状态文件。
 
 ## 二、素材账本
 
@@ -21,7 +21,7 @@
 ```json
 {
   "protocol": "visual-multimedia-media-sources",
-  "version": 2,
+  "version": 3,
   "sources": []
 }
 ```

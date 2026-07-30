@@ -1,0 +1,22 @@
+{
+  "protocol": "visual-multimedia-anime-avatar-library-catalog",
+  "version": 2,
+  "default_library": null,
+  "libraries": [
+    {
+      "id": "yexi",
+      "display_name": "夜希",
+      "aliases": [
+        "夜希数字人"
+      ],
+      "preferred_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "status": "registered",
+          "package_file": "yexi/1.0.0/library-package.json"
+        }
+      ]
+    }
+  ]
+}

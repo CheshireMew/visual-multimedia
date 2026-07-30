@@ -1,11 +1,17 @@
 {
   "protocol": "visual-multimedia-media-sources",
-  "version": 2,
+  "version": 3,
   "sources": [
     {
       "id": "case-avatar",
       "media_type": "photo",
       "file": "assets/by-sha256/25/255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
       "acquisition": {
         "method": "project-owned",
         "source_url": "",
@@ -44,6 +50,12 @@
       "id": "case-narration",
       "media_type": "audio",
       "file": "assets/by-sha256/a7/a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
       "acquisition": {
         "method": "project-owned",
         "source_url": "",

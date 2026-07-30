@@ -14,7 +14,7 @@
 - `playback` 保存 `manual`、`autoplay` 或 `hybrid` 播放方式、帧率、循环和导航能力。手动表示由用户推进；自动表示时钟连续推进；混合表示场景内自动运动、场景边界等待用户。
 - `layout_contracts` 保存内容版式的适用页面职责、内容形态、容量、必需字段、必需图层和素材槽位。它回答当前内容应该采用什么结构。
 - `variants` 保存方形、竖版、横版等输出比例的画布和图层边界。它回答同一内容怎样为不同画布重新构图。
-- `data_fields`、`theme_variables`、`resources`、`quality` 和 `delivery` 分别保存内容、视觉变量、非媒体运行资源、量化验收和交付方式；`media_sources` 唯一指向 v2 素材账本。
+- `data_fields`、`theme_variables`、`resources`、`quality` 和 `delivery` 分别保存内容、视觉变量、非媒体运行资源、量化验收和交付方式；`media_sources` 唯一指向 v3 素材账本。
 
 查询参数 `variant=<id>` 选择输出比例，`scene=<id>` 与可选的 `step=<id>` 选择场景状态，`time=<ms>` 表示所选场景内的时间。内容版式和输出比例是两个判断，不共用一个字段。
 

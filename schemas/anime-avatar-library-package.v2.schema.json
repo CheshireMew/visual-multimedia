@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-library-package.v2",
+  "title": "Anime Avatar Library Package v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "id",
+    "library_version",
+    "display_name",
+    "status",
+    "character",
+    "motion_source",
+    "media_sources_file",
+    "library_file",
+    "capabilities",
+    "parameter_provenance",
+    "validation",
+    "provenance"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-anime-avatar-library-package"},
+    "version": {"const": 2},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "library_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "display_name": {"type": "string", "minLength": 1},
+    "status": {"enum": ["candidate", "registered"]},
+    "character": {"type": "object"},
+    "motion_source": {"type": "object"},
+    "media_sources_file": {"type": "string", "minLength": 1},
+    "library_file": {"type": "string", "minLength": 1},
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["language", "whole_frame", "visemes", "dynamic_closed_idle"],
+      "properties": {
+        "language": {"const": "zh-CN"},
+        "whole_frame": {"const": true},
+        "visemes": {
+          "const": ["CLOSED", "A", "I", "U", "E", "O"]
+        },
+        "dynamic_closed_idle": {"const": true}
+      }
+    },
+    "parameter_provenance": {"type": "object"},
+    "validation": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": [
+            "validated_at",
+            "source_frame_count",
+            "source_fps",
+            "review_evidence_files",
+            "accepted_production_evidence_file",
+            "library_sha256"
+          ]
+        }
+      ]
+    },
+    "provenance": {"type": "object"}
+  }
+}

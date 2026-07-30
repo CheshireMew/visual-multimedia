@@ -2,8 +2,11 @@
 
 This module intentionally works above individual source frames.  Dense vowel
 nuclei become explicit coarticulation clusters, stable pauses become continuous
-idle blocks, and source motion is used only through reviewed low→peak→low clips
-and directed natural transitions recorded in the visual-viseme library.
+idle blocks, and source motion is used only through reviewed gesture clips and
+directed natural transitions recorded in the visual-viseme library.  When a
+speech onset falls too close to the first acoustic peak, a bounded part of the
+preceding pause is used as visual anticipation instead of speeding up or
+jumping the source motion.
 """
 
 from __future__ import annotations
@@ -28,8 +31,10 @@ _BEAM_WIDTH = 256
 _BEAM_PORTFOLIO_PER_EXIT = 2
 _STRENGTH_NEAR_BEST_MARGIN = 0.35
 _DIVERSITY_WINDOW = 5
-_MAX_MATCHED_GESTURE_ENDPOINT_LEVEL = 2
+_NORMAL_GESTURE_ENDPOINT_LEVEL = 2
+_MAX_PARTIAL_GESTURE_ENDPOINT_LEVEL = 3
 _MATCHED_SAME_VISEME_TRANSITION_REWARD = 8.0
+_MAX_ANTICIPATORY_PREROLL_AT_24_FPS = 5
 
 
 @dataclass(frozen=True)
@@ -45,8 +50,8 @@ class Clip:
     peak_start: int | None = None
     peak_end: int | None = None
     peak_strength_level: float = 0.0
-    low_entries: tuple[int, ...] = ()
-    low_exits: tuple[int, ...] = ()
+    entry_frames_by_intensity: tuple[int, ...] = ()
+    exit_frames_by_intensity: tuple[int, ...] = ()
 
     @property
     def length(self) -> int:
@@ -80,6 +85,7 @@ class Block:
     target_peak_level: float
     cluster_index: int | None = None
     anchor_events: tuple[AnchorEvent, ...] = ()
+    endpoint_level_limit: int = _NORMAL_GESTURE_ENDPOINT_LEVEL
 
     @property
     def length(self) -> int:
@@ -219,8 +225,8 @@ def _parse_library(
     source_count: int,
     source_takes: np.ndarray,
 ) -> tuple[list[Clip], list[Clip], dict[tuple[int, str, str], tuple[int, int]]]:
-    if library.get("version") != 1:
-        raise ValueError("gesture scheduler requires visual-viseme library v1")
+    if library.get("version") != 3:
+        raise ValueError("gesture scheduler requires visual-viseme library v3")
 
     gestures: list[Clip] = []
     ids: set[str] = set()
@@ -282,10 +288,10 @@ def _parse_library(
                 f"gesture_clips[{index}] 的 rise/fall 必须是片段内真实、"
                 "严格有序的 0..4 帧，且低口型端点等于 start/end-1"
             )
-        low_entries = tuple(rise_frames[:3])
-        low_exits = tuple(fall_frames[:3])
-        entry = low_entries[0]
-        exit_frame = low_exits[0]
+        entry_frames = tuple(rise_frames)
+        exit_frames = tuple(fall_frames)
+        entry = entry_frames[0]
+        exit_frame = exit_frames[0]
         gestures.append(
             Clip(
                 id=clip_id,
@@ -299,8 +305,8 @@ def _parse_library(
                 peak_start=int(peak[0]),
                 peak_end=int(peak[1]),
                 peak_strength_level=float(peak_strength_level),
-                low_entries=low_entries,
-                low_exits=low_exits,
+                entry_frames_by_intensity=entry_frames,
+                exit_frames_by_intensity=exit_frames,
             )
         )
         ids.add(clip_id)
@@ -332,8 +338,8 @@ def _parse_library(
                 end=end,
                 entry=start,
                 exit=end - 1,
-                low_entries=(start,),
-                low_exits=(end - 1,),
+                entry_frames_by_intensity=(start,),
+                exit_frames_by_intensity=(end - 1,),
             )
         )
         ids.add(clip_id)
@@ -564,9 +570,41 @@ def _gesture_block_has_option(
     return False
 
 
+def _gesture_block_with_endpoint_limit(
+    block: Block,
+    gestures: Sequence[Clip],
+    endpoint_level_limit: int,
+) -> Block | None:
+    candidate = replace(
+        block,
+        endpoint_level_limit=endpoint_level_limit,
+    )
+    return candidate if _gesture_block_has_option(candidate, gestures) else None
+
+
+def _gesture_block_has_rest_entry_option(
+    block: Block,
+    gestures: Sequence[Clip],
+) -> bool:
+    for clip in gestures:
+        if clip.viseme != block.viseme:
+            continue
+        try:
+            if any(
+                option.entry_level == 0
+                for option in _gesture_options(block, clip)
+            ):
+                return True
+        except ValueError:
+            continue
+    return False
+
+
 def _merge_cluster_pair(
     clusters: Sequence[CoarticulationCluster],
     left_index: int,
+    *,
+    preferred_primary: str | None = None,
 ) -> list[CoarticulationCluster]:
     left = clusters[left_index]
     right = clusters[left_index + 1]
@@ -576,7 +614,12 @@ def _merge_cluster_pair(
             key=lambda event: event.frame,
         )
     )
-    surviving_primary = _primary_event((left.primary, right.primary))
+    if preferred_primary == "left":
+        surviving_primary = left.primary
+    elif preferred_primary == "right":
+        surviving_primary = right.primary
+    else:
+        surviving_primary = _primary_event((left.primary, right.primary))
     merged = (
         list(clusters[:left_index])
         + [
@@ -600,6 +643,8 @@ def _fit_clusters(
     clusters: Sequence[CoarticulationCluster],
     gestures: Sequence[Clip],
     minimum_interval: int,
+    *,
+    allow_recovery: bool = False,
 ) -> tuple[list[CoarticulationCluster], list[Block]]:
     fitted = list(clusters)
     while fitted:
@@ -607,26 +652,51 @@ def _fit_clusters(
             blocks = _cluster_blocks(start, end, fitted)
         except ValueError:
             blocks = []
-        failing = [
-            index
-            for index, block in enumerate(blocks)
-            if block.length < minimum_interval
-            or not _gesture_block_has_option(block, gestures)
-        ]
+        resolved_blocks: list[Block] = []
+        failing: list[int] = []
+        for index, block in enumerate(blocks):
+            if block.length < minimum_interval:
+                failing.append(index)
+                resolved_blocks.append(block)
+                continue
+            normal = _gesture_block_with_endpoint_limit(
+                block,
+                gestures,
+                _NORMAL_GESTURE_ENDPOINT_LEVEL,
+            )
+            if normal is not None:
+                resolved_blocks.append(normal)
+                continue
+            partial = (
+                _gesture_block_with_endpoint_limit(
+                    block,
+                    gestures,
+                    _MAX_PARTIAL_GESTURE_ENDPOINT_LEVEL,
+                )
+                if allow_recovery and 0 < index < len(blocks) - 1
+                else None
+            )
+            if partial is not None:
+                resolved_blocks.append(partial)
+            else:
+                failing.append(index)
+                resolved_blocks.append(block)
         if blocks and not failing:
-            return fitted, blocks
+            return fitted, resolved_blocks
         if len(fitted) == 1:
             primary = fitted[0].primary
             raise ValueError(
-                "coarticulation cluster cannot realize a continuous "
-                "low→peak→low path within the 2x speed/acceleration limits: "
+                "coarticulation cluster cannot realize a continuous reviewed "
+                "gesture path within the 2x speed/acceleration limits: "
                 f"region=[{start},{end}), primary={primary.viseme}@{primary.frame}"
             )
         failing_index = failing[0] if failing else 0
         if failing_index == 0:
             merge_left = 0
+            preferred_primary = "right"
         elif failing_index >= len(fitted) - 1:
             merge_left = len(fitted) - 2
+            preferred_primary = "left"
         else:
             left_gap = (
                 fitted[failing_index].primary.frame
@@ -637,8 +707,108 @@ def _fit_clusters(
                 - fitted[failing_index].primary.frame
             )
             merge_left = failing_index - 1 if left_gap <= right_gap else failing_index
-        fitted = _merge_cluster_pair(fitted, merge_left)
+            preferred_primary = None
+        fitted = _merge_cluster_pair(
+            fitted,
+            merge_left,
+            preferred_primary=(
+                preferred_primary if allow_recovery else None
+            ),
+        )
     return [], []
+
+
+def _stable_silence_mask(
+    roles: Sequence[str],
+    minimum_interval: int,
+) -> list[bool]:
+    stable = [False] * len(roles)
+    for start, end, is_silence in _runs(
+        [role == "silence" for role in roles]
+    ):
+        if is_silence and end - start >= minimum_interval:
+            stable[start:end] = [True] * (end - start)
+    return stable
+
+
+def _prepare_anticipatory_preroll(
+    stable_silence: Sequence[bool],
+    target_labels: Sequence[str],
+    target_levels: np.ndarray,
+    anchors: Sequence[str | None],
+    roles: Sequence[str],
+    gestures: Sequence[Clip],
+    minimum_interval: int,
+) -> tuple[list[bool], list[bool]]:
+    """Borrow the minimum safe pause tail for a bounded speech onset.
+
+    The acoustic timeline stays immutable.  Only the motion segmentation is
+    widened. A reviewed CLOSED anchor is never crossed, so the preceding
+    silent core remains a genuine dynamic closed-mouth interval.
+    """
+
+    stable = list(stable_silence)
+    anticipation = [False] * len(roles)
+    maximum_preroll = max(
+        1,
+        int(
+            np.ceil(
+                _MAX_ANTICIPATORY_PREROLL_AT_24_FPS
+                * minimum_interval
+                / _MIN_EVENT_INTERVAL_AT_24_FPS
+            )
+        ),
+    )
+    original_runs = list(_runs(stable))
+    for start, end, is_stable_silence in original_runs:
+        if is_stable_silence or start == 0 or not stable[start - 1]:
+            continue
+        events = [
+            _anchor_event(
+                frame,
+                anchors,
+                target_labels,
+                target_levels,
+                roles,
+            )
+            for frame in range(start, end)
+            if anchors[frame] in VOWEL_VISEMES
+        ]
+        if not events:
+            continue
+        clusters = _cluster_events(events, minimum_interval)
+        initial_blocks = _cluster_blocks(start, end, clusters)
+        if (
+            initial_blocks
+            and not _gesture_block_has_rest_entry_option(
+                initial_blocks[0],
+                gestures,
+            )
+        ):
+            available = 0
+            for frame in range(start - 1, -1, -1):
+                if not stable[frame] or anchors[frame] == "CLOSED":
+                    break
+                available += 1
+                if available >= maximum_preroll:
+                    break
+            for borrowed in range(1, available + 1):
+                candidate_start = start - borrowed
+                candidate_first = _cluster_blocks(
+                    candidate_start,
+                    end,
+                    clusters,
+                )[0]
+                if not _gesture_block_has_rest_entry_option(
+                    candidate_first,
+                    gestures,
+                ):
+                    continue
+                stable[candidate_start:start] = [False] * borrowed
+                anticipation[candidate_start:start] = [True] * borrowed
+                break
+
+    return stable, anticipation
 
 
 def _partition_idle(
@@ -682,13 +852,24 @@ def _build_blocks(
     gestures: Sequence[Clip],
     closed: Sequence[Clip],
     minimum_interval: int,
-) -> tuple[list[Block], list[CoarticulationCluster]]:
-    stable_silence = [False] * len(roles)
-    for start, end, is_silence in _runs(
-        [role == "silence" for role in roles]
-    ):
-        if is_silence and end - start >= minimum_interval:
-            stable_silence[start:end] = [True] * (end - start)
+    *,
+    allow_recovery: bool = False,
+) -> tuple[list[Block], list[CoarticulationCluster], list[bool]]:
+    stable_silence = _stable_silence_mask(roles, minimum_interval)
+    if allow_recovery:
+        stable_silence, anticipatory_preroll = (
+            _prepare_anticipatory_preroll(
+                stable_silence,
+                target_labels,
+                target_levels,
+                anchors,
+                roles,
+                gestures,
+                minimum_interval,
+            )
+        )
+    else:
+        anticipatory_preroll = [False] * len(roles)
 
     blocks: list[Block] = []
     all_clusters: list[CoarticulationCluster] = []
@@ -734,6 +915,7 @@ def _build_blocks(
             clusters,
             gestures,
             minimum_interval,
+            allow_recovery=allow_recovery,
         )
         cluster_offset = len(all_clusters)
         adjusted_clusters = [
@@ -765,7 +947,7 @@ def _build_blocks(
     for previous, current in zip(ordered, ordered[1:]):
         if previous.end != current.start:
             raise RuntimeError("motion blocks contain a gap or overlap")
-    return ordered, all_clusters
+    return ordered, all_clusters, anticipatory_preroll
 
 
 def _piecewise_positions(
@@ -820,8 +1002,13 @@ def _gesture_options(block: Block, clip: Clip) -> list[Option]:
         )
     output: list[Option] = []
     seen: set[tuple[int, int, int]] = set()
-    for entry_level, entry in enumerate(clip.low_entries[:3]):
-        for exit_level, exit_frame in enumerate(clip.low_exits[:3]):
+    endpoint_count = block.endpoint_level_limit + 1
+    for entry_level, entry in enumerate(
+        clip.entry_frames_by_intensity[:endpoint_count]
+    ):
+        for exit_level, exit_frame in enumerate(
+            clip.exit_frames_by_intensity[:endpoint_count]
+        ):
             for peak_frame in range(clip.peak_start, clip.peak_end + 1):
                 signature = (entry, peak_frame, exit_frame)
                 if signature in seen or not entry < peak_frame < exit_frame:
@@ -1353,13 +1540,30 @@ def _transition(
                 normalized_cost=0.02,
                 natural_span=span,
             )
+    maximum_matched_level = min(
+        previous_block.endpoint_level_limit,
+        current_block.endpoint_level_limit,
+        _MAX_PARTIAL_GESTURE_ENDPOINT_LEVEL,
+    )
     matched_gesture_endpoint = (
         previous.clip.kind == "gesture"
         and current.clip.kind == "gesture"
         and previous.exit_level == current.entry_level
         and 1
         < previous.exit_level
-        <= _MAX_MATCHED_GESTURE_ENDPOINT_LEVEL
+        <= maximum_matched_level
+    )
+    compatible_partial_endpoint = (
+        previous.clip.kind == "gesture"
+        and current.clip.kind == "gesture"
+        and (
+            previous_block.endpoint_level_limit
+            == _MAX_PARTIAL_GESTURE_ENDPOINT_LEVEL
+            or current_block.endpoint_level_limit
+            == _MAX_PARTIAL_GESTURE_ENDPOINT_LEVEL
+        )
+        and min(previous.exit_level, current.entry_level) >= 2
+        and abs(previous.exit_level - current.entry_level) <= 1
     )
     matched_same_viseme_endpoint = (
         matched_gesture_endpoint
@@ -1367,7 +1571,7 @@ def _transition(
     )
     if (
         previous.exit_level > 1 or current.entry_level > 1
-    ) and not matched_gesture_endpoint:
+    ) and not (matched_gesture_endpoint or compatible_partial_endpoint):
         return None
     static = _descriptor_rms(
         descriptors[previous.source_exit],
@@ -1388,7 +1592,11 @@ def _transition(
             else (
                 "compatible_matched_cross_viseme_endpoint_seam"
                 if matched_gesture_endpoint
-                else "compatible_low_endpoint_seam"
+                else (
+                    "compatible_partial_endpoint_seam"
+                    if compatible_partial_endpoint
+                    else "compatible_low_endpoint_seam"
+                )
             )
         ),
         from_clip_id=previous.clip.id,
@@ -1680,6 +1888,8 @@ def _choose_options(
     descriptors: np.ndarray,
     natural: Mapping[tuple[int, str, str], tuple[int, int]],
     minimum_boundary_gap: int,
+    *,
+    enforce_diversity: bool = True,
 ) -> tuple[
     tuple[Option, ...],
     tuple[Transition, ...],
@@ -1700,7 +1910,10 @@ def _choose_options(
     states = []
     for option in eligible_options_by_block[0]:
         state = _initial_state(option)
-        if _diversity_reachable(state, 1, policy):
+        if (
+            not enforce_diversity
+            or _diversity_reachable(state, 1, policy)
+        ):
             states.append(state)
     if not states:
         raise ValueError(
@@ -1713,7 +1926,14 @@ def _choose_options(
         for state in states:
             previous = state.options[-1]
             for current in eligible_options_by_block[block_index]:
-                if not _recent_clip_limit_passes(state, current, policy):
+                if (
+                    enforce_diversity
+                    and not _recent_clip_limit_passes(
+                        state,
+                        current,
+                        policy,
+                    )
+                ):
                     continue
                 transition = _transition(
                     previous,
@@ -1744,10 +1964,13 @@ def _choose_options(
                     transition,
                     penalty,
                 )
-                if _diversity_reachable(
-                    candidate,
-                    block_index + 1,
-                    policy,
+                if (
+                    not enforce_diversity
+                    or _diversity_reachable(
+                        candidate,
+                        block_index + 1,
+                        policy,
+                    )
                 ):
                     next_states.append(candidate)
         if not next_states:
@@ -1783,9 +2006,10 @@ def _choose_options(
             list(deduplicated.values()),
             policy,
         )
-    states = [
-        state for state in states if _diversity_satisfied(state, policy)
-    ]
+    if enforce_diversity:
+        states = [
+            state for state in states if _diversity_satisfied(state, policy)
+        ]
     if not states:
         raise ValueError(
             "no reviewed clip route satisfies the adaptive gesture-diversity "
@@ -1922,6 +2146,7 @@ def _report(
     clusters: Sequence[CoarticulationCluster],
     thresholds: Mapping[str, float],
     diversity_policy: DiversityPolicy,
+    diversity_enforcement_mode: str,
     source_labels: Sequence[str],
     source_levels: np.ndarray,
     source_takes: np.ndarray,
@@ -1929,6 +2154,7 @@ def _report(
     target_levels: np.ndarray,
     anchors: Sequence[str | None],
     roles: Sequence[str],
+    anticipatory_preroll: Sequence[bool],
     fps: float,
     minimum_interval: int,
 ) -> dict[str, Any]:
@@ -1952,11 +2178,22 @@ def _report(
         [role == "silence" for role in roles],
         dtype=bool,
     )
-    stable_pause_mask = np.zeros(len(roles), dtype=bool)
-    for start, end, is_silence in _runs(silence_mask.tolist()):
-        if is_silence and end - start >= minimum_interval:
-            stable_pause_mask[start:end] = True
-    coarticulated_micro_pause_mask = silence_mask & ~stable_pause_mask
+    anticipation_mask = np.asarray(anticipatory_preroll, dtype=bool)
+    if len(anticipation_mask) != len(roles):
+        raise ValueError("anticipatory preroll mask must align with target")
+    stable_pause_mask = np.asarray(
+        _stable_silence_mask(roles, minimum_interval),
+        dtype=bool,
+    )
+    stable_pause_mask &= ~anticipation_mask
+    coarticulated_micro_pause_mask = (
+        silence_mask & ~stable_pause_mask & ~anticipation_mask
+    )
+    anticipation_ranges = [
+        [start, end]
+        for start, end, enabled in _runs(anticipation_mask.tolist())
+        if enabled
+    ]
     speech_mask = ~silence_mask
     anchor_mask = np.asarray(
         [anchor is not None for anchor in anchors],
@@ -2199,7 +2436,10 @@ def _report(
         >= diversity_policy.required_unique_take_count
         and per_viseme_satisfied
     )
-    if not global_diversity_satisfied:
+    if (
+        diversity_enforcement_mode != "continuity-first-fallback"
+        and not global_diversity_satisfied
+    ):
         raise AssertionError(
             "selected route violated the planner-owned adaptive "
             "gesture-diversity contract"
@@ -2260,6 +2500,11 @@ def _report(
             "source_exit_frame": option.source_exit,
             "entry_intensity_level": option.entry_level,
             "exit_intensity_level": option.exit_level,
+            "endpoint_level_limit": block.endpoint_level_limit,
+            "uses_partial_coarticulation_endpoint": (
+                block.endpoint_level_limit
+                > _NORMAL_GESTURE_ENDPOINT_LEVEL
+            ),
             "target_acoustic_strength_level": round(
                 block.target_peak_level,
                 6,
@@ -2360,6 +2605,9 @@ def _report(
             "native_contiguous",
             "directed_natural_chain",
             "compatible_low_endpoint_seam",
+            "compatible_partial_endpoint_seam",
+            "compatible_matched_same_viseme_endpoint_seam",
+            "compatible_matched_cross_viseme_endpoint_seam",
         )
     }
     threshold_failures = sum(
@@ -2375,9 +2623,10 @@ def _report(
     return {
         "planned_annotation_method": (
             "AI-reviewed coarticulation-cluster scheduler with complete "
-            "low→peak→low gesture/idle clips, directed natural chains, exact "
-            "entry/exit endpoint compatibility, and bounded floating-point "
-            "source-time maps"
+            "gesture/idle clips, bounded anticipatory speech onset, partial "
+            "interior coarticulation, directed natural chains, reviewed "
+            "entry/exit compatibility, and bounded floating-point source-time "
+            "maps"
         ),
         "planned_annotation_source_position_dtype": "float32",
         "planned_annotation_frame_count": len(positions),
@@ -2446,6 +2695,18 @@ def _report(
             if np.any(coarticulated_micro_pause_mask)
             else 1.0,
             6,
+        ),
+        "planned_annotation_anticipatory_preroll_closed_match_rate": round(
+            float(np.mean(closed_compatible[anticipation_mask]))
+            if np.any(anticipation_mask)
+            else 1.0,
+            6,
+        ),
+        "planned_annotation_anticipatory_preroll_frame_ranges": (
+            anticipation_ranges
+        ),
+        "planned_annotation_anticipatory_preroll_frame_count": int(
+            np.sum(anticipation_mask)
         ),
         "planned_annotation_stable_pause_frame_count": int(
             np.sum(stable_pause_mask)
@@ -2540,6 +2801,12 @@ def _report(
         "planned_annotation_repeated_clip_windows": repeated_clip_windows,
         "planned_annotation_repeated_transitions": repeated_transitions,
         "planned_annotation_gesture_block_count": len(gesture_options),
+        "planned_annotation_partial_coarticulation_block_count": sum(
+            block.kind == "gesture"
+            and block.endpoint_level_limit
+            > _NORMAL_GESTURE_ENDPOINT_LEVEL
+            for block in blocks
+        ),
         "planned_annotation_selected_gesture_take_count": len(
             take_usage["gesture_by_take"]
         ),
@@ -2566,6 +2833,9 @@ def _report(
         ),
         "planned_annotation_gesture_diversity_contract_satisfied": (
             global_diversity_satisfied
+        ),
+        "planned_annotation_diversity_enforcement_mode": (
+            diversity_enforcement_mode
         ),
         "planned_annotation_gesture_diversity_contract": {
             "selection_basis": (
@@ -2720,23 +2990,88 @@ def plan_gesture_motion(
         1,
         int(np.ceil(_MIN_EVENT_INTERVAL_AT_24_FPS * fps / 24.0)),
     )
-    blocks, clusters = _build_blocks(
-        target_labels,
-        target_level_values,
-        anchors,
-        roles,
-        gestures,
-        closed,
-        minimum_interval,
-    )
-    options_by_block = _options_by_block(blocks, gestures, closed)
-    options, transitions, thresholds, diversity_policy = _choose_options(
-        blocks,
-        options_by_block,
-        descriptor_values,
-        natural,
-        minimum_interval,
-    )
+    def attempt(
+        allow_recovery: bool,
+    ) -> tuple[
+        list[Block],
+        list[CoarticulationCluster],
+        list[bool],
+        tuple[Option, ...],
+        tuple[Transition, ...],
+        dict[str, float],
+        DiversityPolicy,
+        str,
+    ]:
+        blocks, clusters, anticipatory_preroll = _build_blocks(
+            target_labels,
+            target_level_values,
+            anchors,
+            roles,
+            gestures,
+            closed,
+            minimum_interval,
+            allow_recovery=allow_recovery,
+        )
+        options_by_block = _options_by_block(blocks, gestures, closed)
+        try:
+            selected = _choose_options(
+                blocks,
+                options_by_block,
+                descriptor_values,
+                natural,
+                minimum_interval,
+                enforce_diversity=True,
+            )
+            return (
+                blocks,
+                clusters,
+                anticipatory_preroll,
+                *selected,
+                "hard-when-compatible",
+            )
+        except ValueError:
+            if not allow_recovery:
+                raise
+        selected = _choose_options(
+            blocks,
+            options_by_block,
+            descriptor_values,
+            natural,
+            minimum_interval,
+            enforce_diversity=False,
+        )
+        return (
+            blocks,
+            clusters,
+            anticipatory_preroll,
+            *selected,
+            "continuity-first-fallback",
+        )
+
+    try:
+        (
+            blocks,
+            clusters,
+            anticipatory_preroll,
+            options,
+            transitions,
+            thresholds,
+            diversity_policy,
+            diversity_enforcement_mode,
+        ) = attempt(False)
+        planner_mode = "standard"
+    except ValueError:
+        (
+            blocks,
+            clusters,
+            anticipatory_preroll,
+            options,
+            transitions,
+            thresholds,
+            diversity_policy,
+            diversity_enforcement_mode,
+        ) = attempt(True)
+        planner_mode = "bounded-recovery"
     positions, boundaries = _assemble_positions(
         len(target_labels),
         blocks,
@@ -2752,6 +3087,7 @@ def plan_gesture_motion(
         clusters,
         thresholds,
         diversity_policy,
+        diversity_enforcement_mode,
         source_labels,
         source_level_values,
         source_take_values,
@@ -2759,6 +3095,7 @@ def plan_gesture_motion(
         target_level_values,
         anchors,
         roles,
+        anticipatory_preroll,
         fps,
         minimum_interval,
     )
@@ -2773,6 +3110,7 @@ def plan_gesture_motion(
         for transition in transitions
         if transition.boundary
     ]
+    report["planned_annotation_planner_mode"] = planner_mode
     return positions.astype(np.float32, copy=False), boundaries, report
 
 
@@ -2890,7 +3228,7 @@ def _synthetic_fixture() -> tuple[Any, ...]:
     anchors[56] = "CLOSED"
     anchors[108] = "CLOSED"
     library = {
-        "version": 1,
+        "version": 3,
         "gesture_clips": gestures,
         "closed_motion_clips": closed,
         "natural_transition_spans": natural,
@@ -2927,8 +3265,8 @@ def _regression_clip(
         peak_start=start + 4,
         peak_end=start + 4,
         peak_strength_level=strength,
-        low_entries=(start, start + 1),
-        low_exits=(start + 8, start + 7),
+        entry_frames_by_intensity=(start, start + 1),
+        exit_frames_by_intensity=(start + 8, start + 7),
     )
 
 
@@ -3076,8 +3414,8 @@ def _selection_regression_tests() -> dict[str, Any]:
             exit=12,
             peak_start=6,
             peak_end=6,
-            low_entries=(0, 1, 2),
-            low_exits=(12, 11, 10),
+            entry_frames_by_intensity=(0, 1, 2),
+            exit_frames_by_intensity=(12, 11, 10),
         ),
         replace(
             _regression_clip("I_matched_2", "I", 2, 13, 4.0),
@@ -3085,8 +3423,8 @@ def _selection_regression_tests() -> dict[str, Any]:
             exit=25,
             peak_start=19,
             peak_end=19,
-            low_entries=(13, 14, 15),
-            low_exits=(25, 24, 23),
+            entry_frames_by_intensity=(13, 14, 15),
+            exit_frames_by_intensity=(25, 24, 23),
         ),
     ]
     matched_options = [
@@ -3208,6 +3546,46 @@ def _selection_regression_tests() -> dict[str, Any]:
 
 def lightweight_self_test() -> dict[str, Any]:
     selection_regressions = _selection_regression_tests()
+    onset_clip = Clip(
+        id="I_slow_onset",
+        kind="gesture",
+        viseme="I",
+        take=1,
+        start=0,
+        end=13,
+        entry=0,
+        exit=12,
+        peak_start=8,
+        peak_end=8,
+        peak_strength_level=4.0,
+        entry_frames_by_intensity=(0, 2, 4),
+        exit_frames_by_intensity=(12, 11, 10),
+    )
+    onset_labels = ["CLOSED"] * 32
+    onset_levels = np.zeros(32, dtype=np.float64)
+    onset_anchors: list[str | None] = [None] * 32
+    onset_roles = ["silence"] * 32
+    for frame in range(20, 32):
+        onset_labels[frame] = "I"
+        onset_levels[frame] = max(0.65, 4.0 - 0.35 * abs(frame - 22))
+        onset_roles[frame] = "vowel"
+    onset_anchors[10] = "CLOSED"
+    onset_anchors[22] = "I"
+    onset_stable = _stable_silence_mask(onset_roles, 8)
+    prepared_stable, onset_anticipation = _prepare_anticipatory_preroll(
+        onset_stable,
+        onset_labels,
+        onset_levels,
+        onset_anchors,
+        onset_roles,
+        [onset_clip],
+        8,
+    )
+    assert [
+        index for index, value in enumerate(onset_anticipation) if value
+    ] == [17, 18, 19]
+    assert all(not prepared_stable[index] for index in range(17, 20))
+    assert prepared_stable[10]
     dense_events = [
         AnchorEvent(
             frame=index * 6,
@@ -3237,7 +3615,8 @@ def lightweight_self_test() -> dict[str, Any]:
         np.asarray(fixture[3], dtype=np.int32),
     )
     assert all(
-        len(clip.low_entries) == 3 and len(clip.low_exits) == 3
+        len(clip.entry_frames_by_intensity) == 5
+        and len(clip.exit_frames_by_intensity) == 5
         for clip in parsed_gestures
     )
     positions, boundaries, report = plan_gesture_motion(*fixture)
@@ -3320,6 +3699,11 @@ def lightweight_self_test() -> dict[str, Any]:
         "minimum_boundary_gap": minimum_gap,
         "dense_chain_anchor_count": len(dense_events),
         "dense_chain_realized_cluster_count": len(dense_clusters),
+        "anticipatory_preroll_frames": [
+            index
+            for index, value in enumerate(onset_anticipation)
+            if value
+        ],
         "selection_regressions": selection_regressions,
     }
 

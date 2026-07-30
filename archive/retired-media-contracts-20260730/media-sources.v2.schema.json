@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "visual-multimedia.media-sources.v2",
-  "title": "Visual Multimedia Media Sources v2",
+  "title": "Visual Multimedia Media Sources v2 (Retired)",
   "type": "object",
   "additionalProperties": false,
   "required": ["protocol", "version", "sources"],

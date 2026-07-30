@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create and render a fixed circular or square anime-avatar video inset."""
+"""Validate and render a fixed inset from an already validated avatar track."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from typing import Any
 
 from PIL import Image, ImageColor, ImageDraw, ImageFilter
 
-from anime_avatar_common import (
+from anime_avatar_media import (
     ensure_crop,
     executable,
     parse_xywh,
@@ -321,8 +321,8 @@ def validate_job(
                 "角色轨短于角色窗持续时间："
                 f"需要 {active_duration:.6f}s，"
                 f"画面只有 {available_avatar_video:.6f}s。"
-                "请先用 render-anime-avatar.py --duration-seconds "
-                "渲染包含闭嘴动态待机的完整角色轨"
+                "角色窗入口不会拉长、冻结或重写角色轨；"
+                "请提供已经完整覆盖该区间并通过观看确认的动态角色轨"
             )
     if active_duration <= 0:
         raise ValueError("角色窗没有可渲染时长")
@@ -710,6 +710,43 @@ def init_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def validate_command(args: argparse.Namespace) -> int:
+    root = project_root(args.project)
+    ffprobe = executable("ffprobe", args.ffprobe)
+    job_path = path_in_project(root, args.job, root / "avatar-insets" / "unset.json")
+    job = read_json(job_path)
+    sources = load_sources(root, job, ffprobe)
+    values = validate_job(job, sources)
+    print(
+        json.dumps(
+            {
+                "job": str(job_path),
+                "sources": {
+                    "base": {
+                        "path": str(sources["base_path"]),
+                        "probe": sources["base_probe"],
+                    },
+                    "avatar": {
+                        "path": str(sources["avatar_path"]),
+                        "probe": sources["avatar_probe"],
+                    },
+                },
+                "resolved": values,
+                "checks": {
+                    "media_sources_v3_valid": True,
+                    "real_source_files_resolved": True,
+                    "fixed_crop_inside_avatar_frame": True,
+                    "fixed_window_inside_base_frame": True,
+                    "avatar_track_covers_requested_window": True,
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+    return 0
+
+
 def render_command(args: argparse.Namespace) -> int:
     root = project_root(args.project)
     ffmpeg = executable("ffmpeg", args.ffmpeg)
@@ -804,8 +841,8 @@ def render_command(args: argparse.Namespace) -> int:
                 "检查头顶、耳朵、呆毛和发梢处于窗口安全区",
                 "检查肩部和衣服覆盖窗口底部，圆弧内没有白色楔形或黑角",
                 "检查窗口大小与底片信息层级匹配，没有多余空白",
-                "检查选定音轨、口型和最终底片同步",
-                "检查所有无声区间播放闭嘴动态待机，没有空白圆框、误张嘴或静态冻结",
+                "若角色轨包含说话，检查选定音轨、原角色轨口型和底片同步",
+                "检查角色在所有要求出现的区间都持续存在，没有空白圆框或静态冻结",
             ],
         },
         "ffmpeg_command": command,
@@ -830,7 +867,8 @@ def render_command(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "用一次固定裁切和固定坐标，把已渲染的二次元口播轨放进底片的圆形或方形窗口。"
+            "用一次固定裁切和固定坐标，把已完成并经观看确认的二次元角色轨"
+            "放进底片的圆形或方形窗口。本入口不生成或修复角色动作。"
         )
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -880,6 +918,15 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--avatar-gain-db", type=float, default=0.0)
     init_parser.add_argument("--ffprobe", help="已有 ffprobe 可执行文件路径")
     init_parser.set_defaults(handler=init_command)
+
+    validate_parser = subparsers.add_parser(
+        "validate",
+        help="解析真实素材并验证角色窗任务，不编码视频",
+    )
+    validate_parser.add_argument("--project", required=True, help="媒体项目目录")
+    validate_parser.add_argument("--job", required=True, help="项目内角色窗任务 JSON")
+    validate_parser.add_argument("--ffprobe", help="已有 ffprobe 可执行文件路径")
+    validate_parser.set_defaults(handler=validate_command)
 
     render_parser = subparsers.add_parser("render", help="渲染角色窗并生成审查资料")
     render_parser.add_argument("--project", required=True, help="媒体项目目录")

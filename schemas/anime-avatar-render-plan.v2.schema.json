@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-render-plan.v2",
+  "title": "Immutable Anime Avatar Render Plan v2",
+  "type": "object",
+  "required": [
+    "protocol",
+    "version",
+    "status",
+    "plan_id",
+    "created_at",
+    "inputs",
+    "library_capabilities",
+    "execution",
+    "target_timeline",
+    "source_schedule",
+    "selection",
+    "joins",
+    "deterministic_seam_plan",
+    "approval"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-anime-avatar-render-plan"},
+    "version": {"const": 2},
+    "status": {"enum": ["ready", "rejected"]},
+    "plan_id": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "inputs": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["locator", "sha256"],
+        "properties": {
+          "locator": {
+            "type": "string",
+            "pattern": "^(project|skill)://"
+          },
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "library_capabilities": {"type": "object"},
+    "execution": {"type": "object"},
+    "target_timeline": {"type": "object"},
+    "source_schedule": {"type": "object"},
+    "selection": {"type": "object"},
+    "joins": {"type": "array"},
+    "deterministic_seam_plan": {"type": "object"},
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "confirmed_at", "approved_plan_sha256"],
+      "properties": {
+        "status": {"enum": ["pending", "confirmed"]},
+        "confirmed_at": {"type": ["string", "null"]},
+        "approved_plan_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

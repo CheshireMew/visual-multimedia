@@ -1,11 +1,17 @@
 {
   "protocol": "visual-multimedia-media-sources",
-  "version": 2,
+  "version": 3,
   "sources": [
     {
       "id": "creator-avatar",
       "media_type": "photo",
       "file": "../../creator-identity/cheshire-avatar.png",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
       "acquisition": {
         "method": "project-owned",
         "source_url": "",

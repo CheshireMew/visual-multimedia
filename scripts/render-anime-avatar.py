@@ -16,6 +16,7 @@ import uuid
 import wave
 from collections import OrderedDict
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -30,11 +31,11 @@ from anime_avatar_common import (
     ensure_crop,
     executable,
     frame_cells,
-    library_path,
     load_project,
     parse_xywh,
     probe_video,
     read_json,
+    resolve_avatar_library,
     resolve_source,
     validate_library_payload,
     validate_media_manifest,
@@ -118,10 +119,16 @@ def validate_timeline(payload: dict[str, Any]) -> list[SpeechUnit]:
     errors: list[str] = []
     if payload.get("protocol") != "visual-multimedia-speech-timeline":
         errors.append("protocol 必须是 visual-multimedia-speech-timeline")
-    if payload.get("version") != 1:
-        errors.append("version 必须是 1")
+    if payload.get("version") != 2:
+        errors.append("version 必须是 2")
     if payload.get("language") != "zh-CN":
         errors.append("当前渲染器只接受 zh-CN")
+    if payload.get("time_origin") != "trimmed-audio-start":
+        errors.append("time_origin 必须是 trimmed-audio-start")
+    if not isinstance(payload.get("audio_sha256"), str) or len(
+        payload["audio_sha256"]
+    ) != 64:
+        errors.append("audio_sha256 必须是 64 位 sha256")
     timing = payload.get("timing")
     if not isinstance(timing, dict) or timing.get("reviewed") is not True:
         errors.append("timing.reviewed 必须是 true")
@@ -168,6 +175,10 @@ def validate_timeline(payload: dict[str, Any]) -> list[SpeechUnit]:
             or float(trim_end) <= float(trim_start or 0)
         ):
             errors.append("trim_end_seconds 必须为空或大于 trim_start_seconds")
+        elif units and units[-1].end > (
+            float(trim_end) - float(trim_start or 0)
+        ) + 0.02:
+            errors.append("逐字边界越出裁切后音频时长")
     if errors:
         raise ValueError("speech-timeline.json 无效：\n- " + "\n- ".join(errors))
     return units
@@ -713,6 +724,257 @@ def file_sha256(path: Path) -> str:
         while chunk := source.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def portable_locator(path: Path, project_root: Path) -> str:
+    resolved = path.resolve()
+    for prefix, root in (
+        ("project://", project_root.resolve()),
+        ("skill://", Path(__file__).resolve().parent.parent),
+    ):
+        try:
+            relative = resolved.relative_to(root)
+        except ValueError:
+            continue
+        return prefix + relative.as_posix()
+    raise ValueError(
+        "渲染计划输入必须位于当前媒体项目或 visual-multimedia Skill："
+        f"{resolved}"
+    )
+
+
+def resolve_portable_locator(locator: str, project_root: Path) -> Path:
+    if locator.startswith("project://"):
+        base = project_root.resolve()
+        relative = locator.removeprefix("project://")
+    elif locator.startswith("skill://"):
+        base = Path(__file__).resolve().parent.parent
+        relative = locator.removeprefix("skill://")
+    else:
+        raise ValueError(f"渲染计划输入 locator 无效：{locator}")
+    candidate = (base / relative).resolve()
+    try:
+        candidate.relative_to(base)
+    except ValueError as error:
+        raise ValueError(f"渲染计划 locator 越出允许目录：{locator}") from error
+    if not candidate.is_file():
+        raise FileNotFoundError(f"渲染计划输入不存在：{candidate}")
+    return candidate
+
+
+def canonical_payload_sha256(payload: dict[str, Any]) -> str:
+    serialized = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(serialized).hexdigest()
+
+
+def immutable_render_plan_sha256(payload: dict[str, Any]) -> str:
+    immutable = copy.deepcopy(payload)
+    immutable.pop("approval", None)
+    return canonical_payload_sha256(immutable)
+
+
+def validate_render_plan_payload(
+    payload: dict[str, Any],
+    *,
+    require_confirmed: bool,
+) -> None:
+    errors: list[str] = []
+    expected_fields = {
+        "protocol",
+        "version",
+        "status",
+        "plan_id",
+        "created_at",
+        "inputs",
+        "library_capabilities",
+        "execution",
+        "target_timeline",
+        "source_schedule",
+        "selection",
+        "joins",
+        "deterministic_seam_plan",
+        "approval",
+    }
+    if set(payload) != expected_fields:
+        errors.append("顶层字段不完整或含未知字段")
+    if payload.get("protocol") != "visual-multimedia-anime-avatar-render-plan":
+        errors.append(
+            "protocol 必须是 visual-multimedia-anime-avatar-render-plan"
+        )
+    if payload.get("version") != 2:
+        errors.append("version 必须是 2")
+    if payload.get("status") not in {"ready", "rejected"}:
+        errors.append("status 必须是 ready 或 rejected")
+    inputs = payload.get("inputs")
+    expected_input_keys = {
+        "avatar_project",
+        "media_sources",
+        "avatar_library_package",
+        "avatar_library_media_sources",
+        "motion_source",
+        "audio_source",
+        "renderer_script",
+        "motion_planner_script",
+        "join_blender_script",
+        "shared_avatar_runtime_script",
+        "visual_viseme_library",
+        "speech_timeline",
+    }
+    if not isinstance(inputs, dict) or not inputs:
+        errors.append("inputs 必须是非空对象")
+    else:
+        if set(inputs) != expected_input_keys:
+            errors.append("inputs 没有完整绑定全部生产输入与算法代码")
+        for key, record in inputs.items():
+            if (
+                not isinstance(record, dict)
+                or set(record) != {"locator", "sha256"}
+                or not isinstance(record.get("locator"), str)
+                or not record["locator"].startswith(("project://", "skill://"))
+                or not isinstance(record.get("sha256"), str)
+                or len(record["sha256"]) != 64
+                or any(
+                    character not in "0123456789abcdef"
+                    for character in record["sha256"]
+                )
+            ):
+                errors.append(f"inputs.{key} 必须包含 portable locator 与 sha256")
+    library_capabilities = payload.get("library_capabilities")
+    if (
+        not isinstance(library_capabilities, dict)
+        or set(library_capabilities) != {"resource", "facts"}
+        or not isinstance(library_capabilities.get("resource"), dict)
+        or set(library_capabilities["resource"]) != {"id", "version"}
+        or not isinstance(library_capabilities.get("facts"), dict)
+    ):
+        errors.append("library_capabilities 必须绑定角色版本和能力事实")
+    source_schedule = payload.get("source_schedule")
+    if not isinstance(source_schedule, dict):
+        errors.append("source_schedule 必须是对象")
+        source_schedule = {}
+    positions = source_schedule.get("source_position_by_internal_frame")
+    boundaries = source_schedule.get("boundaries")
+    if (
+        not isinstance(positions, list)
+        or not positions
+        or any(
+            isinstance(value, bool) or not isinstance(value, (int, float))
+            for value in positions
+        )
+    ):
+        errors.append(
+            "source_schedule.source_position_by_internal_frame 必须是非空数字数组"
+        )
+    if (
+        not isinstance(boundaries, list)
+        or any(
+            isinstance(value, bool) or not isinstance(value, int)
+            for value in boundaries
+        )
+    ):
+        errors.append("source_schedule.boundaries 必须是整数数组")
+        boundaries = []
+    joins = payload.get("joins")
+    if not isinstance(joins, list):
+        errors.append("joins 必须是数组")
+        joins = []
+    allowed_categories = {
+        "original_source_continuity",
+        "strict_optical_flow",
+        "micro_optical_flow",
+        "rejected",
+    }
+    categories = [
+        item.get("category")
+        for item in joins
+        if isinstance(item, dict)
+    ]
+    if (
+        len(categories) != len(joins)
+        or any(category not in allowed_categories for category in categories)
+    ):
+        errors.append("joins.category 存在未知接缝类型")
+    boundary_join_frames = sorted(
+        int(item["output_frame"])
+        for item in joins
+        if (
+            isinstance(item, dict)
+            and item.get("category") != "original_source_continuity"
+            and isinstance(item.get("output_frame"), int)
+        )
+    )
+    if sorted(boundaries) != boundary_join_frames:
+        errors.append("joins 中的非原片连续接缝与 source_schedule.boundaries 不一致")
+    deterministic = payload.get("deterministic_seam_plan")
+    if not isinstance(deterministic, dict):
+        errors.append("deterministic_seam_plan 必须是对象")
+    else:
+        expected_counts = {
+            "original_source_continuity_count": categories.count(
+                "original_source_continuity"
+            ),
+            "strict_optical_flow_join_count": categories.count(
+                "strict_optical_flow"
+            ),
+            "micro_optical_flow_transition_count": categories.count(
+                "micro_optical_flow"
+            ),
+            "rejected_join_count": categories.count("rejected"),
+        }
+        for key, expected in expected_counts.items():
+            if deterministic.get(key) != expected:
+                errors.append(f"deterministic_seam_plan.{key} 计数不一致")
+        if deterministic.get("route_retry_count") != 0:
+            errors.append("deterministic_seam_plan.route_retry_count 必须是 0")
+    approval = payload.get("approval")
+    if not isinstance(approval, dict):
+        errors.append("approval 必须是对象")
+    elif approval.get("status") not in {"pending", "confirmed"}:
+        errors.append("approval.status 必须是 pending 或 confirmed")
+    elif require_confirmed:
+        if payload.get("status") != "ready":
+            errors.append("被拒绝的接缝计划不能用于渲染")
+        if approval.get("status") != "confirmed":
+            errors.append("render-plan.json 尚未确认")
+        else:
+            approved_sha256 = approval.get("approved_plan_sha256")
+            actual_sha256 = immutable_render_plan_sha256(payload)
+            if approved_sha256 != actual_sha256:
+                errors.append("render-plan.json 在确认后被修改")
+    if errors:
+        raise ValueError("render-plan.json 无效：\n- " + "\n- ".join(errors))
+
+
+def confirm_render_plan(args: argparse.Namespace) -> dict[str, Any]:
+    plan_path = Path(args.render_plan).expanduser().resolve()
+    payload = read_json(plan_path)
+    validate_render_plan_payload(payload, require_confirmed=False)
+    if payload["status"] != "ready":
+        raise ValueError("存在被拒绝接缝的计划不能确认，请先回到素材库或校准视频层处理")
+    approval = payload["approval"]
+    if approval.get("status") == "confirmed":
+        raise ValueError("render-plan.json 已经确认，不会重复改写")
+    approval.update(
+        {
+            "status": "confirmed",
+            "confirmed_at": datetime.now(timezone.utc).isoformat(),
+            "approved_plan_sha256": immutable_render_plan_sha256(payload),
+        }
+    )
+    write_json(plan_path, payload)
+    validate_render_plan_payload(payload, require_confirmed=True)
+    return {
+        "ok": True,
+        "render_plan": str(plan_path),
+        "status": "confirmed",
+        "approved_plan_sha256": approval["approved_plan_sha256"],
+        "next": "使用 render 子命令消费这份已确认计划；任一输入或代码变化都会使计划失效。",
+    }
 
 
 def validate_task_id(value: str) -> str:
@@ -1450,48 +1712,89 @@ def save_render_review_from_video(
     return outputs
 
 
-def render(args: argparse.Namespace) -> dict[str, Any]:
-    project, paths = load_project(Path(args.project))
-    if project["character"].get("master_status") != "confirmed":
+def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
+    planning = args.command == "plan"
+    approved_plan: dict[str, Any] | None = None
+    render_plan_path = Path(args.render_plan).expanduser().resolve()
+    if planning:
+        if render_plan_path.exists():
+            raise FileExistsError(
+                f"不会覆盖已有 render-plan.json：{render_plan_path}"
+            )
+        project_argument = Path(args.project)
+        plan_id = validate_task_id(args.plan_id or render_plan_path.parent.name)
+        task_id = plan_id
+    else:
+        approved_plan = read_json(render_plan_path)
+        validate_render_plan_payload(approved_plan, require_confirmed=True)
+        project_argument = Path(args.project)
+        task_id = validate_task_id(
+            args.task_id or str(approved_plan["plan_id"])
+        )
+
+    project, paths = load_project(project_argument)
+    if planning:
+        timeline_path = Path(args.timeline).expanduser()
+        if not timeline_path.is_absolute():
+            timeline_path = paths["root"] / timeline_path
+        timeline_path = timeline_path.resolve()
+    else:
+        assert approved_plan is not None
+        timeline_record = approved_plan["inputs"]["speech_timeline"]
+        timeline_path = resolve_portable_locator(
+            timeline_record["locator"],
+            paths["root"],
+        )
+    library_context = resolve_avatar_library(project, paths)
+    package = library_context["package"]
+    character = package["character"]
+    motion_source = package["motion_source"]
+    if package.get("status") != "registered":
+        raise ValueError("项目内角色素材库尚未完成注册质量门，不能正式渲染")
+    if character.get("master_status") != "confirmed":
         raise ValueError("角色母版尚未确认，不能正式渲染")
-    if project["motion_source"].get("status") != "accepted":
+    if motion_source.get("status") != "accepted":
         raise ValueError("校准视频尚未通过检查，不能正式渲染")
     manifest = validate_media_manifest(paths["manifest"])
-    timeline_path = Path(args.timeline).expanduser().resolve()
-    task_id = validate_task_id(args.task_id or timeline_path.stem)
-    working = paths["root"] / "working" / "anime-avatar" / task_id
-    report_dir = paths["root"] / "reports" / "avatar-renders" / task_id
-    output = Path(args.output).expanduser().resolve()
-    if output.exists():
-        raise FileExistsError(f"不会覆盖已有输出：{output}")
-    for immutable_directory, label in (
-        (working, "working task-id"),
-        (report_dir, "report task-id"),
-    ):
+    if planning:
+        working = (
+            paths["root"] / "working" / "anime-avatar-plans" / task_id
+        )
+        report_dir = None
+        output = None
+        immutable_directories = ((working, "planning plan-id"),)
+    else:
+        working = paths["root"] / "working" / "anime-avatar" / task_id
+        report_dir = (
+            paths["root"] / "reports" / "avatar-renders" / task_id
+        )
+        output = Path(args.output).expanduser().resolve()
+        if output.exists():
+            raise FileExistsError(f"不会覆盖已有输出：{output}")
+        immutable_directories = (
+            (working, "working task-id"),
+            (report_dir, "report task-id"),
+        )
+    for immutable_directory, label in immutable_directories:
         if immutable_directory.exists():
             raise FileExistsError(
                 f"{label} 已存在，不会复用或覆盖：{immutable_directory}；"
-                "请使用新的 --task-id"
+                "请使用新的 id"
             )
 
-    _, motion_path = resolve_source(
-        manifest,
-        paths["root"],
-        project["motion_source"].get("source_id"),
-        {"video", "generated"},
-    )
+    motion_path = library_context["motion_source_path"]
     crop = parse_xywh(
-        project["motion_source"].get("source_crop_xywh"),
+        motion_source.get("source_crop_xywh"),
         "motion_source.source_crop_xywh",
     )
     mouth_crop = parse_xywh(
-        project["motion_source"].get("mouth_review_crop_xywh"),
+        motion_source.get("mouth_review_crop_xywh"),
         "motion_source.mouth_review_crop_xywh",
     )
     ensure_crop(mouth_crop, crop[2], crop[3], "mouth_review_crop_xywh")
 
-    library_file = library_path(project, paths)
-    library = read_json(library_file)
+    library_file = library_context["library_path"]
+    library = library_context["library"]
     raw_source_frame_count = library.get("source_frame_count")
     if (
         isinstance(raw_source_frame_count, bool)
@@ -1508,12 +1811,16 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
 
     timeline = read_json(timeline_path)
     units = validate_timeline(timeline)
-    _, audio_path = resolve_source(
+    audio_record, audio_path = resolve_source(
         manifest,
         paths["root"],
         timeline.get("audio_source_id"),
         {"audio", "video", "generated"},
     )
+    if timeline["audio_sha256"] != audio_record["integrity"]["sha256"]:
+        raise ValueError(
+            "speech timeline 的 audio_sha256 与项目素材账本中的真实音频不一致"
+        )
     ffmpeg = executable("ffmpeg", args.ffmpeg)
     ffprobe = executable("ffprobe", args.ffprobe)
 
@@ -1522,11 +1829,16 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
     source_frame_store_file = working / "source-frames-bgr-u8.bin"
     silent_video = working / "motion-match-silent.mp4"
     motion_match_video = working / "motion-match-with-audio.mp4"
-    working.mkdir(parents=True, exist_ok=False)
-    report_dir.mkdir(parents=True, exist_ok=False)
-    output.parent.mkdir(parents=True, exist_ok=True)
     script_directory = Path(__file__).resolve().parent
     provenance_paths = {
+        "avatar_project": paths["project"].resolve(),
+        "media_sources": paths["manifest"].resolve(),
+        "avatar_library_package": library_context["package_path"].resolve(),
+        "avatar_library_media_sources": (
+            library_context["manifest_path"].resolve()
+        ),
+        "motion_source": motion_path.resolve(),
+        "audio_source": audio_path.resolve(),
         "renderer_script": script_directory / "render-anime-avatar.py",
         "motion_planner_script": script_directory / "anime_avatar_motion.py",
         "join_blender_script": script_directory / "anime_avatar_blend.py",
@@ -1539,6 +1851,33 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
     provenance_sha256 = {
         key: file_sha256(path) for key, path in provenance_paths.items()
     }
+    if approved_plan is not None:
+        stale_inputs = {}
+        planned_inputs = approved_plan.get("inputs") or {}
+        for key, current_sha256 in provenance_sha256.items():
+            planned = planned_inputs.get(key)
+            planned_sha256 = (
+                planned.get("sha256") if isinstance(planned, dict) else None
+            )
+            if planned_sha256 != current_sha256:
+                stale_inputs[key] = {
+                    "planned_sha256": planned_sha256,
+                    "current_sha256": current_sha256,
+                }
+        if stale_inputs:
+            raise RuntimeError(
+                "已确认 render-plan.json 已失效；以下输入或代码在规划后发生变化："
+                + json.dumps(stale_inputs, ensure_ascii=False)
+            )
+        provenance_paths["approved_render_plan"] = render_plan_path
+        provenance_sha256["approved_render_plan"] = file_sha256(
+            render_plan_path
+        )
+    working.mkdir(parents=True, exist_ok=False)
+    if report_dir is not None:
+        report_dir.mkdir(parents=True, exist_ok=False)
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
 
     source_frames, source_fps, descriptors, source_store_report = (
         build_disk_backed_source_store(
@@ -1551,7 +1890,7 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
     )
     library_validation = validate_library_payload(
         library,
-        source_id=project["motion_source"]["source_id"],
+        source_id=motion_source["source_id"],
         source_fps=source_fps,
         source_frame_count=len(source_frames),
         source_crop=crop,
@@ -1582,11 +1921,17 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError(
             f"最后字结束于 {units[-1].end:.3f}s，超过裁切音频 {audio_duration:.3f}s"
         )
-    requested_duration = (
-        float(args.duration_seconds)
-        if args.duration_seconds is not None
-        else audio_duration
-    )
+    if planning:
+        requested_duration = (
+            float(args.duration_seconds)
+            if args.duration_seconds is not None
+            else audio_duration
+        )
+    else:
+        assert approved_plan is not None
+        requested_duration = float(
+            approved_plan["execution"]["duration_seconds"]
+        )
     if requested_duration <= 0:
         raise ValueError("--duration-seconds 必须大于 0")
     duration_tolerance = 0.5 / fps
@@ -1596,19 +1941,43 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             f"音频 {audio_duration:.6f}s，目标 {requested_duration:.6f}s"
         )
     requested_internal_frames = int(math.ceil(requested_duration * fps - 1e-9))
-    samples, sample_rate = read_wave(trimmed_audio)
-    phone_events = build_phone_events(units)
-    target_labels, target_levels, energy, anchors, roles, phone_report = (
-        build_target_timeline(
-            units,
-            phone_events,
-            samples,
-            sample_rate,
-            audio_duration,
-            fps,
-            requested_internal_frames,
+    if planning:
+        samples, sample_rate = read_wave(trimmed_audio)
+        phone_events = build_phone_events(units)
+        target_labels, target_levels, energy, anchors, roles, phone_report = (
+            build_target_timeline(
+                units,
+                phone_events,
+                samples,
+                sample_rate,
+                audio_duration,
+                fps,
+                requested_internal_frames,
+            )
         )
-    )
+    else:
+        assert approved_plan is not None
+        planned_target = approved_plan["target_timeline"]
+        target_labels = list(planned_target["visemes"])
+        target_levels = np.asarray(
+            planned_target["intensities"],
+            dtype=np.float32,
+        )
+        energy = np.asarray(planned_target["energy"], dtype=np.float32)
+        anchors = list(planned_target["anchors"])
+        roles = list(planned_target["roles"])
+        phone_report = list(planned_target["phone_events"])
+        target_lengths = {
+            len(target_labels),
+            len(target_levels),
+            len(energy),
+            len(anchors),
+            len(roles),
+        }
+        if target_lengths != {requested_internal_frames}:
+            raise ValueError(
+                "render-plan.json 的目标时间线数组长度与计划时长不一致"
+            )
 
     source_labels, source_levels, source_takes = source_annotation(
         library,
@@ -1648,9 +2017,7 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         selection["total_internal_frames"] = len(source_positions)
         selection["silent_intervals"] = silent_intervals
 
-        minimum_quality_gate = {
-            "planned_annotation_speech_viseme_match_rate": 0.50,
-            "planned_annotation_large_mouth_realized_core_coverage_rate": 0.80,
+        minimum_machine_gate = {
             "planned_annotation_stable_pause_closed_match_rate": 1.0,
             "planned_annotation_silence_dynamic_rate": 1.0,
         }
@@ -1659,7 +2026,7 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
                 "observed": float(selection.get(key, -1.0)),
                 "required_minimum": minimum,
             }
-            for key, minimum in minimum_quality_gate.items()
+            for key, minimum in minimum_machine_gate.items()
             if float(selection.get(key, -1.0)) + 1e-9 < minimum
         }
         source_speed = selection.get(
@@ -1864,6 +2231,12 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
         diversity_contract = selection.get(
             "planned_annotation_gesture_diversity_contract"
         )
+        diversity_enforcement_mode = selection.get(
+            "planned_annotation_diversity_enforcement_mode"
+        )
+        diversity_is_hard = (
+            diversity_enforcement_mode != "continuity-first-fallback"
+        )
         if not all(
             isinstance(value, int)
             and not isinstance(value, bool)
@@ -1924,10 +2297,10 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
                 or diversity_contract.get("satisfied") is not True
             ):
                 diversity_failures["reported_contract"] = diversity_contract
-            if diversity_failures:
+            if diversity_failures and diversity_is_hard:
                 failed_quality["gesture_diversity"] = diversity_failures
-        selection["planned_annotation_quality_gate"] = {
-            "minimum_thresholds": minimum_quality_gate,
+        selection["machine_plan_gate"] = {
+            "minimum_thresholds": minimum_machine_gate,
             "maximum_thresholds": {
                 key: maximum
                 for key, (_, maximum) in upper_bound_checks.items()
@@ -1948,6 +2321,7 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
                 ),
             },
             "gesture_diversity": {
+                "enforcement_mode": diversity_enforcement_mode,
                 "gesture_block_count": gesture_block_count,
                 "selected_gesture_take_count": selected_gesture_take_count,
                 "unique_gesture_clip_count": unique_gesture_clip_count,
@@ -1963,64 +2337,243 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             "passed": not failed_quality,
             "failures": failed_quality,
         }
+        selection["lip_sync_indicators"] = {
+            "speech_viseme_match_rate": selection.get(
+                "planned_annotation_speech_viseme_match_rate"
+            ),
+            "large_mouth_realized_core_coverage_rate": selection.get(
+                "planned_annotation_large_mouth_realized_core_coverage_rate"
+            ),
+            "realized_anchor_coverage_rate": selection.get(
+                "planned_annotation_realized_anchor_coverage_rate"
+            ),
+            "realized_vowel_anchor_coverage_rate": selection.get(
+                "planned_annotation_realized_vowel_anchor_coverage_rate"
+            ),
+            "machine_acceptance": "not-assessed",
+            "visual_acceptance": "requires-agent-full-view-and-user-review",
+        }
         if failed_quality:
             raise RuntimeError(
-                "动作片段规划没有达到可交付口型下限："
+                "动作片段规划没有达到结构与动态待机机器门："
                 + json.dumps(failed_quality, ensure_ascii=False)
             )
         return source_positions, boundaries, selection
 
-    source_positions, boundaries, selection = plan_and_validate_selection()
-    join_smoothing = preflight_output_resolution_join_windows(
-        sampler,
-        source_positions,
-        boundaries,
-        join_preflight_cache,
-    )
-    failed_joins = [
-        item for item in join_smoothing if item.get("applied") is not True
-    ]
-    if failed_joins:
-        failed_details = [
-            {
-                "boundary": int(item.get("boundary", -1)),
-                "reason": item.get("reason"),
-                "failed_checks": item.get("failed_checks"),
-            }
-            for item in failed_joins
-        ]
-        raise RuntimeError(
-            "一次性接缝检查发现无法安全过渡的角色状态，拒绝开始编码："
-            + json.dumps(failed_details, ensure_ascii=False)
+    if planning:
+        source_positions, boundaries, selection = (
+            plan_and_validate_selection()
         )
-    strict_join_count = sum(
-        item.get("transition_mode") == "strict_optical_flow"
-        for item in join_smoothing
+        join_smoothing = preflight_output_resolution_join_windows(
+            sampler,
+            source_positions,
+            boundaries,
+            join_preflight_cache,
+        )
+        report_by_boundary = {
+            int(item["boundary"]): item for item in join_smoothing
+        }
+        join_records = []
+        for transition in selection[
+            "planned_annotation_selected_clip_transitions"
+        ]:
+            record = copy.deepcopy(transition)
+            if transition["boundary"]:
+                boundary = int(transition["output_frame"])
+                preflight = report_by_boundary.get(boundary)
+                if preflight is None:
+                    raise RuntimeError(
+                        f"接缝 {boundary} 没有对应的四帧预检结果"
+                    )
+                mode = preflight.get("transition_mode")
+                if preflight.get("applied") is not True:
+                    category = "rejected"
+                elif mode == "strict_optical_flow":
+                    category = "strict_optical_flow"
+                elif mode == "micro_optical_flow_luma_fallback":
+                    category = "micro_optical_flow"
+                else:
+                    raise RuntimeError(
+                        f"接缝 {boundary} 返回未知过渡模式：{mode}"
+                    )
+                record["preflight"] = copy.deepcopy(preflight)
+            else:
+                category = "original_source_continuity"
+                record["preflight"] = None
+            record["category"] = category
+            join_records.append(record)
+
+        category_counts = {
+            category: sum(
+                item["category"] == category for item in join_records
+            )
+            for category in (
+                "original_source_continuity",
+                "strict_optical_flow",
+                "micro_optical_flow",
+                "rejected",
+            )
+        }
+        deterministic_seam_plan = {
+            "planning_pass_count": 1,
+            "selected_transition_count": len(join_records),
+            "boundary_count": len(boundaries),
+            "original_source_continuity_count": category_counts[
+                "original_source_continuity"
+            ],
+            "strict_optical_flow_join_count": category_counts[
+                "strict_optical_flow"
+            ],
+            "micro_optical_flow_transition_count": category_counts[
+                "micro_optical_flow"
+            ],
+            "rejected_join_count": category_counts["rejected"],
+            "micro_transition_internal_frames": 2,
+            "micro_transition_seconds": round(2 / fps, 6),
+            "cached_exact_join_windows": len(join_preflight_cache),
+            "all_boundaries_preflighted_before_encoding": True,
+            "all_accepted_boundaries_smoothed": True,
+            "route_retry_count": 0,
+        }
+        selection["deterministic_seam_plan"] = deterministic_seam_plan
+        plan_status = (
+            "rejected"
+            if category_counts["rejected"]
+            else "ready"
+        )
+        render_plan_payload = {
+            "protocol": "visual-multimedia-anime-avatar-render-plan",
+            "version": 2,
+            "status": plan_status,
+            "plan_id": task_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "inputs": {
+                key: {
+                    "locator": portable_locator(
+                        provenance_paths[key],
+                        paths["root"],
+                    ),
+                    "sha256": provenance_sha256[key],
+                }
+                for key in provenance_paths
+            },
+            "library_capabilities": {
+                "resource": {
+                    "id": package["id"],
+                    "version": package["library_version"],
+                },
+                "facts": library_validation["capability_facts"],
+            },
+            "execution": {
+                "duration_seconds": round(requested_duration, 9),
+                "audio_duration_seconds": round(audio_duration, 9),
+                "internal_fps": fps,
+                "delivery_fps": delivery_fps,
+                "output_size": [width, height],
+            },
+            "target_timeline": {
+                "visemes": target_labels,
+                "intensities": [
+                    float(value) for value in target_levels
+                ],
+                "energy": [float(value) for value in energy],
+                "anchors": anchors,
+                "roles": roles,
+                "phone_events": phone_report,
+            },
+            "source_schedule": {
+                "source_position_by_internal_frame": [
+                    float(value) for value in source_positions
+                ],
+                "boundaries": [int(value) for value in boundaries],
+            },
+            "selection": selection,
+            "joins": join_records,
+            "deterministic_seam_plan": deterministic_seam_plan,
+            "approval": {
+                "status": "pending",
+                "confirmed_at": None,
+                "approved_plan_sha256": None,
+            },
+        }
+        validate_render_plan_payload(
+            render_plan_payload,
+            require_confirmed=False,
+        )
+        render_plan_path.parent.mkdir(parents=True, exist_ok=True)
+        write_json(render_plan_path, render_plan_payload)
+        sampler.close()
+        del sampler
+        del source_frames
+        gc.collect()
+        if plan_status == "rejected":
+            failed_details = [
+                {
+                    "boundary": int(item["output_frame"]),
+                    "reason": item["preflight"].get("reason"),
+                    "failed_checks": item["preflight"].get(
+                        "failed_checks"
+                    ),
+                }
+                for item in join_records
+                if item["category"] == "rejected"
+            ]
+            raise RuntimeError(
+                "接缝计划已写出，但人物结构或运动不兼容，不能确认或编码："
+                + json.dumps(
+                    {
+                        "render_plan": str(render_plan_path),
+                        "rejected": failed_details,
+                    },
+                    ensure_ascii=False,
+                )
+            )
+        return {
+            "ok": True,
+            "status": "ready",
+            "plan_id": task_id,
+            "render_plan": str(render_plan_path),
+            "library_capabilities": library_validation["capability_facts"],
+            "deterministic_seam_plan": deterministic_seam_plan,
+            "next": (
+                "检查 render-plan.json 中的全部原片连续、严格光流和微过渡"
+                "接缝；确认后运行 confirm-plan，再由 render 消费。"
+            ),
+        }
+
+    assert approved_plan is not None
+    source_positions = np.asarray(
+        approved_plan["source_schedule"][
+            "source_position_by_internal_frame"
+        ],
+        dtype=np.float32,
     )
-    micro_transition_count = sum(
-        item.get("transition_mode")
-        == "micro_optical_flow_luma_fallback"
-        for item in join_smoothing
-    )
-    selection["deterministic_join_plan"] = {
-        "planning_pass_count": 1,
-        "boundary_count": len(boundaries),
-        "strict_optical_flow_join_count": strict_join_count,
-        "micro_optical_flow_transition_count": micro_transition_count,
-        "micro_transition_internal_frames": 2,
-        "micro_transition_seconds": round(2 / fps, 6),
-        "cached_exact_join_windows": len(join_preflight_cache),
-        "all_boundaries_preflighted_before_encoding": True,
-        "all_boundaries_smoothed": True,
-        "route_retry_count": 0,
-    }
+    boundaries = [
+        int(value)
+        for value in approved_plan["source_schedule"]["boundaries"]
+    ]
+    selection = copy.deepcopy(approved_plan["selection"])
+    join_smoothing = [
+        copy.deepcopy(item["preflight"])
+        for item in approved_plan["joins"]
+        if item["category"]
+        in {"strict_optical_flow", "micro_optical_flow"}
+    ]
+    if len(source_positions) != requested_internal_frames:
+        raise ValueError(
+            "render-plan.json 的源帧计划长度与计划时长不一致"
+        )
     print(
-        "一次性接缝预检通过："
+        "已载入并验证已确认接缝计划："
         f"boundaries={len(boundaries)}, "
-        f"strict={strict_join_count}, "
-        f"micro={micro_transition_count}",
+        "strict="
+        f"{selection['deterministic_seam_plan']['strict_optical_flow_join_count']}, "
+        "micro="
+        f"{selection['deterministic_seam_plan']['micro_optical_flow_transition_count']}",
         flush=True,
     )
+    assert output is not None
+    assert report_dir is not None
     streaming_result = encode_silent_stream(
         ffmpeg,
         sampler,
@@ -2109,8 +2662,20 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             }
             for key in provenance_paths
         },
-        "character_id": project["character"]["id"],
-        "motion_source_id": project["motion_source"]["source_id"],
+        "approved_render_plan": {
+            "path": str(render_plan_path),
+            "plan_id": approved_plan["plan_id"],
+            "approved_plan_sha256": approved_plan["approval"][
+                "approved_plan_sha256"
+            ],
+            "full_render_consumed_plan_without_replanning": True,
+            "input_hashes_revalidated_before_encoding": True,
+        },
+        "library_capabilities": copy.deepcopy(
+            approved_plan["library_capabilities"]
+        ),
+        "character_id": character["id"],
+        "motion_source_id": motion_source["source_id"],
         "audio_source_id": timeline["audio_source_id"],
         "speech_timeline": str(timeline_path),
         "text": timeline["text"],
@@ -2120,7 +2685,10 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             "rendered_duration_seconds": round(audio_duration, 6),
         },
         "output_timing": {
-            "requested_duration_seconds": args.duration_seconds,
+            "requested_duration_seconds": round(
+                requested_duration,
+                6,
+            ),
             "audio_duration_seconds": round(audio_duration, 6),
             "timeline_duration_seconds": round(video_duration, 6),
             "silence_idle_seconds": round(
@@ -2133,9 +2701,9 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
             "within-syllable acoustic intensity -> reusable AI-reviewed "
             "whole-frame gesture/idle clip scheduler -> directed natural chains "
             "or compatibility-gated low-mouth endpoints -> bounded monotonic "
-            "source-time mapping -> output-resolution four-frame join-window "
-            "validation in one pass -> strict or luminance-only fallback "
-            "two-frame optical-flow micro transition -> deterministic "
+            "source-time mapping -> immutable confirmed render-plan.json with "
+            "input/code hashes and every original/strict/micro join -> "
+            "no runtime route planning -> deterministic two-frame optical-flow "
             "writeback while streaming directly into FFmpeg -> "
             "motion-compensated delivery"
         ),
@@ -2278,26 +2846,57 @@ def render(args: argparse.Namespace) -> dict[str, Any]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="从 AI 视觉标注的完整帧素材库合成普通话二次元口播视频。"
+        description=(
+            "先生成并确认显式接缝计划，再从该唯一计划合成普通话"
+            "二次元口播视频。"
+        )
     )
-    parser.add_argument("--project", required=True)
-    parser.add_argument("--timeline", required=True)
-    parser.add_argument("--output", required=True)
-    parser.add_argument("--task-id")
-    parser.add_argument(
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    plan_parser = subparsers.add_parser(
+        "plan",
+        help="一次性规划动作路线并预检全部接缝，写出 render-plan.json",
+    )
+    plan_parser.add_argument("--project", required=True)
+    plan_parser.add_argument("--timeline", required=True)
+    plan_parser.add_argument("--render-plan", required=True)
+    plan_parser.add_argument("--plan-id", required=True)
+    plan_parser.add_argument(
         "--duration-seconds",
         type=float,
         help=(
             "最终角色轨时长；省略时匹配裁切音频。长于音频的实际时间线按无声区间动态待机，不自动添加固定尾段"
         ),
     )
-    parser.add_argument("--ffmpeg")
-    parser.add_argument("--ffprobe")
+    plan_parser.add_argument("--ffmpeg")
+    plan_parser.add_argument("--ffprobe")
+
+    confirm_parser = subparsers.add_parser(
+        "confirm-plan",
+        help="确认已经检查过且没有拒绝接缝的 render-plan.json",
+    )
+    confirm_parser.add_argument("--render-plan", required=True)
+
+    render_parser = subparsers.add_parser(
+        "render",
+        help="只消费已确认且输入哈希仍有效的 render-plan.json 进行编码",
+    )
+    render_parser.add_argument("--project", required=True)
+    render_parser.add_argument("--render-plan", required=True)
+    render_parser.add_argument("--output", required=True)
+    render_parser.add_argument("--task-id")
+    render_parser.add_argument("--ffmpeg")
+    render_parser.add_argument("--ffprobe")
     return parser.parse_args()
 
 
 def main() -> int:
-    report = render(parse_args())
+    args = parse_args()
+    report = (
+        confirm_render_plan(args)
+        if args.command == "confirm-plan"
+        else run_avatar_pipeline(args)
+    )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0
 

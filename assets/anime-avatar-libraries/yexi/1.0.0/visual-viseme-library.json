@@ -1,0 +1,567 @@
+{
+  "protocol": "visual-multimedia-visual-viseme-library",
+  "version": 3,
+  "source_id": "avatar-motion-source",
+  "source_fps": 24,
+  "source_frame_count": 361,
+  "source_crop_xywh": [
+    6,
+    0,
+    900,
+    900
+  ],
+  "annotation": {
+    "method": "ai-visual-review",
+    "reviewed_at": "2026-07-30T00:00:00+08:00",
+    "reviewed_contact_sheets": [
+      "reports/avatar-source-review/overview.jpg",
+      "reports/avatar-source-review/full-8fps-01.jpg",
+      "reports/avatar-source-review/full-8fps-02.jpg",
+      "reports/avatar-source-review/full-8fps-03.jpg",
+      "reports/avatar-source-review/full-8fps-04.jpg",
+      "reports/avatar-source-review/full-8fps-05.jpg",
+      "reports/avatar-source-review/mouth-12fps-01.jpg",
+      "reports/avatar-source-review/mouth-12fps-02.jpg",
+      "reports/avatar-source-review/mouth-12fps-03.jpg",
+      "reports/avatar-source-review/mouth-12fps-04.jpg",
+      "reports/avatar-source-review/mouth-12fps-05.jpg",
+      "reports/avatar-source-review/mouth-12fps-06.jpg",
+      "reports/avatar-source-review/mouth-12fps-07.jpg"
+    ],
+    "closed_motion_exhaustive_review": {
+      "exhaustive": true,
+      "reviewed_frame_range": [
+        0,
+        361
+      ],
+      "decision": "逐页复核完整整帧与嘴部高频联系表；元音之间的微张口和过渡不冒充闭嘴，所有视觉成立的连续闭嘴区间均已进入 closed_motion_clips。"
+    },
+    "notes": "Codex 直接查看原始整帧和嘴部高频联系表后标注；没有使用像素阈值、轮廓、关键点、聚类或代码推断口型。"
+  },
+  "intensity_definition": {
+    "0": "rest or closed",
+    "1": "weak articulation / entry or release",
+    "2": "medium articulation",
+    "3": "strong articulation",
+    "4": "visual peak for this vowel",
+    "important": "Intensity is relative within one vowel. A level-4 U remains visually small and pursed; a level-4 E is a broad, deep horizontal opening. Levels must not be compared as absolute mouth height across vowels."
+  },
+  "visual_identity": {
+    "A": "broad vertical opening with a relaxed oval cavity; tongue visible at stronger levels",
+    "I": "corners pulled laterally; opening is horizontally extended and comparatively shallow",
+    "U": "small, compact, pursed opening; strongest frames become a tight dot or short rounded slit",
+    "E": "broad horizontal opening with visible oral cavity and tongue; the maximum opening in this source belongs to this class",
+    "O": "vertically rounded opening; strong frames form a tall oval rather than a broad horizontal cavity",
+    "CLOSED": "lips meet or remain as a relaxed smile line without visible oral cavity"
+  },
+  "runtime_state_spans": [
+    {
+      "viseme": "CLOSED",
+      "take": 1,
+      "start_frame": 0,
+      "end_frame_exclusive": 34
+    },
+    {
+      "viseme": "A",
+      "take": 1,
+      "clip_id": "A_take_1",
+      "start_frame": 34,
+      "end_frame_exclusive": 60
+    },
+    {
+      "viseme": "I",
+      "take": 1,
+      "clip_id": "I_take_1",
+      "start_frame": 60,
+      "end_frame_exclusive": 89
+    },
+    {
+      "viseme": "U",
+      "take": 1,
+      "clip_id": "U_take_1",
+      "start_frame": 89,
+      "end_frame_exclusive": 114
+    },
+    {
+      "viseme": "E",
+      "take": 1,
+      "clip_id": "E_take_1",
+      "start_frame": 114,
+      "end_frame_exclusive": 139
+    },
+    {
+      "viseme": "O",
+      "take": 1,
+      "clip_id": "O_take_1",
+      "start_frame": 139,
+      "end_frame_exclusive": 159
+    },
+    {
+      "viseme": "CLOSED",
+      "take": 2,
+      "start_frame": 159,
+      "end_frame_exclusive": 201
+    },
+    {
+      "viseme": "A",
+      "take": 2,
+      "clip_id": "A_take_2",
+      "start_frame": 201,
+      "end_frame_exclusive": 229
+    },
+    {
+      "viseme": "I",
+      "take": 2,
+      "clip_id": "I_take_2",
+      "start_frame": 229,
+      "end_frame_exclusive": 270
+    },
+    {
+      "viseme": "U",
+      "take": 2,
+      "clip_id": "U_take_2",
+      "start_frame": 270,
+      "end_frame_exclusive": 294
+    },
+    {
+      "viseme": "E",
+      "take": 2,
+      "clip_id": "E_take_2",
+      "start_frame": 294,
+      "end_frame_exclusive": 318
+    },
+    {
+      "viseme": "O",
+      "take": 2,
+      "clip_id": "O_take_2",
+      "start_frame": 318,
+      "end_frame_exclusive": 342
+    },
+    {
+      "viseme": "CLOSED",
+      "take": 3,
+      "start_frame": 342,
+      "end_frame_exclusive": 361
+    }
+  ],
+  "closed_motion_clips": [
+    {
+      "id": "closed_intro",
+      "start_frame": 0,
+      "end_frame_exclusive": 34,
+      "notes": "relaxed open-eye rest, continuous hair and accessory motion"
+    },
+    {
+      "id": "closed_middle",
+      "start_frame": 159,
+      "end_frame_exclusive": 201,
+      "notes": "closed-mouth rest containing a natural blink"
+    },
+    {
+      "id": "closed_outro",
+      "start_frame": 342,
+      "end_frame_exclusive": 361,
+      "notes": "relaxed closed-mouth ending"
+    }
+  ],
+  "gesture_clips": [
+    {
+      "id": "A_take_1",
+      "viseme": "A",
+      "take": 1,
+      "peak_strength_level": 4.0,
+      "start_frame": 34,
+      "end_frame_exclusive": 60,
+      "rise_frames_by_intensity": [
+        34,
+        37,
+        39,
+        41,
+        44
+      ],
+      "peak_frame_range_inclusive": [
+        44,
+        50
+      ],
+      "fall_frames_by_intensity": [
+        59,
+        58,
+        55,
+        52,
+        50
+      ],
+      "representative_frames_by_intensity": [
+        34,
+        37,
+        39,
+        41,
+        46
+      ],
+      "notes": "first broad A cycle; eyes briefly close near the peak"
+    },
+    {
+      "id": "A_take_2",
+      "viseme": "A",
+      "take": 2,
+      "peak_strength_level": 4.0,
+      "start_frame": 201,
+      "end_frame_exclusive": 229,
+      "rise_frames_by_intensity": [
+        201,
+        204,
+        206,
+        208,
+        211
+      ],
+      "peak_frame_range_inclusive": [
+        211,
+        216
+      ],
+      "fall_frames_by_intensity": [
+        228,
+        224,
+        221,
+        218,
+        216
+      ],
+      "representative_frames_by_intensity": [
+        201,
+        204,
+        206,
+        208,
+        212
+      ],
+      "notes": "second broad A cycle; smaller head motion than take 1"
+    },
+    {
+      "id": "I_take_1",
+      "viseme": "I",
+      "take": 1,
+      "peak_strength_level": 4.0,
+      "start_frame": 58,
+      "end_frame_exclusive": 89,
+      "rise_frames_by_intensity": [
+        58,
+        60,
+        63,
+        66,
+        69
+      ],
+      "peak_frame_range_inclusive": [
+        69,
+        74
+      ],
+      "fall_frames_by_intensity": [
+        88,
+        86,
+        82,
+        78,
+        74
+      ],
+      "representative_frames_by_intensity": [
+        58,
+        60,
+        64,
+        70,
+        72
+      ],
+      "notes": "shallow lateral I; strongest part remains horizontally extended"
+    },
+    {
+      "id": "I_take_2",
+      "viseme": "I",
+      "take": 2,
+      "peak_strength_level": 4.0,
+      "start_frame": 227,
+      "end_frame_exclusive": 270,
+      "rise_frames_by_intensity": [
+        227,
+        230,
+        233,
+        236,
+        240
+      ],
+      "peak_frame_range_inclusive": [
+        240,
+        245
+      ],
+      "fall_frames_by_intensity": [
+        269,
+        263,
+        256,
+        250,
+        245
+      ],
+      "representative_frames_by_intensity": [
+        227,
+        230,
+        233,
+        236,
+        242
+      ],
+      "notes": "stronger I with a wider cavity; classification follows lateral corner pull, not mouth area"
+    },
+    {
+      "id": "U_take_1",
+      "viseme": "U",
+      "take": 1,
+      "peak_strength_level": 4.0,
+      "start_frame": 88,
+      "end_frame_exclusive": 114,
+      "rise_frames_by_intensity": [
+        88,
+        91,
+        94,
+        98,
+        102
+      ],
+      "peak_frame_range_inclusive": [
+        98,
+        108
+      ],
+      "fall_frames_by_intensity": [
+        113,
+        112,
+        110,
+        107,
+        104
+      ],
+      "representative_frames_by_intensity": [
+        88,
+        91,
+        94,
+        98,
+        102
+      ],
+      "notes": "compact pursed U; level 4 is deliberately small, not an open-mouth peak"
+    },
+    {
+      "id": "U_take_2",
+      "viseme": "U",
+      "take": 2,
+      "peak_strength_level": 4.0,
+      "start_frame": 268,
+      "end_frame_exclusive": 294,
+      "rise_frames_by_intensity": [
+        268,
+        272,
+        276,
+        280,
+        284
+      ],
+      "peak_frame_range_inclusive": [
+        276,
+        286
+      ],
+      "fall_frames_by_intensity": [
+        293,
+        292,
+        290,
+        288,
+        286
+      ],
+      "representative_frames_by_intensity": [
+        268,
+        272,
+        276,
+        280,
+        284
+      ],
+      "notes": "second compact U cycle with stable open eyes"
+    },
+    {
+      "id": "E_take_1",
+      "viseme": "E",
+      "take": 1,
+      "peak_strength_level": 4.0,
+      "start_frame": 112,
+      "end_frame_exclusive": 140,
+      "rise_frames_by_intensity": [
+        112,
+        115,
+        118,
+        121,
+        125
+      ],
+      "peak_frame_range_inclusive": [
+        125,
+        131
+      ],
+      "fall_frames_by_intensity": [
+        139,
+        138,
+        136,
+        133,
+        131
+      ],
+      "representative_frames_by_intensity": [
+        112,
+        115,
+        118,
+        121,
+        126
+      ],
+      "notes": "broad horizontal E with full oral cavity and tongue at the peak"
+    },
+    {
+      "id": "E_take_2",
+      "viseme": "E",
+      "take": 2,
+      "peak_strength_level": 4.0,
+      "start_frame": 292,
+      "end_frame_exclusive": 318,
+      "rise_frames_by_intensity": [
+        292,
+        295,
+        297,
+        299,
+        302
+      ],
+      "peak_frame_range_inclusive": [
+        302,
+        307
+      ],
+      "fall_frames_by_intensity": [
+        317,
+        315,
+        312,
+        309,
+        307
+      ],
+      "representative_frames_by_intensity": [
+        292,
+        295,
+        297,
+        299,
+        302
+      ],
+      "notes": "the visually confirmed maximum-opening reference is represented by this peak"
+    },
+    {
+      "id": "O_take_1",
+      "viseme": "O",
+      "take": 1,
+      "peak_strength_level": 4.0,
+      "start_frame": 138,
+      "end_frame_exclusive": 159,
+      "rise_frames_by_intensity": [
+        138,
+        141,
+        143,
+        145,
+        148
+      ],
+      "peak_frame_range_inclusive": [
+        148,
+        151
+      ],
+      "fall_frames_by_intensity": [
+        158,
+        157,
+        155,
+        153,
+        151
+      ],
+      "representative_frames_by_intensity": [
+        138,
+        141,
+        143,
+        146,
+        149
+      ],
+      "notes": "vertical rounded O; visually distinct from broad E"
+    },
+    {
+      "id": "O_take_2",
+      "viseme": "O",
+      "take": 2,
+      "peak_strength_level": 4.0,
+      "start_frame": 316,
+      "end_frame_exclusive": 342,
+      "rise_frames_by_intensity": [
+        316,
+        319,
+        322,
+        326,
+        330
+      ],
+      "peak_frame_range_inclusive": [
+        330,
+        333
+      ],
+      "fall_frames_by_intensity": [
+        341,
+        339,
+        337,
+        335,
+        333
+      ],
+      "representative_frames_by_intensity": [
+        316,
+        319,
+        322,
+        326,
+        330
+      ],
+      "notes": "second vertical O cycle with a deeper peak"
+    }
+  ],
+  "natural_transition_spans": [
+    {
+      "from": "A",
+      "to": "I",
+      "start_frame": 52,
+      "end_frame_exclusive": 64,
+      "take": 1
+    },
+    {
+      "from": "I",
+      "to": "U",
+      "start_frame": 82,
+      "end_frame_exclusive": 95,
+      "take": 1
+    },
+    {
+      "from": "U",
+      "to": "E",
+      "start_frame": 107,
+      "end_frame_exclusive": 119,
+      "take": 1
+    },
+    {
+      "from": "E",
+      "to": "O",
+      "start_frame": 133,
+      "end_frame_exclusive": 145,
+      "take": 1
+    },
+    {
+      "from": "A",
+      "to": "I",
+      "start_frame": 218,
+      "end_frame_exclusive": 234,
+      "take": 2
+    },
+    {
+      "from": "I",
+      "to": "U",
+      "start_frame": 256,
+      "end_frame_exclusive": 277,
+      "take": 2
+    },
+    {
+      "from": "U",
+      "to": "E",
+      "start_frame": 286,
+      "end_frame_exclusive": 299,
+      "take": 2
+    },
+    {
+      "from": "E",
+      "to": "O",
+      "start_frame": 309,
+      "end_frame_exclusive": 323,
+      "take": 2
+    }
+  ]
+}

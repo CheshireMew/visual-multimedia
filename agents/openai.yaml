@@ -1,4 +1,4 @@
 interface:
   display_name: "Visual Multimedia"
-  short_description: "将确认内容制作成可编辑图文、网页动画、视频、音频、播客和二次元口播形象"
-  default_prompt: "使用 $visual-multimedia 把我确认的内容制作成合适、可播放且可继续编辑的媒体；需要时从单张角色图建立可复用的二次元中文口播形象。"
+  short_description: "把已确认内容制作成可编辑、可检查、可交付的视觉与音视频"
+  default_prompt: "使用 $visual-multimedia 把这些已确认内容制作成合适的可编辑媒体。"

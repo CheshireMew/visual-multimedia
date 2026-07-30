@@ -633,16 +633,16 @@ def source_evidence(
     manifest = read_json(manifest_path, "素材账本")
     manifest_ok = (
         manifest.get("protocol") == "visual-multimedia-media-sources"
-        and manifest.get("version") == 2
+        and manifest.get("version") == 3
         and isinstance(manifest.get("sources"), list)
     )
     add_check(
         checks,
         "media-sources-contract",
         manifest_ok,
-        "素材账本使用唯一的 v2 合同"
+        "素材账本使用唯一的 v3 合同"
         if manifest_ok
-        else "素材账本不是 visual-multimedia media-sources v2",
+        else "素材账本不是 visual-multimedia media-sources v3",
         {"file": str(manifest_path)},
     )
     if not manifest_ok:

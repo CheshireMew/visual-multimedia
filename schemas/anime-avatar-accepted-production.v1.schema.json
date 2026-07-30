@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-accepted-production.v1",
+  "title": "Anime Avatar Accepted Production v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "resource",
+    "user_visible_result",
+    "accepted_role_track",
+    "accepted_inputs",
+    "accepted_producer_code",
+    "accepted_mechanism",
+    "current_implementation_regression",
+    "evidence_boundary"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-anime-avatar-accepted-production"
+    },
+    "version": {
+      "const": 1
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      }
+    },
+    "user_visible_result": {
+      "$ref": "#/$defs/acceptedOutput"
+    },
+    "accepted_role_track": {
+      "$ref": "#/$defs/mediaResult"
+    },
+    "accepted_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "master_sha256",
+        "motion_source_sha256",
+        "speech_audio_sha256",
+        "speech_timeline_sha256",
+        "base_video_sha256"
+      ],
+      "properties": {
+        "master_sha256": {"$ref": "#/$defs/sha256"},
+        "motion_source_sha256": {"$ref": "#/$defs/sha256"},
+        "speech_audio_sha256": {"$ref": "#/$defs/sha256"},
+        "speech_timeline_sha256": {"$ref": "#/$defs/sha256"},
+        "base_video_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "accepted_producer_code": {
+      "$ref": "#/$defs/avatarProducerCode"
+    },
+    "accepted_mechanism": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "single_motion_source",
+        "whole_character_frames_only",
+        "dynamic_closed_idle",
+        "internal_fps",
+        "delivery_fps",
+        "gesture_transition_count",
+        "transition_methods"
+      ],
+      "properties": {
+        "single_motion_source": {"const": true},
+        "whole_character_frames_only": {"const": true},
+        "dynamic_closed_idle": {"const": true},
+        "internal_fps": {"type": "integer", "minimum": 1},
+        "delivery_fps": {"type": "integer", "minimum": 1},
+        "gesture_transition_count": {"type": "integer", "minimum": 1},
+        "transition_methods": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["strict_optical_flow", "micro_transition"],
+          "properties": {
+            "strict_optical_flow": {"type": "integer", "minimum": 0},
+            "micro_transition": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "current_implementation_regression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "performed_at",
+        "result",
+        "role_track",
+        "circle_composite",
+        "resource_bindings",
+        "runtime_inputs",
+        "producer_code",
+        "composition"
+      ],
+      "properties": {
+        "performed_at": {"type": "string", "format": "date-time"},
+        "result": {"const": "exact-byte-match"},
+        "role_track": {"$ref": "#/$defs/exactRegression"},
+        "circle_composite": {"$ref": "#/$defs/exactRegression"},
+        "resource_bindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "package_sha256",
+            "media_sources_sha256",
+            "visual_viseme_library_sha256",
+            "master_sha256",
+            "motion_source_sha256"
+          ],
+          "properties": {
+            "package_sha256": {"$ref": "#/$defs/sha256"},
+            "media_sources_sha256": {"$ref": "#/$defs/sha256"},
+            "visual_viseme_library_sha256": {"$ref": "#/$defs/sha256"},
+            "master_sha256": {"$ref": "#/$defs/sha256"},
+            "motion_source_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "runtime_inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "speech_audio_sha256",
+            "normalized_speech_timeline_sha256",
+            "approved_render_plan_sha256",
+            "base_video_sha256"
+          ],
+          "properties": {
+            "speech_audio_sha256": {"$ref": "#/$defs/sha256"},
+            "normalized_speech_timeline_sha256": {"$ref": "#/$defs/sha256"},
+            "approved_render_plan_sha256": {"$ref": "#/$defs/sha256"},
+            "base_video_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "producer_code": {
+          "$ref": "#/$defs/currentProducerCode"
+        },
+        "composition": {
+          "$ref": "#/$defs/composition"
+        }
+      }
+    },
+    "evidence_boundary": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "mediaResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "duration_seconds",
+        "width",
+        "height",
+        "fps",
+        "frame_count"
+      ],
+      "properties": {
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "frame_count": {"type": "integer", "minimum": 1}
+      }
+    },
+    "acceptedOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filename",
+        "sha256",
+        "acceptance",
+        "duration_seconds",
+        "width",
+        "height",
+        "fps",
+        "frame_count"
+      ],
+      "properties": {
+        "filename": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "acceptance": {"type": "string", "minLength": 1},
+        "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "frame_count": {"type": "integer", "minimum": 1}
+      }
+    },
+    "avatarProducerCode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "render_anime_avatar_sha256",
+        "anime_avatar_motion_sha256",
+        "anime_avatar_blend_sha256",
+        "anime_avatar_common_sha256"
+      ],
+      "properties": {
+        "render_anime_avatar_sha256": {"$ref": "#/$defs/sha256"},
+        "anime_avatar_motion_sha256": {"$ref": "#/$defs/sha256"},
+        "anime_avatar_blend_sha256": {"$ref": "#/$defs/sha256"},
+        "anime_avatar_common_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "currentProducerCode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "render_anime_avatar_sha256",
+        "anime_avatar_motion_sha256",
+        "anime_avatar_blend_sha256",
+        "anime_avatar_common_sha256",
+        "compose_anime_avatar_inset_sha256"
+      ],
+      "properties": {
+        "render_anime_avatar_sha256": {"$ref": "#/$defs/sha256"},
+        "anime_avatar_motion_sha256": {"$ref": "#/$defs/sha256"},
+        "anime_avatar_blend_sha256": {"$ref": "#/$defs/sha256"},
+        "anime_avatar_common_sha256": {"$ref": "#/$defs/sha256"},
+        "compose_anime_avatar_inset_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "exactRegression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accepted_sha256", "reproduced_sha256"],
+      "properties": {
+        "accepted_sha256": {"$ref": "#/$defs/sha256"},
+        "reproduced_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shape",
+        "outer_xywh",
+        "avatar_crop_xywh",
+        "border_width",
+        "shadow",
+        "audio_source",
+        "base_gain_db",
+        "avatar_gain_db"
+      ],
+      "properties": {
+        "shape": {"enum": ["circle", "square"]},
+        "outer_xywh": {"$ref": "#/$defs/xywh"},
+        "avatar_crop_xywh": {"$ref": "#/$defs/xywh"},
+        "border_width": {"type": "integer", "minimum": 0},
+        "shadow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "offset_x",
+            "offset_y",
+            "blur_radius",
+            "color",
+            "opacity"
+          ],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "offset_x": {"type": "integer"},
+            "offset_y": {"type": "integer"},
+            "blur_radius": {"type": "integer", "minimum": 0},
+            "color": {"type": "string", "minLength": 1},
+            "opacity": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "audio_source": {"enum": ["avatar", "base", "mix", "none"]},
+        "base_gain_db": {"type": "number"},
+        "avatar_gain_db": {"type": "number"}
+      }
+    },
+    "xywh": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "integer", "minimum": 0},
+        {"type": "integer", "minimum": 0},
+        {"type": "integer", "minimum": 1},
+        {"type": "integer", "minimum": 1}
+      ],
+      "items": false
+    }
+  }
+}

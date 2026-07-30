@@ -172,7 +172,7 @@ function checkManifest(manifestPath) {
       if (!sourceIds.has(sourceId)) {
         fail(
           `${manifestPath} 的场景 ${scene.id} 已采用 source id ${sourceId}`
-            + "，但 v2 素材账本没有该记录"
+            + "，但 v3 素材账本没有该记录"
         );
       }
     }
@@ -202,12 +202,16 @@ const starterManifest = ensurePath("assets/web-media-starter/editable-media.json
 checkManifest(starterManifest);
 
 for (const schema of [
-  "schemas/media-sources.v2.schema.json",
+  "schemas/media-sources.v3.schema.json",
   "schemas/clip-selections.v1.schema.json",
   "schemas/media-delivery.v1.schema.json",
-  "schemas/anime-avatar-project.v1.schema.json",
-  "schemas/visual-viseme-library.v1.schema.json",
-  "schemas/speech-timeline.v1.schema.json",
+  "schemas/anime-avatar-library-catalog.v2.schema.json",
+  "schemas/anime-avatar-library-package.v2.schema.json",
+  "schemas/anime-avatar-project.v3.schema.json",
+  "schemas/anime-avatar-render-plan.v2.schema.json",
+  "schemas/anime-avatar-accepted-production.v1.schema.json",
+  "schemas/visual-viseme-library.v3.schema.json",
+  "schemas/speech-timeline.v2.schema.json",
   "schemas/anime-avatar-inset.v1.schema.json",
 ]) {
   readJson(ensurePath(schema));
@@ -217,10 +221,13 @@ for (const avatarResource of [
   "assets/anime-avatar-prompts/master-image.md",
   "assets/anime-avatar-prompts/motion-source-video.md",
   "scripts/anime_avatar_common.py",
+  "scripts/anime_avatar_media.py",
   "scripts/anime_avatar_motion.py",
   "scripts/anime_avatar_blend.py",
   "scripts/anime-avatar-project.py",
+  "scripts/check-anime-avatar-resources.py",
   "scripts/synthesize-avatar-speech.py",
+  "scripts/validate-avatar-speech-timeline.py",
   "scripts/render-anime-avatar.py",
   "scripts/compose-anime-avatar-inset.py",
 ]) {
@@ -391,31 +398,18 @@ if (failures.length === 0) {
   const python = process.env.VISUAL_MULTIMEDIA_PYTHON
     || (process.platform === "win32" ? "python.exe" : "python3");
   const avatarProjectSchema = readJson(
-    path.join(skillRoot, "schemas", "anime-avatar-project.v1.schema.json")
+    path.join(skillRoot, "schemas", "anime-avatar-project.v3.schema.json")
   );
   const visualVisemeSchema = readJson(
-    path.join(skillRoot, "schemas", "visual-viseme-library.v1.schema.json")
+    path.join(skillRoot, "schemas", "visual-viseme-library.v3.schema.json")
   );
-  const gestureClipSchema = visualVisemeSchema?.$defs?.gestureClip;
-  const transitionSpanSchema = visualVisemeSchema?.$defs?.transitionSpan;
-  const vowelVisemes = ["A", "I", "U", "E", "O"];
   if (
-    !gestureClipSchema?.required?.includes("peak_strength_level")
-    || gestureClipSchema?.properties?.peak_strength_level?.minimum !== 1
-    || gestureClipSchema?.properties?.peak_strength_level?.maximum !== 4
+    visualVisemeSchema?.properties?.version?.const !== 3
+    || visualVisemeSchema?.properties?.annotation?.properties
+      ?.closed_motion_exhaustive_review?.properties?.exhaustive?.const !== true
+    || visualVisemeSchema?.properties?.gesture_clips?.minItems !== 5
   ) {
-    fail("视觉口型库没有把 1.0–4.0 的绝对峰值强度设为必填唯一契约");
-  }
-  for (const endpoint of ["from", "to"]) {
-    const enumValues = transitionSpanSchema?.properties?.[endpoint]?.enum;
-    if (
-      !Array.isArray(enumValues)
-      || enumValues.length !== vowelVisemes.length
-      || !vowelVisemes.every((viseme) => enumValues.includes(viseme))
-      || enumValues.includes("CLOSED")
-    ) {
-      fail("自然过渡片段仍接受 CLOSED，生产者与动作调度器契约不一致");
-    }
+    fail("视觉口型库活动 schema 不是要求穷尽闭嘴审阅的 v3 合同");
   }
   const avatarRenderSchema = avatarProjectSchema?.properties?.render;
   if (
@@ -449,7 +443,7 @@ if (failures.length === 0) {
     "plan_gesture_motion",
     "blend_compatible_join_window_in_place",
     "source_position_by_internal_frame",
-    "deterministic_join_plan",
+    "deterministic_seam_plan",
     "route_retry_count",
     "micro_optical_flow_transition_count",
     "preflight_output_resolution_join_windows",
@@ -576,10 +570,13 @@ if (failures.length === 0) {
       "-m",
       "py_compile",
       path.join(scriptDir, "anime_avatar_common.py"),
+      path.join(scriptDir, "anime_avatar_media.py"),
       path.join(scriptDir, "anime_avatar_motion.py"),
       path.join(scriptDir, "anime_avatar_blend.py"),
       path.join(scriptDir, "anime-avatar-project.py"),
+      path.join(scriptDir, "check-anime-avatar-resources.py"),
       path.join(scriptDir, "synthesize-avatar-speech.py"),
+      path.join(scriptDir, "validate-avatar-speech-timeline.py"),
       path.join(scriptDir, "render-anime-avatar.py"),
       path.join(scriptDir, "compose-anime-avatar-inset.py"),
     ],
@@ -594,6 +591,16 @@ if (failures.length === 0) {
     python,
     [path.join(scriptDir, "anime_avatar_blend.py"), "--self-test"],
     "二次元口播输出分辨率四帧接缝窗口自测"
+  );
+  runChecked(
+    python,
+    [path.join(scriptDir, "check-anime-avatar-resources.py"), "--deep"],
+    "二次元口播注册资源、验收证据和视觉素材库真实文件检查"
+  );
+  runChecked(
+    python,
+    [path.join(scriptDir, "anime-avatar-project.py"), "list-libraries"],
+    "二次元口播公开角色目录检查"
   );
   runChecked(
     python,

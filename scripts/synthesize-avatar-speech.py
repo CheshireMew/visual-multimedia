@@ -15,7 +15,7 @@ from typing import Any
 import edge_tts
 import numpy as np
 
-from anime_avatar_common import executable, write_json
+from anime_avatar_media import executable, file_sha256, write_json
 
 
 def chinese_characters(text: str) -> str:
@@ -157,6 +157,7 @@ def build_timeline(
     *,
     text: str,
     audio_source_id: str,
+    audio_sha256: str,
     boundaries: list[dict[str, Any]],
     samples: np.ndarray,
     sample_rate: int,
@@ -184,12 +185,14 @@ def build_timeline(
         )
     return {
         "protocol": "visual-multimedia-speech-timeline",
-        "version": 1,
+        "version": 2,
         "language": "zh-CN",
         "audio_source_id": audio_source_id,
+        "audio_sha256": audio_sha256,
         "text": text,
         "trim_start_seconds": 0,
         "trim_end_seconds": None,
+        "time_origin": "trimmed-audio-start",
         "timing": {
             "method": "provider-boundary",
             "reviewed": False,
@@ -258,6 +261,7 @@ def main() -> int:
     timeline = build_timeline(
         text=text,
         audio_source_id=args.audio_source_id,
+        audio_sha256=file_sha256(output_audio),
         boundaries=boundaries,
         samples=samples,
         sample_rate=sample_rate,

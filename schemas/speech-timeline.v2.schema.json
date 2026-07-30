@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.speech-timeline.v2",
+  "title": "Reviewed Mandarin Speech Timeline v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "language",
+    "audio_source_id",
+    "audio_sha256",
+    "text",
+    "trim_start_seconds",
+    "trim_end_seconds",
+    "time_origin",
+    "timing",
+    "units"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-speech-timeline"},
+    "version": {"const": 2},
+    "language": {"const": "zh-CN"},
+    "audio_source_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "audio_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "text": {"type": "string", "minLength": 1},
+    "trim_start_seconds": {"type": "number", "minimum": 0},
+    "trim_end_seconds": {
+      "type": ["number", "null"],
+      "exclusiveMinimum": 0
+    },
+    "time_origin": {"const": "trimmed-audio-start"},
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "reviewed", "notes"],
+      "properties": {
+        "method": {
+          "enum": ["provider-boundary", "forced-alignment", "manual-confirmed"]
+        },
+        "reviewed": {"type": "boolean"},
+        "notes": {"type": "string"}
+      }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["text", "start_seconds", "end_seconds"],
+        "properties": {
+          "text": {"type": "string", "minLength": 1, "maxLength": 1},
+          "start_seconds": {"type": "number", "minimum": 0},
+          "end_seconds": {"type": "number", "exclusiveMinimum": 0}
+        }
+      }
+    }
+  }
+}

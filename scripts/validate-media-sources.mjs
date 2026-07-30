@@ -7,7 +7,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const PROTOCOL = "visual-multimedia-media-sources";
-const VERSION = 2;
+const VERSION = 3;
 const ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const MEDIA_TYPES = new Set([
@@ -41,6 +41,7 @@ const SOURCE_FIELDS = new Set([
   "id",
   "media_type",
   "file",
+  "representation",
   "acquisition",
   "rights",
   "usage",
@@ -86,11 +87,17 @@ const PROVENANCE_FIELDS = new Set([
 ]);
 const CAPTURE_FIELDS = new Set(["file", "sha256"]);
 const SUBJECT_FIELDS = new Set(["x", "y"]);
+const REPRESENTATION_FIELDS = new Set([
+  "kind",
+  "source_id",
+  "build",
+  "verification",
+]);
 
 function usage() {
   console.log(
     "用法：node scripts/validate-media-sources.mjs <media-sources.json> [--json]\n"
-      + "验证 v2 素材账本的结构、文件存在性、字节数和 SHA-256。"
+      + "验证 v3 素材账本的结构、文件存在性和 SHA-256。"
   );
 }
 
@@ -112,7 +119,7 @@ function rejectUnknown(errors, value, allowed, location) {
   if (!isObject(value)) return;
   for (const field of Object.keys(value)) {
     if (!allowed.has(field)) {
-      fail(errors, `${location}.${field}`, "v2 合同不允许未知字段");
+      fail(errors, `${location}.${field}`, "v3 合同不允许未知字段");
     }
   }
 }
@@ -131,6 +138,29 @@ function sha256File(filePath) {
     fs.closeSync(file);
   }
   return hash.digest("hex");
+}
+
+function validateRepresentation(errors, representation, location) {
+  if (!isObject(representation)) {
+    fail(errors, location, "必须是对象");
+    return;
+  }
+  rejectUnknown(errors, representation, REPRESENTATION_FIELDS, location);
+  if (!["source", "proxy"].includes(representation.kind)) {
+    fail(errors, `${location}.kind`, "必须是 source 或 proxy");
+  }
+  if (representation.kind === "source") {
+    for (const field of ["source_id", "build", "verification"]) {
+      if (representation[field] !== null) {
+        fail(errors, `${location}.${field}`, "source 表示必须为 null");
+      }
+    }
+  } else if (
+    typeof representation.source_id !== "string"
+    || representation.source_id.length === 0
+  ) {
+    fail(errors, `${location}.source_id`, "proxy 必须引用原始 source id");
+  }
 }
 
 function validateCapture(errors, capture, location, manifestDir) {
@@ -168,7 +198,7 @@ function validateSource(errors, source, index, manifestDir) {
   rejectUnknown(errors, source, SOURCE_FIELDS, location);
   for (const field of LEGACY_FIELDS) {
     if (Object.hasOwn(source, field)) {
-      fail(errors, `${location}.${field}`, "v2 不允许保留旧字段");
+      fail(errors, `${location}.${field}`, "v3 不允许保留旧字段");
     }
   }
   if (!ID_PATTERN.test(source.id || "")) {
@@ -186,6 +216,11 @@ function validateSource(errors, source, index, manifestDir) {
   if (typeof source.notes !== "string") {
     fail(errors, `${location}.notes`, "必须是字符串");
   }
+  validateRepresentation(
+    errors,
+    source.representation,
+    `${location}.representation`
+  );
 
   const acquisition = source.acquisition;
   if (!isObject(acquisition)) {
@@ -233,17 +268,11 @@ function validateSource(errors, source, index, manifestDir) {
     }
   }
 
-  if (generatedInProject) {
-    if (source.integrity !== null) {
-      fail(
-        errors,
-        `${location}.integrity`,
-        "项目内动态生成内容没有独立文件时必须为 null"
-      );
-    }
-  } else if (!isObject(source.integrity)) {
+  if (source.integrity === null && !generatedInProject) {
     fail(errors, `${location}.integrity`, "独立素材必须记录完整性");
-  } else {
+  } else if (source.integrity !== null && !isObject(source.integrity)) {
+    fail(errors, `${location}.integrity`, "必须是对象或 null");
+  } else if (isObject(source.integrity)) {
     const integrity = source.integrity;
     rejectUnknown(errors, integrity, INTEGRITY_FIELDS, `${location}.integrity`);
     if (!SHA256_PATTERN.test(integrity.sha256 || "")) {

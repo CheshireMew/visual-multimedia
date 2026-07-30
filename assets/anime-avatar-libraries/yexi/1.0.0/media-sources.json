@@ -1,0 +1,94 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 3,
+  "sources": [
+    {
+      "id": "avatar-master",
+      "media_type": "generated",
+      "file": "assets/by-sha256/5f/5f15e2eabe34274a337be8623deb599399e5336b1ff58946f4924c589bc08fdd.png",
+      "acquisition": {
+        "method": "generated",
+        "source_url": "",
+        "captured_at": "2026-07-28T00:54:41.304Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "user-owned-character",
+        "attribution": "",
+        "terms_url": ""
+      },
+      "usage": "已确认角色母版",
+      "integrity": {
+        "sha256": "5f15e2eabe34274a337be8623deb599399e5336b1ff58946f4924c589bc08fdd",
+        "bytes": 1649433,
+        "mime_type": "image/png"
+      },
+      "generation": {
+        "provider": "image-generator",
+        "model": "validation-source",
+        "prompt": "validated-master-prompt",
+        "seed": null,
+        "created_at": "2026-07-28T00:54:41.305Z"
+      },
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-28T00:54:41.304Z",
+          "provider": "image-generator",
+          "job_id": "archived-generation",
+          "capture": null
+        }
+      ],
+      "subject": null,
+      "crops": {},
+      "notes": "",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      }
+    },
+    {
+      "id": "avatar-motion-source",
+      "media_type": "video",
+      "file": "assets/by-sha256/e5/e51f1a62339c3baa6f6f391624dcfa3f8f18aed27949dd38e07a3c41db2518a7.mp4",
+      "acquisition": {
+        "method": "user-provided",
+        "source_url": "",
+        "captured_at": "2026-07-28T00:54:41.413Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "user-provided",
+        "attribution": "",
+        "terms_url": ""
+      },
+      "usage": "15秒固定机位口型校准视频",
+      "integrity": {
+        "sha256": "e51f1a62339c3baa6f6f391624dcfa3f8f18aed27949dd38e07a3c41db2518a7",
+        "bytes": 7646778,
+        "mime_type": "video/mp4"
+      },
+      "generation": null,
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-28T00:54:41.413Z",
+          "provider": "",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": null,
+      "crops": {},
+      "notes": "",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      }
+    }
+  ]
+}
