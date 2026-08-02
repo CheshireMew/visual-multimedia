@@ -1,0 +1,60 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "spring-scale-in",
+  "name": "逐词弹性放大",
+  "aliases": ["弹跳进入", "spring scale"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "让短促口号或关键词以有弹性的逐词节奏进入。",
+    "energy": "expressive",
+    "semantic_tags": ["word", "spring", "scale", "energetic"]
+  },
+  "segmentation": {
+    "unit": "word",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 360, "stagger_ms": 95, "easing": "back-out"},
+    "exit": {"duration_ms": 200, "stagger_ms": 80, "easing": "ease-in"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 35},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "scale": 0.7}},
+        {"offset": 0.72, "values": {"opacity": 1, "scale": 1.08}},
+        {"offset": 1, "values": {"opacity": 1, "scale": 1}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "scale": 1}},
+        {"offset": 1, "values": {"opacity": 0, "scale": 0.8}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 24,
+    "recommended_max_lines": 2,
+    "layout_sensitive": false,
+    "motion_intensity": "high",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 140},
+    "notes": ["只用于短口号和强调词。", "严肃数据、正文和高频字幕不使用弹性过冲。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "hidden", "at": 0, "meaning": "词组尚未进入。"},
+      {"operation": "enter", "id": "overshoot", "at": 0.72, "meaning": "弹性过冲清楚但不碰撞相邻词。"},
+      {"operation": "enter", "id": "settled", "at": 1, "meaning": "所有词回到原始尺寸。"}
+    ]
+  }
+}

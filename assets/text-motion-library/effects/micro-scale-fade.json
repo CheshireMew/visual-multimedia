@@ -1,0 +1,58 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "micro-scale-fade",
+  "name": "轻微缩放淡化",
+  "aliases": ["微缩淡入", "micro scale"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "在不抢夺内容注意力的情况下让整段文字自然出现。",
+    "energy": "calm",
+    "semantic_tags": ["whole", "subtle", "fade", "general"]
+  },
+  "segmentation": {
+    "unit": "whole",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 600, "stagger_ms": 0, "easing": "ease-out"},
+    "exit": {"duration_ms": 400, "stagger_ms": 0, "easing": "ease-in"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 20},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "scale": 0.96}},
+        {"offset": 1, "values": {"opacity": 1, "scale": 1}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "scale": 1}},
+        {"offset": 1, "values": {"opacity": 0, "scale": 0.96}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 120,
+    "recommended_max_lines": 6,
+    "layout_sensitive": false,
+    "motion_intensity": "low",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 160},
+    "notes": ["适合作为没有更具体语义时的保守选择。", "整段缩放时必须检查边缘裁切。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "subtle-start", "at": 0, "meaning": "整段文字轻微缩小并透明。"},
+      {"operation": "enter", "id": "subtle-result", "at": 1, "meaning": "文字回到原始尺寸和清晰度。"}
+    ]
+  }
+}

@@ -1,11 +1,14 @@
 {
   "protocol": "visual-multimedia-media-sources",
-  "version": 3,
+  "version": 4,
   "sources": [
     {
       "id": "evidence-diagram",
       "media_type": "generated",
       "file": "index.html#evidence-stage",
+      "binding": {
+        "pipeline": "browser"
+      },
       "representation": {
         "kind": "source",
         "source_id": null,
@@ -51,7 +54,10 @@
     {
       "id": "creator-avatar",
       "media_type": "photo",
-      "file": "../../creator-identity/cheshire-avatar.png",
+      "file": "assets/creator-avatar.png",
+      "binding": {
+        "pipeline": "browser"
+      },
       "representation": {
         "kind": "source",
         "source_id": null,

@@ -31,6 +31,8 @@ _BEAM_WIDTH = 256
 _BEAM_PORTFOLIO_PER_EXIT = 2
 _STRENGTH_NEAR_BEST_MARGIN = 0.35
 _DIVERSITY_WINDOW = 5
+_IDLE_UNSEEN_CLIP_REWARD = 0.55
+_IDLE_RECENT_REPEAT_PENALTY = 0.90
 _NORMAL_GESTURE_ENDPOINT_LEVEL = 2
 _MAX_PARTIAL_GESTURE_ENDPOINT_LEVEL = 3
 _MATCHED_SAME_VISEME_TRANSITION_REWARD = 8.0
@@ -182,6 +184,8 @@ class BeamState:
     viseme_clip_ids: frozenset[tuple[str, str]]
     viseme_take_ids: frozenset[tuple[str, int]]
     recent_gesture_clip_ids: tuple[str, ...]
+    idle_clip_ids: frozenset[str]
+    recent_idle_clip_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -208,6 +212,11 @@ class DiversityPolicy:
         str,
         tuple[frozenset[int], ...],
     ]
+    idle_block_count: int
+    available_idle_clip_ids: frozenset[str]
+    required_unique_idle_clip_count: int
+    maximum_same_idle_clip_in_recent_5: int
+    suffix_idle_clip_ids: tuple[frozenset[str], ...]
 
 
 def _span_bounds(item: Mapping[str, Any], label: str) -> tuple[int, int]:
@@ -1222,6 +1231,20 @@ def _adaptive_recent_clip_limit(
     return window_size
 
 
+def _adaptive_idle_recent_clip_limit(
+    block_count: int,
+    available_clip_count: int,
+) -> int:
+    if block_count <= 0:
+        return 0
+    window_size = min(_DIVERSITY_WINDOW, block_count)
+    if available_clip_count >= _DIVERSITY_WINDOW and block_count >= 5:
+        return 1
+    if available_clip_count >= 2 and block_count >= 3:
+        return min(2, window_size)
+    return window_size
+
+
 def _diversity_policy(
     blocks: Sequence[Block],
     options_by_block: Sequence[Sequence[Option]],
@@ -1233,21 +1256,28 @@ def _diversity_policy(
     available_takes_by_viseme: dict[str, set[int]] = defaultdict(set)
     block_clip_ids: list[frozenset[str]] = []
     block_take_ids: list[frozenset[int]] = []
+    block_idle_clip_ids: list[frozenset[str]] = []
     for block, options in zip(blocks, options_by_block):
         if block.kind != "gesture":
             block_clip_ids.append(frozenset())
             block_take_ids.append(frozenset())
+            block_idle_clip_ids.append(
+                frozenset(option.clip.id for option in options)
+            )
             continue
         clip_ids = frozenset(option.clip.id for option in options)
         take_ids = frozenset(option.clip.take for option in options)
         block_clip_ids.append(clip_ids)
         block_take_ids.append(take_ids)
+        block_idle_clip_ids.append(frozenset())
         available_clips_by_viseme[block.viseme].update(clip_ids)
         available_takes_by_viseme[block.viseme].update(take_ids)
 
     available_clip_ids = frozenset().union(*block_clip_ids)
     available_take_ids = frozenset().union(*block_take_ids)
     gesture_block_count = sum(block.kind == "gesture" for block in blocks)
+    idle_block_count = sum(block.kind != "gesture" for block in blocks)
+    available_idle_clip_ids = frozenset().union(*block_idle_clip_ids)
     required_unique_clip_count = _adaptive_unique_requirement(
         gesture_block_count,
         len(available_clip_ids),
@@ -1286,6 +1316,15 @@ def _diversity_policy(
         if recent_limit_by_viseme
         else 0
     )
+    required_unique_idle_clip_count = _adaptive_unique_requirement(
+        idle_block_count,
+        len(available_idle_clip_ids),
+        _DIVERSITY_WINDOW,
+    )
+    maximum_recent_idle = _adaptive_idle_recent_clip_limit(
+        idle_block_count,
+        len(available_idle_clip_ids),
+    )
 
     suffix_clips: list[frozenset[str]] = [
         frozenset() for _ in range(len(blocks) + 1)
@@ -1293,9 +1332,15 @@ def _diversity_policy(
     suffix_takes: list[frozenset[int]] = [
         frozenset() for _ in range(len(blocks) + 1)
     ]
+    suffix_idle_clips: list[frozenset[str]] = [
+        frozenset() for _ in range(len(blocks) + 1)
+    ]
     for index in range(len(blocks) - 1, -1, -1):
         suffix_clips[index] = suffix_clips[index + 1] | block_clip_ids[index]
         suffix_takes[index] = suffix_takes[index + 1] | block_take_ids[index]
+        suffix_idle_clips[index] = (
+            suffix_idle_clips[index + 1] | block_idle_clip_ids[index]
+        )
 
     suffix_clips_by_viseme: dict[
         str,
@@ -1343,6 +1388,11 @@ def _diversity_policy(
         suffix_take_ids=tuple(suffix_takes),
         suffix_clip_ids_by_viseme=suffix_clips_by_viseme,
         suffix_take_ids_by_viseme=suffix_takes_by_viseme,
+        idle_block_count=idle_block_count,
+        available_idle_clip_ids=available_idle_clip_ids,
+        required_unique_idle_clip_count=required_unique_idle_clip_count,
+        maximum_same_idle_clip_in_recent_5=maximum_recent_idle,
+        suffix_idle_clip_ids=tuple(suffix_idle_clips),
     )
 
 
@@ -1629,11 +1679,17 @@ def _selection_penalty(
     current: Option,
     transition: Transition | None,
 ) -> float:
-    repeated_clip = sum(
-        clip_id == current.clip.id
-        for clip_id in state.recent_gesture_clip_ids
+    if current.clip.kind == "gesture":
+        recent_clip_ids = state.recent_gesture_clip_ids
+        repeat_weight = 0.25
+    else:
+        recent_clip_ids = state.recent_idle_clip_ids
+        repeat_weight = _IDLE_RECENT_REPEAT_PENALTY
+    repeated_clip = recent_clip_ids.count(current.clip.id)
+    penalty = (
+        _option_intrinsic_penalty(current)
+        + repeat_weight * repeated_clip
     )
-    penalty = _option_intrinsic_penalty(current) + 0.25 * repeated_clip
     if current.clip.kind == "gesture":
         same_viseme = [
             option
@@ -1663,6 +1719,8 @@ def _selection_penalty(
             current.clip.take,
         ) not in state.viseme_take_ids:
             penalty -= 0.10
+    elif current.clip.id not in state.idle_clip_ids:
+        penalty -= _IDLE_UNSEEN_CLIP_REWARD
     if transition is not None:
         pair = (transition.from_option_key, transition.to_option_key)
         repeated_transition = sum(
@@ -1693,12 +1751,16 @@ def _initial_state(option: Option) -> BeamState:
             {(option.clip.viseme, option.clip.take)}
         )
         recent = (option.clip.id,)
+        idle_clip_ids = frozenset()
+        recent_idle = ()
     else:
         gesture_clip_ids = frozenset()
         gesture_take_ids = frozenset()
         viseme_clip_ids = frozenset()
         viseme_take_ids = frozenset()
         recent = ()
+        idle_clip_ids = frozenset({option.clip.id})
+        recent_idle = (option.clip.id,)
     return BeamState(
         cost=_option_intrinsic_penalty(option),
         options=(option,),
@@ -1709,6 +1771,8 @@ def _initial_state(option: Option) -> BeamState:
         viseme_clip_ids=viseme_clip_ids,
         viseme_take_ids=viseme_take_ids,
         recent_gesture_clip_ids=recent,
+        idle_clip_ids=idle_clip_ids,
+        recent_idle_clip_ids=recent_idle,
     )
 
 
@@ -1730,12 +1794,18 @@ def _append_state(
         recent = (
             state.recent_gesture_clip_ids + (current.clip.id,)
         )[-(_DIVERSITY_WINDOW - 1) :]
+        idle_clip_ids = state.idle_clip_ids
+        recent_idle = state.recent_idle_clip_ids
     else:
         gesture_clip_ids = state.gesture_clip_ids
         gesture_take_ids = state.gesture_take_ids
         viseme_clip_ids = state.viseme_clip_ids
         viseme_take_ids = state.viseme_take_ids
         recent = state.recent_gesture_clip_ids
+        idle_clip_ids = state.idle_clip_ids | {current.clip.id}
+        recent_idle = (
+            state.recent_idle_clip_ids + (current.clip.id,)
+        )[-(_DIVERSITY_WINDOW - 1) :]
     return BeamState(
         cost=state.cost + penalty,
         options=state.options + (current,),
@@ -1750,6 +1820,8 @@ def _append_state(
         viseme_clip_ids=viseme_clip_ids,
         viseme_take_ids=viseme_take_ids,
         recent_gesture_clip_ids=recent,
+        idle_clip_ids=idle_clip_ids,
+        recent_idle_clip_ids=recent_idle,
     )
 
 
@@ -1758,14 +1830,18 @@ def _recent_clip_limit_passes(
     current: Option,
     policy: DiversityPolicy,
 ) -> bool:
-    if current.clip.kind != "gesture":
-        return True
-    maximum = policy.maximum_same_clip_in_recent_5_by_viseme[
-        current.clip.viseme
-    ]
-    recent = (
-        state.recent_gesture_clip_ids + (current.clip.id,)
-    )[-_DIVERSITY_WINDOW:]
+    if current.clip.kind == "gesture":
+        maximum = policy.maximum_same_clip_in_recent_5_by_viseme[
+            current.clip.viseme
+        ]
+        recent = (
+            state.recent_gesture_clip_ids + (current.clip.id,)
+        )[-_DIVERSITY_WINDOW:]
+    else:
+        maximum = policy.maximum_same_idle_clip_in_recent_5
+        recent = (
+            state.recent_idle_clip_ids + (current.clip.id,)
+        )[-_DIVERSITY_WINDOW:]
     return recent.count(current.clip.id) <= maximum
 
 
@@ -1781,6 +1857,11 @@ def _diversity_reachable(
     if len(
         state.gesture_take_ids | policy.suffix_take_ids[next_block_index]
     ) < policy.required_unique_take_count:
+        return False
+    if len(
+        state.idle_clip_ids
+        | policy.suffix_idle_clip_ids[next_block_index]
+    ) < policy.required_unique_idle_clip_count:
         return False
     for viseme, required in policy.required_unique_clip_count_by_viseme.items():
         selected = {
@@ -1825,6 +1906,10 @@ def _diversity_deficit(
     deficit += max(
         0,
         policy.required_unique_take_count - len(state.gesture_take_ids),
+    )
+    deficit += max(
+        0,
+        policy.required_unique_idle_clip_count - len(state.idle_clip_ids),
     )
     for viseme, required in policy.required_unique_clip_count_by_viseme.items():
         selected_count = sum(
@@ -1918,7 +2003,7 @@ def _choose_options(
     if not states:
         raise ValueError(
             "first motion block has no strength-eligible option that can "
-            "still satisfy the adaptive gesture-diversity contract"
+            "still satisfy the adaptive motion-diversity contract"
         )
     states = _prune_beam_states(states, policy)
     for block_index in range(1, len(blocks)):
@@ -1998,6 +2083,8 @@ def _choose_options(
                 state.viseme_clip_ids,
                 state.viseme_take_ids,
                 state.recent_gesture_clip_ids,
+                state.idle_clip_ids,
+                state.recent_idle_clip_ids,
             )
             incumbent = deduplicated.get(signature)
             if incumbent is None or state.cost < incumbent.cost:
@@ -2012,7 +2099,7 @@ def _choose_options(
         ]
     if not states:
         raise ValueError(
-            "no reviewed clip route satisfies the adaptive gesture-diversity "
+            "no reviewed clip route satisfies the adaptive motion-diversity "
             "contract after strength eligibility and transition constraints"
         )
     best = min(
@@ -2276,6 +2363,30 @@ def _report(
                     "previous_block_indices": previous,
                 }
             )
+    idle_options = [
+        option for option in options if option.clip.kind != "gesture"
+    ]
+    idle_recent_counts = [
+        sum(
+            candidate.clip.id == option.clip.id
+            for candidate in idle_options[
+                max(0, index - (_DIVERSITY_WINDOW - 1)) : index + 1
+            ]
+        )
+        for index, option in enumerate(idle_options)
+    ]
+    selected_idle_clip_counts = Counter(
+        option.clip.id for option in idle_options
+    )
+    observed_maximum_idle_repeat = (
+        max(idle_recent_counts) if idle_recent_counts else 0
+    )
+    idle_diversity_satisfied = (
+        len(selected_idle_clip_counts)
+        >= diversity_policy.required_unique_idle_clip_count
+        and observed_maximum_idle_repeat
+        <= diversity_policy.maximum_same_idle_clip_in_recent_5
+    )
     gesture_options = [
         option for option in options if option.clip.kind == "gesture"
     ]
@@ -2436,13 +2547,16 @@ def _report(
         >= diversity_policy.required_unique_take_count
         and per_viseme_satisfied
     )
+    motion_diversity_satisfied = (
+        global_diversity_satisfied and idle_diversity_satisfied
+    )
     if (
         diversity_enforcement_mode != "continuity-first-fallback"
-        and not global_diversity_satisfied
+        and not motion_diversity_satisfied
     ):
         raise AssertionError(
             "selected route violated the planner-owned adaptive "
-            "gesture-diversity contract"
+            "motion-diversity contract"
         )
     transition_counts: dict[tuple[str, str], int] = {}
     for transition in transitions:
@@ -2800,6 +2914,50 @@ def _report(
         "planned_annotation_take_usage": take_usage,
         "planned_annotation_repeated_clip_windows": repeated_clip_windows,
         "planned_annotation_repeated_transitions": repeated_transitions,
+        "planned_annotation_idle_block_count": len(idle_options),
+        "planned_annotation_unique_idle_clip_count": len(
+            selected_idle_clip_counts
+        ),
+        "planned_annotation_available_idle_clip_count": len(
+            diversity_policy.available_idle_clip_ids
+        ),
+        "planned_annotation_required_unique_idle_clip_count": (
+            diversity_policy.required_unique_idle_clip_count
+        ),
+        "planned_annotation_required_maximum_same_idle_clip_occurrences_in_recent_5": (
+            diversity_policy.maximum_same_idle_clip_in_recent_5
+        ),
+        "planned_annotation_maximum_same_idle_clip_occurrences_in_recent_5": (
+            observed_maximum_idle_repeat
+        ),
+        "planned_annotation_idle_diversity_contract_satisfied": (
+            idle_diversity_satisfied
+        ),
+        "planned_annotation_idle_diversity_contract": {
+            "selection_basis": (
+                "all reviewed closed-motion clips that fit each idle block "
+                "inside the source speed and acceleration bounds"
+            ),
+            "recent_window_size": _DIVERSITY_WINDOW,
+            "idle_block_count": diversity_policy.idle_block_count,
+            "available_clip_ids": sorted(
+                diversity_policy.available_idle_clip_ids
+            ),
+            "required_unique_clip_count": (
+                diversity_policy.required_unique_idle_clip_count
+            ),
+            "required_maximum_same_clip_occurrences_in_recent_5": (
+                diversity_policy.maximum_same_idle_clip_in_recent_5
+            ),
+            "selected_clip_counts": dict(
+                sorted(selected_idle_clip_counts.items())
+            ),
+            "selected_unique_clip_count": len(selected_idle_clip_counts),
+            "observed_maximum_same_clip_occurrences_in_recent_5": (
+                observed_maximum_idle_repeat
+            ),
+            "satisfied": idle_diversity_satisfied,
+        },
         "planned_annotation_gesture_block_count": len(gesture_options),
         "planned_annotation_partial_coarticulation_block_count": sum(
             block.kind == "gesture"
@@ -2833,6 +2991,9 @@ def _report(
         ),
         "planned_annotation_gesture_diversity_contract_satisfied": (
             global_diversity_satisfied
+        ),
+        "planned_annotation_motion_diversity_contract_satisfied": (
+            motion_diversity_satisfied
         ),
         "planned_annotation_diversity_enforcement_mode": (
             diversity_enforcement_mode
@@ -3403,6 +3564,51 @@ def _selection_regression_tests() -> dict[str, Any]:
         for index, option in enumerate(repeated_selected)
     ) <= 3
 
+    idle_blocks = [
+        replace(
+            _regression_block(index, "CLOSED", 0.0),
+            kind="idle",
+            anchor=None,
+        )
+        for index in range(5)
+    ]
+    idle_clips = [
+        replace(
+            _regression_clip(
+                f"closed_idle_{index + 1}",
+                "CLOSED",
+                index + 1,
+                index * 9,
+                0.0,
+            ),
+            kind="idle",
+            peak_start=None,
+            peak_end=None,
+            entry_frames_by_intensity=(),
+            exit_frames_by_intensity=(),
+        )
+        for index in range(5)
+    ]
+    idle_options = [
+        [
+            option
+            for clip in idle_clips
+            for option in _idle_options(block, [clip])
+        ]
+        for block in idle_blocks
+    ]
+    idle_selected, _, _, idle_policy = _choose_options(
+        idle_blocks,
+        idle_options,
+        descriptors,
+        {},
+        8,
+    )
+    selected_idle_clips = [option.clip.id for option in idle_selected]
+    assert len(set(selected_idle_clips)) == 5
+    assert idle_policy.required_unique_idle_clip_count == 5
+    assert idle_policy.maximum_same_idle_clip_in_recent_5 == 1
+
     matched_blocks = [
         _regression_block(0, "I", 4.0),
         _regression_block(1, "I", 4.0),
@@ -3535,6 +3741,7 @@ def _selection_regression_tests() -> dict[str, Any]:
         "four_same_vowel_two_take_selected_clips": sorted(
             selected_repeated_clips
         ),
+        "five_idle_blocks_selected_clips": selected_idle_clips,
         "matched_same_vowel_endpoint_seam": matched_transition.kind,
         "matched_cross_vowel_endpoint_seam": cross_viseme_transition.kind,
         "asymmetric_entry_exit_chain": (
@@ -3665,6 +3872,21 @@ def lightweight_self_test() -> dict[str, Any]:
     assert report["planned_annotation_gesture_diversity_contract"][
         "satisfied"
     ]
+    assert report["planned_annotation_idle_diversity_contract_satisfied"]
+    assert (
+        report["planned_annotation_unique_idle_clip_count"]
+        >= report["planned_annotation_required_unique_idle_clip_count"]
+    )
+    assert (
+        report[
+            "planned_annotation_maximum_same_idle_clip_occurrences_in_recent_5"
+        ]
+        <= report[
+            "planned_annotation_required_maximum_same_idle_clip_occurrences_in_recent_5"
+        ]
+    )
+    assert report["planned_annotation_idle_diversity_contract"]["satisfied"]
+    assert report["planned_annotation_motion_diversity_contract_satisfied"]
     assert set(
         report["planned_annotation_strength_by_viseme"]
     ) == set(

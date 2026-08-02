@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "depth-parallax-words",
+  "name": "逐词景深聚合",
+  "aliases": ["词组纵深", "depth parallax words"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "layout-slot", "overflow": "hidden", "requires_final_width": true, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "用不同幅度的纵深和位移让少量关键词聚合到同一平面。",
+    "energy": "expressive",
+    "semantic_tags": ["word", "depth", "parallax", "focus"]
+  },
+  "segmentation": {
+    "unit": "word",
+    "order": "center-out",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 700, "stagger_ms": 70, "easing": "ease-out"},
+    "exit": {"duration_ms": 500, "stagger_ms": 45, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 180, "micro_delay_ms": 30},
+    "hold_ms": 900
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "depth",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "x_px": 18, "y_px": 18, "scale": 0.92, "blur_px": 3}},
+        {"offset": 1, "values": {"opacity": 1, "x_px": 0, "y_px": 0, "scale": 1, "blur_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "x_px": 0, "y_px": 0, "scale": 1, "blur_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "x_px": -12, "y_px": -10, "scale": 1.05, "blur_px": 2}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 34,
+    "recommended_max_lines": 2,
+    "layout_sensitive": true,
+    "motion_intensity": "high",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 160},
+    "notes": ["只用于少量关键词，不能替代场景镜头。", "外层镜头同时运动时取消本效果的纵深变化。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "separated-depths", "at": 0, "meaning": "词组处于不同的纵深幅度。"},
+      {"operation": "enter", "id": "converging", "at": 0.55, "meaning": "各词向共同清晰平面聚合。"},
+      {"operation": "enter", "id": "same-plane", "at": 1, "meaning": "所有词清晰并处于最终比例。"}
+    ]
+  }
+}

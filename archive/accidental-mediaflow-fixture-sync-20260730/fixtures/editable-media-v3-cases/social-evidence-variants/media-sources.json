@@ -1,0 +1,106 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 3,
+  "sources": [
+    {
+      "id": "evidence-diagram",
+      "media_type": "generated",
+      "file": "index.html#evidence-stage",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
+      "acquisition": {
+        "method": "generated-in-project",
+        "source_url": "",
+        "captured_at": "2026-07-27T00:00:00.000Z"
+      },
+      "rights": {
+        "status": "not-required",
+        "license": "generated-in-project",
+        "attribution": "",
+        "terms_url": ""
+      },
+      "usage": "original CSS evidence diagram",
+      "integrity": null,
+      "generation": {
+        "provider": "local-project",
+        "model": "html-css",
+        "prompt": "",
+        "seed": null,
+        "created_at": "2026-07-27T00:00:00.000Z"
+      },
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-27T00:00:00.000Z",
+          "provider": "local-project",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "crops": {},
+      "notes": "由当前网页包的 HTML/CSS 生成，不含外部素材。"
+    },
+    {
+      "id": "creator-avatar",
+      "media_type": "photo",
+      "file": "assets/creator-avatar.png",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
+      "acquisition": {
+        "method": "project-owned",
+        "source_url": "",
+        "captured_at": "2026-07-27T00:00:00.000Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "project-owned",
+        "attribution": "柴郡@0xCheshire",
+        "terms_url": ""
+      },
+      "usage": "creator signature",
+      "integrity": {
+        "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+        "bytes": 902095,
+        "mime_type": "image/png"
+      },
+      "generation": null,
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-27T00:00:00.000Z",
+          "provider": "local-project",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "crops": {
+        "portrait-3x4": {
+          "object_position": "50% 50%"
+        },
+        "landscape-21x9": {
+          "object_position": "50% 50%"
+        },
+        "square-1x1": {
+          "object_position": "50% 50%"
+        }
+      },
+      "notes": "当前 Skill 的默认作者身份资源；用户提供其它身份时替换。"
+    }
+  ]
+}

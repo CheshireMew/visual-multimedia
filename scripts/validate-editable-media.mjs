@@ -5,7 +5,16 @@ import http from "node:http";
 import path from "node:path";
 import process from "node:process";
 import { createRequire } from "node:module";
-import { validateMediaSources } from "./validate-media-sources.mjs";
+import {
+  assertEditableMediaPackageClosed,
+  normalizeEditableMediaTarget,
+  resolvePackageReference,
+  validateEditableMediaSchema,
+} from "./editable-media-contract.mjs";
+import {
+  EDITABLE_MEDIA_SOURCES_CONTRACT,
+  validateMediaSources,
+} from "./validate-media-sources.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -75,17 +84,6 @@ function readJson(filePath) {
   }
 }
 
-function normalizeTarget(target) {
-  const absolute = path.resolve(target);
-  if (!fs.existsSync(absolute)) throw new Error(`目标不存在：${absolute}`);
-  const stat = fs.statSync(absolute);
-  const manifestPath = stat.isDirectory()
-    ? path.join(absolute, "editable-media.json")
-    : absolute;
-  if (!fs.existsSync(manifestPath)) throw new Error(`找不到清单：${manifestPath}`);
-  return manifestPath;
-}
-
 function localResourcePaths(manifest, manifestDir) {
   const values = [
     manifest.entry,
@@ -95,9 +93,20 @@ function localResourcePaths(manifest, manifestDir) {
   const resources = values
     .filter((value) => typeof value === "string" && value.length > 0)
     .filter((value) => !/^(?:[a-z]+:)?\/\//i.test(value) && !value.startsWith("data:"))
-    .map((value) => path.resolve(manifestDir, value));
+    .flatMap((value) => {
+      try {
+        return [resolvePackageReference(manifestDir, value)];
+      } catch {
+        return [];
+      }
+    });
   if (typeof manifest.media_sources === "string" && manifest.media_sources) {
-    const mediaSourcesPath = path.resolve(manifestDir, manifest.media_sources);
+    let mediaSourcesPath = null;
+    try {
+      mediaSourcesPath = resolvePackageReference(manifestDir, manifest.media_sources);
+    } catch {
+      return Array.from(new Set(resources));
+    }
     if (fs.existsSync(mediaSourcesPath)) {
       try {
         const mediaSources = readJson(mediaSourcesPath);
@@ -105,7 +114,11 @@ function localResourcePaths(manifest, manifestDir) {
           if (typeof source.file !== "string" || !source.file) continue;
           const file = source.file.split("#", 1)[0];
           if (!/^(?:[a-z]+:)?\/\//i.test(file) && !file.startsWith("data:")) {
-            resources.push(path.resolve(path.dirname(mediaSourcesPath), file));
+            try {
+              resources.push(resolvePackageReference(manifestDir, file));
+            } catch {
+              // structuralChecks reports paths that escape the package.
+            }
           }
         }
       } catch {
@@ -114,20 +127,6 @@ function localResourcePaths(manifest, manifestDir) {
     }
   }
   return Array.from(new Set(resources));
-}
-
-function commonAncestor(paths) {
-  const resolved = paths.map((value) => path.resolve(value));
-  let current = path.dirname(resolved[0]);
-  while (!resolved.every((value) => {
-    const relative = path.relative(current, value);
-    return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
-  })) {
-    const parent = path.dirname(current);
-    if (parent === current) return current;
-    current = parent;
-  }
-  return current;
 }
 
 function contentType(filePath) {
@@ -157,6 +156,11 @@ async function startStaticServer(root) {
   const server = http.createServer((request, response) => {
     try {
       const url = new URL(request.url || "/", "http://127.0.0.1");
+      if (url.pathname === "/favicon.ico") {
+        response.writeHead(204);
+        response.end();
+        return;
+      }
       const relative = decodeURIComponent(url.pathname).replace(/^\/+/, "");
       const filePath = path.resolve(normalizedRoot, relative);
       const comparePath = filePath.toLowerCase();
@@ -199,8 +203,16 @@ function structuralChecks(manifest, manifestPath) {
   const fail = (rule, message) => failures.push({ rule, message });
   const warn = (rule, message) => warnings.push({ rule, message });
 
+  for (const message of validateEditableMediaSchema(manifest)) {
+    fail("S0", message);
+  }
+  try {
+    assertEditableMediaPackageClosed(manifestDir, manifest);
+  } catch (error) {
+    fail("S0", error.message);
+  }
   if (manifest.protocol !== "editable-media") fail("S1", "protocol 必须是 editable-media");
-  if (manifest.version !== 2) fail("S1", "version 必须是 2");
+  if (manifest.version !== 5) fail("S1", "version 必须是 5");
   if (typeof manifest.entry !== "string" || !manifest.entry) {
     fail("S2", "entry 必须指向入口 HTML");
   }
@@ -210,12 +222,23 @@ function structuralChecks(manifest, manifestPath) {
     }
   }
   if (typeof manifest.media_sources !== "string" || !manifest.media_sources) {
-    fail("S3", "media_sources 必须指向唯一的 v3 素材账本");
+    fail("S3", "media_sources 必须指向唯一的 media-sources v4 素材账本");
   }
-  const mediaSourcesPath = typeof manifest.media_sources === "string"
-    ? path.resolve(manifestDir, manifest.media_sources)
-    : path.join(manifestDir, "__missing-media-sources.json");
-  const mediaSourcesValidation = validateMediaSources(mediaSourcesPath);
+  let mediaSourcesPath = path.join(manifestDir, "__missing-media-sources.json");
+  if (typeof manifest.media_sources === "string") {
+    try {
+      mediaSourcesPath = resolvePackageReference(
+        manifestDir,
+        manifest.media_sources,
+        "media_sources"
+      );
+    } catch (error) {
+      fail("S3", error.message);
+    }
+  }
+  const mediaSourcesValidation = validateMediaSources(mediaSourcesPath, {
+    contract: EDITABLE_MEDIA_SOURCES_CONTRACT,
+  });
   if (!mediaSourcesValidation.ok) {
     mediaSourcesValidation.errors.forEach((message) =>
       fail("S3", `素材账本无效：${message}`)
@@ -246,11 +269,21 @@ function structuralChecks(manifest, manifestPath) {
     const mediaSourcesDocument = readJson(mediaSourcesPath);
     for (const source of mediaSourcesDocument.sources || []) {
       mediaSourceRecords.set(source.id, source);
+      try {
+        resolvePackageReference(
+          manifestDir,
+          String(source.file || ""),
+          `素材 ${source.id || "未命名"} 的 file`
+        );
+      } catch (error) {
+        fail("S3", error.message);
+      }
     }
   }
 
   const layers = Array.isArray(manifest.layers) ? manifest.layers : [];
   const layerIds = new Set();
+  const layerById = new Map();
   const selectors = new Set();
   layers.forEach((layer, index) => {
     if (!layer?.id || typeof layer.id !== "string") {
@@ -259,6 +292,7 @@ function structuralChecks(manifest, manifestPath) {
       fail("S4", `图层 id 重复：${layer.id}`);
     } else {
       layerIds.add(layer.id);
+      layerById.set(layer.id, layer);
     }
     if (!layer?.selector || typeof layer.selector !== "string") {
       fail("S4", `图层 ${layer?.id || index} 缺少 selector`);
@@ -268,6 +302,31 @@ function structuralChecks(manifest, manifestPath) {
       selectors.add(layer.selector);
     }
   });
+  for (const layer of layers) {
+    if (layer.parent_id != null && !layerIds.has(layer.parent_id)) {
+      fail("S4", `图层 ${layer.id} 的 parent_id 不存在：${layer.parent_id}`);
+    }
+    const visited = new Set([layer.id]);
+    let parentId = layer.parent_id;
+    while (parentId != null) {
+      if (visited.has(parentId)) {
+        fail("S4", `图层 ${layer.id} 的 parent_id 形成循环`);
+        break;
+      }
+      visited.add(parentId);
+      parentId = layerById.get(parentId)?.parent_id;
+    }
+  }
+  const isLayerDescendant = (layerId, ancestorId) => {
+    const visited = new Set();
+    let parentId = layerById.get(layerId)?.parent_id;
+    while (parentId != null && !visited.has(parentId)) {
+      if (parentId === ancestorId) return true;
+      visited.add(parentId);
+      parentId = layerById.get(parentId)?.parent_id;
+    }
+    return false;
+  };
 
   const dataFields = Array.isArray(manifest.data_fields) ? manifest.data_fields : [];
   const dataFieldById = new Map();
@@ -293,6 +352,108 @@ function structuralChecks(manifest, manifestPath) {
       );
     }
     dataFieldById.set(field.id, field);
+  });
+
+  const parameterDefinitions = Array.isArray(manifest.parameters)
+    ? manifest.parameters
+    : [];
+  const parameterById = new Map();
+  const parameterCssVariables = new Set();
+  const themeCssVariables = new Set(
+    (manifest.theme_variables || [])
+      .map((item) => item?.css_variable)
+      .filter(Boolean)
+  );
+  const parameterValueMatches = (definition, value) => {
+    if (definition.kind === "number") {
+      return typeof value === "number" && Number.isFinite(value);
+    }
+    if (definition.kind === "integer") return Number.isInteger(value);
+    if (definition.kind === "boolean") return typeof value === "boolean";
+    return typeof value === "string";
+  };
+  const parameterValueWithinConstraints = (definition, value, label) => {
+    if (!parameterValueMatches(definition, value)) {
+      fail("S13", `${label} 与参数类型 ${definition.kind} 不匹配`);
+      return;
+    }
+    const constraints = definition.constraints || {};
+    if (typeof value === "number") {
+      if (constraints.minimum != null && value < Number(constraints.minimum)) {
+        fail("S13", `${label} 不能小于 ${constraints.minimum}`);
+      }
+      if (constraints.maximum != null && value > Number(constraints.maximum)) {
+        fail("S13", `${label} 不能大于 ${constraints.maximum}`);
+      }
+    }
+    if (
+      Array.isArray(constraints.choices)
+      && constraints.choices.length
+      && !constraints.choices.some((candidate) => Object.is(candidate, value))
+    ) {
+      fail("S13", `${label} 不在 parameters.constraints.choices 中`);
+    }
+  };
+  parameterDefinitions.forEach((parameter, index) => {
+    if (!parameter?.id || typeof parameter.id !== "string") {
+      fail("S13", `parameters[${index}] 缺少稳定 id`);
+      return;
+    }
+    if (parameterById.has(parameter.id)) {
+      fail("S13", `自定义参数 id 重复：${parameter.id}`);
+      return;
+    }
+    parameterById.set(parameter.id, parameter);
+    const controls = {
+      number: ["slider", "number"],
+      integer: ["slider", "number"],
+      boolean: ["toggle"],
+      string: ["text"],
+      color: ["color"],
+      choice: ["select"],
+    }[parameter.kind] || [];
+    if (!controls.includes(parameter.control)) {
+      fail(
+        "S13",
+        `自定义参数 ${parameter.id} 的 control=${parameter.control || "空"}`
+          + ` 不适用于 ${parameter.kind || "未知类型"}`
+      );
+    }
+    const constraints = parameter.constraints || {};
+    if (
+      constraints.minimum != null
+      && constraints.maximum != null
+      && Number(constraints.minimum) > Number(constraints.maximum)
+    ) {
+      fail("S13", `自定义参数 ${parameter.id} 的 minimum 不能大于 maximum`);
+    }
+    if (
+      parameter.kind === "choice"
+      && (!Array.isArray(constraints.choices) || constraints.choices.length === 0)
+    ) {
+      fail("S13", `choice 参数 ${parameter.id} 必须声明非空 choices`);
+    }
+    if (
+      parameter.kind !== "choice"
+      && Array.isArray(constraints.choices)
+      && constraints.choices.length
+    ) {
+      fail("S13", `只有 choice 参数可以声明 choices：${parameter.id}`);
+    }
+    parameterValueWithinConstraints(
+      parameter,
+      parameter.default,
+      `自定义参数 ${parameter.id} 的 default`
+    );
+    if (parameter.css_variable) {
+      if (
+        parameterCssVariables.has(parameter.css_variable)
+        || themeCssVariables.has(parameter.css_variable)
+      ) {
+        fail("S13", `自定义参数 CSS 变量重复：${parameter.css_variable}`);
+      }
+      parameterCssVariables.add(parameter.css_variable);
+    }
   });
 
   const variants = Array.isArray(manifest.variants) ? manifest.variants : [];
@@ -377,6 +538,22 @@ function structuralChecks(manifest, manifestPath) {
     if (!(Number(scene.duration_ms) > 0)) {
       fail("S8", `场景 ${scene.id} 的 duration_ms 必须是正数`);
     }
+    for (const [parameterId, value] of Object.entries(scene.parameters || {})) {
+      const definition = parameterById.get(parameterId);
+      if (!definition) {
+        fail("S13", `场景 ${scene.id} 引用了未知自定义参数 ${parameterId}`);
+        continue;
+      }
+      if (definition.scope !== "scene") {
+        fail("S13", `全局参数 ${parameterId} 不能写入场景 ${scene.id}`);
+        continue;
+      }
+      parameterValueWithinConstraints(
+        definition,
+        value,
+        `场景 ${scene.id} 的参数 ${parameterId}`
+      );
+    }
     const contract = contractById.get(scene.layout_id);
     if (!contract) {
       fail("S8", `场景 ${scene.id} 引用了未知内容版式合同 ${scene.layout_id}`);
@@ -438,6 +615,7 @@ function structuralChecks(manifest, manifestPath) {
             && (
               !["photo", "screenshot", "video-frame", "icon", "generated"]
                 .includes(source.media_type)
+              || source.binding?.pipeline !== "browser"
               || source.acquisition?.method === "generated-in-project"
             )
           ) {
@@ -458,23 +636,145 @@ function structuralChecks(manifest, manifestPath) {
     for (const fieldId of Object.keys(scene.data || {})) {
       if (!dataFieldById.has(fieldId)) fail("S8", `场景 ${scene.id} 引用了未知数据字段 ${fieldId}`);
     }
-    for (const layerId of Object.keys(scene.layers || {})) {
-      if (!layerIds.has(layerId)) fail("S8", `场景 ${scene.id} 引用了未知图层 ${layerId}`);
-    }
     const steps = Array.isArray(scene.steps) ? scene.steps : [];
     if (!steps.length || Number(steps[0]?.at_ms) !== 0) {
       fail("S8", `场景 ${scene.id} 的 steps 必须从 at_ms=0 开始`);
     }
     const stepIds = new Set();
+    const stepById = new Map();
     let previousAt = -1;
     for (const step of steps) {
       const at = Number(step.at_ms);
       if (!step?.id || stepIds.has(step.id)) fail("S8", `场景 ${scene.id} 的 step id 缺少或重复`);
       stepIds.add(step.id);
+      stepById.set(step.id, step);
       if (at < previousAt || at < 0 || at >= Number(scene.duration_ms)) {
         fail("S8", `场景 ${scene.id} 的 step ${step.id || "空"} 时间无效`);
       }
+      if (!["start", "change", "result", "hold"].includes(step.state_kind)) {
+        fail("S12", `场景 ${scene.id} 的 step ${step.id || "空"} 缺少语义状态类型`);
+      }
+      if (typeof step.review !== "boolean" || !String(step.description || "").trim()) {
+        fail("S12", `场景 ${scene.id} 的 step ${step.id || "空"} 必须声明 review 与可读状态说明`);
+      }
       previousAt = at;
+    }
+    if (steps[0]?.state_kind !== "start") {
+      fail("S12", `场景 ${scene.id} 的第一个 step 必须是 start 状态`);
+    }
+
+    const motion = scene.motion;
+    if (!motion || typeof motion !== "object") {
+      fail("S12", `场景 ${scene.id} 必须声明 motion`);
+      return;
+    }
+    const complexity = motion.complexity;
+    const driver = motion.driver;
+    const camera = motion.camera;
+    if (!["static", "simple", "complex"].includes(complexity)) {
+      fail("S12", `场景 ${scene.id} 的 motion.complexity 无效`);
+    }
+    if (!["none", "object", "camera", "mixed"].includes(driver)) {
+      fail("S12", `场景 ${scene.id} 的 motion.driver 无效`);
+    }
+    if (!String(motion.semantic_purpose || "").trim()) {
+      fail("S12", `场景 ${scene.id} 必须说明运动的语义目的`);
+    }
+    if (complexity === "static") {
+      if (driver !== "none" || camera !== null || motion.key_state_review !== "none") {
+        fail("S12", `静态场景 ${scene.id} 必须使用 driver=none、camera=null、key_state_review=none`);
+      }
+    } else if (driver === "none") {
+      fail("S12", `非静态场景 ${scene.id} 不能使用 driver=none`);
+    }
+    if (["camera", "mixed"].includes(driver) && !camera) {
+      fail("S12", `场景 ${scene.id} 使用 ${driver} 时必须声明 camera`);
+    }
+    if (!["camera", "mixed"].includes(driver) && camera !== null) {
+      fail("S12", `场景 ${scene.id} 不使用镜头驱动时 camera 必须为 null`);
+    }
+
+    const reviewedSteps = steps.filter((step) => step.review === true);
+    if (complexity === "complex") {
+      if (motion.key_state_review !== "required") {
+        fail("S12", `复杂场景 ${scene.id} 必须要求语义关键状态审阅`);
+      }
+      const reviewedKinds = new Set(reviewedSteps.map((step) => step.state_kind));
+      for (const kind of ["start", "change", "result"]) {
+        if (!reviewedKinds.has(kind)) {
+          fail("S12", `复杂场景 ${scene.id} 的审阅状态缺少 ${kind}`);
+        }
+      }
+    } else if (motion.key_state_review === "required" && reviewedSteps.length < 2) {
+      fail("S12", `场景 ${scene.id} 要求关键状态审阅时至少需要两个真实状态`);
+    }
+
+    if (camera) {
+      const root = layerById.get(camera.root_layer_id);
+      if (!root || root.kind !== "group") {
+        fail("S12", `场景 ${scene.id} 的 camera.root_layer_id 必须引用 group 图层`);
+      } else if ((root.editable || []).length > 0) {
+        fail("S12", `镜头根图层 ${root.id} 必须是不可手动编辑的外层包装`);
+      }
+      const cameraLayerIds = new Set([camera.root_layer_id]);
+      for (const depthLayer of camera.depth_layers || []) {
+        const layer = layerById.get(depthLayer.layer_id);
+        if (!layer || layer.kind !== "group") {
+          fail("S12", `场景 ${scene.id} 的景深图层 ${depthLayer.layer_id} 必须引用 group 图层`);
+          continue;
+        }
+        if (cameraLayerIds.has(depthLayer.layer_id)) {
+          fail("S12", `场景 ${scene.id} 的镜头或景深图层重复：${depthLayer.layer_id}`);
+        }
+        cameraLayerIds.add(depthLayer.layer_id);
+        if (!isLayerDescendant(depthLayer.layer_id, camera.root_layer_id)) {
+          fail("S12", `景深图层 ${depthLayer.layer_id} 必须位于镜头根图层 ${camera.root_layer_id} 内`);
+        }
+        if ((layer.editable || []).length > 0) {
+          fail("S12", `景深图层 ${depthLayer.layer_id} 必须是不可手动编辑的外层包装`);
+        }
+      }
+      for (const readabilityId of camera.readability_layer_ids || []) {
+        if (!layerIds.has(readabilityId)) {
+          fail("S12", `场景 ${scene.id} 的可读性图层不存在：${readabilityId}`);
+        } else if (
+          cameraLayerIds.has(readabilityId)
+          || isLayerDescendant(readabilityId, camera.root_layer_id)
+        ) {
+          fail("S12", `可读性图层 ${readabilityId} 必须位于镜头空间之外`);
+        }
+      }
+      for (const variant of variants) {
+        for (const layerId of cameraLayerIds) {
+          if (!Object.prototype.hasOwnProperty.call(variant.layers || {}, layerId)) {
+            fail("S12", `输出变体 ${variant.id} 没有显式定位镜头图层 ${layerId}`);
+          }
+        }
+      }
+      const cameraStepIds = new Set();
+      let previousCameraAt = -1;
+      for (const keyframe of camera.keyframes || []) {
+        const step = stepById.get(keyframe.step_id);
+        if (!step) {
+          fail("S12", `场景 ${scene.id} 的镜头关键帧引用未知 step ${keyframe.step_id}`);
+          continue;
+        }
+        if (cameraStepIds.has(keyframe.step_id)) {
+          fail("S12", `场景 ${scene.id} 的镜头关键帧重复引用 step ${keyframe.step_id}`);
+        }
+        cameraStepIds.add(keyframe.step_id);
+        if (Number(step.at_ms) <= previousCameraAt) {
+          fail("S12", `场景 ${scene.id} 的镜头关键帧必须按 step 时间递增`);
+        }
+        previousCameraAt = Number(step.at_ms);
+      }
+      if (complexity === "complex") {
+        for (const step of reviewedSteps) {
+          if (!cameraStepIds.has(step.id)) {
+            fail("S12", `复杂镜头场景 ${scene.id} 的审阅状态 ${step.id} 没有镜头关键帧`);
+          }
+        }
+      }
     }
   });
 
@@ -493,10 +793,26 @@ function structuralChecks(manifest, manifestPath) {
     fail("S11", "delivery.remote_dependencies 必须是 allow 或 forbid");
   }
 
+  for (const [label, value] of [
+    ["entry", manifest.entry],
+    ["media_sources", manifest.media_sources],
+    ...(manifest.resources || []).map((value, index) => [`resources[${index}]`, value]),
+  ]) {
+    try {
+      resolvePackageReference(manifestDir, value, label);
+    } catch (error) {
+      fail("S6", error.message);
+    }
+  }
   localResourcePaths(manifest, manifestDir).forEach((filePath) => {
     if (!fs.existsSync(filePath)) fail("S6", `本地资源不存在：${filePath}`);
   });
-  const entryPath = path.resolve(manifestDir, manifest.entry || "index.html");
+  let entryPath = path.join(manifestDir, "__missing-entry.html");
+  try {
+    entryPath = resolvePackageReference(manifestDir, manifest.entry || "index.html");
+  } catch {
+    // The path failure is already reported above.
+  }
   if (fs.existsSync(entryPath)) {
     const html = fs.readFileSync(entryPath, "utf8");
     const directMediaAttributes = Array.from(
@@ -629,6 +945,7 @@ async function inspectTarget(
 ) {
   const failures = [];
   const warnings = [];
+  const keyStateScreenshots = [];
   const fail = (rule, message) => failures.push({ rule, message });
   const warn = (rule, message) => warnings.push({ rule, message });
   const browserErrors = [];
@@ -651,6 +968,89 @@ async function inspectTarget(
   );
   await page.waitForFunction(() => Boolean(window.editableMedia), null, { timeout: 10000 });
   await page.evaluate(() => window.editableMedia.ready);
+
+  const expectedDurationSeconds = (manifest.scenes || []).reduce(
+    (sum, item) => sum + Number(item.duration_ms || 0),
+    0
+  ) / 1000;
+  const defaultVariant = (manifest.variants || []).find(
+    (item) => item.id === manifest.default_variant_id
+  );
+  const seekProbeSeconds = Math.min(0.5, expectedDurationSeconds / 2);
+  const frameProtocol = await page.evaluate((probe) => {
+    const roots = Array.from(document.querySelectorAll("[data-editable-media-root]"));
+    const root = roots[0] || null;
+    const compositionId = root?.dataset.compositionId || "";
+    const timeline = window.__timelines?.[compositionId];
+    const hasSeek = typeof window.__hf?.seek === "function";
+    if (hasSeek) window.__hf.seek(probe.seekSeconds);
+    const seekTimeMs = window.editableMedia.getPlayback().globalTimeMs;
+    window.editableMedia.setScene(probe.sceneId);
+    window.editableMedia.setTime(probe.restoreTimeMs);
+    return {
+      rootCount: roots.length,
+      compositionRootCount: document.querySelectorAll("[data-composition-id]").length,
+      rootIsFirstBodyElement: document.body.firstElementChild === root,
+      root: root
+        ? {
+          compositionId,
+          noTimeline: root.hasAttribute("data-no-timeline"),
+          duration: Number(root.dataset.duration),
+          width: Number(root.dataset.width),
+          height: Number(root.dataset.height),
+          fps: Number(root.dataset.fps),
+        }
+        : null,
+      hfDuration: Number(window.__hf?.duration),
+      hasSeek,
+      seekTimeMs,
+      timelineDuration: typeof timeline?.duration === "function"
+        ? Number(timeline.duration())
+        : null,
+      timelineHasSeek: typeof timeline?.seek === "function",
+    };
+  }, {
+    seekSeconds: seekProbeSeconds,
+    sceneId: scene.id,
+    restoreTimeMs: sceneStartTimeForValidation(manifest, scene.id),
+  });
+  if (
+    frameProtocol.rootCount !== 1
+    || frameProtocol.compositionRootCount !== 1
+    || frameProtocol.rootIsFirstBodyElement !== true
+    || !frameProtocol.root
+  ) {
+    fail("B8", "入口 HTML 必须有唯一的 data-editable-media-root");
+  } else {
+    if (
+      frameProtocol.root.compositionId !== "editable-media"
+      || frameProtocol.root.noTimeline !== true
+    ) {
+      fail("B8", "网页媒体根节点没有声明确定性的 HyperFrames 组合边界");
+    }
+    if (
+      !defaultVariant
+      || frameProtocol.root.width !== Number(defaultVariant.canvas.width)
+      || frameProtocol.root.height !== Number(defaultVariant.canvas.height)
+      || frameProtocol.root.fps !== Number(manifest.playback?.fps)
+      || Math.abs(frameProtocol.root.duration - expectedDurationSeconds) > 1e-9
+    ) {
+      fail("B8", "网页媒体根节点的尺寸、时长或帧率没有与默认输出变体同步");
+    }
+  }
+  if (
+    !frameProtocol.hasSeek
+    || Math.abs(frameProtocol.hfDuration - expectedDurationSeconds) > 1e-9
+    || Math.abs(frameProtocol.seekTimeMs - seekProbeSeconds * 1000) > 0.5
+  ) {
+    fail("B8", "window.__hf 没有用秒级 seek 驱动同一条 editable-media 时间线");
+  }
+  if (
+    !frameProtocol.timelineHasSeek
+    || Math.abs(frameProtocol.timelineDuration - expectedDurationSeconds) > 1e-9
+  ) {
+    fail("B8", "HyperFrames 时间线适配器没有连接到 editable-media 总时长与 seek");
+  }
 
   const stateBefore = await page.evaluate(() => window.editableMedia.getState());
   if (stateBefore.variant?.id !== variant.id || stateBefore.scene_id !== scene.id) {
@@ -747,6 +1147,11 @@ async function inspectTarget(
       const node = matches[0];
       const rect = node.getBoundingClientRect();
       const style = getComputedStyle(node);
+      const typedStyle = typeof node.computedStyleMap === "function"
+        ? node.computedStyleMap()
+        : null;
+      const computedWidth = typedStyle?.get("width")?.toString();
+      const computedHeight = typedStyle?.get("height")?.toString();
       const visible = style.display !== "none"
         && style.visibility !== "hidden"
         && Number(style.opacity) > 0
@@ -767,13 +1172,9 @@ async function inspectTarget(
         },
         fontSize: Number.parseFloat(style.fontSize) || 0,
         constrainedOverflow: {
-          x: window.editableMedia.getState().scenes?.[
-            window.editableMedia.getState().scene_id
-          ]?.layers?.[layer.id]?.width != null
+          x: (computedWidth != null && computedWidth !== "auto")
             || ["hidden", "clip", "scroll", "auto"].includes(style.overflowX),
-          y: window.editableMedia.getState().scenes?.[
-            window.editableMedia.getState().scene_id
-          ]?.layers?.[layer.id]?.height != null
+          y: (computedHeight != null && computedHeight !== "auto")
             || ["hidden", "clip", "scroll", "auto"].includes(style.overflowY),
         },
         scrollOverflow: {
@@ -824,7 +1225,14 @@ async function inspectTarget(
 
   if (inspection.missingCanvas) {
     fail("B1", `找不到画布 ${inspection.missingCanvas}`);
-    return { failures, warnings, inspection, browserErrors, consoleErrors };
+    return {
+      failures,
+      warnings,
+      inspection,
+      browserErrors,
+      consoleErrors,
+      keyStateScreenshots,
+    };
   }
 
   const expectedWidth = Number(variant.canvas.width);
@@ -845,9 +1253,9 @@ async function inspectTarget(
   }
   if (
     inspection.mediaSources?.protocol !== "visual-multimedia-media-sources"
-    || inspection.mediaSources?.version !== 2
+    || inspection.mediaSources?.version !== 4
   ) {
-    fail("B2", "浏览器运行时没有读取 v3 素材账本");
+    fail("B2", "浏览器运行时没有读取 media-sources v4 网页素材账本");
   }
   for (const binding of inspection.mediaBindings || []) {
     if (!binding.sourceId || !binding.expectedSrc) {
@@ -863,9 +1271,23 @@ async function inspectTarget(
   if (playbackState.sceneId !== scene.id || playbackState.localTimeMs !== 0) {
     fail("B1", `播放状态没有停在场景 ${scene.id} 的起点`);
   }
+  if (
+    playbackState.motionComplexity !== scene.motion?.complexity
+    || playbackState.motionDriver !== scene.motion?.driver
+    || playbackState.keyStateReview !== scene.motion?.key_state_review
+    || playbackState.cameraActive !== Boolean(scene.motion?.camera)
+  ) {
+    fail("B9", `运行时没有消费场景 ${scene.id} 的活动 motion 合同`);
+  }
   if (exercisePlayback) {
     const playbackExercise = await page.evaluate(async (sceneId) => {
       const api = window.editableMedia;
+      const waitForProgress = async (readTime) => {
+        for (let frame = 0; frame < 30; frame += 1) {
+          if (readTime() > 0) return;
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+      };
       const originalMode = api.getPlayback().mode;
       api.setScene(sceneId);
       api.setPlaybackMode("manual");
@@ -875,13 +1297,13 @@ async function inspectTarget(
       api.setScene(sceneId);
       api.setPlaybackMode("autoplay");
       const autoplayStarted = api.play();
-      await new Promise((resolve) => setTimeout(resolve, 80));
+      await waitForProgress(() => api.getPlayback().globalTimeMs);
       api.pause();
       const autoplayAfter = api.getPlayback();
       api.setScene(sceneId);
       api.setPlaybackMode("hybrid");
       const hybridStarted = api.play();
-      await new Promise((resolve) => setTimeout(resolve, 80));
+      await waitForProgress(() => api.getPlayback().localTimeMs);
       api.pause();
       const hybridAfter = api.getPlayback();
       api.setScene(sceneId);
@@ -965,6 +1387,128 @@ async function inspectTarget(
       window.editableMedia.setScene(sceneId);
       window.editableMedia.setPlaybackMode(mode);
     }, { sceneId: scene.id, mode: manifest.playback.mode });
+  }
+  if (scene.motion?.camera) {
+    const reviewedSteps = (scene.steps || []).filter((step) => step.review === true);
+    const cameraReview = await page.evaluate((probe) => {
+      const api = window.editableMedia;
+      const byEditableId = (id) => Array.from(
+        document.querySelectorAll("[data-editable-id]")
+      ).find((node) => node.dataset.editableId === id);
+      const snapshots = probe.steps.map((step) => {
+        const globalTime = probe.sceneStartMs + Number(step.at_ms);
+        api.setTime(globalTime);
+        const first = api.getCamera?.() || null;
+        api.setTime(globalTime);
+        const second = api.getCamera?.() || null;
+        const root = byEditableId(probe.camera.root_layer_id);
+        const depths = probe.camera.depth_layers.map((item) => {
+          const node = byEditableId(item.layer_id);
+          return {
+            layerId: item.layer_id,
+            marker: node?.getAttribute("data-editable-camera-layer") || null,
+            transform: node?.style.transform || "",
+            filter: node?.style.filter || "",
+          };
+        });
+        const readability = probe.camera.readability_layer_ids.map((id) => {
+          const node = byEditableId(id);
+          const style = node ? getComputedStyle(node) : null;
+          const rect = node?.getBoundingClientRect();
+          return {
+            layerId: id,
+            marker: node?.getAttribute("data-editable-camera-layer") || null,
+            filter: node?.style.filter || "",
+            visible: Boolean(
+              node
+              && style.display !== "none"
+              && style.visibility !== "hidden"
+              && Number(style.opacity) > 0
+              && rect.width > 0
+              && rect.height > 0
+            ),
+          };
+        });
+        return {
+          stepId: step.id,
+          deterministic: JSON.stringify(first) === JSON.stringify(second),
+          camera: first,
+          rootMarker: root?.getAttribute("data-editable-camera-layer") || null,
+          rootTransform: root?.style.transform || "",
+          depths,
+          readability,
+        };
+      });
+      api.setTime(probe.sceneStartMs);
+      return {
+        hasApi: typeof api.getCamera === "function",
+        snapshots,
+      };
+    }, {
+      sceneStartMs: sceneStartTimeForValidation(manifest, scene.id),
+      steps: reviewedSteps,
+      camera: scene.motion.camera,
+    });
+    if (!cameraReview.hasApi) {
+      fail("B9", "window.editableMedia 缺少 getCamera，消费者无法检查镜头状态");
+    }
+    const expectedByStep = new Map(
+      scene.motion.camera.keyframes.map((keyframe) => [keyframe.step_id, keyframe])
+    );
+    for (const snapshot of cameraReview.snapshots) {
+      const expected = expectedByStep.get(snapshot.stepId);
+      const actual = snapshot.camera;
+      if (!snapshot.deterministic || !actual) {
+        fail("B9", `镜头状态 ${scene.id}/${snapshot.stepId} 不能确定性复现`);
+        continue;
+      }
+      for (const [actualKey, expectedKey] of [
+        ["x", "x"],
+        ["y", "y"],
+        ["zoom", "zoom"],
+        ["focusDepth", "focus_depth"],
+        ["aperture", "aperture"],
+      ]) {
+        if (Math.abs(Number(actual[actualKey]) - Number(expected?.[expectedKey])) > 1e-6) {
+          fail("B9", `镜头状态 ${scene.id}/${snapshot.stepId} 的 ${actualKey} 没有到达清单值`);
+        }
+      }
+      if (snapshot.rootMarker !== "root" || !snapshot.rootTransform) {
+        fail("B9", `镜头状态 ${scene.id}/${snapshot.stepId} 没有作用到镜头根图层`);
+      }
+      for (const depth of snapshot.depths) {
+        if (depth.marker !== "depth" || !depth.transform) {
+          fail("B9", `镜头状态 ${scene.id}/${snapshot.stepId} 没有作用到景深图层 ${depth.layerId}`);
+        }
+      }
+      for (const readability of snapshot.readability) {
+        if (readability.marker !== null || readability.filter || !readability.visible) {
+          fail("B9", `可读性图层 ${readability.layerId} 被镜头景深处理污染`);
+        }
+      }
+    }
+    if (screenshotPath && scene.motion.key_state_review === "required") {
+      const parsed = path.parse(screenshotPath);
+      for (const step of reviewedSteps) {
+        await page.evaluate((timeMs) => window.editableMedia.setTime(timeMs),
+          sceneStartTimeForValidation(manifest, scene.id) + Number(step.at_ms));
+        const keyPath = path.join(
+          parsed.dir,
+          `${parsed.name}.key-${step.id}${parsed.ext || ".png"}`
+        );
+        fs.mkdirSync(path.dirname(keyPath), { recursive: true });
+        await page.locator(quality.canvas_selector || ".media-canvas")
+          .screenshot({ path: keyPath });
+        keyStateScreenshots.push(keyPath);
+      }
+      await page.evaluate((timeMs) => window.editableMedia.setTime(timeMs),
+        sceneStartTimeForValidation(manifest, scene.id));
+    }
+  } else {
+    const cameraState = await page.evaluate(() => window.editableMedia.getCamera?.() ?? null);
+    if (cameraState !== null) {
+      fail("B9", `无镜头场景 ${scene.id} 仍残留上一场景的镜头状态`);
+    }
   }
   if (inspection.fonts !== "loaded") fail("B2", `字体状态为 ${inspection.fonts}`);
   inspection.images.forEach((image) => {
@@ -1186,12 +1730,19 @@ async function inspectTarget(
     await canvas.screenshot({ path: screenshotPath });
   }
 
-  return { failures, warnings, inspection, browserErrors, consoleErrors };
+  return {
+    failures,
+    warnings,
+    inspection,
+    browserErrors,
+    consoleErrors,
+    keyStateScreenshots,
+  };
 }
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const manifestPath = normalizeTarget(args.target);
+  const { manifestPath } = normalizeEditableMediaTarget(args.target);
   const manifestDir = path.dirname(manifestPath);
   const manifest = readJson(manifestPath);
   const structural = structuralChecks(manifest, manifestPath);
@@ -1208,10 +1759,16 @@ async function main() {
     structural.failures.push({ rule: "S8", message: `找不到场景 ${args.scene}` });
   }
 
-  const localPaths = [manifestPath, ...localResourcePaths(manifest, manifestDir)];
-  const serveRoot = commonAncestor(localPaths);
-  const entryPath = path.resolve(manifestDir, manifest.entry || "index.html");
-  const entryRelative = path.relative(serveRoot, entryPath).split(path.sep).map(encodeURIComponent).join("/");
+  const serveRoot = manifestDir;
+  const entryPath = resolvePackageReference(
+    manifestDir,
+    manifest.entry || "index.html",
+    "entry"
+  );
+  const entryRelative = path.relative(serveRoot, entryPath)
+    .split(path.sep)
+    .map(encodeURIComponent)
+    .join("/");
   const report = {
     manifest: manifestPath,
     checked_at: new Date().toISOString(),
@@ -1230,7 +1787,11 @@ async function main() {
       && structural.failures.length === 0) {
       const playwright = loadPlaywright();
       server = await startStaticServer(serveRoot);
-      browser = await playwright.chromium.launch({ headless: true });
+      const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?.trim();
+      browser = await playwright.chromium.launch({
+        headless: true,
+        ...(executablePath ? {executablePath} : {}),
+      });
       const page = await browser.newPage();
       const baseUrl = `http://127.0.0.1:${server.port}/${entryRelative}`;
       let exercisedPlayback = false;
@@ -1281,6 +1842,7 @@ async function main() {
             scene_id: scene.id,
             canvas: variant.canvas,
             screenshot: screenshotPath,
+            key_state_screenshots: result.keyStateScreenshots,
             failures: result.failures,
             warnings: result.warnings,
             measured_layers: result.inspection?.layers || [],

@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "per-character-rise",
+  "name": "逐字上升",
+  "aliases": ["字符阶梯", "letter rise"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "replace",
+    "purpose": "用清晰的逐字阶梯节奏完成标题进入或替换。",
+    "energy": "moderate",
+    "semantic_tags": ["grapheme", "rise", "crisp", "headline"]
+  },
+  "segmentation": {
+    "unit": "grapheme",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 700, "stagger_ms": 24, "easing": "ease-out"},
+    "exit": {"duration_ms": 420, "stagger_ms": 14, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 210, "micro_delay_ms": 0},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "bottom",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 32}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -24}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 32,
+    "recommended_max_lines": 2,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 160},
+    "notes": ["保持字形清晰，不叠加模糊。", "字符过多时改用逐词进入。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "replace", "id": "old-visible", "at": 0, "meaning": "旧标题完整显示。"},
+      {"operation": "replace", "id": "staircase", "at": 0.55, "meaning": "交叉窗口呈现连续逐字阶梯。"},
+      {"operation": "replace", "id": "new-visible", "at": 1, "meaning": "新标题稳定且字距未变化。"}
+    ]
+  }
+}

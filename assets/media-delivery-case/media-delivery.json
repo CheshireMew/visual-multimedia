@@ -1,12 +1,23 @@
 {
   "protocol": "visual-multimedia-delivery",
-  "version": 1,
+  "version": 2,
   "profile": "final",
   "output": {
     "file": "renders/final.mp4"
   },
+  "editability": {
+    "classification": "flat_render",
+    "project_file": null,
+    "project_file_sha256": null,
+    "limitations": [
+      "这个 MP4 是扁平化成片，无法反向恢复头像、声音、版式和编码前的独立制作层。"
+    ]
+  },
+  "project_state": "media-project-state.json",
   "media_sources": "media-sources.json",
+  "transcript": "transcript.json",
   "clip_selections": "clip-selections.json",
+  "media_review": "media-review.json",
   "adopted_source_ids": [
     "case-avatar",
     "case-narration"
@@ -51,10 +62,6 @@
       "file": "reports/contact-sheet.jpg",
       "frames": 8,
       "columns": 4
-    },
-    "human_review": {
-      "status": "passed",
-      "notes": "能力案例已按最终视频、联系表和完整声音检查；不代表其它项目可以继承该状态。"
     },
     "rights_review": {
       "status": "passed",

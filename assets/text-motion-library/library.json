@@ -1,0 +1,17 @@
+{
+  "protocol": "visual-multimedia-text-motion-library",
+  "version": 1,
+  "library_version": "1.0.0",
+  "name": "Visual Multimedia Deterministic Text Motion Library",
+  "default_locale": "zh-CN",
+  "sources": [
+    {
+      "id": "sakura-animate-text",
+      "name": "sakura-animate-text",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Sakura (https://github.com/sakuraoxo-clio)",
+      "source_reference": "The user-provided sakura-animate-text source archive.",
+      "adaptation": "Motion intent and effect families were re-authored as deterministic, time-sampled, self-contained visual-multimedia recipes. The original WAAPI loops, random delays, sample copy, fonts, CDN usage and framework adapters were not copied."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "shared-axis-z",
+  "name": "景深缩放替换",
+  "aliases": ["纵深共享轴", "shared axis z"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "replace",
+    "purpose": "通过前后景深缩放替换同一层级的整段文字。",
+    "energy": "moderate",
+    "semantic_tags": ["whole", "axis-z", "scale", "replace"]
+  },
+  "segmentation": {
+    "unit": "whole",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 520, "stagger_ms": 0, "easing": "ease-out"},
+    "exit": {"duration_ms": 360, "stagger_ms": 0, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 100, "micro_delay_ms": 20},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "scale": 0.9, "blur_px": 2}},
+        {"offset": 1, "values": {"opacity": 1, "scale": 1, "blur_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "scale": 1, "blur_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "scale": 1.06, "blur_px": 1}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 56,
+    "recommended_max_lines": 3,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 160},
+    "notes": ["只表达同一层级内容的前后切换。", "文字缩放不能与外层镜头缩放叠加。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "replace", "id": "old-depth", "at": 0, "meaning": "旧文字处于正常景深。"},
+      {"operation": "replace", "id": "depth-cross", "at": 0.5, "meaning": "新旧文字通过相反缩放方向交叉。"},
+      {"operation": "replace", "id": "new-depth", "at": 1, "meaning": "新文字回到正常比例。"}
+    ]
+  }
+}

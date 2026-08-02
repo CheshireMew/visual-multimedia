@@ -1,5 +1,6 @@
 # Local production and validation outputs
 /artifacts/
+/口播私人库/
 
 # Python
 **/__pycache__/

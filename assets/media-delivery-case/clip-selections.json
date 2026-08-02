@@ -1,7 +1,8 @@
 {
   "protocol": "visual-multimedia-clip-selections",
-  "version": 1,
+  "version": 2,
   "media_sources": "media-sources.json",
+  "transcript": "transcript.json",
   "maximum_clips": 3,
   "clips": [
     {
@@ -11,7 +12,9 @@
       "end_seconds": 4.75,
       "purpose": "为最终案例视频提供一段语义完整的讲解",
       "spoken_content": true,
-      "transcript": "大家好，我是夜希，现在来测试嘴型同步。",
+      "transcript_segment_ids": [
+        "segment-0001"
+      ],
       "semantic_boundary_review": {
         "status": "passed",
         "listened": true,

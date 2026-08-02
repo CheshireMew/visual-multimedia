@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-library-package.v1",
+  "title": "Visual Multimedia Anime Avatar Library Package v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "id",
+    "library_version",
+    "display_name",
+    "status",
+    "reuse_grade",
+    "character",
+    "motion_source",
+    "media_sources_file",
+    "library_file",
+    "parameter_provenance",
+    "validation",
+    "provenance"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-anime-avatar-library-package"
+    },
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "library_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "candidate",
+        "registered"
+      ]
+    },
+    "reuse_grade": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "limited",
+            "general"
+          ]
+        }
+      ]
+    },
+    "character": {
+      "$ref": "#/$defs/character"
+    },
+    "motion_source": {
+      "$ref": "#/$defs/motionSource"
+    },
+    "media_sources_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "library_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parameter_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_invariants",
+        "algorithm_defaults",
+        "asset_calibration"
+      ],
+      "properties": {
+        "protocol_invariants": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        },
+        "algorithm_defaults": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        },
+        "asset_calibration": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        }
+      }
+    },
+    "validation": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "validated_at",
+            "reuse_grade",
+            "source_frame_count",
+            "source_fps",
+            "review_evidence_files",
+            "library_sha256"
+          ],
+          "properties": {
+            "validated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "reuse_grade": {
+              "enum": [
+                "limited",
+                "general"
+              ]
+            },
+            "source_frame_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "source_fps": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "review_evidence_files": {
+              "$ref": "#/$defs/nonEmptyStrings"
+            },
+            "library_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registration_method",
+        "source_project_hint",
+        "registered_at"
+      ],
+      "properties": {
+        "registration_method": {
+          "enum": [
+            "new-character",
+            "register-project-v2",
+            "migrate-project-v1"
+          ]
+        },
+        "source_project_hint": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "registered_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "character": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "origin",
+        "specification",
+        "master_source_id",
+        "master_status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin": {
+          "enum": [
+            "reference-image",
+            "description"
+          ]
+        },
+        "specification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "master_source_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "master_status": {
+          "enum": [
+            "missing",
+            "draft",
+            "confirmed"
+          ]
+        }
+      }
+    },
+    "motionSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "status",
+        "source_crop_xywh",
+        "mouth_review_crop_xywh"
+      ],
+      "properties": {
+        "source_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "status": {
+          "enum": [
+            "missing",
+            "needs-review",
+            "accepted"
+          ]
+        },
+        "source_crop_xywh": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/xywh"
+            }
+          ]
+        },
+        "mouth_review_crop_xywh": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/xywh"
+            }
+          ]
+        }
+      }
+    },
+    "xywh": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "integer",
+          "minimum": 1
+        }
+      ],
+      "items": false
+    },
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "registered"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reuse_grade": {
+            "enum": [
+              "limited",
+              "general"
+            ]
+          },
+          "validation": {
+            "type": "object"
+          },
+          "character": {
+            "properties": {
+              "master_source_id": {
+                "type": "string"
+              },
+              "master_status": {
+                "const": "confirmed"
+              }
+            }
+          },
+          "motion_source": {
+            "properties": {
+              "source_id": {
+                "type": "string"
+              },
+              "status": {
+                "const": "accepted"
+              },
+              "source_crop_xywh": {
+                "$ref": "#/$defs/xywh"
+              },
+              "mouth_review_crop_xywh": {
+                "$ref": "#/$defs/xywh"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "protocol": "visual-multimedia-media-transcript",
+  "version": 1,
+  "media_sources": "media-sources.json",
+  "source_id": "case-narration",
+  "source_sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+  "language": "zh-CN",
+  "input": {
+    "kind": "user-subtitles",
+    "file": "transcript/by-sha256/aab67da2f67289351c431aea1f78a2e9a6d91a107aaaf9d88f9ee619bf1a4486.srt",
+    "sha256": "aab67da2f67289351c431aea1f78a2e9a6d91a107aaaf9d88f9ee619bf1a4486"
+  },
+  "review": {
+    "status": "passed",
+    "listened": true,
+    "reviewed_at": "2026-07-29T04:32:17.237Z",
+    "notes": "沿用本地能力案例已经完成的全段听音与边界审核；本状态只适用于该固定案例。"
+  },
+  "segments": [
+    {
+      "id": "segment-0001",
+      "start_seconds": 0,
+      "end_seconds": 4.75,
+      "text": "大家好，我是夜希，现在来测试嘴型同步。",
+      "words": [],
+      "uncertain_terms": []
+    }
+  ]
+}

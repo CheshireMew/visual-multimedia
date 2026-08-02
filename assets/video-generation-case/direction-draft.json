@@ -1,0 +1,109 @@
+{
+  "media_project_id": "generation-contract-case",
+  "source_id": "generation-contract-article",
+  "source_version": "v1",
+  "content_unit_id": "full-article",
+  "media_script_version": "v1-confirmed",
+  "content_brief": {
+    "audience": "需要调用外部媒体生成服务、但不熟悉远程任务恢复的内容创作者",
+    "promise": "看懂为什么生成完成、素材入账和时间线采用必须分开",
+    "core_claim": "稳定幂等键与独立任务状态能避免重复收费，并让生成结果可靠接回制作链。",
+    "supporting_points": [
+      {
+        "id": "submit-boundary",
+        "text": "网络超时不能证明远程任务没有创建。",
+        "source_refs": [
+          "generation-contract-article@v1#paragraph-1"
+        ]
+      },
+      {
+        "id": "three-facts",
+        "text": "生成完成、素材入账和成片采用是三个不同事实。",
+        "source_refs": [
+          "generation-contract-article@v1#paragraph-3"
+        ]
+      }
+    ],
+    "required_facts": [
+      {
+        "text": "提交重试前必须查询同一幂等键或远程任务。",
+        "source_refs": [
+          "generation-contract-article@v1#paragraph-1",
+          "generation-contract-article@v1#paragraph-2"
+        ]
+      }
+    ],
+    "risk_flags": [
+      {
+        "risk": "把远程成功误写成成片已经采用",
+        "handling": "只有时间线显式引用入账后的 source id 才声称采用。",
+        "source_refs": [
+          "generation-contract-article@v1#paragraph-3"
+        ]
+      }
+    ]
+  },
+  "narration": {
+    "status": "confirmed",
+    "text": "同一份生成请求，先锁定费用和幂等键，再提交一次。远程完成后把真实文件下载、校验并入账，最后由时间线明确采用。",
+    "source_refs": [
+      "generation-contract-article@v1#paragraph-1",
+      "generation-contract-article@v1#paragraph-2",
+      "generation-contract-article@v1#paragraph-3"
+    ],
+    "major_editorial_changes": [
+      {
+        "id": "compress-to-one-scene",
+        "summary": "把三段论证压缩成一个连续场景，保留提交、入账和采用三层边界。",
+        "source_refs": [
+          "generation-contract-article@v1#paragraph-1",
+          "generation-contract-article@v1#paragraph-2",
+          "generation-contract-article@v1#paragraph-3"
+        ],
+        "approval": {
+          "status": "approved",
+          "confirmed_at": "2026-07-30T00:00:00.000Z",
+          "evidence": "能力案例的确认导演输入"
+        }
+      }
+    ]
+  },
+  "pronunciations": [
+    {
+      "written": "source id",
+      "spoken": "source I D",
+      "note": "英文缩写逐字母读"
+    }
+  ],
+  "presenter": {
+    "mode": "none",
+    "source_id": null,
+    "approval": {
+      "status": "approved",
+      "confirmed_at": "2026-07-30T00:00:00.000Z",
+      "evidence": "能力案例明确采用无人物动态图形"
+    }
+  },
+  "scenes": [
+    {
+      "segment_id": "generation-lifecycle",
+      "source_refs": [
+        "generation-contract-article@v1#paragraph-1",
+        "generation-contract-article@v1#paragraph-2",
+        "generation-contract-article@v1#paragraph-3"
+      ],
+      "purpose": "让观众看到提交、入账和采用是连续但独立的三步",
+      "voiceover_ref": "narration#full",
+      "visual_role": "用三个状态节点展示同一任务怎样跨越远程与本地边界",
+      "graphic_type": "state-transition",
+      "presenter_layout": "faceless-full-frame",
+      "timing": {
+        "source": "text-estimate",
+        "estimated_seconds": 3
+      },
+      "generation_job_ids": [
+        "case-scene-video"
+      ]
+    }
+  ]
+}

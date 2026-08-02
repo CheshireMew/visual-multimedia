@@ -1,0 +1,89 @@
+{
+  "protocol": "visual-multimedia-interview-explainer-draft",
+  "version": 1,
+  "project_id": "replace-with-project-id",
+  "profile": {
+    "id": "interview-explainer",
+    "version": "1.3.0"
+  },
+  "contracts": {
+    "media_sources": "media-sources.json",
+    "transcript": "transcript.json",
+    "clip_selections": "clip-selections.json",
+    "narration_bundle": "narration-bundle.json"
+  },
+  "output": {
+    "file": "renders/final/interview-explainer.mp4",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "caption_mode": "burned-in",
+    "caption_file": "captions/final.zh-CN.srt",
+    "loudness": {
+      "target_lufs": -18,
+      "true_peak_dbfs": -1.5,
+      "lra": 11
+    }
+  },
+  "style": {
+    "background": "#101114",
+    "surface": "#1b1d22",
+    "foreground": "#f4f1e8",
+    "muted": "#a5a8b0",
+    "accent": "#e7b85c",
+    "font_family": "Microsoft YaHei UI",
+    "source_card": {
+      "footage_height_ratio": 0.46,
+      "show_original_text": true,
+      "show_source_timecode": true
+    }
+  },
+  "sequence": [
+    {
+      "id": "context",
+      "kind": "narration",
+      "role": "context",
+      "title": "先交代背景",
+      "narration_id": "context",
+      "scene_package": "editable-media/context",
+      "scene_id": "opening"
+    },
+    {
+      "id": "source-01",
+      "kind": "source-clip",
+      "role": "source-evidence",
+      "title": "原声证据",
+      "clip_id": "source-01",
+      "source_label": "SOURCE",
+      "translation": "填写经过核对的自然译文。",
+      "original_text": "Fill the reviewed original transcript.",
+      "subtitle_cues": [
+        {
+          "source_start_seconds": 0,
+          "source_end_seconds": 3,
+          "text": "填写与听音复核转写边界一致的短字幕。"
+        }
+      ]
+    },
+    {
+      "id": "explanation-01",
+      "kind": "narration",
+      "role": "explanation",
+      "title": "紧接解释",
+      "narration_id": "explanation-01",
+      "scene_package": "editable-media/explanation-01",
+      "scene_id": "opening"
+    },
+    {
+      "id": "summary",
+      "kind": "narration",
+      "role": "summary",
+      "title": "最后收束",
+      "narration_id": "summary",
+      "scene_package": "editable-media/summary",
+      "scene_id": "opening"
+    }
+  ]
+}

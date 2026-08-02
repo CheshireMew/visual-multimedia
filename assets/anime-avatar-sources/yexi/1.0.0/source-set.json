@@ -1,0 +1,58 @@
+{
+  "protocol": "visual-multimedia-anime-avatar-source-set",
+  "version": 1,
+  "id": "yexi",
+  "source_version": "1.0.0",
+  "display_name": "夜希",
+  "status": "registered",
+  "character": {
+    "id": "yexi",
+    "name": "夜希",
+    "origin": "reference-image",
+    "specification": "黑色短发与蓝色发梢、黑色猫耳、红色眼睛、金色月牙星星发饰、黑色哥特服装和红宝石胸针的年轻女性二次元角色；清晰日系线条与稳定赛璐璐上色。",
+    "master_source_id": "avatar-master",
+    "master_status": "confirmed"
+  },
+  "calibration": {
+    "source_id": "avatar-calibration",
+    "status": "accepted",
+    "source_crop_xywh": [
+      6,
+      0,
+      900,
+      900
+    ],
+    "mouth_review_crop_xywh": [
+      280,
+      420,
+      340,
+      300
+    ]
+  },
+  "media_sources_file": "media-sources.json",
+  "source_review": {
+    "status": "confirmed",
+    "report_file": "reports/avatar-source-review/source-review.json",
+    "report_sha256": "f0e9c2bf8c9a4df4c76e981c8246a225ebfe4d6db2eefeded2417076c52c2fbc",
+    "observations_file": "reports/avatar-source-review/ai-visual-observations.md",
+    "observations_sha256": "9c5ecdbba6afcdc941f742b7a961289120213e487eda4941cad24db640313d14",
+    "reviewed_at": "2026-07-30T03:24:35.227917+00:00",
+    "reviewer": "Codex visual review",
+    "notes": "确认角色身份、固定构图、完整解码和多种视觉状态候选；明确不确认音素分类、通用口型规划、任意重排自然度或说话视频质量。"
+  },
+  "parameter_provenance": {
+    "protocol_invariants": [
+      "master and calibration source ids resolve through media-sources v3",
+      "source and mouth review crops are fixed for every reviewed frame"
+    ],
+    "asset_calibration": [
+      "calibration.source_crop_xywh",
+      "calibration.mouth_review_crop_xywh"
+    ]
+  },
+  "provenance": {
+    "created_at": "2026-07-30T03:22:40.701183+00:00",
+    "registered_at": "2026-07-30T03:25:00.615185+00:00",
+    "source_project_hint": "anime-avatar-capabilities-e2e"
+  }
+}

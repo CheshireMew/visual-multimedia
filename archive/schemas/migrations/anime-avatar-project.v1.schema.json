@@ -122,7 +122,8 @@
         "language",
         "internal_fps",
         "delivery_fps",
-        "output_size"
+        "output_size",
+        "required_library_reuse_grade"
       ],
       "properties": {
         "language": {
@@ -151,6 +152,13 @@
             }
           ],
           "items": false
+        },
+        "required_library_reuse_grade": {
+          "enum": [
+            "limited",
+            "general"
+          ],
+          "description": "limited 允许同强度的多条完整动作；general 要求每类元音同时有中等和完整两档真实峰值。"
         }
       }
     }

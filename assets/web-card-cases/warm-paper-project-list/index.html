@@ -20,8 +20,8 @@
       --line: #d5cbb9;
       --accent: #f2b21b;
       --accent-soft: #654900;
-      --font-sans: "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", "Segoe UI", sans-serif;
-      --font-mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+      --font-sans: "Noto Sans SC", "Segoe UI", sans-serif;
+      --font-mono: "Cascadia Mono", Consolas, monospace;
       font-family: var(--font-sans);
       color: var(--ink);
       background: #282720;
@@ -167,7 +167,7 @@
       top: -34px;
       right: 6px;
       margin: 0;
-      color: transparent;
+      color: rgb(21 21 16 / 6%);
       font-family: var(--font-mono);
       font-size: 218px;
       font-weight: 800;
@@ -273,7 +273,7 @@
     }
 
     .creator-label {
-      color: #99896d;
+      color: #766952;
       font-family: var(--font-mono);
       font-size: 13px;
       font-weight: 700;
@@ -384,7 +384,7 @@
       display: block;
       margin-top: 7px;
       overflow: hidden;
-      color: #8b8171;
+      color: #6f675b;
       font-family: var(--font-mono);
       font-size: 17px;
       line-height: 1.3;
@@ -466,14 +466,34 @@
   </style>
 </head>
 <body>
-  <main class="app">
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="1"
+    data-width="1600"
+    data-height="2000"
+    data-fps="1"
+  >
     <div class="viewport" id="viewport">
       <div class="canvas-shell" id="canvasShell">
-        <section class="media-canvas" id="mediaCanvas" aria-label="Editable media canvas">
+        <section
+          class="media-canvas"
+          id="mediaCanvas"
+          aria-label="Editable media canvas"
+        >
           <header class="header">
             <p class="kicker" data-editable-data="kicker" data-editable-id="kicker"></p>
             <h1 class="title" data-editable-data="title" data-editable-id="title"></h1>
-            <p class="issue-number" data-editable-data="issue_number" data-editable-id="issue-number"></p>
+            <p
+              class="issue-number"
+              data-editable-data="issue_number"
+              data-editable-id="issue-number"
+              data-layout-ignore
+              aria-hidden="true"
+            ></p>
             <div class="header-meta">
               <p class="summary" data-editable-data="summary" data-editable-id="summary"></p>
               <div class="legend" id="legend" aria-label="内容覆盖范围"></div>
@@ -589,7 +609,7 @@
       }
     });
   </script>
-  <script src="../../web-media-starter/editable-media-runtime.js"></script>
+  <script src="editable-media-runtime.js"></script>
   <script>
     editableMedia.ready.then(() => {
       const manifest = editableMedia.getManifest();

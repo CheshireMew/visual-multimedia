@@ -9,12 +9,17 @@
       "aliases": [
         "夜希数字人"
       ],
-      "preferred_version": "1.0.0",
+      "preferred_version": "1.1.0",
       "versions": [
         {
           "version": "1.0.0",
           "status": "registered",
           "package_file": "yexi/1.0.0/library-package.json"
+        },
+        {
+          "version": "1.1.0",
+          "status": "registered",
+          "package_file": "yexi/1.1.0/library-package.json"
         }
       ]
     }

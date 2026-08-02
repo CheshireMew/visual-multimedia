@@ -12,10 +12,10 @@
       --ink: #171915;
       --muted: #5f625b;
       --line: #c9c1b4;
-      --accent: #d94b32;
+      --accent: #b43d29;
       --evidence: #234d69;
-      --font-serif: "Noto Serif SC", "Source Han Serif SC", SimSun, serif;
-      --font-sans: "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", sans-serif;
+      --font-serif: "Noto Serif SC", serif;
+      --font-sans: "Noto Sans SC", sans-serif;
       --font-mono: "Cascadia Mono", Consolas, monospace;
       color: var(--ink);
       background: #22231f;
@@ -395,10 +395,24 @@
   </style>
 </head>
 <body>
-  <main class="app">
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="1"
+    data-width="1080"
+    data-height="1440"
+    data-fps="1"
+  >
     <div class="viewport" id="viewport">
       <div class="canvas-shell" id="canvasShell">
-        <section class="media-canvas" id="mediaCanvas" aria-label="Editable media canvas">
+        <section
+          class="media-canvas"
+          id="mediaCanvas"
+          aria-label="Editable media canvas"
+        >
           <p class="eyebrow" data-editable-data="eyebrow" data-editable-id="eyebrow"></p>
           <p class="issue" data-editable-data="issue" data-editable-id="issue"></p>
           <h1 class="title" data-editable-data="title" data-editable-id="title"></h1>
@@ -450,7 +464,7 @@
     <p class="preview-note" id="previewNote"></p>
   </main>
 
-  <script src="../../web-media-starter/editable-media-runtime.js"></script>
+  <script src="editable-media-runtime.js"></script>
   <script>
     const query = new URLSearchParams(location.search);
     const captureMode = query.get("capture") === "1";

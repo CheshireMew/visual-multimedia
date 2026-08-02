@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-resource-registry.v1",
+  "title": "Visual Multimedia Media Resource Registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "libraries"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-media-resource-registry"
+    },
+    "version": {
+      "const": 1
+    },
+    "libraries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/registration"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "registration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "library_id",
+        "library_version",
+        "kind",
+        "name",
+        "package",
+        "package_sha256",
+        "registered_at"
+      ],
+      "properties": {
+        "library_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "library_version": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "kind": {
+          "enum": [
+            "creator-media",
+            "production-assets",
+            "web-components"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "package": {
+          "type": "string",
+          "minLength": 1
+        },
+        "package_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "registered_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

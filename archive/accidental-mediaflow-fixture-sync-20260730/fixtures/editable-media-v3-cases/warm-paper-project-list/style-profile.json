@@ -1,0 +1,45 @@
+{
+  "profile_id": "editorial-warm-paper-ledger",
+  "source": "custom",
+  "visual_rules": {
+    "canvas": "Fixed 1600 × 2000 editorial card",
+    "composition": "One continuous warm-paper sheet with a flat editorial ledger; hierarchy comes from rules, columns and spacing rather than nested cards",
+    "hierarchy": "Large Chinese title, oversized outlined issue number, one metadata band and seven evenly spaced repository rows",
+    "accent": "Avatar-derived gold is reserved for rank one, panel marker, stars and small navigation cues",
+    "texture": "Subtle paper grain, warm-neutral hairlines and restrained gold accents; no nested rounded panels or large shadowed containers"
+  },
+  "image_treatment": {
+    "external_images": false,
+    "icons": "Inline vector star only",
+    "background": "CSS-generated paper texture"
+  },
+  "motion_rules": {
+    "type": "static",
+    "duration_ms": 1000,
+    "loop": "none"
+  },
+  "typography_rules": {
+    "primary": "Noto Sans SC / Microsoft YaHei UI / system sans",
+    "technical": "Cascadia Mono / Consolas",
+    "title_weight": 900,
+    "body_weight": 500,
+    "url_style": "Small warm-brown monospace",
+    "role_sizes_1600px": {
+      "title": "76px",
+      "summary": "29px",
+      "list_meta": "21px",
+      "creator_name": "24px",
+      "item_name": "33px",
+      "item_description": "24px",
+      "url": "17px",
+      "metric": "22px"
+    },
+    "readability": "Check every text role after the whole card has been fitted into a normal browser window"
+  },
+  "overrides": {
+    "responsive_layout": false,
+    "final_output": "PNG",
+    "final_size": "1600x2000",
+    "browser_preview": "Fit the complete fixed canvas inside the viewport, with scrolling as a fallback"
+  }
+}

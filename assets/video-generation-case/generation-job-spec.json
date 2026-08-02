@@ -1,0 +1,20 @@
+{
+  "jobs": [
+    {
+      "id": "case-scene-video",
+      "intent_refs": [
+        "generation-lifecycle"
+      ],
+      "provider": "deterministic-local-provider",
+      "operation": "generate-video",
+      "input_file": "generation-request.json",
+      "estimate": {
+        "amount": 0.5,
+        "currency": "USD",
+        "billable_basis": "one generated clip"
+      },
+      "paid_policy": "confirm",
+      "approval_evidence_file": null
+    }
+  ]
+}

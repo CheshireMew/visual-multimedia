@@ -1,0 +1,93 @@
+{
+  "protocol": "visual-multimedia-anime-avatar-library-package",
+  "version": 2,
+  "id": "yexi",
+  "library_version": "1.1.0",
+  "display_name": "夜希",
+  "status": "registered",
+  "character": {
+    "id": "yexi",
+    "name": "夜希",
+    "origin": "reference-image",
+    "specification": "# 夜希角色规格\n\n黑色短发、蓝色发梢、黑色猫耳、红色眼睛、金色月牙星星发饰、黑色哥特服装与红宝石胸针的年轻女性二次元角色。保持已确认母版中的脸型、五官、发型、服装、配饰、颜色、正面头肩构图、纯白背景和日系赛璐璐上色，不改变人物身份与画面比例。\n\n本版本只扩充无声时使用的闭嘴动态待机素材。原有说话口型、三段闭嘴待机动画和固定裁切继续保留；新增待机必须保持闭嘴微笑、固定头部和原有头肩位置。",
+    "master_source_id": "avatar-master",
+    "master_status": "confirmed"
+  },
+  "motion_source": {
+    "source_id": "avatar-motion-source",
+    "status": "accepted",
+    "source_crop_xywh": [
+      6,
+      0,
+      900,
+      900
+    ],
+    "mouth_review_crop_xywh": [
+      280,
+      420,
+      340,
+      300
+    ]
+  },
+  "media_sources_file": "media-sources.json",
+  "library_file": "visual-viseme-library.json",
+  "capabilities": {
+    "language": "zh-CN",
+    "whole_frame": true,
+    "visemes": [
+      "CLOSED",
+      "A",
+      "I",
+      "U",
+      "E",
+      "O"
+    ],
+    "dynamic_closed_idle": true
+  },
+  "parameter_provenance": {
+    "protocol_invariants": [
+      "library protocol and frame boundaries",
+      "source id, fps, frame count and crop equality"
+    ],
+    "algorithm_defaults": [
+      "render.internal_fps",
+      "render.delivery_fps",
+      "render.output_size"
+    ],
+    "asset_calibration": [
+      "motion_source.source_crop_xywh",
+      "motion_source.mouth_review_crop_xywh",
+      "visual-viseme-library frame spans and strengths"
+    ]
+  },
+  "validation": {
+    "validated_at": "2026-08-02T08:59:38.820427+00:00",
+    "source_frame_count": 522,
+    "source_fps": 24.0,
+    "review_evidence_files": [
+      "reports/avatar-source-review/overview.jpg",
+      "reports/avatar-source-review/full-8fps-01.jpg",
+      "reports/avatar-source-review/full-8fps-02.jpg",
+      "reports/avatar-source-review/full-8fps-03.jpg",
+      "reports/avatar-source-review/full-8fps-04.jpg",
+      "reports/avatar-source-review/full-8fps-05.jpg",
+      "reports/avatar-source-review/full-8fps-06.jpg",
+      "reports/avatar-source-review/mouth-12fps-01.jpg",
+      "reports/avatar-source-review/mouth-12fps-02.jpg",
+      "reports/avatar-source-review/mouth-12fps-03.jpg",
+      "reports/avatar-source-review/mouth-12fps-04.jpg",
+      "reports/avatar-source-review/mouth-12fps-05.jpg",
+      "reports/avatar-source-review/mouth-12fps-06.jpg",
+      "reports/avatar-source-review/mouth-12fps-07.jpg",
+      "reports/avatar-source-review/mouth-12fps-08.jpg",
+      "reports/avatar-source-review/mouth-12fps-09.jpg"
+    ],
+    "accepted_production_evidence_file": null,
+    "library_sha256": "433ec9a69453d273d30419263ec3723774b6c09f65bb1ee48a882f02a6901455"
+  },
+  "provenance": {
+    "registration_method": "register-project-v3",
+    "source_project_hint": "E:\\Work\\BaiduSyncdisk\\Code\\100x-learning\\output\\content-distribution\\visual-multimedia-projects\\yexi-avatar-library-v1.1.0",
+    "registered_at": "2026-08-02T08:59:38.820427+00:00"
+  }
+}

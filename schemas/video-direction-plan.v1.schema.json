@@ -1,0 +1,382 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.video-direction-plan.v1",
+  "title": "Visual Multimedia Video Direction Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "project",
+    "content_brief",
+    "narration",
+    "pronunciations",
+    "presenter",
+    "generation_jobs",
+    "scenes"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-video-direction"
+    },
+    "version": {
+      "const": 1
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "media_project_id",
+        "source",
+        "media_script_version",
+        "authoring_input_sha256",
+        "created_at"
+      ],
+      "properties": {
+        "media_project_id": {
+          "$ref": "#/$defs/id"
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_id",
+            "source_version",
+            "content_unit_id",
+            "snapshot"
+          ],
+          "properties": {
+            "source_id": {
+              "$ref": "#/$defs/id"
+            },
+            "source_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "content_unit_id": {
+              "$ref": "#/$defs/id"
+            },
+            "snapshot": {
+              "$ref": "#/$defs/fileIntegrity"
+            }
+          }
+        },
+        "media_script_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authoring_input_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "content_brief": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "audience",
+        "promise",
+        "core_claim",
+        "supporting_points",
+        "required_facts",
+        "risk_flags"
+      ],
+      "properties": {
+        "audience": {
+          "type": "string",
+          "minLength": 1
+        },
+        "promise": {
+          "type": "string",
+          "minLength": 1
+        },
+        "core_claim": {
+          "type": "string",
+          "minLength": 1
+        },
+        "supporting_points": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "text", "source_refs"],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_refs": {
+                "$ref": "#/$defs/sourceRefs"
+              }
+            }
+          }
+        },
+        "required_facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "source_refs"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_refs": {
+                "$ref": "#/$defs/sourceRefs"
+              }
+            }
+          }
+        },
+        "risk_flags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["risk", "handling", "source_refs"],
+            "properties": {
+              "risk": {
+                "type": "string",
+                "minLength": 1
+              },
+              "handling": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_refs": {
+                "$ref": "#/$defs/sourceRefs"
+              }
+            }
+          }
+        }
+      }
+    },
+    "narration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "text",
+        "sha256",
+        "source_refs",
+        "major_editorial_changes"
+      ],
+      "properties": {
+        "status": {
+          "const": "confirmed"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "source_refs": {
+          "$ref": "#/$defs/sourceRefs"
+        },
+        "major_editorial_changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "summary", "source_refs", "approval"],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_refs": {
+                "$ref": "#/$defs/sourceRefs"
+              },
+              "approval": {
+                "$ref": "#/$defs/approval"
+              }
+            }
+          }
+        }
+      }
+    },
+    "pronunciations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["written", "spoken", "note"],
+        "properties": {
+          "written": {
+            "type": "string",
+            "minLength": 1
+          },
+          "spoken": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "presenter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "source_id", "approval"],
+      "properties": {
+        "mode": {
+          "enum": ["human", "none"]
+        },
+        "source_id": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "approval": {
+          "$ref": "#/$defs/approval"
+        }
+      }
+    },
+    "generation_jobs": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "segment_id",
+          "source_refs",
+          "purpose",
+          "voiceover_ref",
+          "visual_role",
+          "graphic_type",
+          "presenter_layout",
+          "timing",
+          "generation_job_ids"
+        ],
+        "properties": {
+          "segment_id": {
+            "$ref": "#/$defs/id"
+          },
+          "source_refs": {
+            "$ref": "#/$defs/sourceRefs"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          },
+          "voiceover_ref": {
+            "type": "string",
+            "pattern": "^narration#.+$"
+          },
+          "visual_role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "graphic_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "presenter_layout": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timing": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "estimated_seconds"],
+            "properties": {
+              "source": {
+                "enum": [
+                  "text-estimate",
+                  "real-speech",
+                  "existing-media",
+                  "fixed-spec"
+                ]
+              },
+              "estimated_seconds": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "generation_job_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "fileIntegrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "bytes"],
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "sourceRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "confirmed_at", "evidence"],
+      "properties": {
+        "status": {
+          "const": "approved"
+        },
+        "confirmed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

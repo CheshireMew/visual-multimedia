@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "line-by-line-slide",
+  "name": "逐行横向滑入",
+  "aliases": ["行级滑动", "line slide"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "layout-slot", "overflow": "hidden", "requires_final_width": true, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "让多行说明按真实排版行清楚进入，强调阅读顺序。",
+    "energy": "moderate",
+    "semantic_tags": ["line", "slide", "reading-order", "multiline"]
+  },
+  "segmentation": {
+    "unit": "line",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "visual-lines"
+  },
+  "timing": {
+    "enter": {"duration_ms": 900, "stagger_ms": 120, "easing": "ease-out"},
+    "exit": {"duration_ms": 600, "stagger_ms": 80, "easing": "ease-in"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 20},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "left",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "x_px": -48}},
+        {"offset": 1, "values": {"opacity": 1, "x_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "x_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "x_px": 48}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 96,
+    "recommended_max_lines": 5,
+    "layout_sensitive": true,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 180},
+    "notes": ["逐行分组必须来自最终宽度下的 offsetTop。", "行数过多时改用整体淡入。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "offstage", "at": 0, "meaning": "所有行位于左侧进入位置。"},
+      {"operation": "enter", "id": "reading-order", "at": 0.5, "meaning": "各行按阅读顺序错峰滑入。"},
+      {"operation": "enter", "id": "aligned", "at": 1, "meaning": "所有行回到原始对齐线。"}
+    ]
+  }
+}

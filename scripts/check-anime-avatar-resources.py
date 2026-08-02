@@ -66,8 +66,20 @@ def validate_registered_resources(deep: bool) -> dict:
             if not evidence.is_file() or evidence.stat().st_size == 0:
                 raise FileNotFoundError(f"角色素材库审阅证据不存在：{evidence}")
             evidence_files.append(str(evidence))
-        accepted_evidence = context["accepted_production_evidence_path"]
-        accepted_evidence_report = context["accepted_production_evidence"]
+        accepted_evidence_relative = validation.get(
+            "accepted_production_evidence_file"
+        )
+        accepted_evidence = None
+        if accepted_evidence_relative:
+            accepted_evidence = resolve_under(
+                context["root"],
+                accepted_evidence_relative,
+                "validation.accepted_production_evidence_file",
+            )
+            if not accepted_evidence.is_file():
+                raise FileNotFoundError(
+                    f"用户验收生产证据不存在：{accepted_evidence}"
+                )
         item = {
             "id": record["id"],
             "version": record["version"],
@@ -80,7 +92,6 @@ def validate_registered_resources(deep: bool) -> dict:
             "accepted_production_evidence": (
                 str(accepted_evidence) if accepted_evidence else None
             ),
-            "accepted_production_validation": accepted_evidence_report,
             "capabilities": package["capabilities"],
             "closed_motion_exhaustive_review": context["library"][
                 "annotation"

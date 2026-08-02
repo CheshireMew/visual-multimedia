@@ -1,7 +1,7 @@
 {
   "protocol": "visual-multimedia-delivery-report",
   "version": 1,
-  "generated_at": "2026-07-28T02:38:59.987862+00:00",
+  "generated_at": "2026-07-30T10:07:10.968956+00:00",
   "spec": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-delivery.json",
   "profile": "final",
   "output": {
@@ -272,7 +272,9 @@
       "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
       "integrity_verified": true,
       "rights_status": "confirmed",
-      "rights_eligible": true
+      "rights_eligible": true,
+      "representation_kind": "source",
+      "representation_source_id": null
     },
     {
       "id": "case-narration",
@@ -281,28 +283,75 @@
       "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
       "integrity_verified": true,
       "rights_status": "confirmed",
-      "rights_eligible": true
+      "rights_eligible": true,
+      "representation_kind": "source",
+      "representation_source_id": null
     }
   ],
+  "editability": {
+    "classification": "flat_render",
+    "project_file": null,
+    "project_file_sha256": null,
+    "limitations": [
+      "这个 MP4 是扁平化成片，无法反向恢复头像、声音、版式和编码前的独立制作层。"
+    ]
+  },
   "evidence": {
     "captions": {
       "required": false,
       "file": null,
       "font_status": "not-applicable"
     },
-    "human_review": {
-      "status": "passed",
-      "notes": "能力案例已按最终视频、联系表和完整声音检查；不代表其它项目可以继承该状态。"
-    },
     "rights_review": {
       "status": "passed",
       "notes": "案例只采用项目自有头像和现有本地测试语音。"
+    },
+    "project_state": {
+      "ok": true,
+      "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-project-state.json",
+      "project_id": "media-delivery-case",
+      "status": "complete",
+      "current_checkpoint": "delivery",
+      "contracts": {
+        "media_sources": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-sources.json",
+        "transcript": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\transcript.json",
+        "clip_selections": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\clip-selections.json",
+        "timeline": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\build.mjs",
+        "style_profile": null,
+        "review": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-review.json",
+        "delivery": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-delivery.json"
+      },
+      "errors": []
+    },
+    "transcript": {
+      "ok": true,
+      "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\transcript.json",
+      "source_id": "case-narration",
+      "source_sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+      "media_duration_seconds": 4.750113,
+      "review_status": "passed",
+      "pending_terms": 0,
+      "segments": [
+        {
+          "id": "segment-0001",
+          "start_seconds": 0,
+          "end_seconds": 4.75,
+          "text": "大家好，我是夜希，现在来测试嘴型同步。",
+          "uncertain_terms": []
+        }
+      ],
+      "errors": []
     },
     "clip_selections": {
       "ok": true,
       "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\clip-selections.json",
       "maximum_clips": 3,
       "selected_count": 1,
+      "transcript": {
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\transcript.json",
+        "source_id": "case-narration",
+        "review_status": "passed"
+      },
       "clips": [
         {
           "id": "complete-narration",
@@ -312,9 +361,28 @@
           "start_seconds": 0,
           "end_seconds": 4.75,
           "duration_seconds": 4.75,
-          "transcript_sha256": "163fc49d094206c261977f73fa939e77e7e5923c3e07e03c95df3d80ebc05f2e"
+          "transcript_sha256": "163fc49d094206c261977f73fa939e77e7e5923c3e07e03c95df3d80ebc05f2e",
+          "transcript_segment_ids": [
+            "segment-0001"
+          ]
         }
       ],
+      "errors": []
+    },
+    "media_review": {
+      "ok": true,
+      "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-review.json",
+      "project_state": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-project-state.json",
+      "reviewed_media": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
+      "reviewed_media_sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873",
+      "status": "passed",
+      "machine_review_passed": true,
+      "full_review_completed": true,
+      "agent_review_passed": true,
+      "user_confirmation_required": false,
+      "user_confirmation_passed": false,
+      "findings": [],
+      "open_findings": [],
       "errors": []
     },
     "contact_sheet": {
@@ -408,6 +476,18 @@
       "details": null
     },
     {
+      "id": "editability-classification",
+      "status": "passed",
+      "required": true,
+      "summary": "交付物已明确标记为不可逆的扁平化成片",
+      "details": {
+        "classification": "flat_render",
+        "limitations": [
+          "这个 MP4 是扁平化成片，无法反向恢复头像、声音、版式和编码前的独立制作层。"
+        ]
+      }
+    },
+    {
       "id": "decode",
       "status": "passed",
       "required": true,
@@ -418,9 +498,62 @@
       "id": "media-sources-contract",
       "status": "passed",
       "required": true,
-      "summary": "素材账本使用唯一的 v2 合同",
+      "summary": "素材账本使用唯一的 v3 合同，代理已与原片真实核对",
       "details": {
-        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-sources.json"
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-sources.json",
+        "validation": {
+          "ok": true,
+          "manifest": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-sources.json",
+          "source_count": 2,
+          "sources": [
+            {
+              "id": "case-avatar",
+              "media_type": "photo",
+              "file": "assets/by-sha256/25/255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+              "resolved_file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\25\\255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+              "acquisition_method": "project-owned",
+              "rights_status": "confirmed",
+              "rights": {
+                "status": "confirmed",
+                "license": "project-owned",
+                "attribution": "柴郡@0xCheshire",
+                "terms_url": ""
+              },
+              "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+              "binding": null,
+              "representation": {
+                "kind": "source",
+                "source_id": null,
+                "build": null,
+                "verification": null
+              }
+            },
+            {
+              "id": "case-narration",
+              "media_type": "audio",
+              "file": "assets/by-sha256/a7/a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+              "resolved_file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\a7\\a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+              "acquisition_method": "project-owned",
+              "rights_status": "confirmed",
+              "rights": {
+                "status": "confirmed",
+                "license": "project-owned",
+                "attribution": "",
+                "terms_url": ""
+              },
+              "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+              "binding": null,
+              "representation": {
+                "kind": "source",
+                "source_id": null,
+                "build": null,
+                "verification": null
+              }
+            }
+          ],
+          "proxies": [],
+          "errors": []
+        }
       }
     },
     {
@@ -448,7 +581,9 @@
           "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
           "integrity_verified": true,
           "rights_status": "confirmed",
-          "rights_eligible": true
+          "rights_eligible": true,
+          "representation_kind": "source",
+          "representation_source_id": null
         },
         {
           "id": "case-narration",
@@ -457,7 +592,9 @@
           "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
           "integrity_verified": true,
           "rights_status": "confirmed",
-          "rights_eligible": true
+          "rights_eligible": true,
+          "representation_kind": "source",
+          "representation_source_id": null
         }
       ]
     },
@@ -474,7 +611,9 @@
           "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
           "integrity_verified": true,
           "rights_status": "confirmed",
-          "rights_eligible": true
+          "rights_eligible": true,
+          "representation_kind": "source",
+          "representation_source_id": null
         },
         {
           "id": "case-narration",
@@ -483,9 +622,89 @@
           "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
           "integrity_verified": true,
           "rights_status": "confirmed",
-          "rights_eligible": true
+          "rights_eligible": true,
+          "representation_kind": "source",
+          "representation_source_id": null
         }
       ]
+    },
+    {
+      "id": "final-source-representations",
+      "status": "passed",
+      "required": true,
+      "summary": "正式交付的全部已采用素材均解析为原始 source",
+      "details": [
+        {
+          "id": "case-avatar",
+          "present": true,
+          "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\25\\255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+          "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+          "integrity_verified": true,
+          "rights_status": "confirmed",
+          "rights_eligible": true,
+          "representation_kind": "source",
+          "representation_source_id": null
+        },
+        {
+          "id": "case-narration",
+          "present": true,
+          "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\assets\\by-sha256\\a7\\a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b.wav",
+          "sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+          "integrity_verified": true,
+          "rights_status": "confirmed",
+          "rights_eligible": true,
+          "representation_kind": "source",
+          "representation_source_id": null
+        }
+      ]
+    },
+    {
+      "id": "media-project-state",
+      "status": "passed",
+      "required": true,
+      "summary": "项目状态可恢复，且当前交付合同、确认层和产物引用一致",
+      "details": {
+        "ok": true,
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-project-state.json",
+        "project_id": "media-delivery-case",
+        "status": "complete",
+        "current_checkpoint": "delivery",
+        "contracts": {
+          "media_sources": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-sources.json",
+          "transcript": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\transcript.json",
+          "clip_selections": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\clip-selections.json",
+          "timeline": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\build.mjs",
+          "style_profile": null,
+          "review": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-review.json",
+          "delivery": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-delivery.json"
+        },
+        "errors": []
+      }
+    },
+    {
+      "id": "media-transcript",
+      "status": "passed",
+      "required": true,
+      "summary": "真实逐字稿已绑定原片、输入字幕和人工听音状态",
+      "details": {
+        "ok": true,
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\transcript.json",
+        "source_id": "case-narration",
+        "source_sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+        "media_duration_seconds": 4.750113,
+        "review_status": "passed",
+        "pending_terms": 0,
+        "segments": [
+          {
+            "id": "segment-0001",
+            "start_seconds": 0,
+            "end_seconds": 4.75,
+            "text": "大家好，我是夜希，现在来测试嘴型同步。",
+            "uncertain_terms": []
+          }
+        ],
+        "errors": []
+      }
     },
     {
       "id": "clip-selections",
@@ -497,6 +716,11 @@
         "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\clip-selections.json",
         "maximum_clips": 3,
         "selected_count": 1,
+        "transcript": {
+          "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\transcript.json",
+          "source_id": "case-narration",
+          "review_status": "passed"
+        },
         "clips": [
           {
             "id": "complete-narration",
@@ -506,7 +730,10 @@
             "start_seconds": 0,
             "end_seconds": 4.75,
             "duration_seconds": 4.75,
-            "transcript_sha256": "163fc49d094206c261977f73fa939e77e7e5923c3e07e03c95df3d80ebc05f2e"
+            "transcript_sha256": "163fc49d094206c261977f73fa939e77e7e5923c3e07e03c95df3d80ebc05f2e",
+            "transcript_segment_ids": [
+              "segment-0001"
+            ]
           }
         ],
         "errors": []
@@ -524,16 +751,6 @@
       }
     },
     {
-      "id": "human_review-contract",
-      "status": "passed",
-      "required": true,
-      "summary": "人工完整审看状态已记录",
-      "details": {
-        "status": "passed",
-        "notes": "能力案例已按最终视频、联系表和完整声音检查；不代表其它项目可以继承该状态。"
-      }
-    },
-    {
       "id": "rights_review-contract",
       "status": "passed",
       "required": true,
@@ -541,6 +758,28 @@
       "details": {
         "status": "passed",
         "notes": "案例只采用项目自有头像和现有本地测试语音。"
+      }
+    },
+    {
+      "id": "media-review",
+      "status": "passed",
+      "required": true,
+      "summary": "结构化评审绑定当前成品，全部问题已经处理",
+      "details": {
+        "ok": true,
+        "file": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-review.json",
+        "project_state": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-project-state.json",
+        "reviewed_media": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
+        "reviewed_media_sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873",
+        "status": "passed",
+        "machine_review_passed": true,
+        "full_review_completed": true,
+        "agent_review_passed": true,
+        "user_confirmation_required": false,
+        "user_confirmation_passed": false,
+        "findings": [],
+        "open_findings": [],
+        "errors": []
       }
     },
     {
@@ -611,8 +850,8 @@
     }
   ],
   "summary": {
-    "required_checks": 21,
-    "passed_required_checks": 21,
+    "required_checks": 25,
+    "passed_required_checks": 25,
     "failed_required_check_ids": [],
     "technical_ready": true,
     "human_review_passed": true,

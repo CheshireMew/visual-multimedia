@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-project-state.v2",
+  "title": "Visual Multimedia Media Project State v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "project_id",
+    "status",
+    "current_checkpoint",
+    "contracts",
+    "creative_approvals",
+    "production_decisions",
+    "artifacts",
+    "blockers",
+    "next_action",
+    "updated_at"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-media-project-state"},
+    "version": {"const": 2},
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "status": {
+      "enum": ["in-progress", "waiting-approval", "blocked", "complete"]
+    },
+    "current_checkpoint": {
+      "enum": [
+        "brief",
+        "script",
+        "style",
+        "composition",
+        "motion-sound",
+        "assembly",
+        "review",
+        "delivery"
+      ]
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "media_sources",
+        "resource_adoptions",
+        "transcript",
+        "clip_selections",
+        "timeline",
+        "style_profile",
+        "sound_profile",
+        "promotion_candidates",
+        "review",
+        "delivery"
+      ],
+      "properties": {
+        "media_sources": {"type": "string", "minLength": 1},
+        "resource_adoptions": {"type": ["string", "null"]},
+        "transcript": {"type": ["string", "null"]},
+        "clip_selections": {"type": ["string", "null"]},
+        "timeline": {"type": ["string", "null"]},
+        "style_profile": {"type": ["string", "null"]},
+        "sound_profile": {"type": ["string", "null"]},
+        "promotion_candidates": {"type": ["string", "null"]},
+        "review": {"type": ["string", "null"]},
+        "delivery": {"type": ["string", "null"]}
+      }
+    },
+    "creative_approvals": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/approval"}
+    },
+    "production_decisions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/production_decision"}
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/artifact"}
+    },
+    "blockers": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "next_action": {"type": "string"},
+    "updated_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "status",
+        "artifact",
+        "artifact_sha256",
+        "recorded_at",
+        "notes"
+      ],
+      "properties": {
+        "scope": {"enum": ["script", "style", "composition", "motion-sound"]},
+        "status": {"enum": ["pending", "approved", "rejected"]},
+        "artifact": {"type": "string", "minLength": 1},
+        "artifact_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "recorded_at": {"type": ["string", "null"], "format": "date-time"},
+        "notes": {"type": "string"}
+      }
+    },
+    "production_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "status",
+        "decision",
+        "rationale",
+        "applies_to",
+        "evidence_artifact_ids",
+        "decided_by",
+        "decided_at",
+        "superseded_by"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "category": {
+          "enum": [
+            "content",
+            "editorial",
+            "visual",
+            "motion",
+            "audio",
+            "technical",
+            "delivery"
+          ]
+        },
+        "status": {"enum": ["active", "superseded"]},
+        "decision": {"type": "string", "minLength": 1},
+        "rationale": {"type": "string", "minLength": 1},
+        "applies_to": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "evidence_artifact_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"}
+        },
+        "decided_by": {"enum": ["user", "agent", "profile", "system"]},
+        "decided_at": {"type": "string", "format": "date-time"},
+        "superseded_by": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "file", "sha256"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "kind": {
+          "enum": [
+            "script",
+            "style-sample",
+            "composition-sample",
+            "motion-sound-sample",
+            "timeline",
+            "preview",
+            "final"
+          ]
+        },
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    }
+  }
+}

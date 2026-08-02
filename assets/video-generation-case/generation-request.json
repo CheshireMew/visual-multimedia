@@ -1,0 +1,11 @@
+{
+  "kind": "video",
+  "duration_seconds": 3,
+  "height": 360,
+  "visual": {
+    "background": "#17324d",
+    "foreground": "#f7c873",
+    "motion": "three-state-progress"
+  },
+  "width": 640
+}

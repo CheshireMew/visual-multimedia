@@ -1,0 +1,234 @@
+{
+  "protocol": "editable-media",
+  "version": 3,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "hybrid",
+    "fps": 30,
+    "loop": "none",
+    "controls": {
+      "keyboard": true,
+      "wheel": true,
+      "touch": true,
+      "overview": true
+    }
+  },
+  "accessibility": {
+    "title_data_field": "title",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "eyebrow",
+      "name": "Eyebrow",
+      "kind": "text",
+      "selector": "[data-editable-id='eyebrow']",
+      "default_bounds": {"x": 56, "y": 56, "width": 968, "height": 38, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {"font_size": {"minimum": 12, "maximum": 120, "step": 1}}
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {"x": 56, "y": 118, "width": 900, "height": 176, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {"font_size": {"minimum": 24, "maximum": 160, "step": 1}}
+    },
+    {
+      "id": "summary",
+      "name": "Summary",
+      "kind": "text",
+      "selector": "[data-editable-id='summary']",
+      "default_bounds": {"x": 56, "y": 322, "width": 850, "height": 148, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {"font_size": {"minimum": 14, "maximum": 96, "step": 1}}
+    },
+    {
+      "id": "left-panel",
+      "name": "Left panel",
+      "kind": "group",
+      "selector": "[data-editable-id='left-panel']",
+      "default_bounds": {"x": 56, "y": 740, "width": 472, "height": 274, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {}
+    },
+    {
+      "id": "right-panel",
+      "name": "Right panel",
+      "kind": "group",
+      "selector": "[data-editable-id='right-panel']",
+      "default_bounds": {"x": 552, "y": 740, "width": 472, "height": 274, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "editable-card",
+    "name": "Editable card",
+    "category": "cards",
+    "tags": ["title", "data", "responsive"]
+  },
+  "theme_variables": [
+    {"id": "background", "name": "Background", "kind": "color", "css_variable": "--background", "default": "#f4f3ef"},
+    {"id": "surface", "name": "Surface", "kind": "color", "css_variable": "--surface", "default": "#ffffff"},
+    {"id": "text", "name": "Text", "kind": "color", "css_variable": "--text", "default": "#202124"},
+    {"id": "muted", "name": "Muted", "kind": "color", "css_variable": "--muted", "default": "#6b7075"},
+    {"id": "line", "name": "Line", "kind": "color", "css_variable": "--line", "default": "#d8d9dc"},
+    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#315efb"},
+    {"id": "font_family", "name": "Font family", "kind": "font", "css_variable": "--font-family", "default": "Inter, Segoe UI, Microsoft YaHei, system-ui, sans-serif"},
+    {"id": "radius", "name": "Corner radius", "kind": "string", "css_variable": "--radius", "default": "28px"},
+    {"id": "spacing", "name": "Canvas spacing", "kind": "string", "css_variable": "--space", "default": "56px"},
+    {"id": "shadow", "name": "Panel shadow", "kind": "string", "css_variable": "--shadow", "default": "0 24px 64px rgb(23 29 39 / 10%)"}
+  ],
+  "scenes": [
+    {
+      "id": "opening",
+      "name": "Opening",
+      "page_role": "opening",
+      "content_shape": "claim-with-two-supports",
+      "layout_id": "title-two-panels",
+      "duration_ms": 3000,
+      "primary_blocks": 2,
+      "steps": [
+        {"id": "claim", "at_ms": 0, "label": "Claim"},
+        {"id": "context", "at_ms": 900, "label": "Context"},
+        {"id": "result", "at_ms": 1800, "label": "Result"}
+      ],
+      "data": {
+        "eyebrow": "ONE EDITABLE SOURCE",
+        "title": "One source, three ways to play",
+        "summary": "The clock may advance automatically or wait for the presenter. The content model does not split.",
+        "left_label": "Scene",
+        "left_value": "One idea",
+        "right_label": "Playback",
+        "right_value": "Manual, automatic or hybrid"
+      },
+      "asset_slots": {}
+    },
+    {
+      "id": "delivery",
+      "name": "Delivery",
+      "page_role": "explanation",
+      "content_shape": "state-transition",
+      "layout_id": "title-two-panels",
+      "duration_ms": 3000,
+      "primary_blocks": 2,
+      "steps": [
+        {"id": "source", "at_ms": 0, "label": "Source"},
+        {"id": "interaction", "at_ms": 900, "label": "Interaction"},
+        {"id": "export", "at_ms": 1800, "label": "Export"}
+      ],
+      "data": {
+        "eyebrow": "ONE PRODUCTION CHAIN",
+        "title": "The same scenes can become a deck or a video",
+        "summary": "Interactive playback uses navigation. Export playback uses the same deterministic timeline.",
+        "left_label": "Interactive result",
+        "left_value": "HTML presentation",
+        "right_label": "Rendered result",
+        "right_value": "Animation, GIF or video"
+      },
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "title-two-panels",
+      "name": "Title with two supporting panels",
+      "page_roles": ["opening", "explanation"],
+      "content_shapes": ["claim-with-two-supports", "state-transition"],
+      "required_data_fields": [
+        "eyebrow",
+        "title",
+        "summary",
+        "left_label",
+        "left_value",
+        "right_label",
+        "right_value"
+      ],
+      "required_layer_ids": ["eyebrow", "title", "summary", "left-panel", "right-panel"],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": ["summary", "left-panel", "right-panel"],
+      "capacity": {"maximum_primary_blocks": 2},
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "square", "name": "Square", "canvas": {"width": 1080, "height": 1080, "background_mode": "opaque", "background_color": "#f4f3ef"},
+      "layers": {
+        "eyebrow": {"x": 56, "y": 56, "width": 968, "height": 38},
+        "title": {"x": 56, "y": 118, "width": 900, "height": 176},
+        "summary": {"x": 56, "y": 322, "width": 850, "height": 148},
+        "left-panel": {"x": 56, "y": 740, "width": 472, "height": 274},
+        "right-panel": {"x": 552, "y": 740, "width": 472, "height": 274}
+      }
+    },
+    {
+      "id": "portrait", "name": "Portrait", "canvas": {"width": 1080, "height": 1920, "background_mode": "opaque", "background_color": "#f4f3ef"},
+      "layers": {
+        "eyebrow": {"x": 64, "y": 120, "width": 952, "height": 44},
+        "title": {"x": 64, "y": 210, "width": 920, "height": 270},
+        "summary": {"x": 64, "y": 540, "width": 900, "height": 190},
+        "left-panel": {"x": 64, "y": 1130, "width": 952, "height": 290},
+        "right-panel": {"x": 64, "y": 1470, "width": 952, "height": 290}
+      }
+    },
+    {
+      "id": "landscape", "name": "Landscape", "canvas": {"width": 1920, "height": 1080, "background_mode": "opaque", "background_color": "#f4f3ef"},
+      "layers": {
+        "eyebrow": {"x": 96, "y": 72, "width": 1728, "height": 42},
+        "title": {"x": 96, "y": 148, "width": 1250, "height": 190},
+        "summary": {"x": 96, "y": 390, "width": 1100, "height": 150},
+        "left-panel": {"x": 1120, "y": 630, "width": 330, "height": 300},
+        "right-panel": {"x": 1490, "y": 630, "width": 330, "height": 300}
+      }
+    }
+  ],
+  "default_variant_id": "square",
+  "data_fields": [
+    {"id": "eyebrow", "name": "Eyebrow", "kind": "string", "default": "Topic"},
+    {"id": "title", "name": "Title", "kind": "string", "default": "Editable media canvas"},
+    {"id": "summary", "name": "Summary", "kind": "string", "default": "Replace the content, structure and visual language for the current task."},
+    {"id": "left_label", "name": "Left label", "kind": "string", "default": "Context"},
+    {"id": "left_value", "name": "Left value", "kind": "string", "default": "One clear relationship"},
+    {"id": "right_label", "name": "Right label", "kind": "string", "default": "Result"},
+    {"id": "right_value", "name": "Right value", "kind": "string", "default": "A source that stays editable"},
+    {"id": "chart_data", "name": "Chart data", "kind": "table", "default": [{"label": "A", "value": 35}, {"label": "B", "value": 68}], "columns": [{"id": "label", "name": "Label", "kind": "string"}, {"id": "value", "name": "Value", "kind": "number"}]}
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "required_layer_ids": ["eyebrow", "title", "summary", "left-panel", "right-panel"],
+    "bounds_tolerance_px": 1,
+    "minimum_font_px": {
+      "eyebrow": 12,
+      "title": 24,
+      "summary": 14
+    },
+    "minimum_gaps": [
+      {"above": "eyebrow", "below": "title", "min_px": 12},
+      {"above": "title", "below": "summary", "min_px": 12}
+    ],
+    "navigation_safe_area": {
+      "bottom": 24,
+      "layer_ids": ["eyebrow", "title", "summary", "left-panel", "right-panel"]
+    },
+    "title_to_content": {
+      "title_layer_id": "title",
+      "content_layer_ids": ["summary", "left-panel", "right-panel"],
+      "minimum_px": 12
+    },
+    "bottom_whitespace": {
+      "content_layer_ids": ["eyebrow", "title", "summary", "left-panel", "right-panel"],
+      "maximum_ratio": 0.15
+    }
+  },
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": ["editable-media-runtime.js"]
+}

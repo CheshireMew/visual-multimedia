@@ -1,0 +1,18 @@
+{
+  "protocol": "visual-multimedia-anime-avatar-source-catalog",
+  "version": 1,
+  "default_source": null,
+  "sources": [
+    {
+      "id": "yexi",
+      "display_name": "夜希",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "status": "registered",
+          "package_file": "yexi/1.0.0/source-set.json"
+        }
+      ]
+    }
+  ]
+}

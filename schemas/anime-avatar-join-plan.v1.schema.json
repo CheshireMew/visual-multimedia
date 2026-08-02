@@ -1,0 +1,351 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-join-plan.v1",
+  "title": "Visual Multimedia Anime Avatar Join Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "status",
+    "plan_id",
+    "created_at",
+    "project_root",
+    "inputs",
+    "library_reuse",
+    "execution",
+    "target_timeline",
+    "source_schedule",
+    "selection",
+    "joins",
+    "deterministic_join_plan",
+    "approval"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-anime-avatar-join-plan"
+    },
+    "version": {
+      "const": 1
+    },
+    "status": {
+      "enum": [
+        "ready",
+        "rejected"
+      ]
+    },
+    "plan_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "project_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/hashedInput"
+      },
+      "required": [
+        "avatar_project",
+        "media_sources",
+        "avatar_library_package",
+        "avatar_library_media_sources",
+        "motion_source",
+        "audio_source",
+        "renderer_script",
+        "motion_planner_script",
+        "join_blender_script",
+        "shared_avatar_runtime_script",
+        "visual_viseme_library",
+        "speech_timeline"
+      ]
+    },
+    "library_reuse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_grade",
+        "actual_grade",
+        "contract"
+      ],
+      "properties": {
+        "required_grade": {
+          "enum": [
+            "limited",
+            "general"
+          ]
+        },
+        "actual_grade": {
+          "enum": [
+            "limited",
+            "general"
+          ]
+        },
+        "contract": {
+          "type": "object"
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "duration_seconds",
+        "audio_duration_seconds",
+        "internal_fps",
+        "delivery_fps",
+        "output_size"
+      ],
+      "properties": {
+        "duration_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "audio_duration_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "internal_fps": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 60
+        },
+        "delivery_fps": {
+          "type": "integer",
+          "minimum": 24,
+          "maximum": 60
+        },
+        "output_size": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "integer",
+              "minimum": 256
+            },
+            {
+              "type": "integer",
+              "minimum": 256
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "target_timeline": {
+      "type": "object",
+      "required": [
+        "visemes",
+        "intensities",
+        "energy",
+        "anchors",
+        "roles",
+        "phone_events"
+      ]
+    },
+    "source_schedule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_position_by_internal_frame",
+        "boundaries"
+      ],
+      "properties": {
+        "source_position_by_internal_frame": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number"
+          }
+        },
+        "boundaries": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "selection": {
+      "type": "object"
+    },
+    "joins": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/join"
+      }
+    },
+    "deterministic_join_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "planning_pass_count",
+        "selected_transition_count",
+        "boundary_count",
+        "original_source_continuity_count",
+        "strict_optical_flow_join_count",
+        "micro_optical_flow_transition_count",
+        "rejected_join_count",
+        "micro_transition_internal_frames",
+        "micro_transition_seconds",
+        "cached_exact_join_windows",
+        "all_boundaries_preflighted_before_encoding",
+        "all_accepted_boundaries_smoothed",
+        "route_retry_count"
+      ],
+      "properties": {
+        "planning_pass_count": {
+          "const": 1
+        },
+        "selected_transition_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "boundary_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "original_source_continuity_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "strict_optical_flow_join_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "micro_optical_flow_transition_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rejected_join_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "micro_transition_internal_frames": {
+          "const": 2
+        },
+        "micro_transition_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "cached_exact_join_windows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "all_boundaries_preflighted_before_encoding": {
+          "const": true
+        },
+        "all_accepted_boundaries_smoothed": {
+          "const": true
+        },
+        "route_retry_count": {
+          "const": 0
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "confirmed_at",
+        "approved_plan_sha256"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "confirmed"
+          ]
+        },
+        "confirmed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "approved_plan_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "hashedInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "join": {
+      "type": "object",
+      "required": [
+        "kind",
+        "from_clip_id",
+        "to_clip_id",
+        "output_frame",
+        "boundary",
+        "category",
+        "preflight"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "from_clip_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to_clip_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output_frame": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "boundary": {
+          "type": "boolean"
+        },
+        "category": {
+          "enum": [
+            "original_source_continuity",
+            "strict_optical_flow",
+            "micro_optical_flow",
+            "rejected"
+          ]
+        },
+        "preflight": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

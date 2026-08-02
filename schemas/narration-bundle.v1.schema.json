@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.narration-bundle.v1",
+  "title": "Reviewed Narration Bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "media_sources", "language", "segments"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-narration-bundle"},
+    "version": {"const": 1},
+    "media_sources": {"$ref": "#/$defs/localPath"},
+    "language": {"type": "string", "minLength": 2},
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "text",
+          "text_sha256",
+          "audio_source_id",
+          "audio_sha256",
+          "timing_file",
+          "timing_sha256",
+          "duration_seconds",
+          "voice",
+          "review"
+        ],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "title": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1},
+          "text_sha256": {"$ref": "#/$defs/sha256"},
+          "audio_source_id": {"$ref": "#/$defs/id"},
+          "audio_sha256": {"$ref": "#/$defs/sha256"},
+          "timing_file": {"$ref": "#/$defs/localPath"},
+          "timing_sha256": {"$ref": "#/$defs/sha256"},
+          "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+          "voice": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "provider",
+              "provider_voice_id",
+              "voice_name",
+              "parameters"
+            ],
+            "properties": {
+              "kind": {"enum": ["recorded", "synthetic"]},
+              "provider": {"type": "string"},
+              "provider_voice_id": {"type": "string"},
+              "voice_name": {"type": "string"},
+              "parameters": {"type": "object"}
+            }
+          },
+          "review": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["listened", "text_matches_audio", "natural_speed", "notes"],
+            "properties": {
+              "listened": {"const": true},
+              "text_matches_audio": {"const": true},
+              "natural_speed": {"const": true},
+              "notes": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  }
+}

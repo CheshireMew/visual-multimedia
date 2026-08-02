@@ -1,0 +1,88 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 3,
+  "sources": [
+    {
+      "id": "avatar-master",
+      "media_type": "generated",
+      "file": "assets/by-sha256/5f/5f15e2eabe34274a337be8623deb599399e5336b1ff58946f4924c589bc08fdd.png",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
+      "acquisition": {
+        "method": "project-owned",
+        "source_url": "",
+        "captured_at": "2026-07-30T03:22:40.904Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "user-owned-character",
+        "attribution": "",
+        "terms_url": ""
+      },
+      "usage": "本会话经用户确认的角色母版",
+      "integrity": {
+        "sha256": "5f15e2eabe34274a337be8623deb599399e5336b1ff58946f4924c589bc08fdd",
+        "bytes": 1649433,
+        "mime_type": "image/png"
+      },
+      "generation": null,
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-30T03:22:40.904Z",
+          "provider": "",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": null,
+      "crops": {},
+      "notes": "从原有诊断资源复制到新的 source-only 生产链；真实哈希保持不变。"
+    },
+    {
+      "id": "avatar-calibration",
+      "media_type": "video",
+      "file": "assets/by-sha256/e5/e51f1a62339c3baa6f6f391624dcfa3f8f18aed27949dd38e07a3c41db2518a7.mp4",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
+      "acquisition": {
+        "method": "user-provided",
+        "source_url": "",
+        "captured_at": "2026-07-30T03:22:41.126Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "user-provided",
+        "attribution": "",
+        "terms_url": ""
+      },
+      "usage": "本会话实际使用的15秒固定机位角色校准视频",
+      "integrity": {
+        "sha256": "e51f1a62339c3baa6f6f391624dcfa3f8f18aed27949dd38e07a3c41db2518a7",
+        "bytes": 7646778,
+        "mime_type": "video/mp4"
+      },
+      "generation": null,
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-30T03:22:41.126Z",
+          "provider": "",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": null,
+      "crops": {},
+      "notes": "只作为角色源素材和视觉审阅输入，不声明口型规划可用。"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-build-report.v1",
+  "title": "Visual Multimedia Media Build Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "profile",
+    "plan",
+    "plan_sha256",
+    "confirmation",
+    "producer",
+    "segments",
+    "captions",
+    "output",
+    "completed_at"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-media-build-report"},
+    "version": {"const": 1},
+    "profile": {"const": "interview-explainer"},
+    "plan": {"$ref": "#/$defs/localPath"},
+    "plan_sha256": {"$ref": "#/$defs/sha256"},
+    "confirmation": {"$ref": "#/$defs/localPath"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry", "sha256", "tools"],
+      "properties": {
+        "entry": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "tools": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "file", "sha256", "bytes", "frames"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "file": {"$ref": "#/$defs/localPath"},
+          "sha256": {"$ref": "#/$defs/sha256"},
+          "bytes": {"type": "integer", "minimum": 1},
+          "frames": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "captions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "file",
+        "sha256",
+        "render_file",
+        "render_sha256",
+        "visible_in_standalone_output"
+      ],
+      "properties": {
+        "mode": {"enum": ["burned-in", "embedded-track", "sidecar"]},
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "render_file": {
+          "oneOf": [
+            {"$ref": "#/$defs/localPath"},
+            {"type": "null"}
+          ]
+        },
+        "render_sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "visible_in_standalone_output": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"mode": {"const": "burned-in"}},
+            "required": ["mode"]
+          },
+          "then": {
+            "properties": {
+              "render_file": {"$ref": "#/$defs/localPath"},
+              "render_sha256": {"$ref": "#/$defs/sha256"}
+            }
+          }
+        }
+      ]
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "sha256",
+        "bytes",
+        "frames",
+        "duration_seconds",
+        "width",
+        "height",
+        "fps",
+        "audio_sample_rate",
+        "audio_channels"
+      ],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "frames": {"type": "integer", "minimum": 1},
+        "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "audio_sample_rate": {"type": "integer", "minimum": 1},
+        "audio_channels": {"type": "integer", "minimum": 1}
+      }
+    },
+    "completed_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  }
+}

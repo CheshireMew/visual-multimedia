@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "fade-through",
+  "name": "整段淡化穿越",
+  "aliases": ["淡化替换", "fade through"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "replace",
+    "purpose": "用很短的淡化交叉窗口替换同一位置的整段文字。",
+    "energy": "calm",
+    "semantic_tags": ["whole", "fade", "replace", "subtle"]
+  },
+  "segmentation": {
+    "unit": "whole",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 420, "stagger_ms": 0, "easing": "ease-out"},
+    "exit": {"duration_ms": 260, "stagger_ms": 0, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 20, "micro_delay_ms": 60},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 6, "scale": 0.99, "blur_px": 2}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "scale": 1, "blur_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "scale": 1}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -4, "scale": 1}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 88,
+    "recommended_max_lines": 5,
+    "layout_sensitive": false,
+    "motion_intensity": "low",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 140},
+    "notes": ["适合同一版式槽位中的整段内容替换。", "新旧文字尺寸差异大时先解决布局，不靠运动掩盖跳变。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "replace", "id": "old-visible", "at": 0, "meaning": "旧文字完整可读。"},
+      {"operation": "replace", "id": "through-gap", "at": 0.5, "meaning": "替换经过短淡化窗口，没有硬切帧。"},
+      {"operation": "replace", "id": "new-visible", "at": 1, "meaning": "新文字完整可读。"}
+    ]
+  }
+}

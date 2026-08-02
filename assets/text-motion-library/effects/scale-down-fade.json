@@ -1,0 +1,58 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "scale-down-fade",
+  "name": "整段缩小淡出",
+  "aliases": ["收束退出", "scale down fade"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "exit",
+    "purpose": "让整段文字以克制的缩小和淡化完成收束。",
+    "energy": "calm",
+    "semantic_tags": ["whole", "scale", "exit", "closure"]
+  },
+  "segmentation": {
+    "unit": "whole",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 520, "stagger_ms": 0, "easing": "ease-out"},
+    "exit": {"duration_ms": 380, "stagger_ms": 0, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 130, "micro_delay_ms": 20},
+    "hold_ms": 800
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 8, "scale": 1.04}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "scale": 1}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "scale": 1}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -8, "scale": 0.94}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 80,
+    "recommended_max_lines": 5,
+    "layout_sensitive": false,
+    "motion_intensity": "low",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 140},
+    "notes": ["适合结论或章节结束。", "缩小后的文字边界仍需留在当前裁切区内。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "exit", "id": "full-size", "at": 0, "meaning": "文字以正常尺寸完整显示。"},
+      {"operation": "exit", "id": "closed", "at": 1, "meaning": "文字向中心收束并完全淡出。"}
+    ]
+  }
+}

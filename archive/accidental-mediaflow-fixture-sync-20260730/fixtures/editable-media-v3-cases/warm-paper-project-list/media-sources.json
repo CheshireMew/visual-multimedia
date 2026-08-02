@@ -1,0 +1,54 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 3,
+  "sources": [
+    {
+      "id": "creator-avatar",
+      "media_type": "photo",
+      "file": "assets/creator-avatar.png",
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
+      "acquisition": {
+        "method": "project-owned",
+        "source_url": "",
+        "captured_at": "2026-07-27T00:00:00.000Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "project-owned",
+        "attribution": "柴郡@0xCheshire",
+        "terms_url": ""
+      },
+      "usage": "creator signature",
+      "integrity": {
+        "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+        "bytes": 902095,
+        "mime_type": "image/png"
+      },
+      "generation": null,
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-27T00:00:00.000Z",
+          "provider": "local-project",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "crops": {
+        "fixed-1600x2000": {
+          "object_position": "50% 50%"
+        }
+      },
+      "notes": "当前 Skill 的默认作者身份资源；用户提供其它身份时替换。"
+    }
+  ]
+}

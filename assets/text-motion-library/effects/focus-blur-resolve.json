@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "focus-blur-resolve",
+  "name": "整段聚焦显现",
+  "aliases": ["由虚到实", "focus resolve"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "把一个重要主张从明显失焦状态收束到清晰结果。",
+    "energy": "calm",
+    "semantic_tags": ["whole", "focus", "resolve", "claim"]
+  },
+  "segmentation": {
+    "unit": "whole",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 760, "stagger_ms": 0, "easing": "ease-out"},
+    "exit": {"duration_ms": 520, "stagger_ms": 0, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 160, "micro_delay_ms": 35},
+    "hold_ms": 900
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 14, "blur_px": 14, "scale": 1.01}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "blur_px": 0, "scale": 1}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "blur_px": 0, "scale": 1}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -10, "blur_px": 10, "scale": 1}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 52,
+    "recommended_max_lines": 3,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 170},
+    "notes": ["只用于确实需要聚焦含义的重要短句。", "开始状态的模糊不能承担需要立即阅读的信息。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "defocused", "at": 0, "meaning": "主张尚未可读，处于明显失焦状态。"},
+      {"operation": "enter", "id": "resolving", "at": 0.55, "meaning": "文字正在聚焦且位置趋于稳定。"},
+      {"operation": "enter", "id": "focused", "at": 1, "meaning": "主张完全清晰并保持原始比例。"}
+    ]
+  }
+}

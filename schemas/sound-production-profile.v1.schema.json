@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.sound-production-profile.v1",
+  "title": "Visual Multimedia Sound Production Profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "profile_id",
+    "name",
+    "scope",
+    "project_id",
+    "palette",
+    "mix",
+    "motion_sync",
+    "notes",
+    "updated_at"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-sound-production-profile"
+    },
+    "version": {
+      "const": 1
+    },
+    "profile_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "name": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "scope": {
+      "enum": [
+        "project",
+        "series"
+      ]
+    },
+    "project_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "palette": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cue"
+      }
+    },
+    "mix": {
+      "$ref": "#/$defs/mix"
+    },
+    "motion_sync": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/motionSync"
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cueRole": {
+      "enum": [
+        "voice-anchor",
+        "music",
+        "ambient",
+        "transition",
+        "emphasis",
+        "foley",
+        "identity"
+      ]
+    },
+    "cue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "role",
+        "usage_condition",
+        "loop",
+        "default_gain_db",
+        "tags"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "role": {
+          "$ref": "#/$defs/cueRole"
+        },
+        "usage_condition": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "loop": {
+          "type": "boolean"
+        },
+        "default_gain_db": {
+          "type": "number",
+          "minimum": -60,
+          "maximum": 12
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        }
+      }
+    },
+    "ducking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "trigger_roles",
+        "target_roles",
+        "reduction_db",
+        "attack_ms",
+        "release_ms"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "trigger_roles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/cueRole"
+          }
+        },
+        "target_roles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/cueRole"
+          }
+        },
+        "reduction_db": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 36
+        },
+        "attack_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "release_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        }
+      }
+    },
+    "loudness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_lufs",
+        "true_peak_dbfs"
+      ],
+      "properties": {
+        "target_lufs": {
+          "type": "number",
+          "minimum": -36,
+          "maximum": -5
+        },
+        "true_peak_dbfs": {
+          "type": "number",
+          "minimum": -12,
+          "maximum": 0
+        }
+      }
+    },
+    "silence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preserve_semantic_pauses",
+        "maximum_unacknowledged_seconds"
+      ],
+      "properties": {
+        "preserve_semantic_pauses": {
+          "type": "boolean"
+        },
+        "maximum_unacknowledged_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 30
+        }
+      }
+    },
+    "mix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "speech_priority",
+        "ducking",
+        "loudness",
+        "silence"
+      ],
+      "properties": {
+        "speech_priority": {
+          "type": "boolean"
+        },
+        "ducking": {
+          "$ref": "#/$defs/ducking"
+        },
+        "loudness": {
+          "$ref": "#/$defs/loudness"
+        },
+        "silence": {
+          "$ref": "#/$defs/silence"
+        }
+      }
+    },
+    "motionSync": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cue_id",
+        "semantic_event",
+        "offset_ms",
+        "policy"
+      ],
+      "properties": {
+        "cue_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "semantic_event": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "offset_ms": {
+          "type": "integer",
+          "minimum": -10000,
+          "maximum": 10000
+        },
+        "policy": {
+          "enum": [
+            "at-state-change",
+            "before-change",
+            "after-change"
+          ]
+        }
+      }
+    }
+  }
+}

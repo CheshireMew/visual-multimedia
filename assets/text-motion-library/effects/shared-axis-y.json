@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "shared-axis-y",
+  "name": "纵轴逐词替换",
+  "aliases": ["纵向共享轴", "shared axis y"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "replace",
+    "purpose": "沿同一纵向关系替换逐词信息，表达上下层级或继续推进。",
+    "energy": "moderate",
+    "semantic_tags": ["word", "axis-y", "replace", "directional"]
+  },
+  "segmentation": {
+    "unit": "word",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 360, "stagger_ms": 78, "easing": "ease-out"},
+    "exit": {"duration_ms": 300, "stagger_ms": 78, "easing": "ease-in"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 28},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 24, "scale": 0.98}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "scale": 1}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "scale": 1}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -20, "scale": 0.98}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 48,
+    "recommended_max_lines": 3,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 160},
+    "notes": ["纵向方向必须与内容关系一致。", "同一槽位不能同时由场景镜头和文字效果争夺纵向位移。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "replace", "id": "old-axis", "at": 0, "meaning": "旧词组位于共享纵轴。"},
+      {"operation": "replace", "id": "axis-transition", "at": 0.5, "meaning": "旧词向上退出后新词从下方进入。"},
+      {"operation": "replace", "id": "new-axis", "at": 1, "meaning": "新词组回到同一纵轴。"}
+    ]
+  }
+}

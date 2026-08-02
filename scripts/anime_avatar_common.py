@@ -544,466 +544,12 @@ def validate_avatar_library_package(
         raise ValueError("角色素材库包无效：\n- " + "\n- ".join(errors))
 
 
-def _accepted_object(
-    value: Any,
-    *,
-    location: str,
-    fields: set[str],
-) -> dict[str, Any]:
-    if not isinstance(value, dict):
-        raise ValueError(f"{location} 必须是对象")
-    actual = set(value)
-    missing = sorted(fields - actual)
-    unknown = sorted(actual - fields)
-    if missing or unknown:
-        details = []
-        if missing:
-            details.append(f"缺少 {missing}")
-        if unknown:
-            details.append(f"含未知字段 {unknown}")
-        raise ValueError(f"{location} 字段不符合合同：" + "；".join(details))
-    return value
-
-
-def _accepted_sha256(value: Any, location: str) -> str:
-    if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value):
-        raise ValueError(f"{location} 必须是小写 SHA-256")
-    return value
-
-
-def _match_recorded_sha256(
-    *,
-    recorded: Any,
-    actual_path: Path,
-    location: str,
-) -> str:
-    expected = _accepted_sha256(recorded, location)
-    actual = file_sha256(actual_path)
-    if actual != expected:
-        raise ValueError(
-            f"{location} 与当前正式资源不一致：recorded={expected}, actual={actual}"
-        )
-    return actual
-
-
-def validate_accepted_production_evidence(
-    evidence_path: Path,
-    *,
-    package: dict[str, Any],
-    package_path: Path,
-    manifest_path: Path,
-    library_path: Path,
-    master_source: dict[str, Any],
-    master_path: Path,
-    motion_source: dict[str, Any],
-    motion_path: Path,
-) -> dict[str, Any]:
-    schema_path = (
-        SKILL_ROOT
-        / "schemas"
-        / "anime-avatar-accepted-production.v1.schema.json"
-    )
-    if not schema_path.is_file():
-        raise FileNotFoundError(f"用户验收生产证据合同不存在：{schema_path}")
-    read_json(schema_path)
-    evidence = read_json(evidence_path)
-    _accepted_object(
-        evidence,
-        location="accepted-production",
-        fields={
-            "protocol",
-            "version",
-            "resource",
-            "user_visible_result",
-            "accepted_role_track",
-            "accepted_inputs",
-            "accepted_producer_code",
-            "accepted_mechanism",
-            "current_implementation_regression",
-            "evidence_boundary",
-        },
-    )
-    if (
-        evidence["protocol"]
-        != "visual-multimedia-anime-avatar-accepted-production"
-        or evidence["version"] != 1
-    ):
-        raise ValueError(
-            "accepted-production 必须使用 "
-            "visual-multimedia-anime-avatar-accepted-production v1"
-        )
-    resource = _accepted_object(
-        evidence["resource"],
-        location="accepted-production.resource",
-        fields={"id", "version"},
-    )
-    if (
-        resource["id"] != package["id"]
-        or resource["version"] != package["library_version"]
-    ):
-        raise ValueError("用户验收生产证据与角色 package 身份不一致")
-
-    visible = _accepted_object(
-        evidence["user_visible_result"],
-        location="accepted-production.user_visible_result",
-        fields={
-            "filename",
-            "sha256",
-            "acceptance",
-            "duration_seconds",
-            "width",
-            "height",
-            "fps",
-            "frame_count",
-        },
-    )
-    role = _accepted_object(
-        evidence["accepted_role_track"],
-        location="accepted-production.accepted_role_track",
-        fields={
-            "sha256",
-            "duration_seconds",
-            "width",
-            "height",
-            "fps",
-            "frame_count",
-        },
-    )
-    for location, media in (
-        ("accepted-production.user_visible_result", visible),
-        ("accepted-production.accepted_role_track", role),
-    ):
-        _accepted_sha256(media["sha256"], f"{location}.sha256")
-        if (
-            not isinstance(media["duration_seconds"], (int, float))
-            or media["duration_seconds"] <= 0
-            or not isinstance(media["width"], int)
-            or media["width"] <= 0
-            or not isinstance(media["height"], int)
-            or media["height"] <= 0
-            or not isinstance(media["fps"], (int, float))
-            or media["fps"] <= 0
-            or not isinstance(media["frame_count"], int)
-            or media["frame_count"] <= 0
-        ):
-            raise ValueError(f"{location} 的媒体参数无效")
-    if not isinstance(visible["filename"], str) or not visible["filename"]:
-        raise ValueError(
-            "accepted-production.user_visible_result.filename 不能为空"
-        )
-    if not isinstance(visible["acceptance"], str) or not visible["acceptance"]:
-        raise ValueError(
-            "accepted-production.user_visible_result.acceptance 不能为空"
-        )
-
-    accepted_inputs = _accepted_object(
-        evidence["accepted_inputs"],
-        location="accepted-production.accepted_inputs",
-        fields={
-            "master_sha256",
-            "motion_source_sha256",
-            "speech_audio_sha256",
-            "speech_timeline_sha256",
-            "base_video_sha256",
-        },
-    )
-    for field, value in accepted_inputs.items():
-        _accepted_sha256(
-            value,
-            f"accepted-production.accepted_inputs.{field}",
-        )
-    for field in (
-        "render_anime_avatar_sha256",
-        "anime_avatar_motion_sha256",
-        "anime_avatar_blend_sha256",
-        "anime_avatar_common_sha256",
-    ):
-        producer = _accepted_object(
-            evidence["accepted_producer_code"],
-            location="accepted-production.accepted_producer_code",
-            fields={
-                "render_anime_avatar_sha256",
-                "anime_avatar_motion_sha256",
-                "anime_avatar_blend_sha256",
-                "anime_avatar_common_sha256",
-            },
-        )
-        _accepted_sha256(
-            producer[field],
-            f"accepted-production.accepted_producer_code.{field}",
-        )
-
-    master_integrity = (master_source.get("integrity") or {}).get("sha256")
-    motion_integrity = (motion_source.get("integrity") or {}).get("sha256")
-    if accepted_inputs["master_sha256"] != master_integrity:
-        raise ValueError(
-            "accepted-production.accepted_inputs.master_sha256 "
-            "与角色素材账本不一致"
-        )
-    if accepted_inputs["motion_source_sha256"] != motion_integrity:
-        raise ValueError(
-            "accepted-production.accepted_inputs.motion_source_sha256 "
-            "与角色素材账本不一致"
-        )
-    _match_recorded_sha256(
-        recorded=accepted_inputs["master_sha256"],
-        actual_path=master_path,
-        location="accepted-production.accepted_inputs.master_sha256",
-    )
-    _match_recorded_sha256(
-        recorded=accepted_inputs["motion_source_sha256"],
-        actual_path=motion_path,
-        location="accepted-production.accepted_inputs.motion_source_sha256",
-    )
-
-    mechanism = _accepted_object(
-        evidence["accepted_mechanism"],
-        location="accepted-production.accepted_mechanism",
-        fields={
-            "single_motion_source",
-            "whole_character_frames_only",
-            "dynamic_closed_idle",
-            "internal_fps",
-            "delivery_fps",
-            "gesture_transition_count",
-            "transition_methods",
-        },
-    )
-    transition_methods = _accepted_object(
-        mechanism["transition_methods"],
-        location="accepted-production.accepted_mechanism.transition_methods",
-        fields={"strict_optical_flow", "micro_transition"},
-    )
-    if (
-        mechanism["single_motion_source"] is not True
-        or mechanism["whole_character_frames_only"] is not True
-        or mechanism["dynamic_closed_idle"] is not True
-        or any(
-            not isinstance(mechanism[field], int)
-            or mechanism[field] <= 0
-            for field in (
-                "internal_fps",
-                "delivery_fps",
-                "gesture_transition_count",
-            )
-        )
-        or any(
-            not isinstance(value, int) or value < 0
-            for value in transition_methods.values()
-        )
-        or sum(transition_methods.values())
-        != mechanism["gesture_transition_count"]
-    ):
-        raise ValueError("accepted-production.accepted_mechanism 无效")
-
-    regression = _accepted_object(
-        evidence["current_implementation_regression"],
-        location="accepted-production.current_implementation_regression",
-        fields={
-            "performed_at",
-            "result",
-            "role_track",
-            "circle_composite",
-            "resource_bindings",
-            "runtime_inputs",
-            "producer_code",
-            "composition",
-        },
-    )
-    if (
-        not isinstance(regression["performed_at"], str)
-        or not regression["performed_at"]
-        or regression["result"] != "exact-byte-match"
-    ):
-        raise ValueError(
-            "current_implementation_regression 必须记录 exact-byte-match"
-        )
-    regression_role = _accepted_object(
-        regression["role_track"],
-        location="current_implementation_regression.role_track",
-        fields={"accepted_sha256", "reproduced_sha256"},
-    )
-    regression_circle = _accepted_object(
-        regression["circle_composite"],
-        location="current_implementation_regression.circle_composite",
-        fields={"accepted_sha256", "reproduced_sha256"},
-    )
-    if not (
-        _accepted_sha256(
-            regression_role["accepted_sha256"],
-            "current_implementation_regression.role_track.accepted_sha256",
-        )
-        == _accepted_sha256(
-            regression_role["reproduced_sha256"],
-            "current_implementation_regression.role_track.reproduced_sha256",
-        )
-        == role["sha256"]
-    ):
-        raise ValueError("当前角色轨回归没有精确匹配已认可角色轨")
-    if not (
-        _accepted_sha256(
-            regression_circle["accepted_sha256"],
-            "current_implementation_regression.circle_composite.accepted_sha256",
-        )
-        == _accepted_sha256(
-            regression_circle["reproduced_sha256"],
-            "current_implementation_regression.circle_composite.reproduced_sha256",
-        )
-        == visible["sha256"]
-    ):
-        raise ValueError("当前圆窗成片回归没有精确匹配用户认可成片")
-
-    resource_bindings = _accepted_object(
-        regression["resource_bindings"],
-        location="current_implementation_regression.resource_bindings",
-        fields={
-            "package_sha256",
-            "media_sources_sha256",
-            "visual_viseme_library_sha256",
-            "master_sha256",
-            "motion_source_sha256",
-        },
-    )
-    binding_paths = {
-        "package_sha256": package_path,
-        "media_sources_sha256": manifest_path,
-        "visual_viseme_library_sha256": library_path,
-        "master_sha256": master_path,
-        "motion_source_sha256": motion_path,
-    }
-    for field, path in binding_paths.items():
-        _match_recorded_sha256(
-            recorded=resource_bindings[field],
-            actual_path=path,
-            location=(
-                "current_implementation_regression.resource_bindings."
-                + field
-            ),
-        )
-    if (
-        resource_bindings["master_sha256"]
-        != accepted_inputs["master_sha256"]
-        or resource_bindings["motion_source_sha256"]
-        != accepted_inputs["motion_source_sha256"]
-    ):
-        raise ValueError("当前回归资源与已接受母版或校准视频不一致")
-
-    runtime_inputs = _accepted_object(
-        regression["runtime_inputs"],
-        location="current_implementation_regression.runtime_inputs",
-        fields={
-            "speech_audio_sha256",
-            "normalized_speech_timeline_sha256",
-            "approved_render_plan_sha256",
-            "base_video_sha256",
-        },
-    )
-    for field, value in runtime_inputs.items():
-        _accepted_sha256(
-            value,
-            f"current_implementation_regression.runtime_inputs.{field}",
-        )
-    if (
-        runtime_inputs["speech_audio_sha256"]
-        != accepted_inputs["speech_audio_sha256"]
-        or runtime_inputs["base_video_sha256"]
-        != accepted_inputs["base_video_sha256"]
-    ):
-        raise ValueError("当前回归使用的语音或底片与已接受输入不一致")
-
-    current_code = _accepted_object(
-        regression["producer_code"],
-        location="current_implementation_regression.producer_code",
-        fields={
-            "render_anime_avatar_sha256",
-            "anime_avatar_motion_sha256",
-            "anime_avatar_blend_sha256",
-            "anime_avatar_common_sha256",
-            "compose_anime_avatar_inset_sha256",
-        },
-    )
-    current_code_paths = {
-        "render_anime_avatar_sha256": (
-            SKILL_ROOT / "scripts" / "render-anime-avatar.py"
-        ),
-        "anime_avatar_motion_sha256": (
-            SKILL_ROOT / "scripts" / "anime_avatar_motion.py"
-        ),
-        "anime_avatar_blend_sha256": (
-            SKILL_ROOT / "scripts" / "anime_avatar_blend.py"
-        ),
-        "anime_avatar_common_sha256": (
-            SKILL_ROOT / "scripts" / "anime_avatar_common.py"
-        ),
-        "compose_anime_avatar_inset_sha256": (
-            SKILL_ROOT / "scripts" / "compose-anime-avatar-inset.py"
-        ),
-    }
-    for field, path in current_code_paths.items():
-        _match_recorded_sha256(
-            recorded=current_code[field],
-            actual_path=path,
-            location=(
-                "current_implementation_regression.producer_code." + field
-            ),
-        )
-
-    composition = _accepted_object(
-        regression["composition"],
-        location="current_implementation_regression.composition",
-        fields={
-            "shape",
-            "outer_xywh",
-            "avatar_crop_xywh",
-            "border_width",
-            "shadow",
-            "audio_source",
-            "base_gain_db",
-            "avatar_gain_db",
-        },
-    )
-    if composition["shape"] not in {"circle", "square"}:
-        raise ValueError("current_implementation_regression.composition.shape 无效")
-    parse_xywh(
-        composition["outer_xywh"],
-        "current_implementation_regression.composition.outer_xywh",
-    )
-    parse_xywh(
-        composition["avatar_crop_xywh"],
-        "current_implementation_regression.composition.avatar_crop_xywh",
-    )
-    _accepted_object(
-        composition["shadow"],
-        location="current_implementation_regression.composition.shadow",
-        fields={
-            "enabled",
-            "offset_x",
-            "offset_y",
-            "blur_radius",
-            "color",
-            "opacity",
-        },
-    )
-    if not isinstance(evidence["evidence_boundary"], str) or not evidence[
-        "evidence_boundary"
-    ]:
-        raise ValueError("accepted-production.evidence_boundary 不能为空")
-    return {
-        "protocol": evidence["protocol"],
-        "version": evidence["version"],
-        "resource": resource,
-        "accepted_result_sha256": visible["sha256"],
-        "accepted_role_track_sha256": role["sha256"],
-        "regression_result": regression["result"],
-        "current_bindings_verified": True,
-    }
-
-
-def resolve_avatar_package(
+def resolve_avatar_package_container(
     project: dict[str, Any],
     paths: dict[str, Path],
 ) -> dict[str, Any]:
     reference = project["library"]
+    record: dict[str, Any] | None = None
     if reference["kind"] == "project":
         package_path = resolve_under(
             paths["root"],
@@ -1027,6 +573,19 @@ def resolve_avatar_package(
         package,
         require_registered=reference["kind"] == "registered",
     )
+    accepted_evidence = (
+        package.get("validation") or {}
+    ).get("accepted_production_evidence_file")
+    if accepted_evidence is not None:
+        accepted_evidence_path = resolve_under(
+            package_root,
+            accepted_evidence,
+            "validation.accepted_production_evidence_file",
+        )
+        if not accepted_evidence_path.is_file():
+            raise FileNotFoundError(
+                f"用户验收证据不存在：{accepted_evidence_path}"
+            )
     if reference["kind"] == "registered":
         if (
             package["id"] != reference["id"]
@@ -1049,6 +608,25 @@ def resolve_avatar_package(
         "library-package.library_file",
     )
     manifest = validate_media_manifest(manifest_path)
+    return {
+        "reference": reference,
+        "package": package,
+        "package_path": package_path,
+        "root": package_root,
+        "manifest": manifest,
+        "manifest_path": manifest_path,
+        "library_path": library_file,
+    }
+
+
+def resolve_avatar_package(
+    project: dict[str, Any],
+    paths: dict[str, Path],
+) -> dict[str, Any]:
+    context = resolve_avatar_package_container(project, paths)
+    package = context["package"]
+    manifest = context["manifest"]
+    package_root = context["root"]
     master_source, master_path = resolve_source(
         manifest,
         package_root,
@@ -1061,46 +639,12 @@ def resolve_avatar_package(
         package["motion_source"]["source_id"],
         {"video", "generated"},
     )
-    accepted_evidence_relative = (
-        package.get("validation") or {}
-    ).get("accepted_production_evidence_file")
-    accepted_evidence_path = None
-    accepted_evidence_report = None
-    if accepted_evidence_relative is not None:
-        accepted_evidence_path = resolve_under(
-            package_root,
-            accepted_evidence_relative,
-            "validation.accepted_production_evidence_file",
-        )
-        if not accepted_evidence_path.is_file():
-            raise FileNotFoundError(
-                f"用户验收证据不存在：{accepted_evidence_path}"
-            )
-        accepted_evidence_report = validate_accepted_production_evidence(
-            accepted_evidence_path,
-            package=package,
-            package_path=package_path,
-            manifest_path=manifest_path,
-            library_path=library_file,
-            master_source=master_source,
-            master_path=master_path,
-            motion_source=motion_source,
-            motion_path=motion_path,
-        )
     return {
-        "reference": reference,
-        "package": package,
-        "package_path": package_path,
-        "root": package_root,
-        "manifest": manifest,
-        "manifest_path": manifest_path,
+        **context,
         "master_source": master_source,
         "master_source_path": master_path,
         "motion_source": motion_source,
         "motion_source_path": motion_path,
-        "library_path": library_file,
-        "accepted_production_evidence_path": accepted_evidence_path,
-        "accepted_production_evidence": accepted_evidence_report,
     }
 
 

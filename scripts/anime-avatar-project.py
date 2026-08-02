@@ -35,6 +35,7 @@ from anime_avatar_common import (
     registered_library_records,
     resolve_avatar_library,
     resolve_avatar_package,
+    resolve_avatar_package_container,
     resolve_registered_library_query,
     resolve_source,
     resolve_under,
@@ -76,6 +77,16 @@ def _project_payload(library: dict) -> dict:
             "output_size": [900, 900],
         },
     }
+
+
+def _xywh_argument(value: str) -> list[int]:
+    try:
+        parts = [int(item.strip()) for item in value.split(",")]
+        return list(parse_xywh(parts, "裁切参数"))
+    except (TypeError, ValueError) as error:
+        raise argparse.ArgumentTypeError(
+            "必须使用 x,y,width,height 四个整数"
+        ) from error
 
 
 def init_project(args: argparse.Namespace) -> dict:
@@ -195,7 +206,7 @@ def configure_source(args: argparse.Namespace) -> dict:
     project, paths = load_project(project_root)
     if project["library"]["kind"] != "project":
         raise ValueError("configure-source 只修改 init 建立的项目内候选角色")
-    context = resolve_avatar_package(project, paths)
+    context = resolve_avatar_package_container(project, paths)
     package = context["package"]
     manifest = validate_media_manifest(context["manifest_path"])
     resolve_source(
@@ -1232,8 +1243,16 @@ def parse_args() -> argparse.Namespace:
     source_parser.add_argument("--project", required=True)
     source_parser.add_argument("--master-source-id", required=True)
     source_parser.add_argument("--motion-source-id", required=True)
-    source_parser.add_argument("--source-crop", required=True)
-    source_parser.add_argument("--mouth-review-crop", required=True)
+    source_parser.add_argument(
+        "--source-crop",
+        required=True,
+        type=_xywh_argument,
+    )
+    source_parser.add_argument(
+        "--mouth-review-crop",
+        required=True,
+        type=_xywh_argument,
+    )
     source_parser.set_defaults(handler=configure_source)
 
     adopt_parser = subparsers.add_parser(

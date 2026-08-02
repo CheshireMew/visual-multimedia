@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-transcript.v1",
+  "title": "Visual Multimedia Verified Media Transcript v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "media_sources",
+    "source_id",
+    "source_sha256",
+    "language",
+    "input",
+    "review",
+    "segments"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-media-transcript"
+    },
+    "version": {
+      "const": 1
+    },
+    "media_sources": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "language": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "file", "sha256"],
+      "properties": {
+        "kind": {
+          "enum": ["user-subtitles", "asr"]
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "listened", "reviewed_at", "notes"],
+      "properties": {
+        "status": {
+          "enum": ["pending", "passed", "failed"]
+        },
+        "listened": {
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/segment"
+      }
+    }
+  },
+  "$defs": {
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "start_seconds",
+        "end_seconds",
+        "text",
+        "words",
+        "uncertain_terms"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "start_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "words": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/word"
+          }
+        },
+        "uncertain_terms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/uncertainTerm"
+          }
+        }
+      }
+    },
+    "word": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "start_seconds", "end_seconds"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "uncertainTerm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "status", "resolution", "notes"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": ["pending", "resolved"]
+        },
+        "resolution": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.interview-explainer-plan-confirmation.v1",
+  "title": "Interview Explainer Plan Confirmation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "plan",
+    "plan_sha256",
+    "status",
+    "confirmed_at",
+    "confirmed_by",
+    "evidence"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-interview-explainer-plan-confirmation"},
+    "version": {"const": 1},
+    "plan": {"$ref": "#/$defs/localPath"},
+    "plan_sha256": {"$ref": "#/$defs/sha256"},
+    "status": {"const": "confirmed"},
+    "confirmed_at": {"type": "string", "format": "date-time"},
+    "confirmed_by": {"enum": ["user", "agent"]},
+    "evidence": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  }
+}

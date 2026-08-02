@@ -1,0 +1,45 @@
+{
+  "protocol": "visual-multimedia-media-project-state",
+  "version": 2,
+  "project_id": "media-delivery-case",
+  "status": "complete",
+  "current_checkpoint": "delivery",
+  "contracts": {
+    "media_sources": "media-sources.json",
+    "resource_adoptions": null,
+    "transcript": "transcript.json",
+    "clip_selections": "clip-selections.json",
+    "timeline": "build.mjs",
+    "style_profile": null,
+    "sound_profile": null,
+    "promotion_candidates": null,
+    "review": "media-review.json",
+    "delivery": "media-delivery.json"
+  },
+  "creative_approvals": [],
+  "production_decisions": [
+    {
+      "id": "square-video-delivery",
+      "category": "delivery",
+      "status": "active",
+      "decision": "交付带声音的 720x720、24 fps 方形成片。",
+      "rationale": "固定能力案例用方形视频同时验证画面、音频和技术交付合同。",
+      "applies_to": ["contracts.delivery", "artifacts.final-video"],
+      "evidence_artifact_ids": ["final-video"],
+      "decided_by": "profile",
+      "decided_at": "2026-07-27T00:00:00.000Z",
+      "superseded_by": null
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "final-video",
+      "kind": "final",
+      "file": "renders/final.mp4",
+      "sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873"
+    }
+  ],
+  "blockers": [],
+  "next_action": "",
+  "updated_at": "2026-07-29T00:00:00.000Z"
+}

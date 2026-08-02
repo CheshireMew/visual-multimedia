@@ -1,0 +1,92 @@
+{
+  "protocol": "visual-multimedia-video-production-profile",
+  "version": 1,
+  "id": "interview-explainer",
+  "name": "采访原声讲解型视频",
+  "profile_version": "1.1.0",
+  "status": "active",
+  "description": "把经过听音复核的采访、演讲或课程原声作为证据片段，与中文背景、逐段解释和总结动画装配成一条完整视频。",
+  "apply_when": [
+    "存在需要保留同期声的真实人物表达素材",
+    "用户已经确认讲解角度或上游内容真源已经成立",
+    "原声片段需要上下文、翻译或分析才能被目标受众准确理解"
+  ],
+  "do_not_apply_when": [
+    "用户只要原声集锦、纯字幕翻译、单人口播、录屏教程或纯代码动画",
+    "没有可以绑定哈希并实际听取的原始素材",
+    "仍需从长材料中研究或筛选什么值得分享"
+  ],
+  "default_sequence": [
+    "context",
+    "source-evidence",
+    "explanation",
+    "repeat-source-and-explanation-as-needed",
+    "summary"
+  ],
+  "invariants": [
+    "事实转写绑定原片 source id 与 SHA-256",
+    "人物表达选段经过实际听音和语义边界复核",
+    "原声证据画面保留同期声并显示原采访时间码",
+    "原话、采访上下文和编辑解读分别归因",
+    "真实旁白音频决定场景时长，不拉伸、减慢或重写声音来填画面",
+    "解释场景使用 editable-media v5 网页真源并由当前含义决定图形",
+    "确认记录绑定不可变计划哈希，渲染器不重新选段或重排",
+    "所有片段使用整数帧覆盖完整节目时间",
+    "字幕模式明确为烧录、内嵌轨或外置文件并验证真实可见方式",
+    "机器检查、Agent 完整观看和用户观看确认分别记录",
+    "项目状态、审阅、构建报告和交付合同绑定同一最终成片哈希"
+  ],
+  "algorithm_defaults": {
+    "scene_export_strategy": "one-validated-package-per-narration-segment",
+    "scene_source_in_frames": 0,
+    "mediaflow_project_scope": "one-project-per-plan-sha256",
+    "render_sampling_divisor": 1,
+    "transition": "direct-cut",
+    "caption_mode": "burned-in",
+    "source_caption_timing": "reviewed-transcript-boundaries",
+    "burned_in_caption_format": "target-playres-ass",
+    "atomic_publish": true,
+    "cache_key_inputs": [
+      "rendering_module_sha256",
+      "adopted_source_sha256",
+      "audio_sha256",
+      "scene_package_sha256",
+      "segment_contract",
+      "output_contract",
+      "style_contract"
+    ]
+  },
+  "project_configurable": [
+    "sequence",
+    "number_of_source_clips",
+    "number_of_narration_segments",
+    "output_geometry",
+    "frame_rate",
+    "voice",
+    "loudness",
+    "caption_mode",
+    "colors",
+    "typography",
+    "motion",
+    "source_card_layout",
+    "render_sampling_divisor"
+  ],
+  "stop_conditions": [
+    "原片、转写、选段、旁白或场景包的真实文件与记录不一致",
+    "人物选段未听音、旁白未试听或文本与声音不一致",
+    "计划未确认或确认后任一输入哈希改变",
+    "场景包无法在真实浏览器中定位并显示正确场景",
+    "片段或最终视频的帧数、声音、字幕或编码检查失败",
+    "Agent 尚未完整观看最终文件",
+    "公开交付需要的素材权利仍未确认"
+  ],
+  "reference": "references/interview-explainer-production.md",
+  "public_entry": "scripts/interview-explainer.mjs",
+  "schemas": {
+    "draft": "schemas/interview-explainer-draft.v1.schema.json",
+    "narration_bundle": "schemas/narration-bundle.v1.schema.json",
+    "plan": "schemas/interview-explainer-plan.v1.schema.json",
+    "confirmation": "schemas/interview-explainer-plan-confirmation.v1.schema.json",
+    "build_report": "schemas/media-build-report.v1.schema.json"
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.generation-jobs.v1",
+  "title": "Visual Multimedia Generation Jobs v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "media_project_id",
+    "source_version",
+    "intent",
+    "jobs"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-generation-jobs"
+    },
+    "version": {
+      "const": 1
+    },
+    "media_project_id": {
+      "$ref": "#/$defs/id"
+    },
+    "source_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "file", "sha256"],
+      "properties": {
+        "kind": {
+          "enum": ["video_direction_plan", "content_source"]
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/job"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["amount", "currency", "billable_basis"],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 1
+        },
+        "billable_basis": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "intent_refs",
+        "provider",
+        "operation",
+        "normalized_input",
+        "estimate",
+        "paid_policy",
+        "authorization",
+        "idempotency_key",
+        "remote",
+        "outputs",
+        "actual_cost",
+        "imported_source_id",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "intent_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "normalized_input": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file", "sha256", "source_version"],
+          "properties": {
+            "file": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "source_version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "estimate": {
+          "$ref": "#/$defs/money"
+        },
+        "paid_policy": {
+          "enum": ["off", "confirm", "auto"]
+        },
+        "authorization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "evidence", "decided_at"],
+          "properties": {
+            "status": {
+              "enum": ["not_required", "pending", "approved", "denied"]
+            },
+            "evidence": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/capture"
+                }
+              ]
+            },
+            "decided_at": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            }
+          }
+        },
+        "idempotency_key": {
+          "$ref": "#/$defs/sha256"
+        },
+        "remote": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "job_id",
+            "status",
+            "submit_lock_at",
+            "submitted_at",
+            "submission_capture",
+            "last_polled_at",
+            "status_capture",
+            "query_count",
+            "last_error"
+          ],
+          "properties": {
+            "job_id": {
+              "type": ["string", "null"],
+              "minLength": 1
+            },
+            "status": {
+              "enum": [
+                "not_submitted",
+                "prepared",
+                "submitted",
+                "running",
+                "succeeded",
+                "failed"
+              ]
+            },
+            "submit_lock_at": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
+            "submitted_at": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
+            "submission_capture": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/capture"
+                }
+              ]
+            },
+            "last_polled_at": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
+            "status_capture": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/capture"
+                }
+              ]
+            },
+            "query_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "last_error": {
+              "type": "string"
+            }
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["remote_uri", "localized", "verified_at"],
+            "properties": {
+              "remote_uri": {
+                "type": "string",
+                "minLength": 1
+              },
+              "localized": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["file", "sha256", "bytes"],
+                    "properties": {
+                      "file": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "sha256": {
+                        "$ref": "#/$defs/sha256"
+                      },
+                      "bytes": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "verified_at": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "actual_cost": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["amount", "currency", "billable_basis", "capture"],
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "currency": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "billable_basis": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "capture": {
+                  "$ref": "#/$defs/capture"
+                }
+              }
+            }
+          ]
+        },
+        "imported_source_id": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

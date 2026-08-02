@@ -1,6 +1,6 @@
 {
   "protocol": "editable-media",
-  "version": 2,
+  "version": 5,
   "entry": "index.html",
   "media_sources": "media-sources.json",
   "playback": {
@@ -33,7 +33,7 @@
       "name": "Title",
       "kind": "text",
       "selector": "[data-editable-id='title']",
-      "default_bounds": {"x": 72, "y": 114, "width": 1080, "height": 157, "rotation": 0},
+      "default_bounds": {"x": 72, "y": 114, "width": 1080, "height": 172, "rotation": 0},
       "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
       "constraints": {"font_size": {"minimum": 44, "maximum": 110, "step": 1}}
     },
@@ -51,7 +51,7 @@
       "name": "Issue number",
       "kind": "text",
       "selector": "[data-editable-id='issue-number']",
-      "default_bounds": {"x": 1309, "y": 25, "width": 219, "height": 229, "rotation": -3},
+      "default_bounds": {"x": 1309, "y": 25, "width": 219, "height": 235, "rotation": -3},
       "editable": ["content", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
       "constraints": {}
     },
@@ -69,7 +69,7 @@
       "name": "Creator name",
       "kind": "text",
       "selector": "[data-editable-id='creator-name']",
-      "default_bounds": {"x": 1320, "y": 457, "width": 198, "height": 26, "rotation": 0},
+      "default_bounds": {"x": 1320, "y": 457, "width": 198, "height": 30, "rotation": 0},
       "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
       "constraints": {"font_size": {"minimum": 12, "maximum": 36, "step": 1}}
     },
@@ -163,6 +163,7 @@
     {"id": "font_sans", "name": "Sans font", "kind": "font", "css_variable": "--font-sans", "default": "Noto Sans SC, Microsoft YaHei UI, PingFang SC, Segoe UI, sans-serif"},
     {"id": "font_mono", "name": "Mono font", "kind": "font", "css_variable": "--font-mono", "default": "Cascadia Mono, Consolas, monospace"}
   ],
+  "parameters": [],
   "scenes": [
     {
       "id": "project-index",
@@ -173,8 +174,16 @@
       "duration_ms": 1000,
       "primary_blocks": 7,
       "steps": [
-        {"id": "page", "at_ms": 0, "label": "Page"}
+        {"id": "page", "at_ms": 0, "label": "Page", "state_kind": "start", "review": false, "description": "静态项目索引在唯一状态完整呈现全部条目。"}
       ],
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "保持清单的共同对齐与一次性扫描，不为装饰引入运动。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
       "data": {},
       "asset_slots": {
         "creator-avatar": {"data_field": "creator_avatar"}
@@ -289,7 +298,7 @@
     "remote_dependencies": "forbid"
   },
   "resources": [
-    "../../web-media-starter/editable-media-runtime.js",
+    "editable-media-runtime.js",
     "style-profile.json"
   ]
 }

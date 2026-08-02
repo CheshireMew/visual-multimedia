@@ -17,7 +17,7 @@ from typing import Any
 
 
 PROTOCOL = "visual-multimedia-delivery"
-VERSION = 1
+VERSION = 2
 PROFILES = {"preview", "review", "final"}
 REVIEW_STATUSES = {"pending", "passed", "failed"}
 RIGHTS_STATUSES = {"confirmed", "not-required"}
@@ -133,8 +133,12 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
             "version",
             "profile",
             "output",
+            "editability",
+            "project_state",
             "media_sources",
+            "transcript",
             "clip_selections",
+            "media_review",
             "adopted_source_ids",
             "expected",
             "analysis",
@@ -146,8 +150,12 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
             "version",
             "profile",
             "output",
+            "editability",
+            "project_state",
             "media_sources",
+            "transcript",
             "clip_selections",
+            "media_review",
             "adopted_source_ids",
             "expected",
             "analysis",
@@ -160,13 +168,74 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
     )
     if not isinstance(output["file"], str) or not output["file"]:
         raise DeliveryError("output.file 必须是非空字符串")
+    editability = contract_object(
+        spec["editability"],
+        "editability",
+        {
+            "classification",
+            "project_file",
+            "project_file_sha256",
+            "limitations",
+        },
+        {
+            "classification",
+            "project_file",
+            "project_file_sha256",
+            "limitations",
+        },
+    )
+    if editability["classification"] not in {"editable_native", "flat_render"}:
+        raise DeliveryError(
+            "editability.classification 必须是 editable_native 或 flat_render"
+        )
+    if editability["project_file"] is not None and (
+        not isinstance(editability["project_file"], str)
+        or not editability["project_file"]
+    ):
+        raise DeliveryError("editability.project_file 必须是非空字符串或 null")
+    if editability["project_file_sha256"] is not None and (
+        not isinstance(editability["project_file_sha256"], str)
+        or re.fullmatch(r"[a-f0-9]{64}", editability["project_file_sha256"]) is None
+    ):
+        raise DeliveryError(
+            "editability.project_file_sha256 必须是 SHA-256 或 null"
+        )
+    if (
+        not isinstance(editability["limitations"], list)
+        or any(
+            not isinstance(item, str) or not item
+            for item in editability["limitations"]
+        )
+        or len(set(editability["limitations"])) != len(editability["limitations"])
+    ):
+        raise DeliveryError("editability.limitations 必须是不重复的非空字符串数组")
+    if editability["classification"] == "editable_native":
+        if (
+            editability["project_file"] is None
+            or editability["project_file_sha256"] is None
+        ):
+            raise DeliveryError(
+                "editable_native 必须提供 project_file 与 project_file_sha256"
+            )
+    elif (
+        editability["project_file"] is not None
+        or editability["project_file_sha256"] is not None
+        or len(editability["limitations"]) == 0
+    ):
+        raise DeliveryError(
+            "flat_render 必须把项目文件字段设为 null，并明确说明不可逆限制"
+        )
     if not isinstance(spec["media_sources"], str) or not spec["media_sources"]:
         raise DeliveryError("media_sources 必须是非空字符串")
-    if spec["clip_selections"] is not None and (
-        not isinstance(spec["clip_selections"], str)
-        or not spec["clip_selections"]
+    if spec["project_state"] is not None and (
+        not isinstance(spec["project_state"], str) or not spec["project_state"]
     ):
-        raise DeliveryError("clip_selections 必须是非空字符串或 null")
+        raise DeliveryError("project_state 必须是非空字符串或 null")
+    for field in ["transcript", "clip_selections", "media_review"]:
+        if spec[field] is not None and (
+            not isinstance(spec[field], str) or not spec[field]
+        ):
+            raise DeliveryError(f"{field} 必须是非空字符串或 null")
     if (
         not isinstance(spec["adopted_source_ids"], list)
         or any(not isinstance(item, str) or not item for item in spec["adopted_source_ids"])
@@ -316,8 +385,8 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
     evidence = contract_object(
         spec["evidence"],
         "evidence",
-        {"captions", "contact_sheet", "human_review", "rights_review"},
-        {"captions", "contact_sheet", "human_review", "rights_review"},
+        {"captions", "contact_sheet", "rights_review"},
+        {"captions", "contact_sheet", "rights_review"},
     )
     captions = contract_object(
         evidence["captions"],
@@ -357,7 +426,7 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
         or contact["columns"] < 1
     ):
         raise DeliveryError("evidence.contact_sheet.columns 必须是正整数")
-    for key in ["human_review", "rights_review"]:
+    for key in ["rights_review"]:
         review = contract_object(
             evidence[key],
             f"evidence.{key}",
@@ -623,6 +692,8 @@ def fully_acknowledged(
 def source_evidence(
     project_root: Path,
     spec: dict[str, Any],
+    node: str,
+    ffprobe: str,
     checks: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     manifest_path = project_path(
@@ -630,9 +701,38 @@ def source_evidence(
         spec.get("media_sources", ""),
         "media_sources",
     )
+    validator = Path(__file__).resolve().parent / "validate-media-sources.mjs"
+    validation_result = subprocess.run(
+        [
+            node,
+            str(validator),
+            str(manifest_path),
+            "--ffprobe",
+            ffprobe,
+            "--json",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    try:
+        validation_report = json.loads(validation_result.stdout)
+    except json.JSONDecodeError:
+        validation_report = {
+            "ok": False,
+            "errors": [
+                validation_result.stderr.strip()
+                or validation_result.stdout.strip()
+                or "素材账本校验器没有返回 JSON"
+            ],
+        }
     manifest = read_json(manifest_path, "素材账本")
     manifest_ok = (
-        manifest.get("protocol") == "visual-multimedia-media-sources"
+        validation_result.returncode == 0
+        and validation_report.get("ok") is True
+        and manifest.get("protocol") == "visual-multimedia-media-sources"
         and manifest.get("version") == 3
         and isinstance(manifest.get("sources"), list)
     )
@@ -640,10 +740,13 @@ def source_evidence(
         checks,
         "media-sources-contract",
         manifest_ok,
-        "素材账本使用唯一的 v3 合同"
+        "素材账本使用唯一的 v3 合同，代理已与原片真实核对"
         if manifest_ok
-        else "素材账本不是 visual-multimedia media-sources v3",
-        {"file": str(manifest_path)},
+        else "素材账本不是有效的 visual-multimedia media-sources v3",
+        {
+            "file": str(manifest_path),
+            "validation": validation_report,
+        },
     )
     if not manifest_ok:
         return []
@@ -667,6 +770,7 @@ def source_evidence(
     all_present = True
     all_integrity = True
     all_rights = True
+    final_uses_only_sources = True
     for source_id in adopted:
         source = by_id.get(source_id)
         if source is None:
@@ -685,6 +789,7 @@ def source_evidence(
         integrity = source.get("integrity")
         generated_in_project = (
             source.get("acquisition", {}).get("method") == "generated-in-project"
+            and integrity is None
         )
         integrity_verified = generated_in_project
         if not generated_in_project:
@@ -703,6 +808,9 @@ def source_evidence(
         rights_status = source.get("rights", {}).get("status")
         rights_eligible = rights_status in RIGHTS_STATUSES
         all_rights = all_rights and rights_eligible
+        representation_kind = source.get("representation", {}).get("kind")
+        if spec.get("profile") == "final" and representation_kind != "source":
+            final_uses_only_sources = False
         evidence.append(
             {
                 "id": source_id,
@@ -714,6 +822,10 @@ def source_evidence(
                 "integrity_verified": integrity_verified,
                 "rights_status": rights_status,
                 "rights_eligible": rights_eligible,
+                "representation_kind": representation_kind,
+                "representation_source_id": source.get("representation", {}).get(
+                    "source_id"
+                ),
             }
         )
     add_check(
@@ -743,6 +855,16 @@ def source_evidence(
         else "至少一个已采用素材的权利状态仍是 pending 或缺失",
         evidence,
         required=False,
+    )
+    add_check(
+        checks,
+        "final-source-representations",
+        final_uses_only_sources,
+        "正式交付的全部已采用素材均解析为原始 source"
+        if final_uses_only_sources
+        else "正式交付仍采用 proxy；必须从同一素材账本切回原始 source",
+        evidence,
+        required=spec.get("profile") == "final",
     )
     return evidence
 
@@ -793,6 +915,7 @@ def clip_selection_evidence(
             "errors": [result.stderr.strip() or result.stdout.strip()],
         }
     same_manifest = False
+    same_transcript = False
     try:
         selections = read_json(selections_path, "片段选择合同")
         selections_manifest = project_path(
@@ -806,12 +929,40 @@ def clip_selection_evidence(
             "media_sources",
         )
         same_manifest = selections_manifest == delivery_manifest
+        selections_transcript_value = selections.get("transcript")
+        delivery_transcript_value = spec.get("transcript")
+        if selections_transcript_value is None and delivery_transcript_value is None:
+            same_transcript = True
+        elif (
+            isinstance(selections_transcript_value, str)
+            and isinstance(delivery_transcript_value, str)
+        ):
+            selections_transcript = project_path(
+                project_root,
+                selections_transcript_value,
+                "clip_selections.transcript",
+            )
+            delivery_transcript = project_path(
+                project_root,
+                delivery_transcript_value,
+                "transcript",
+            )
+            same_transcript = selections_transcript == delivery_transcript
     except DeliveryError as error:
         report.setdefault("errors", []).append(str(error))
-    passed = result.returncode == 0 and report.get("ok") is True and same_manifest
+    passed = (
+        result.returncode == 0
+        and report.get("ok") is True
+        and same_manifest
+        and same_transcript
+    )
     if not same_manifest:
         report.setdefault("errors", []).append(
             "片段选择与交付合同没有引用同一个 media-sources.json"
+        )
+    if not same_transcript:
+        report.setdefault("errors", []).append(
+            "片段选择与交付合同没有引用同一个 transcript.json"
         )
     add_check(
         checks,
@@ -821,6 +972,187 @@ def clip_selection_evidence(
         if passed
         else "片段选择合同未通过",
         report,
+    )
+    return report
+
+
+def node_contract_report(
+    node: str,
+    validator: Path,
+    contract_path: Path,
+    ffprobe: str | None = None,
+) -> tuple[bool, dict[str, Any]]:
+    command = [node, str(validator), str(contract_path)]
+    if ffprobe is not None:
+        command.extend(["--ffprobe", ffprobe])
+    command.append("--json")
+    result = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        report = {
+            "ok": False,
+            "file": str(contract_path),
+            "errors": [result.stderr.strip() or result.stdout.strip()],
+        }
+    return result.returncode == 0 and report.get("ok") is True, report
+
+
+def project_state_evidence(
+    project_root: Path,
+    spec_path: Path,
+    spec: dict[str, Any],
+    node: str,
+    checks: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    if spec["project_state"] is None:
+        add_check(
+            checks,
+            "media-project-state",
+            True,
+            "当前短任务没有启用跨轮项目状态",
+            None,
+            required=False,
+        )
+        return None
+    state_path = project_path(project_root, spec["project_state"], "project_state")
+    validator = Path(__file__).resolve().parent / "validate-media-project-state.mjs"
+    passed, report = node_contract_report(node, validator, state_path)
+    delivery_contract = report.get("contracts", {}).get("delivery")
+    same_delivery = (
+        delivery_contract is not None
+        and Path(delivery_contract).resolve() == spec_path.resolve()
+    )
+    passed = passed and same_delivery
+    if not same_delivery:
+        report.setdefault("errors", []).append(
+            "项目状态没有把当前 media-delivery.json 作为活动交付合同"
+        )
+    add_check(
+        checks,
+        "media-project-state",
+        passed,
+        "项目状态可恢复，且当前交付合同、确认层和产物引用一致"
+        if passed
+        else "项目状态合同未通过或没有指向当前交付合同",
+        report,
+    )
+    return report
+
+
+def transcript_evidence(
+    project_root: Path,
+    spec: dict[str, Any],
+    node: str,
+    ffprobe: str,
+    checks: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    value = spec.get("transcript")
+    if value is None:
+        add_check(
+            checks,
+            "media-transcript",
+            True,
+            "当前交付没有声明真实语音转写",
+            None,
+            required=False,
+        )
+        return None
+    transcript_path = project_path(project_root, value, "transcript")
+    validator = Path(__file__).resolve().parent / "validate-media-transcript.mjs"
+    passed, report = node_contract_report(
+        node, validator, transcript_path, ffprobe=ffprobe
+    )
+    same_manifest = False
+    try:
+        transcript = read_json(transcript_path, "转写合同")
+        transcript_manifest = project_path(
+            project_root,
+            transcript.get("media_sources", ""),
+            "transcript.media_sources",
+        )
+        delivery_manifest = project_path(
+            project_root, spec["media_sources"], "media_sources"
+        )
+        same_manifest = transcript_manifest == delivery_manifest
+    except DeliveryError as error:
+        report.setdefault("errors", []).append(str(error))
+    passed = passed and same_manifest
+    if not same_manifest:
+        report.setdefault("errors", []).append(
+            "转写与交付合同没有引用同一个 media-sources.json"
+        )
+    add_check(
+        checks,
+        "media-transcript",
+        passed,
+        "真实逐字稿已绑定原片、输入字幕和人工听音状态"
+        if passed
+        else "转写合同未通过",
+        report,
+    )
+    return report
+
+
+def media_review_evidence(
+    project_root: Path,
+    output_path: Path,
+    spec: dict[str, Any],
+    node: str,
+    ffprobe: str,
+    checks: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    value = spec.get("media_review")
+    required = spec.get("profile") == "final"
+    if value is None:
+        add_check(
+            checks,
+            "media-review",
+            not required,
+            "当前档位不要求结构化全片评审"
+            if not required
+            else "正式交付必须提供绑定当前成品的结构化评审",
+            None,
+            required=required,
+        )
+        return None
+    review_path = project_path(project_root, value, "media_review")
+    validator = Path(__file__).resolve().parent / "validate-media-review.mjs"
+    passed, report = node_contract_report(
+        node, validator, review_path, ffprobe=ffprobe
+    )
+    reviewed_media = report.get("reviewed_media")
+    same_output = (
+        isinstance(reviewed_media, str)
+        and Path(reviewed_media).resolve() == output_path.resolve()
+    )
+    if not same_output:
+        report.setdefault("errors", []).append(
+            "评审报告没有绑定当前交付文件"
+        )
+    passed = passed and same_output
+    if required:
+        passed = passed and report.get("status") == "passed"
+        if report.get("status") != "passed":
+            report.setdefault("errors", []).append(
+                "正式交付的结构化评审状态必须是 passed"
+            )
+    add_check(
+        checks,
+        "media-review",
+        passed,
+        "结构化评审绑定当前成品，全部问题已经处理"
+        if passed
+        else "结构化评审未通过、已过期或仍有未处理问题",
+        report,
+        required=required,
     )
     return report
 
@@ -921,6 +1253,72 @@ def expected_checks(
         )
 
 
+def editability_evidence(
+    project_root: Path,
+    output_path: Path,
+    spec: dict[str, Any],
+    checks: list[dict[str, Any]],
+) -> dict[str, Any]:
+    editability = spec["editability"]
+    classification = editability["classification"]
+    limitations = editability["limitations"]
+    if classification == "flat_render":
+        add_check(
+            checks,
+            "editability-classification",
+            True,
+            "交付物已明确标记为不可逆的扁平化成片",
+            {
+                "classification": classification,
+                "limitations": limitations,
+            },
+        )
+        return {
+            "classification": classification,
+            "project_file": None,
+            "project_file_sha256": None,
+            "limitations": limitations,
+        }
+    native_path = project_path(
+        project_root,
+        editability["project_file"],
+        "editability.project_file",
+    )
+    expected_hash = editability["project_file_sha256"]
+    exists = (
+        native_path.exists()
+        and native_path.is_file()
+        and native_path.stat().st_size > 0
+    )
+    actual_hash = sha256_file(native_path) if exists else None
+    passed = (
+        exists
+        and native_path != output_path
+        and actual_hash == expected_hash
+    )
+    add_check(
+        checks,
+        "editability-classification",
+        passed,
+        "可编辑原生项目存在且哈希与交付合同一致"
+        if passed
+        else "可编辑原生项目缺失、误指成片或哈希不一致",
+        {
+            "classification": classification,
+            "project_file": str(native_path),
+            "expected_sha256": expected_hash,
+            "actual_sha256": actual_hash,
+            "limitations": limitations,
+        },
+    )
+    return {
+        "classification": classification,
+        "project_file": str(native_path),
+        "project_file_sha256": actual_hash,
+        "limitations": limitations,
+    }
+
+
 def review_evidence(
     project_root: Path,
     spec: dict[str, Any],
@@ -973,7 +1371,6 @@ def review_evidence(
             "font_status": font_status,
         }
     for key, label in [
-        ("human_review", "人工完整审看"),
         ("rights_review", "素材权利复核"),
     ]:
         review = evidence.get(key, {})
@@ -1138,6 +1535,12 @@ def main() -> int:
             }
             add_check(checks, "probe", False, "FFprobe 读取失败", str(error))
     expected_checks(spec, probe, checks)
+    editability = editability_evidence(
+        project_root,
+        output_path,
+        spec,
+        checks,
+    )
     if output_path.exists() and output_path.is_file():
         try:
             check_decode(ffmpeg, output_path)
@@ -1145,11 +1548,22 @@ def main() -> int:
         except DeliveryError as error:
             add_check(checks, "decode", False, "完整解码失败", str(error))
 
-    adopted_sources = source_evidence(project_root, spec, checks)
+    adopted_sources = source_evidence(
+        project_root, spec, node, ffprobe, checks
+    )
+    project_state = project_state_evidence(
+        project_root, spec_path, spec, node, checks
+    )
+    transcript = transcript_evidence(
+        project_root, spec, node, ffprobe, checks
+    )
     clip_selections = clip_selection_evidence(
         project_root, spec, node, ffprobe, checks
     )
     evidence = review_evidence(project_root, spec, checks)
+    media_review = media_review_evidence(
+        project_root, output_path, spec, node, ffprobe, checks
+    )
     contact_sheet = None
     media_kind = spec.get("expected", {}).get("media_kind")
     if profile in {"review", "final"} and media_kind == "video" and output_path.exists():
@@ -1325,7 +1739,7 @@ def main() -> int:
         item for item in checks if item["required"] and item["status"] == "failed"
     ]
     technical_ready = len(failed_required) == 0
-    human_status = evidence.get("human_review", {}).get("status")
+    human_status = media_review.get("status") if media_review else None
     rights_status = evidence.get("rights_review", {}).get("status")
     adopted_rights_ready = all(
         item.get("rights_eligible") is True for item in adopted_sources
@@ -1350,9 +1764,13 @@ def main() -> int:
         },
         "probe": probe,
         "adopted_sources": adopted_sources,
+        "editability": editability,
         "evidence": {
             **evidence,
+            "project_state": project_state,
+            "transcript": transcript,
             "clip_selections": clip_selections,
+            "media_review": media_review,
             "contact_sheet": contact_sheet,
         },
         "checks": checks,

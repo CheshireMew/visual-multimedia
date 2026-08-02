@@ -4,10 +4,23 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const PROTOCOL = "visual-multimedia-media-sources";
 const VERSION = 3;
+const EDITABLE_MEDIA_VERSION = 4;
+export const EDITABLE_MEDIA_SOURCES_CONTRACT = "editable-media-v4";
+
+export function mediaSourcesContractForVersion(version) {
+  if (version === VERSION) return "media-sources-v3";
+  if (version === EDITABLE_MEDIA_VERSION) {
+    return EDITABLE_MEDIA_SOURCES_CONTRACT;
+  }
+  throw new Error(
+    `素材账本 version 必须是 ${VERSION} 或 ${EDITABLE_MEDIA_VERSION}`
+  );
+}
 const ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const MEDIA_TYPES = new Set([
@@ -53,6 +66,25 @@ const SOURCE_FIELDS = new Set([
   "crops",
   "notes",
 ]);
+const EDITABLE_MEDIA_SOURCE_FIELDS = new Set([
+  ...SOURCE_FIELDS,
+  "binding",
+]);
+const BROWSER_BINDING_FIELDS = new Set(["pipeline"]);
+const NATIVE_AUDIO_BINDING_FIELDS = new Set([
+  "pipeline",
+  "loop",
+  "source_in_ms",
+  "gain_db",
+]);
+const NATIVE_UNDERLAY_BINDING_FIELDS = new Set([
+  "pipeline",
+  "fit",
+  "playback",
+  "source_in_ms",
+  "audio",
+  "gain_db",
+]);
 const ACQUISITION_FIELDS = new Set([
   "method",
   "source_url",
@@ -93,11 +125,20 @@ const REPRESENTATION_FIELDS = new Set([
   "build",
   "verification",
 ]);
+const PROXY_BUILD_FIELDS = new Set(["tool", "command", "created_at"]);
+const PROXY_VERIFICATION_FIELDS = new Set([
+  "duration_tolerance_seconds",
+  "frame_rate_tolerance",
+  "aspect_ratio_tolerance",
+  "require_rotation_match",
+  "require_audio_stream_count_match",
+]);
 
 function usage() {
   console.log(
-    "用法：node scripts/validate-media-sources.mjs <media-sources.json> [--json]\n"
-      + "验证 v3 素材账本的结构、文件存在性和 SHA-256。"
+    "用法：node scripts/validate-media-sources.mjs <media-sources.json>"
+      + " [--ffprobe <路径>] [--json]\n"
+      + "验证 v3 素材账本的结构、文件、哈希，以及代理与原始素材的真实等价关系。"
   );
 }
 
@@ -119,9 +160,254 @@ function rejectUnknown(errors, value, allowed, location) {
   if (!isObject(value)) return;
   for (const field of Object.keys(value)) {
     if (!allowed.has(field)) {
-      fail(errors, `${location}.${field}`, "v3 合同不允许未知字段");
+      fail(errors, `${location}.${field}`, "当前合同不允许未知字段");
     }
   }
+}
+
+function validateEditableMediaBinding(errors, source, location) {
+  const binding = source.binding;
+  const bindingLocation = `${location}.binding`;
+  if (!isObject(binding)) {
+    fail(errors, bindingLocation, "media-sources v4 素材必须明确声明渲染管线");
+    return null;
+  }
+  if (binding.pipeline === "browser") {
+    rejectUnknown(errors, binding, BROWSER_BINDING_FIELDS, bindingLocation);
+  } else if (binding.pipeline === "native-audio") {
+    rejectUnknown(errors, binding, NATIVE_AUDIO_BINDING_FIELDS, bindingLocation);
+    if (!["none", "repeat"].includes(binding.loop)) {
+      fail(errors, `${bindingLocation}.loop`, "必须是 none 或 repeat");
+    }
+    if (!Number.isInteger(binding.source_in_ms) || binding.source_in_ms < 0) {
+      fail(errors, `${bindingLocation}.source_in_ms`, "必须是非负整数");
+    }
+    if (!Number.isFinite(binding.gain_db)) {
+      fail(errors, `${bindingLocation}.gain_db`, "必须是有限数字");
+    }
+  } else if (binding.pipeline === "native-underlay") {
+    rejectUnknown(errors, binding, NATIVE_UNDERLAY_BINDING_FIELDS, bindingLocation);
+    if (!["cover", "contain"].includes(binding.fit)) {
+      fail(errors, `${bindingLocation}.fit`, "必须是 cover 或 contain");
+    }
+    if (!["hold", "repeat"].includes(binding.playback)) {
+      fail(errors, `${bindingLocation}.playback`, "必须是 hold 或 repeat");
+    }
+    if (!Number.isInteger(binding.source_in_ms) || binding.source_in_ms < 0) {
+      fail(errors, `${bindingLocation}.source_in_ms`, "必须是非负整数");
+    }
+    if (!["include", "exclude"].includes(binding.audio)) {
+      fail(errors, `${bindingLocation}.audio`, "必须是 include 或 exclude");
+    }
+    if (!Number.isFinite(binding.gain_db)) {
+      fail(errors, `${bindingLocation}.gain_db`, "必须是有限数字");
+    }
+  } else {
+    fail(
+      errors,
+      `${bindingLocation}.pipeline`,
+      "必须是 browser、native-underlay 或 native-audio"
+    );
+  }
+  if (source.media_type === "audio" && binding.pipeline !== "native-audio") {
+    fail(errors, bindingLocation, "audio 素材必须使用 native-audio");
+  }
+  if (binding.pipeline === "native-audio" && source.media_type !== "audio") {
+    fail(errors, bindingLocation, "只有 audio 素材可以使用 native-audio");
+  }
+  if (binding.pipeline === "native-underlay" && source.media_type !== "video") {
+    fail(errors, bindingLocation, "只有 video 素材可以使用 native-underlay");
+  }
+  return binding;
+}
+
+function commandPath(name, override = null) {
+  if (override) {
+    const absolute = path.resolve(override);
+    if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) {
+      throw new Error(`${name} 不存在：${absolute}`);
+    }
+    return absolute;
+  }
+  const result = spawnSync(
+    process.platform === "win32" ? "where.exe" : "which",
+    [name],
+    { encoding: "utf8", windowsHide: true }
+  );
+  if (result.status !== 0) {
+    throw new Error(
+      `找不到 ${name}；存在 proxy 表示时必须提供真实媒体验证工具，脚本不会自动安装。`
+    );
+  }
+  return result.stdout.split(/\r?\n/).find(Boolean).trim();
+}
+
+function rate(value) {
+  if (typeof value !== "string" || value.length === 0 || value === "0/0") {
+    return null;
+  }
+  const [numerator, denominator = "1"] = value.split("/");
+  const result = Number(numerator) / Number(denominator);
+  return Number.isFinite(result) && result > 0 ? result : null;
+}
+
+function rotation(stream) {
+  const tagRotation = Number(stream?.tags?.rotate);
+  if (Number.isFinite(tagRotation)) return tagRotation;
+  for (const item of stream?.side_data_list || []) {
+    const value = Number(item?.rotation);
+    if (Number.isFinite(value)) return value;
+  }
+  return 0;
+}
+
+function probeMedia(ffprobe, filePath) {
+  const result = spawnSync(
+    ffprobe,
+    [
+      "-v",
+      "error",
+      "-show_format",
+      "-show_streams",
+      "-of",
+      "json",
+      filePath,
+    ],
+    { encoding: "utf8", windowsHide: true }
+  );
+  if (result.status !== 0) {
+    const detail = (result.stderr || result.stdout || "").trim();
+    throw new Error(`FFprobe 无法读取 ${filePath}：${detail}`);
+  }
+  const payload = JSON.parse(result.stdout);
+  const streams = Array.isArray(payload.streams) ? payload.streams : [];
+  const video = streams.find((stream) => stream.codec_type === "video") || null;
+  const audioCount = streams.filter((stream) => stream.codec_type === "audio").length;
+  const duration = Number(payload?.format?.duration ?? video?.duration);
+  return {
+    duration_seconds: Number.isFinite(duration) && duration > 0 ? duration : null,
+    frame_rate: rate(video?.avg_frame_rate) ?? rate(video?.r_frame_rate),
+    width: Number.isFinite(Number(video?.width)) ? Number(video.width) : null,
+    height: Number.isFinite(Number(video?.height)) ? Number(video.height) : null,
+    rotation_degrees: rotation(video),
+    audio_stream_count: audioCount,
+  };
+}
+
+function validateRepresentation(errors, source, location) {
+  const representation = source.representation;
+  if (!isObject(representation)) {
+    fail(errors, `${location}.representation`, "必须是对象");
+    return null;
+  }
+  rejectUnknown(
+    errors,
+    representation,
+    REPRESENTATION_FIELDS,
+    `${location}.representation`
+  );
+  if (!["source", "proxy"].includes(representation.kind)) {
+    fail(errors, `${location}.representation.kind`, "必须是 source 或 proxy");
+  }
+  if (representation.kind === "source") {
+    for (const field of ["source_id", "build", "verification"]) {
+      if (representation[field] !== null) {
+        fail(
+          errors,
+          `${location}.representation.${field}`,
+          "source 表示必须为 null"
+        );
+      }
+    }
+  }
+  if (representation.kind === "proxy") {
+    if (
+      typeof representation.source_id !== "string"
+      || representation.source_id.length === 0
+    ) {
+      fail(
+        errors,
+        `${location}.representation.source_id`,
+        "proxy 必须指向原始 source id"
+      );
+    }
+    const build = representation.build;
+    if (!isObject(build)) {
+      fail(errors, `${location}.representation.build`, "proxy 必须记录构建过程");
+    } else {
+      rejectUnknown(
+        errors,
+        build,
+        PROXY_BUILD_FIELDS,
+        `${location}.representation.build`
+      );
+      if (typeof build.tool !== "string" || build.tool.length === 0) {
+        fail(errors, `${location}.representation.build.tool`, "必须记录构建工具");
+      }
+      if (
+        !Array.isArray(build.command)
+        || build.command.length === 0
+        || build.command.some((item) => typeof item !== "string")
+      ) {
+        fail(
+          errors,
+          `${location}.representation.build.command`,
+          "必须记录非空参数数组"
+        );
+      }
+      if (!isDateTime(build.created_at)) {
+        fail(
+          errors,
+          `${location}.representation.build.created_at`,
+          "必须是 ISO 日期时间"
+        );
+      }
+    }
+    const verification = representation.verification;
+    if (!isObject(verification)) {
+      fail(
+        errors,
+        `${location}.representation.verification`,
+        "proxy 必须记录真实比较阈值"
+      );
+    } else {
+      rejectUnknown(
+        errors,
+        verification,
+        PROXY_VERIFICATION_FIELDS,
+        `${location}.representation.verification`
+      );
+      for (const field of [
+        "duration_tolerance_seconds",
+        "frame_rate_tolerance",
+        "aspect_ratio_tolerance",
+      ]) {
+        if (
+          !Number.isFinite(verification[field])
+          || verification[field] < 0
+        ) {
+          fail(
+            errors,
+            `${location}.representation.verification.${field}`,
+            "必须是非负数"
+          );
+        }
+      }
+      for (const field of [
+        "require_rotation_match",
+        "require_audio_stream_count_match",
+      ]) {
+        if (typeof verification[field] !== "boolean") {
+          fail(
+            errors,
+            `${location}.representation.verification.${field}`,
+            "必须是布尔值"
+          );
+        }
+      }
+    }
+  }
+  return representation;
 }
 
 function sha256File(filePath) {
@@ -138,29 +424,6 @@ function sha256File(filePath) {
     fs.closeSync(file);
   }
   return hash.digest("hex");
-}
-
-function validateRepresentation(errors, representation, location) {
-  if (!isObject(representation)) {
-    fail(errors, location, "必须是对象");
-    return;
-  }
-  rejectUnknown(errors, representation, REPRESENTATION_FIELDS, location);
-  if (!["source", "proxy"].includes(representation.kind)) {
-    fail(errors, `${location}.kind`, "必须是 source 或 proxy");
-  }
-  if (representation.kind === "source") {
-    for (const field of ["source_id", "build", "verification"]) {
-      if (representation[field] !== null) {
-        fail(errors, `${location}.${field}`, "source 表示必须为 null");
-      }
-    }
-  } else if (
-    typeof representation.source_id !== "string"
-    || representation.source_id.length === 0
-  ) {
-    fail(errors, `${location}.source_id`, "proxy 必须引用原始 source id");
-  }
 }
 
 function validateCapture(errors, capture, location, manifestDir) {
@@ -189,16 +452,22 @@ function validateCapture(errors, capture, location, manifestDir) {
   }
 }
 
-function validateSource(errors, source, index, manifestDir) {
+function validateSource(errors, source, index, manifestDir, contract) {
   const location = `sources[${index}]`;
   if (!isObject(source)) {
     fail(errors, location, "必须是对象");
     return null;
   }
-  rejectUnknown(errors, source, SOURCE_FIELDS, location);
+  const editableMedia = contract === EDITABLE_MEDIA_SOURCES_CONTRACT;
+  rejectUnknown(
+    errors,
+    source,
+    editableMedia ? EDITABLE_MEDIA_SOURCE_FIELDS : SOURCE_FIELDS,
+    location
+  );
   for (const field of LEGACY_FIELDS) {
     if (Object.hasOwn(source, field)) {
-      fail(errors, `${location}.${field}`, "v3 不允许保留旧字段");
+      fail(errors, `${location}.${field}`, "当前合同不允许保留旧字段");
     }
   }
   if (!ID_PATTERN.test(source.id || "")) {
@@ -216,11 +485,10 @@ function validateSource(errors, source, index, manifestDir) {
   if (typeof source.notes !== "string") {
     fail(errors, `${location}.notes`, "必须是字符串");
   }
-  validateRepresentation(
-    errors,
-    source.representation,
-    `${location}.representation`
-  );
+  const binding = editableMedia
+    ? validateEditableMediaBinding(errors, source, location)
+    : null;
+  const representation = validateRepresentation(errors, source, location);
 
   const acquisition = source.acquisition;
   if (!isObject(acquisition)) {
@@ -258,7 +526,10 @@ function validateSource(errors, source, index, manifestDir) {
     }
   }
 
-  const generatedInProject = acquisition?.method === "generated-in-project";
+  const generatedInProject = (
+    acquisition?.method === "generated-in-project"
+    && source.integrity === null
+  );
   let resolvedFile = null;
   if (typeof source.file === "string" && source.file.length > 0) {
     const filePart = source.file.split("#", 1)[0];
@@ -268,11 +539,17 @@ function validateSource(errors, source, index, manifestDir) {
     }
   }
 
-  if (source.integrity === null && !generatedInProject) {
+  if (generatedInProject) {
+    if (source.integrity !== null) {
+      fail(
+        errors,
+        `${location}.integrity`,
+        "项目内动态生成内容没有独立文件时必须为 null"
+      );
+    }
+  } else if (!isObject(source.integrity)) {
     fail(errors, `${location}.integrity`, "独立素材必须记录完整性");
-  } else if (source.integrity !== null && !isObject(source.integrity)) {
-    fail(errors, `${location}.integrity`, "必须是对象或 null");
-  } else if (isObject(source.integrity)) {
+  } else {
     const integrity = source.integrity;
     rejectUnknown(errors, integrity, INTEGRITY_FIELDS, `${location}.integrity`);
     if (!SHA256_PATTERN.test(integrity.sha256 || "")) {
@@ -331,7 +608,10 @@ function validateSource(errors, source, index, manifestDir) {
         );
       }
     }
-  } else if (["generated", "generated-in-project"].includes(acquisition?.method)) {
+  } else if (
+    ["generated", "generated-in-project"].includes(acquisition?.method)
+    && representation?.kind !== "proxy"
+  ) {
     fail(
       errors,
       `${location}.generation`,
@@ -460,16 +740,38 @@ function validateSource(errors, source, index, manifestDir) {
 
   return {
     id: source.id,
+    media_type: source.media_type,
     file: source.file,
     resolved_file: resolvedFile,
+    acquisition_method: acquisition?.method,
     rights_status: rights?.status,
+    rights: rights
+      ? {
+        status: rights.status,
+        license: rights.license,
+        attribution: rights.attribution,
+        terms_url: rights.terms_url,
+      }
+      : null,
     sha256: source.integrity?.sha256 || null,
+    binding,
+    representation,
   };
 }
 
-export function validateMediaSources(manifestPath) {
+export function validateMediaSources(manifestPath, options = {}) {
   const absolutePath = path.resolve(manifestPath);
   const errors = [];
+  const contract = options.contract || "media-sources-v3";
+  if (
+    contract !== "media-sources-v3"
+    && contract !== EDITABLE_MEDIA_SOURCES_CONTRACT
+  ) {
+    throw new Error(`未知素材账本合同：${contract}`);
+  }
+  const expectedVersion = contract === EDITABLE_MEDIA_SOURCES_CONTRACT
+    ? EDITABLE_MEDIA_VERSION
+    : VERSION;
   let manifest;
   try {
     manifest = JSON.parse(fs.readFileSync(absolutePath, "utf8"));
@@ -493,8 +795,8 @@ export function validateMediaSources(manifestPath) {
   if (manifest.protocol !== PROTOCOL) {
     fail(errors, "protocol", `必须是 ${PROTOCOL}`);
   }
-  if (manifest.version !== VERSION) {
-    fail(errors, "version", `必须是 ${VERSION}；不接受旧版兼容字段`);
+  if (manifest.version !== expectedVersion) {
+    fail(errors, "version", `必须是 ${expectedVersion}；不接受旧版兼容字段`);
   }
   if (!Array.isArray(manifest.sources)) {
     fail(errors, "sources", "必须是数组");
@@ -502,19 +804,171 @@ export function validateMediaSources(manifestPath) {
   const manifestDir = path.dirname(absolutePath);
   const sources = Array.isArray(manifest.sources)
     ? manifest.sources
-      .map((source, index) => validateSource(errors, source, index, manifestDir))
+      .map((source, index) =>
+        validateSource(errors, source, index, manifestDir, contract)
+      )
       .filter(Boolean)
     : [];
   const ids = new Set();
+  const files = new Set();
+  const byId = new Map();
   for (const source of sources) {
     if (ids.has(source.id)) fail(errors, `sources.${source.id}`, "id 重复");
     ids.add(source.id);
+    byId.set(source.id, source);
+    if (
+      contract === EDITABLE_MEDIA_SOURCES_CONTRACT
+      && files.has(source.file)
+    ) {
+      fail(errors, `sources.${source.id}.file`, "media-sources v4 素材文件重复");
+    }
+    files.add(source.file);
+  }
+  const proxyEvidence = [];
+  const proxies = sources.filter(
+    (source) => source.representation?.kind === "proxy"
+  );
+  let ffprobe = null;
+  if (proxies.length > 0) {
+    try {
+      ffprobe = commandPath("ffprobe", options.ffprobe || null);
+    } catch (error) {
+      fail(errors, "proxy", error.message);
+    }
+  }
+  for (const proxy of proxies) {
+    const location = `sources.${proxy.id}.representation`;
+    const original = byId.get(proxy.representation.source_id);
+    if (!original) {
+      fail(errors, `${location}.source_id`, "指向的原始 source id 不存在");
+      continue;
+    }
+    if (original.representation?.kind !== "source") {
+      fail(errors, `${location}.source_id`, "proxy 只能直接指向 source，不能形成代理链");
+    }
+    if (original.media_type !== proxy.media_type) {
+      fail(errors, `${location}.source_id`, "proxy 与原始素材的 media_type 必须一致");
+    }
+    if (!["video", "audio"].includes(proxy.media_type)) {
+      fail(errors, location, "只有 video 或 audio 可以声明为 proxy");
+    }
+    if (proxy.acquisition_method !== "generated-in-project") {
+      fail(
+        errors,
+        `sources.${proxy.id}.acquisition.method`,
+        "proxy 必须记录为 generated-in-project"
+      );
+    }
+    if (
+      JSON.stringify(proxy.rights) !== JSON.stringify(original.rights)
+    ) {
+      fail(
+        errors,
+        `sources.${proxy.id}.rights`,
+        "proxy 必须完整继承原始 source 的权利记录"
+      );
+    }
+    if (
+      contract === EDITABLE_MEDIA_SOURCES_CONTRACT
+      && JSON.stringify(proxy.binding) !== JSON.stringify(original.binding)
+    ) {
+      fail(
+        errors,
+        `${location}.binding`,
+        "media-sources v4 proxy 必须继承原始 source 的渲染管线"
+      );
+    }
+    if (
+      !ffprobe
+      || !original.resolved_file
+      || !proxy.resolved_file
+      || !fs.existsSync(original.resolved_file)
+      || !fs.existsSync(proxy.resolved_file)
+    ) {
+      continue;
+    }
+    try {
+      const sourceProbe = probeMedia(ffprobe, original.resolved_file);
+      const proxyProbe = probeMedia(ffprobe, proxy.resolved_file);
+      const verification = proxy.representation.verification;
+      const durationDelta = (
+        sourceProbe.duration_seconds !== null
+        && proxyProbe.duration_seconds !== null
+      )
+        ? Math.abs(sourceProbe.duration_seconds - proxyProbe.duration_seconds)
+        : null;
+      const frameRateDelta = (
+        sourceProbe.frame_rate !== null
+        && proxyProbe.frame_rate !== null
+      )
+        ? Math.abs(sourceProbe.frame_rate - proxyProbe.frame_rate)
+        : null;
+      const sourceAspect = (
+        sourceProbe.width !== null
+        && sourceProbe.height !== null
+        && sourceProbe.height > 0
+      )
+        ? sourceProbe.width / sourceProbe.height
+        : null;
+      const proxyAspect = (
+        proxyProbe.width !== null
+        && proxyProbe.height !== null
+        && proxyProbe.height > 0
+      )
+        ? proxyProbe.width / proxyProbe.height
+        : null;
+      const aspectRatioDelta = (
+        sourceAspect !== null && proxyAspect !== null
+      )
+        ? Math.abs(sourceAspect - proxyAspect)
+        : null;
+      const checks = {
+        duration: durationDelta !== null
+          && durationDelta <= verification.duration_tolerance_seconds,
+        frame_rate: proxy.media_type !== "video"
+          || (
+            frameRateDelta !== null
+            && frameRateDelta <= verification.frame_rate_tolerance
+          ),
+        aspect_ratio: proxy.media_type !== "video"
+          || (
+            aspectRatioDelta !== null
+            && aspectRatioDelta <= verification.aspect_ratio_tolerance
+          ),
+        rotation: verification.require_rotation_match !== true
+          || sourceProbe.rotation_degrees === proxyProbe.rotation_degrees,
+        audio_stream_count:
+          verification.require_audio_stream_count_match !== true
+          || sourceProbe.audio_stream_count === proxyProbe.audio_stream_count,
+      };
+      for (const [name, passed] of Object.entries(checks)) {
+        if (!passed) {
+          fail(errors, `${location}.verification.${name}`, "真实媒体比较未通过");
+        }
+      }
+      proxyEvidence.push({
+        proxy_id: proxy.id,
+        source_id: original.id,
+        source: sourceProbe,
+        proxy: proxyProbe,
+        differences: {
+          duration_seconds: durationDelta,
+          frame_rate: frameRateDelta,
+          aspect_ratio: aspectRatioDelta,
+        },
+        checks,
+        passed: Object.values(checks).every(Boolean),
+      });
+    } catch (error) {
+      fail(errors, `${location}.verification`, error.message);
+    }
   }
   return {
     ok: errors.length === 0,
     manifest: absolutePath,
     source_count: sources.length,
     sources,
+    proxies: proxyEvidence,
     errors,
   };
 }
@@ -526,17 +980,26 @@ function main() {
     return args.length === 0 ? 1 : 0;
   }
   const jsonOutput = args.includes("--json");
-  const manifestArg = args.find((arg) => !arg.startsWith("-"));
+  const ffprobeIndex = args.indexOf("--ffprobe");
+  const ffprobe = ffprobeIndex >= 0 ? args[ffprobeIndex + 1] : null;
+  if (ffprobeIndex >= 0 && !ffprobe) {
+    throw new Error("--ffprobe 缺少路径");
+  }
+  const manifestArg = args.find(
+    (arg, index) => !arg.startsWith("-")
+      && (ffprobeIndex < 0 || index !== ffprobeIndex + 1)
+  );
   if (!manifestArg) {
     usage();
     return 1;
   }
-  const result = validateMediaSources(manifestArg);
+  const result = validateMediaSources(manifestArg, { ffprobe });
   if (jsonOutput) {
     console.log(JSON.stringify(result, null, 2));
   } else if (result.ok) {
     console.log(
-      `素材账本通过：${result.manifest}（${result.source_count} 项，文件与哈希一致）`
+      `素材账本通过：${result.manifest}（${result.source_count} 项，`
+        + `${result.proxies.length} 个代理已与原始素材真实核对）`
     );
   } else {
     result.errors.forEach((message) => console.error(`FAIL ${message}`));
@@ -545,6 +1008,9 @@ function main() {
   return result.ok ? 0 : 1;
 }
 
-if (path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1])) {
+if (
+  process.argv[1]
+  && path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1])
+) {
   process.exitCode = main();
 }

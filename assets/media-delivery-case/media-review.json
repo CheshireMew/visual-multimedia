@@ -1,0 +1,136 @@
+{
+  "protocol": "visual-multimedia-media-review",
+  "version": 3,
+  "project_state": "media-project-state.json",
+  "review_basis": {
+    "created_at": "2026-07-27T00:00:00.000Z",
+    "basis_sha256": "0cb40c6322ae2437c3822af99312e81baa3cf6fc423d7798bd9f7b7f12e73ecf",
+    "artifacts": [
+      {
+        "id": "delivery-contract",
+        "role": "delivery-contract",
+        "file": "media-delivery.json",
+        "sha256": "4cdbbfa13936df15cda71d369fb851e9040e0a287cad7e511e6315cd3e85f5fe"
+      },
+      {
+        "id": "machine-report",
+        "role": "machine-report",
+        "file": "reports/media-machine-review.json",
+        "sha256": "3bc1da9193d1de8aa6313847a9f6f23391cd5b094263d20df68b79d62f607374"
+      },
+      {
+        "id": "project-state",
+        "role": "other",
+        "file": "media-project-state.json",
+        "sha256": "35cc7c07b76966deb8fbf8677010c4d556263e8e3b9f2a1889bab5fd6d9dfdb7"
+      }
+    ]
+  },
+  "reviewed_media": {
+    "file": "renders/final.mp4",
+    "sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873",
+    "duration_seconds": 4.75,
+    "frame_rate": 24
+  },
+  "status": "passed",
+  "machine_review": {
+    "status": "passed",
+    "report": "reports/media-machine-review.json",
+    "report_sha256": "3bc1da9193d1de8aa6313847a9f6f23391cd5b094263d20df68b79d62f607374",
+    "completed_at": "2026-07-27T00:00:00.000Z",
+    "notes": "固定能力案例的编码、音轨、帧率、时长、联系表和交付技术检查通过；不代替视觉审阅。"
+  },
+  "agent_review": {
+    "status": "passed",
+    "completed": true,
+    "reviewed_at": "2026-07-27T00:00:00.000Z",
+    "method": "从头到尾播放固定能力案例，检查画面、声音、头尾和同步。",
+    "notes": "固定能力案例已经从头到尾检查画面、声音、头尾和同步；本结论不迁移到其它项目。"
+  },
+  "user_confirmation": {
+    "required": false,
+    "status": "not-requested",
+    "confirmed_at": null,
+    "evidence": ""
+  },
+  "promise_checks": [
+    {
+      "id": "output-width",
+      "basis_artifact_id": "delivery-contract",
+      "source_pointer": "/expected/width",
+      "promise": "成片宽度为 720 像素。",
+      "expected_value": 720,
+      "status": "passed",
+      "actual": "720 px",
+      "evidence": "交付报告中的 FFprobe 视频流宽度。",
+      "finding_id": null
+    },
+    {
+      "id": "output-height",
+      "basis_artifact_id": "delivery-contract",
+      "source_pointer": "/expected/height",
+      "promise": "成片高度为 720 像素。",
+      "expected_value": 720,
+      "status": "passed",
+      "actual": "720 px",
+      "evidence": "交付报告中的 FFprobe 视频流高度。",
+      "finding_id": null
+    },
+    {
+      "id": "frame-rate",
+      "basis_artifact_id": "delivery-contract",
+      "source_pointer": "/expected/frame_rate",
+      "promise": "成片帧率为 24 fps。",
+      "expected_value": 24,
+      "status": "passed",
+      "actual": "24 fps",
+      "evidence": "交付报告中的 FFprobe 视频流帧率。",
+      "finding_id": null
+    },
+    {
+      "id": "duration",
+      "basis_artifact_id": "delivery-contract",
+      "source_pointer": "/expected/duration_seconds",
+      "promise": "成片时长为 4.75 秒。",
+      "expected_value": 4.75,
+      "status": "passed",
+      "actual": "4.75 s",
+      "evidence": "交付报告中的真实容器时长。",
+      "finding_id": null
+    },
+    {
+      "id": "audio-required",
+      "basis_artifact_id": "delivery-contract",
+      "source_pointer": "/expected/audio_required",
+      "promise": "最终视频必须包含音频流。",
+      "expected_value": true,
+      "status": "passed",
+      "actual": "存在音频流",
+      "evidence": "机器报告 audio_stream 检查通过。",
+      "finding_id": null
+    },
+    {
+      "id": "rights-review",
+      "basis_artifact_id": "delivery-contract",
+      "source_pointer": "/evidence/rights_review/status",
+      "promise": "正式采用素材的权利检查必须通过。",
+      "expected_value": "passed",
+      "status": "passed",
+      "actual": "passed",
+      "evidence": "交付合同记录案例只采用项目自有头像和本地测试语音。",
+      "finding_id": null
+    },
+    {
+      "id": "output-profile-decision",
+      "basis_artifact_id": "project-state",
+      "source_pointer": "/production_decisions/0/decision",
+      "promise": "成片必须兑现当前活动的方形视频交付决策。",
+      "expected_value": "交付带声音的 720x720、24 fps 方形成片。",
+      "status": "passed",
+      "actual": "带声音的 720x720、24 fps 方形成片",
+      "evidence": "真实成片与 FFprobe 结果共同核对。",
+      "finding_id": null
+    }
+  ],
+  "findings": []
+}

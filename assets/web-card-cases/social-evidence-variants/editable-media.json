@@ -1,6 +1,6 @@
 {
   "protocol": "editable-media",
-  "version": 2,
+  "version": 5,
   "entry": "index.html",
   "media_sources": "media-sources.json",
   "playback": {
@@ -116,12 +116,13 @@
     {"id": "ink", "name": "Ink", "kind": "color", "css_variable": "--ink", "default": "#171915"},
     {"id": "muted", "name": "Muted", "kind": "color", "css_variable": "--muted", "default": "#5f625b"},
     {"id": "line", "name": "Line", "kind": "color", "css_variable": "--line", "default": "#c9c1b4"},
-    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#d94b32"},
+    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#b43d29"},
     {"id": "evidence", "name": "Evidence blue", "kind": "color", "css_variable": "--evidence", "default": "#234d69"},
     {"id": "font_serif", "name": "Serif", "kind": "font", "css_variable": "--font-serif", "default": "Noto Serif SC, Source Han Serif SC, SimSun, serif"},
     {"id": "font_sans", "name": "Sans", "kind": "font", "css_variable": "--font-sans", "default": "Noto Sans SC, Microsoft YaHei UI, PingFang SC, sans-serif"},
     {"id": "font_mono", "name": "Mono", "kind": "font", "css_variable": "--font-mono", "default": "Cascadia Mono, Consolas, monospace"}
   ],
+  "parameters": [],
   "scenes": [
     {
       "id": "evidence",
@@ -132,8 +133,16 @@
       "duration_ms": 1000,
       "primary_blocks": 3,
       "steps": [
-        {"id": "page", "at_ms": 0, "label": "Page"}
+        {"id": "page", "at_ms": 0, "label": "Page", "state_kind": "start", "review": false, "description": "静态证据卡在唯一状态完整呈现主张、证据和结论。"}
       ],
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "保持静态证据版式，不为装饰引入镜头或物体运动。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
       "data": {},
       "asset_slots": {
         "creator-avatar": {"data_field": "creator_avatar"}
@@ -305,7 +314,7 @@
     "remote_dependencies": "forbid"
   },
   "resources": [
-    "../../web-media-starter/editable-media-runtime.js",
+    "editable-media-runtime.js",
     "style-profile.json"
   ]
 }

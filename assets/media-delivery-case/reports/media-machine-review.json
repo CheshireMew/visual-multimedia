@@ -1,0 +1,15 @@
+{
+  "protocol": "visual-multimedia-machine-review-evidence",
+  "version": 1,
+  "media": "renders/final.mp4",
+  "media_sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873",
+  "checks": {
+    "decode": "passed",
+    "duration": "passed",
+    "frame_rate": "passed",
+    "audio_stream": "passed",
+    "contact_sheet": "passed"
+  },
+  "completed_at": "2026-07-27T00:00:00.000Z",
+  "notes": "固定能力案例的机器证据；不代表 Agent 或用户视觉确认。"
+}

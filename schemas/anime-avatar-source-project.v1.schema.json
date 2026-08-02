@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-source-project.v1",
+  "title": "Visual Multimedia Anime Avatar Source Project v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "source"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-anime-avatar-source-project"
+    },
+    "version": {
+      "const": 1
+    },
+    "source": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "package_file"
+          ],
+          "properties": {
+            "kind": {
+              "const": "project"
+            },
+            "package_file": {
+              "const": "avatar-source/anime-avatar-source-set.json"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id",
+            "source_version"
+          ],
+          "properties": {
+            "kind": {
+              "const": "registered"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]*$"
+            },
+            "source_version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

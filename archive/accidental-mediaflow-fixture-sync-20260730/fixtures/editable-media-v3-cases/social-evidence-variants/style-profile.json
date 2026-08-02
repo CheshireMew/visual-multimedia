@@ -1,0 +1,35 @@
+{
+  "profile_id": "editorial-evidence-card",
+  "source": "built-in",
+  "visual_rules": {
+    "composition": "A flat editorial sheet that separates claim, evidence and takeaway with rules, scale and one evidence-blue field",
+    "hierarchy": "Serif display title, concise sans-serif deck, evidence stage, red takeaway rule and quiet creator line",
+    "accent": "Vermilion marks decisions; deep blue belongs only to the evidence surface",
+    "texture": "Subtle CSS paper grain with no nested rounded cards, glass panels or large floating shadows",
+    "output_variants": "Portrait, landscape and square share content fields but use separate grid relationships and a dedicated square short title"
+  },
+  "image_treatment": {
+    "external_images": false,
+    "creator_avatar": "Local project-owned image, circular crop at 50% 50%",
+    "evidence_surface": "Original HTML/CSS diagram; no external visual asset",
+    "text_on_image": "Not used in this case"
+  },
+  "motion_rules": {
+    "type": "static",
+    "duration_ms": 1000,
+    "loop": "none"
+  },
+  "typography_rules": {
+    "display": "Noto Serif SC / Source Han Serif SC / SimSun",
+    "body": "Noto Sans SC / Microsoft YaHei UI / PingFang SC",
+    "metadata": "Cascadia Mono / Consolas",
+    "display_weight": "600",
+    "body_weight": "500",
+    "thumbnail": "The active title remains the first readable text at 360px output width"
+  },
+  "overrides": {
+    "responsive_layout": false,
+    "default_variant": "portrait-3x4",
+    "capture": "Each requested output variant is selected from editable-media.json and captured from the same HTML"
+  }
+}

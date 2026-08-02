@@ -1,0 +1,25 @@
+{
+  "protocol": "visual-multimedia-media-project-state",
+  "version": 2,
+  "project_id": "replace-with-project-id",
+  "status": "in-progress",
+  "current_checkpoint": "brief",
+  "contracts": {
+    "media_sources": "media-sources.json",
+    "resource_adoptions": null,
+    "transcript": null,
+    "clip_selections": null,
+    "timeline": null,
+    "style_profile": null,
+    "sound_profile": null,
+    "promotion_candidates": null,
+    "review": null,
+    "delivery": null
+  },
+  "creative_approvals": [],
+  "production_decisions": [],
+  "artifacts": [],
+  "blockers": [],
+  "next_action": "确认内容真源、现有素材和当前交付层。",
+  "updated_at": "2026-07-29T00:00:00.000Z"
+}

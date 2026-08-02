@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-review.v2",
+  "title": "Visual Multimedia Media Review v2 (archived)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "project_state",
+    "reviewed_media",
+    "status",
+    "machine_review",
+    "agent_review",
+    "user_confirmation",
+    "findings"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-media-review"},
+    "version": {"const": 2},
+    "project_state": {"type": ["string", "null"], "minLength": 1},
+    "reviewed_media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "duration_seconds", "frame_rate"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "frame_rate": {"type": ["number", "null"], "exclusiveMinimum": 0}
+      }
+    },
+    "status": {"enum": ["pending", "changes-requested", "passed", "failed"]},
+    "machine_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "report", "report_sha256", "completed_at", "notes"],
+      "properties": {
+        "status": {"enum": ["pending", "passed", "failed"]},
+        "report": {"type": "string", "minLength": 1},
+        "report_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "completed_at": {"type": ["string", "null"], "format": "date-time"},
+        "notes": {"type": "string"}
+      }
+    },
+    "agent_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "completed", "reviewed_at", "method", "notes"],
+      "properties": {
+        "status": {"enum": ["pending", "passed", "changes-requested", "failed"]},
+        "completed": {"type": "boolean"},
+        "reviewed_at": {"type": ["string", "null"], "format": "date-time"},
+        "method": {"type": "string"},
+        "notes": {"type": "string"}
+      }
+    },
+    "user_confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "status", "confirmed_at", "evidence"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "status": {"enum": ["not-requested", "pending", "approved", "rejected"]},
+        "confirmed_at": {"type": ["string", "null"], "format": "date-time"},
+        "evidence": {"type": "string"}
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/finding"}
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "category", "status", "description", "evidence"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "severity": {"enum": ["info", "warning", "error"]},
+        "category": {
+          "enum": [
+            "machine",
+            "visual",
+            "audio",
+            "captions",
+            "source",
+            "rights",
+            "delivery"
+          ]
+        },
+        "status": {"enum": ["open", "resolved", "accepted"]},
+        "description": {"type": "string", "minLength": 1},
+        "evidence": {"type": "string"}
+      }
+    }
+  }
+}

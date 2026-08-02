@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>确定性文字动效库</title>
+  <style>
+    :root {
+      --background: #0d1117;
+      --surface: #151b24;
+      --text: #f4f7fb;
+      --muted: #9aa7b8;
+      --line: #2a3545;
+      --accent: #89a8ff;
+      --font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      --canvas-width: 1440;
+      --canvas-height: 900;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: #080b10;
+      font-family: var(--font-family);
+    }
+
+    button, input, select { font: inherit; }
+    button, select, input {
+      color: var(--text);
+      background: #111720;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    button { cursor: pointer; }
+    button:hover, button[aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--accent) 75%, var(--line));
+      background: color-mix(in srgb, var(--accent) 12%, #111720);
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      min-height: 100vh;
+      padding: 18px;
+      gap: 14px;
+    }
+    .viewport {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .canvas-shell {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      transform-origin: top left;
+    }
+    .media-canvas {
+      position: absolute;
+      inset: 0;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 78% 14%, rgb(82 111 184 / 18%), transparent 35%),
+        linear-gradient(155deg, #101722 0%, var(--background) 58%, #0a0f16 100%);
+      border-radius: 28px;
+      box-shadow:
+        inset 0 0 0 1px #202b3a,
+        0 34px 90px rgb(0 0 0 / 45%);
+      transform-origin: top left;
+    }
+
+    .sidebar {
+      position: absolute;
+      left: 40px;
+      top: 38px;
+      width: 280px;
+      height: 824px;
+      display: grid;
+      grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgb(17 23 32 / 88%);
+      backdrop-filter: blur(18px);
+    }
+    .brand {
+      display: grid;
+      gap: 5px;
+    }
+    .brand strong { font-size: 17px; letter-spacing: .02em; }
+    .brand span, .count, .hint { color: var(--muted); font-size: 12px; }
+    .search { width: 100%; height: 38px; padding: 0 12px; }
+    .unit-filters { display: flex; flex-wrap: wrap; gap: 7px; }
+    .unit-filters button { height: 30px; padding: 0 9px; font-size: 12px; }
+    .effect-list {
+      display: grid;
+      align-content: start;
+      gap: 7px;
+      min-height: 0;
+      padding-right: 4px;
+      overflow: auto;
+      scrollbar-color: #41506a transparent;
+    }
+    .effect-button {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 9px 10px;
+      text-align: left;
+    }
+    .effect-button strong { font-size: 13px; font-weight: 650; }
+    .effect-button span { color: var(--muted); font-size: 11px; }
+    .source-note {
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    h1[data-editable-id="title"] {
+      position: absolute;
+      left: 360px;
+      top: 42px;
+      width: 1032px;
+      height: 54px;
+      margin: 0;
+      font-size: 40px;
+      line-height: 54px;
+      letter-spacing: -.03em;
+    }
+    .preview-copy {
+      position: absolute;
+      left: 360px;
+      top: 118px;
+      width: 600px;
+      height: 28px;
+      margin: 0;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 28px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .preview-copy::before {
+      content: "当前文字 · ";
+      color: #647287;
+    }
+
+    .quick-controls {
+      position: absolute;
+      right: 48px;
+      top: 108px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quick-controls label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .quick-controls select { height: 34px; padding: 0 28px 0 10px; }
+    .quick-controls input[type="checkbox"] { accent-color: var(--accent); }
+
+    .motion-stage {
+      position: absolute;
+      left: 360px;
+      top: 170px;
+      width: 1032px;
+      height: 450px;
+      display: grid;
+      place-items: center;
+      padding: 72px;
+      overflow: hidden;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgb(255 255 255 / 3%), transparent),
+        #111720;
+      box-shadow: inset 0 1px rgb(255 255 255 / 4%);
+    }
+    #motionHost {
+      width: 100%;
+      min-width: 0;
+      color: #e9efff;
+      font-size: clamp(48px, 5.6vw, 86px);
+      font-weight: 760;
+      line-height: 1.16;
+      letter-spacing: -.035em;
+      text-wrap: balance;
+      transform-origin: center;
+    }
+    .stage-grid {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .25;
+      background-image:
+        linear-gradient(to right, transparent calc(50% - .5px), #4d6080 50%, transparent calc(50% + .5px)),
+        linear-gradient(to bottom, transparent calc(50% - .5px), #4d6080 50%, transparent calc(50% + .5px));
+    }
+
+    .editor-row {
+      position: absolute;
+      left: 360px;
+      top: 644px;
+      width: 1032px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .field input { width: 100%; height: 40px; padding: 0 12px; }
+
+    .effect-meta {
+      position: absolute;
+      left: 360px;
+      top: 724px;
+      width: 1032px;
+      min-height: 118px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgb(21 27 36 / 80%);
+    }
+    .meta-main { display: grid; align-content: start; gap: 7px; }
+    .meta-title { display: flex; align-items: baseline; gap: 10px; }
+    .meta-title strong { font-size: 17px; }
+    .meta-title code { color: var(--accent); font-size: 11px; }
+    .meta-purpose { margin: 0; color: #c6d0df; font-size: 13px; line-height: 1.55; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tags span {
+      padding: 3px 7px;
+      color: var(--muted);
+      font-size: 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+    .meta-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-content: start;
+    }
+    .stat {
+      padding: 8px 9px;
+      border-radius: 10px;
+      background: #101620;
+    }
+    .stat span { display: block; color: var(--muted); font-size: 10px; }
+    .stat strong { display: block; margin-top: 3px; font-size: 12px; }
+
+    .transport {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 9px;
+      min-height: 44px;
+    }
+    .transport button { height: 36px; padding: 0 13px; }
+    .transport input[type="range"] { width: min(520px, 42vw); }
+    .transport output {
+      min-width: 82px;
+      color: var(--muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    body.capture .app { display: block; min-height: 0; padding: 0; }
+    body.capture .viewport { display: block; overflow: visible; }
+    body.capture .canvas-shell { width: 1440px !important; height: 900px !important; }
+    body.capture .media-canvas { transform: none !important; }
+    body.capture .transport { display: none; }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="6"
+    data-width="1440"
+    data-height="900"
+    data-fps="30"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="确定性文字动效库">
+          <aside class="sidebar" aria-label="文字动效目录">
+            <div class="brand">
+              <strong>TEXT MOTION / V1</strong>
+              <span>行为去重后的正式效果</span>
+            </div>
+            <input class="search" id="search" type="search" placeholder="搜索名称、用途或标签">
+            <div class="unit-filters" id="unitFilters" aria-label="分段筛选"></div>
+            <div class="effect-list" id="effectList"></div>
+            <div>
+              <div class="count" id="count"></div>
+              <p class="source-note">目录、搜索、参数和画面均来自同一效果记录；播放只读取 editable-media 的确定性时间。</p>
+            </div>
+          </aside>
+
+          <h1 data-editable-data="title" data-editable-id="title"></h1>
+          <p
+            class="preview-copy"
+            data-editable-data="preview_text"
+            data-editable-id="preview-copy"
+          ></p>
+
+          <div class="quick-controls">
+            <label>操作
+              <select id="operation"></select>
+            </label>
+            <label>
+              <input id="reducedMotion" type="checkbox">
+              降低运动
+            </label>
+          </div>
+
+          <div
+            class="motion-stage"
+            data-editable-id="motion-stage"
+            aria-label="文字动效预览"
+          >
+            <div class="stage-grid" aria-hidden="true"></div>
+            <div id="motionHost"></div>
+          </div>
+
+          <div class="editor-row">
+            <label class="field">新文字
+              <input id="previewInput" type="text" maxlength="120">
+            </label>
+            <label class="field">替换前文字
+              <input id="previousInput" type="text" maxlength="120">
+            </label>
+          </div>
+
+          <section class="effect-meta" aria-live="polite">
+            <div class="meta-main">
+              <div class="meta-title">
+                <strong id="effectName"></strong>
+                <code id="effectId"></code>
+              </div>
+              <p class="meta-purpose" id="effectPurpose"></p>
+              <div class="tags" id="effectTags"></div>
+            </div>
+            <div class="meta-stats">
+              <div class="stat"><span>分段</span><strong id="effectUnit"></strong></div>
+              <div class="stat"><span>能量</span><strong id="effectEnergy"></strong></div>
+              <div class="stat"><span>当前操作</span><strong id="effectOperation"></strong></div>
+              <div class="stat"><span>单次时长</span><strong id="effectDuration"></strong></div>
+            </div>
+          </section>
+        </section>
+      </div>
+    </div>
+
+    <div class="transport" aria-label="预览播放控制">
+      <button id="previous" type="button">上一步</button>
+      <button id="play" type="button">播放</button>
+      <button id="pause" type="button">暂停</button>
+      <button id="next" type="button">下一步</button>
+      <button id="overview" type="button">总览</button>
+      <input id="scrubber" type="range" min="0" max="6000" step="16" value="0">
+      <output id="time">0.00 s</output>
+    </div>
+  </main>
+
+  <script src="editable-media-runtime.js"></script>
+  <script src="text-motion-runtime.js"></script>
+  <script>
+    (() => {
+      "use strict";
+      const query = new URLSearchParams(location.search);
+      const captureMode = query.get("capture") === "1";
+      if (captureMode) document.body.classList.add("capture");
+
+      const viewport = document.querySelector("#viewport");
+      const canvasShell = document.querySelector("#canvasShell");
+      const mediaCanvas = document.querySelector("#mediaCanvas");
+      const motionHost = document.querySelector("#motionHost");
+      const searchInput = document.querySelector("#search");
+      const effectList = document.querySelector("#effectList");
+      const countOutput = document.querySelector("#count");
+      const unitFilters = document.querySelector("#unitFilters");
+      const operationSelect = document.querySelector("#operation");
+      const reducedMotionInput = document.querySelector("#reducedMotion");
+      const previewInput = document.querySelector("#previewInput");
+      const previousInput = document.querySelector("#previousInput");
+      const scrubber = document.querySelector("#scrubber");
+      const timeOutput = document.querySelector("#time");
+      const unitLabels = {
+        all: "全部",
+        whole: "整段",
+        grapheme: "逐字素",
+        word: "逐词",
+        line: "逐行",
+      };
+      const operationLabels = {
+        enter: "进入",
+        exit: "退出",
+        replace: "替换",
+        emphasis: "强调",
+      };
+      const energyLabels = {
+        calm: "克制",
+        moderate: "适中",
+        expressive: "鲜明",
+      };
+
+      let effects = [];
+      let effectById = new Map();
+      let currentEffect = null;
+      let currentOperation = "enter";
+      let selectedUnit = "all";
+      let player = null;
+      let output = { width: 1440, height: 900 };
+      let latestPlayback = null;
+
+      function currentData() {
+        const state = editableMedia.getState();
+        return state.scenes[state.scene_id].data;
+      }
+
+      function updateData(field, value) {
+        const state = editableMedia.getState();
+        const sceneId = state.scene_id;
+        editableMedia.setState({
+          ...state,
+          scenes: {
+            ...state.scenes,
+            [sceneId]: {
+              ...state.scenes[sceneId],
+              data: {
+                ...state.scenes[sceneId].data,
+                [field]: value,
+              },
+            },
+          },
+          revision: Number(state.revision || 0) + 1,
+        });
+      }
+
+      function renderMeta() {
+        if (!currentEffect || !player) return;
+        document.querySelector("#effectName").textContent = currentEffect.name;
+        document.querySelector("#effectId").textContent = currentEffect.id;
+        document.querySelector("#effectPurpose").textContent = currentEffect.intent.purpose;
+        document.querySelector("#effectUnit").textContent =
+          unitLabels[currentEffect.segmentation.unit];
+        document.querySelector("#effectEnergy").textContent =
+          energyLabels[currentEffect.intent.energy];
+        document.querySelector("#effectOperation").textContent =
+          operationLabels[currentOperation];
+        document.querySelector("#effectDuration").textContent =
+          `${Math.round(player.getDuration(currentOperation))} ms`;
+        document.querySelector("#effectTags").replaceChildren(
+          ...currentEffect.intent.semantic_tags.map((tag) => {
+            const item = document.createElement("span");
+            item.textContent = tag;
+            return item;
+          })
+        );
+      }
+
+      function renderCurrent(playback = latestPlayback || editableMedia.getPlayback()) {
+        latestPlayback = playback;
+        if (player) {
+          player.renderAt(playback.localTimeMs, currentOperation, {
+            previewLoop: true,
+            reducedMotion: reducedMotionInput.checked,
+          });
+        }
+        scrubber.value = String(Math.round(playback.globalTimeMs));
+        timeOutput.value = `${(playback.globalTimeMs / 1000).toFixed(2)} s`;
+        renderMeta();
+      }
+
+      function rebuildPlayer() {
+        if (!currentEffect) return;
+        if (player) player.destroy();
+        const data = currentData();
+        player = TextMotion.createPlayer(motionHost, currentEffect, {
+          text: data.preview_text,
+          previousText: data.previous_text,
+          locale: "zh-CN",
+          reducedMotion: reducedMotionInput.checked,
+        });
+        renderCurrent();
+      }
+
+      function selectEffect(id) {
+        const next = effectById.get(id);
+        if (!next) throw new Error(`找不到文字动效 ${id}`);
+        currentEffect = next;
+        currentOperation = next.intent.default_operation;
+        operationSelect.replaceChildren(
+          ...next.intent.operations.map((operation) => {
+            const option = document.createElement("option");
+            option.value = operation;
+            option.textContent = operationLabels[operation];
+            return option;
+          })
+        );
+        operationSelect.value = currentOperation;
+        rebuildPlayer();
+        renderEffectList();
+        return next.id;
+      }
+
+      function setOperation(operation) {
+        if (!currentEffect.intent.operations.includes(operation)) {
+          throw new Error(`${currentEffect.id} 不支持 ${operation}`);
+        }
+        currentOperation = operation;
+        operationSelect.value = operation;
+        renderCurrent();
+        return operation;
+      }
+
+      function filteredEffects() {
+        const queryValue = searchInput.value.normalize("NFKC").toLocaleLowerCase("zh-CN");
+        const tokens = queryValue.split(/\s+/u).filter(Boolean);
+        return effects.filter((effect) => {
+          if (selectedUnit !== "all" && effect.segmentation.unit !== selectedUnit) return false;
+          const haystack = [
+            effect.id,
+            effect.name,
+            ...effect.aliases,
+            effect.intent.purpose,
+            effect.intent.energy,
+            energyLabels[effect.intent.energy],
+            unitLabels[effect.segmentation.unit],
+            ...effect.intent.operations,
+            ...effect.intent.operations.map((operation) => operationLabels[operation]),
+            ...effect.intent.semantic_tags,
+          ].join(" ").normalize("NFKC").toLocaleLowerCase("zh-CN");
+          return tokens.every((token) => haystack.includes(token));
+        });
+      }
+
+      function renderEffectList() {
+        const visible = filteredEffects();
+        effectList.replaceChildren(...visible.map((effect) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "effect-button";
+          button.dataset.effectId = effect.id;
+          button.setAttribute("aria-pressed", String(effect.id === currentEffect?.id));
+          const name = document.createElement("strong");
+          name.textContent = effect.name;
+          const detail = document.createElement("span");
+          detail.textContent =
+            `${unitLabels[effect.segmentation.unit]} · ${operationLabels[effect.intent.default_operation]}`;
+          button.append(name, detail);
+          button.addEventListener("click", () => selectEffect(effect.id));
+          return button;
+        }));
+        countOutput.textContent = `${visible.length} / ${effects.length} 个真实效果`;
+      }
+
+      function renderUnitFilters() {
+        unitFilters.replaceChildren(...Object.entries(unitLabels).map(([unit, label]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = label;
+          button.setAttribute("aria-pressed", String(unit === selectedUnit));
+          button.addEventListener("click", () => {
+            selectedUnit = unit;
+            renderUnitFilters();
+            renderEffectList();
+          });
+          return button;
+        }));
+      }
+
+      function fitCanvas() {
+        if (captureMode) return;
+        const scale = Math.min(
+          viewport.clientWidth / output.width,
+          viewport.clientHeight / output.height,
+          1
+        );
+        const fitted = Math.max(0.1, scale);
+        canvasShell.style.width = `${output.width * fitted}px`;
+        canvasShell.style.height = `${output.height * fitted}px`;
+        mediaCanvas.style.transform = `scale(${fitted})`;
+      }
+
+      searchInput.addEventListener("input", renderEffectList);
+      operationSelect.addEventListener("change", () => setOperation(operationSelect.value));
+      reducedMotionInput.addEventListener("change", () => {
+        player?.setReducedMotion(reducedMotionInput.checked);
+        renderCurrent();
+      });
+      previewInput.addEventListener("input", () => updateData("preview_text", previewInput.value));
+      previousInput.addEventListener("input", () => updateData("previous_text", previousInput.value));
+      scrubber.addEventListener("input", () => {
+        editableMedia.pause();
+        editableMedia.setTime(scrubber.value);
+      });
+      document.querySelector("#previous").addEventListener("click", () => editableMedia.previous());
+      document.querySelector("#play").addEventListener("click", () => editableMedia.play());
+      document.querySelector("#pause").addEventListener("click", () => editableMedia.pause());
+      document.querySelector("#next").addEventListener("click", () => editableMedia.next());
+      document.querySelector("#overview").addEventListener(
+        "click",
+        () => editableMedia.toggleOverview()
+      );
+      window.addEventListener("editablemediatime", (event) => renderCurrent(event.detail));
+      window.addEventListener("editablemediadata", (event) => {
+        const data = event.detail.data;
+        previewInput.value = String(data.preview_text ?? "");
+        previousInput.value = String(data.previous_text ?? "");
+        if (player) {
+          player.setText(previewInput.value, previousInput.value);
+          renderCurrent();
+        }
+      });
+
+      const ready = (async () => {
+        await editableMedia.ready;
+        const catalog = await fetch("catalog.json").then((response) => response.json());
+        effects = await Promise.all(catalog.effects.map((item) =>
+          fetch(item.path).then((response) => response.json())
+        ));
+        effectById = new Map(effects.map((effect) => [effect.id, effect]));
+        const manifest = editableMedia.getManifest();
+        const state = editableMedia.getState();
+        const variant = manifest.variants.find((item) => item.id === state.variant.id);
+        output = {
+          width: Number(variant.canvas.width),
+          height: Number(variant.canvas.height),
+        };
+        scrubber.max = String(editableMedia.getPlayback().totalDurationMs);
+        const data = currentData();
+        previewInput.value = String(data.preview_text ?? "");
+        previousInput.value = String(data.previous_text ?? "");
+        renderUnitFilters();
+        selectEffect(query.get("effect") || "per-character-rise");
+        new ResizeObserver(fitCanvas).observe(viewport);
+        window.addEventListener("resize", fitCanvas);
+        fitCanvas();
+        renderCurrent(editableMedia.getPlayback());
+        return true;
+      })();
+
+      window.textMotionGallery = Object.freeze({
+        ready,
+        getEffectIds: () => effects.map((effect) => effect.id),
+        getSelectedEffect: () => currentEffect?.id || null,
+        getOperations: () => [...(currentEffect?.intent.operations || [])],
+        getOperation: () => currentOperation,
+        getDuration: () => player?.getDuration(currentOperation) || 0,
+        selectEffect,
+        setOperation,
+        setText(value, previousValue = currentData().previous_text) {
+          updateData("previous_text", previousValue);
+          updateData("preview_text", value);
+        },
+        renderAt(milliseconds) {
+          editableMedia.setTime(milliseconds);
+          return player?.snapshot() || null;
+        },
+        snapshot: () => player?.snapshot() || null,
+        getUnitCounts: () => player?.getUnitCounts() || null,
+      });
+    })();
+  </script>
+</body>
+</html>

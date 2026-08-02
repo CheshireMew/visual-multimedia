@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "typewriter",
+  "name": "字素打字机",
+  "aliases": ["逐字显现", "typewriter"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "按完整字素逐个显示界面输入、命令或短句。",
+    "energy": "moderate",
+    "semantic_tags": ["grapheme", "typewriter", "interface", "sequential"]
+  },
+  "segmentation": {
+    "unit": "grapheme",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 46, "stagger_ms": 46, "easing": "step-end"},
+    "exit": {"duration_ms": 180, "stagger_ms": 10, "easing": "ease-in"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 85},
+    "hold_ms": 950
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "left",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0}},
+        {"offset": 1, "values": {"opacity": 1}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -4}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 44,
+    "recommended_max_lines": 3,
+    "layout_sensitive": false,
+    "motion_intensity": "low",
+    "reduced_motion": {"strategy": "none", "duration_ms": 0},
+    "notes": ["emoji 和组合附加符号必须作为一个字素出现。", "不自动添加光标；光标属于当前界面设计。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "empty", "at": 0, "meaning": "首个字素尚未出现。"},
+      {"operation": "enter", "id": "typing", "at": 0.5, "meaning": "完整字素按顺序出现，没有拆坏 emoji。"},
+      {"operation": "enter", "id": "complete", "at": 1, "meaning": "原始文字和空白完整恢复。"}
+    ]
+  }
+}

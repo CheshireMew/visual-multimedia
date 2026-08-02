@@ -1,0 +1,88 @@
+{
+  "protocol": "visual-multimedia-anime-avatar-source-review",
+  "version": 1,
+  "source_set": {
+    "id": "yexi",
+    "source_version": "1.0.0"
+  },
+  "inputs": {
+    "master_source_id": "avatar-master",
+    "master_sha256": "5f15e2eabe34274a337be8623deb599399e5336b1ff58946f4924c589bc08fdd",
+    "calibration_source_id": "avatar-calibration",
+    "calibration_sha256": "e51f1a62339c3baa6f6f391624dcfa3f8f18aed27949dd38e07a3c41db2518a7",
+    "source_crop_xywh": [
+      6,
+      0,
+      900,
+      900
+    ],
+    "mouth_review_crop_xywh": [
+      280,
+      420,
+      340,
+      300
+    ]
+  },
+  "calibration_probe": {
+    "path": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill-runtime-validation\\anime-avatar-capabilities-e2e\\assets\\by-sha256\\e5\\e51f1a62339c3baa6f6f391624dcfa3f8f18aed27949dd38e07a3c41db2518a7.mp4",
+    "duration_seconds": 15.041667,
+    "container_duration_seconds": 15.041667,
+    "bytes": 7646778,
+    "has_video": true,
+    "has_audio": true,
+    "audio_codec": "aac",
+    "audio_duration_seconds": 15.0,
+    "width": 912,
+    "height": 992,
+    "fps": 24.0,
+    "video_duration_seconds": 15.041667,
+    "declared_frame_count": 361,
+    "codec": "h264"
+  },
+  "contact_sheets": [
+    "reports/avatar-source-review/overview.jpg",
+    "reports/avatar-source-review/full-4fps-01.jpg",
+    "reports/avatar-source-review/full-4fps-02.jpg",
+    "reports/avatar-source-review/full-4fps-03.jpg",
+    "reports/avatar-source-review/mouth-8fps-01.jpg",
+    "reports/avatar-source-review/mouth-8fps-02.jpg",
+    "reports/avatar-source-review/mouth-8fps-03.jpg",
+    "reports/avatar-source-review/mouth-8fps-04.jpg",
+    "reports/avatar-source-review/mouth-8fps-05.jpg"
+  ],
+  "responsibility_boundary": {
+    "script_did": [
+      "decode the entire calibration video",
+      "apply one fixed source crop to every frame",
+      "sample indexed frames and produce contact sheets"
+    ],
+    "script_did_not": [
+      "classify CLOSED, A, I, U, E or O",
+      "infer mouth strength from pixels",
+      "approve reusable mouth motions",
+      "claim lip-sync or motion quality"
+    ],
+    "next_actor": "Agent or human must directly inspect the sheets and original video, record identity/framing/state observations, and decide whether the source material is accepted. Mouth-planner readiness remains separate."
+  },
+  "automatic_checks": {
+    "media_sources_v3_valid": true,
+    "master_hash_matches": true,
+    "calibration_hash_matches": true,
+    "entire_video_decoded": true,
+    "fixed_source_crop_used": true,
+    "fixed_mouth_review_crop_used": true
+  },
+  "human_or_agent_review": {
+    "status": "confirmed",
+    "checks": [
+      "角色身份、服装、发饰和正面头肩构图与母版一致",
+      "人物整体位置、尺度和底部固定位置在整段视频中稳定",
+      "头顶、猫耳、呆毛、肩部和衣服没有越出预定安全区",
+      "逐帧观察嘴型、眼睛、耳朵、头发、饰品和身体动作阶段",
+      "记录候选状态，但不把本次观察包装成通用口型库"
+    ],
+    "reviewer": "Codex visual review",
+    "reviewed_at": "2026-07-30T03:24:35.227917+00:00",
+    "notes": "确认角色身份、固定构图、完整解码和多种视觉状态候选；明确不确认音素分类、通用口型规划、任意重排自然度或说话视频质量。"
+  }
+}

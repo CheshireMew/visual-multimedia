@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-source-set.v1",
+  "title": "Visual Multimedia Anime Avatar Source Set v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "id",
+    "source_version",
+    "display_name",
+    "status",
+    "character",
+    "calibration",
+    "media_sources_file",
+    "source_review",
+    "parameter_provenance",
+    "provenance"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-anime-avatar-source-set"
+    },
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "source_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "candidate",
+        "registered"
+      ]
+    },
+    "character": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "origin",
+        "specification",
+        "master_source_id",
+        "master_status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin": {
+          "type": "string",
+          "minLength": 1
+        },
+        "specification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "master_source_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "master_status": {
+          "enum": [
+            "pending",
+            "confirmed"
+          ]
+        }
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "status",
+        "source_crop_xywh",
+        "mouth_review_crop_xywh"
+      ],
+      "properties": {
+        "source_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "accepted"
+          ]
+        },
+        "source_crop_xywh": {
+          "$ref": "#/$defs/crop"
+        },
+        "mouth_review_crop_xywh": {
+          "$ref": "#/$defs/crop"
+        }
+      }
+    },
+    "media_sources_file": {
+      "const": "media-sources.json"
+    },
+    "source_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "report_file",
+        "report_sha256",
+        "observations_file",
+        "observations_sha256",
+        "reviewed_at",
+        "reviewer",
+        "notes"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "confirmed"
+          ]
+        },
+        "report_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "report_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "observations_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "observations_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reviewed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "reviewer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "parameter_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_invariants",
+        "asset_calibration"
+      ],
+      "properties": {
+        "protocol_invariants": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "asset_calibration": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_at",
+        "registered_at",
+        "source_project_hint"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "registered_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "source_project_hint": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "crop": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            }
+          ],
+          "minItems": 4,
+          "maxItems": 4
+        }
+      ]
+    }
+  }
+}

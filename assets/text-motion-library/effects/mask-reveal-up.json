@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "mask-reveal-up",
+  "name": "逐行遮罩上揭",
+  "aliases": ["向上揭示", "line mask reveal"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "layout-slot", "overflow": "hidden", "requires_final_width": true, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "按实际排版行从下向上揭示多行标题或短段落。",
+    "energy": "moderate",
+    "semantic_tags": ["line", "mask", "reveal", "multiline"]
+  },
+  "segmentation": {
+    "unit": "line",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "visual-lines"
+  },
+  "timing": {
+    "enter": {"duration_ms": 760, "stagger_ms": 90, "easing": "ease-out"},
+    "exit": {"duration_ms": 520, "stagger_ms": 70, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 210, "micro_delay_ms": 35},
+    "hold_ms": 900
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "bottom",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 30, "blur_px": 6, "clip_top_pct": 100}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "blur_px": 0, "clip_top_pct": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "blur_px": 0, "clip_top_pct": 0}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -22, "blur_px": 6, "clip_top_pct": 100}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 72,
+    "recommended_max_lines": 4,
+    "layout_sensitive": true,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 180},
+    "notes": ["必须在字体加载和最终宽度确定后测量实际行。", "不能用源文本中的换行符冒充排版行。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "masked", "at": 0, "meaning": "所有实际行都在遮罩下方。"},
+      {"operation": "enter", "id": "line-progress", "at": 0.55, "meaning": "真实排版行依次揭示。"},
+      {"operation": "enter", "id": "revealed", "at": 1, "meaning": "完整文字回到正常裁切和位置。"}
+    ]
+  }
+}

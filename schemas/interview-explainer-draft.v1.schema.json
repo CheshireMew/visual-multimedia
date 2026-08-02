@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.interview-explainer-draft.v1",
+  "title": "Interview Explainer Draft v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "project_id",
+    "profile",
+    "contracts",
+    "output",
+    "style",
+    "sequence"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-interview-explainer-draft"},
+    "version": {"const": 1},
+    "project_id": {"$ref": "#/$defs/id"},
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {"const": "interview-explainer"},
+        "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"}
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "media_sources",
+        "transcript",
+        "clip_selections",
+        "narration_bundle"
+      ],
+      "properties": {
+        "media_sources": {"$ref": "#/$defs/localPath"},
+        "transcript": {"$ref": "#/$defs/localPath"},
+        "clip_selections": {"$ref": "#/$defs/localPath"},
+        "narration_bundle": {"$ref": "#/$defs/localPath"}
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "width",
+        "height",
+        "fps",
+        "audio_sample_rate",
+        "audio_channels",
+        "caption_mode",
+        "caption_file",
+        "loudness"
+      ],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "width": {"type": "integer", "minimum": 240},
+        "height": {"type": "integer", "minimum": 240},
+        "fps": {"type": "integer", "minimum": 12, "maximum": 120},
+        "audio_sample_rate": {"type": "integer", "minimum": 8000},
+        "audio_channels": {"type": "integer", "minimum": 1, "maximum": 8},
+        "caption_mode": {"enum": ["burned-in", "embedded-track", "sidecar"]},
+        "caption_file": {"$ref": "#/$defs/localPath"},
+        "loudness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["target_lufs", "true_peak_dbfs", "lra"],
+          "properties": {
+            "target_lufs": {"type": "number"},
+            "true_peak_dbfs": {"type": "number"},
+            "lra": {"type": "number", "minimum": 0}
+          }
+        }
+      }
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "background",
+        "surface",
+        "foreground",
+        "muted",
+        "accent",
+        "font_family",
+        "source_card"
+      ],
+      "properties": {
+        "background": {"type": "string", "minLength": 1},
+        "surface": {"type": "string", "minLength": 1},
+        "foreground": {"type": "string", "minLength": 1},
+        "muted": {"type": "string", "minLength": 1},
+        "accent": {"type": "string", "minLength": 1},
+        "font_family": {"type": "string", "minLength": 1},
+        "source_card": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "footage_height_ratio",
+            "show_original_text",
+            "show_source_timecode"
+          ],
+          "properties": {
+            "footage_height_ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0.2,
+              "maximum": 0.8
+            },
+            "show_original_text": {"type": "boolean"},
+            "show_source_timecode": {"const": true}
+          }
+        }
+      }
+    },
+    "sequence": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "oneOf": [
+          {"$ref": "#/$defs/sourceSegment"},
+          {"$ref": "#/$defs/narrationSegment"}
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "baseSegment": {
+      "type": "object",
+      "required": ["id", "kind", "role", "title"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "kind": {"type": "string"},
+        "role": {
+          "enum": ["context", "source-evidence", "explanation", "summary"]
+        },
+        "title": {"type": "string", "minLength": 1}
+      }
+    },
+    "sourceSegment": {
+      "allOf": [
+        {"$ref": "#/$defs/baseSegment"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "role",
+            "title",
+            "clip_id",
+            "source_label",
+            "translation",
+            "original_text",
+            "subtitle_cues"
+          ],
+          "properties": {
+            "id": {"$ref": "#/$defs/id"},
+            "kind": {"const": "source-clip"},
+            "role": {"const": "source-evidence"},
+            "title": {"type": "string", "minLength": 1},
+            "clip_id": {"$ref": "#/$defs/id"},
+            "source_label": {"type": "string", "minLength": 1},
+            "translation": {"type": "string", "minLength": 1},
+            "original_text": {"type": "string"},
+            "subtitle_cues": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["source_start_seconds", "source_end_seconds", "text"],
+                "properties": {
+                  "source_start_seconds": {"type": "number", "minimum": 0},
+                  "source_end_seconds": {"type": "number", "exclusiveMinimum": 0},
+                  "text": {"type": "string", "minLength": 1}
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "narrationSegment": {
+      "allOf": [
+        {"$ref": "#/$defs/baseSegment"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "role",
+            "title",
+            "narration_id",
+            "scene_package",
+            "scene_id"
+          ],
+          "properties": {
+            "id": {"$ref": "#/$defs/id"},
+            "kind": {"const": "narration"},
+            "role": {"enum": ["context", "explanation", "summary"]},
+            "title": {"type": "string", "minLength": 1},
+            "narration_id": {"$ref": "#/$defs/id"},
+            "scene_package": {"$ref": "#/$defs/localPath"},
+            "scene_id": {"$ref": "#/$defs/id"}
+          }
+        }
+      ]
+    }
+  }
+}

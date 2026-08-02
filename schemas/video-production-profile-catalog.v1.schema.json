@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.video-production-profile-catalog.v1",
+  "title": "Visual Multimedia Video Production Profile Catalog v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "profiles"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-video-production-profile-catalog"},
+    "version": {"const": 1},
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "version",
+          "status",
+          "package",
+          "package_sha256",
+          "public_entry"
+        ],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "name": {"type": "string", "minLength": 1},
+          "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+          "status": {"enum": ["active", "inactive"]},
+          "package": {"$ref": "#/$defs/localPath"},
+          "package_sha256": {"$ref": "#/$defs/sha256"},
+          "public_entry": {"$ref": "#/$defs/localPath"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  }
+}

@@ -8,33 +8,39 @@
   "user_visible_result": {
     "filename": "circle-window-212222-natural-v10.mp4",
     "sha256": "b232234c61887426f02bdbe5fd85e6516464262a3b5ca6f6e17be2f2640cae97",
-    "acceptance": "用户在真实观看后明确指定为最后认可的成片",
-    "duration_seconds": 18.833333,
-    "width": 1280,
-    "height": 720,
-    "fps": 48,
-    "frame_count": 904
+    "acceptance": "用户在真实观看后明确指定为最后认可的成片"
   },
   "accepted_role_track": {
     "sha256": "b3800285c8070d1436fe4af721935e0fdee3ca5ca8e54558c02248ba42783ea1",
-    "duration_seconds": 18.833333,
+    "duration_seconds": 18.833,
     "width": 900,
     "height": 900,
-    "fps": 48,
-    "frame_count": 904
+    "fps": 48
   },
   "accepted_inputs": {
-    "master_sha256": "5f15e2eabe34274a337be8623deb599399e5336b1ff58946f4924c589bc08fdd",
-    "motion_source_sha256": "e51f1a62339c3baa6f6f391624dcfa3f8f18aed27949dd38e07a3c41db2518a7",
+    "master_sha256": "5f15e2f254586436507487931651099fb5df97c0ce6c3064e235763ae27febce",
+    "motion_source_sha256": "e51f1aff655cc211b60d785fdbdcb28e44f02c6c88336457dc32dd0145ff44f8",
     "speech_audio_sha256": "c714751b040de0a8fe14a7cd4cdd151aad716e936a2232c4a725911379c605c0",
-    "speech_timeline_sha256": "a95eb20ae1de19b52f38706eecb06b95acae3d1a1061a051fa0982bd9d6e64cb",
-    "base_video_sha256": "af15df4e65e4e8142cc773a7b5cd1001a06e2c58383698738c6a4821f59b4e0a"
+    "speech_timeline_sha256": "a95eb20a158618fd28a21199d67c8df5bb018dbac67584c9e6b7abb32f4fa91c"
   },
   "accepted_producer_code": {
     "render_anime_avatar_sha256": "1de9b02a54328154db0b977d9f5cb4fbb4205f9157e27fff08917aeddf8d0cfa",
     "anime_avatar_motion_sha256": "35b81d72412f6cfa5f5a2683fd2549f7f82fd54adcb0fb13b7c8d8351f40c81b",
     "anime_avatar_blend_sha256": "1930ffc2941373b2d8eca44efb42db53fe281e398bebc962cd3e9f1dccf8a0ba",
     "anime_avatar_common_sha256": "59c22611941ee2b51e53cd702feadc83236e83675ffd6c3beceafefb7f76a09a"
+  },
+  "current_implementation_regression": {
+    "validated_at": "2026-07-30T19:13:00+08:00",
+    "render_anime_avatar_sha256": "bedceb8aa749beace80218aa1a98799ec684703e8e5dac9f6007cb1d800e534f",
+    "anime_avatar_motion_sha256": "aa2527f17d72192c973d411fd23258b7be800c62e26ddd1f826d39610f3a762b",
+    "rendered_role_track_sha256": "b3800285c8070d1436fe4af721935e0fdee3ca5ca8e54558c02248ba42783ea1",
+    "exactly_matches_accepted_role_track": true,
+    "planner_mode": "standard",
+    "anticipatory_preroll_frame_count": 0,
+    "confirmed_plan_consumed_without_replanning": true,
+    "input_hashes_revalidated_before_encoding": true,
+    "join_count": 26,
+    "all_join_hashes_reproduced": true
   },
   "accepted_mechanism": {
     "single_motion_source": true,
@@ -48,64 +54,5 @@
       "micro_transition": 4
     }
   },
-  "current_implementation_regression": {
-    "performed_at": "2026-07-30T13:14:17Z",
-    "result": "exact-byte-match",
-    "role_track": {
-      "accepted_sha256": "b3800285c8070d1436fe4af721935e0fdee3ca5ca8e54558c02248ba42783ea1",
-      "reproduced_sha256": "b3800285c8070d1436fe4af721935e0fdee3ca5ca8e54558c02248ba42783ea1"
-    },
-    "circle_composite": {
-      "accepted_sha256": "b232234c61887426f02bdbe5fd85e6516464262a3b5ca6f6e17be2f2640cae97",
-      "reproduced_sha256": "b232234c61887426f02bdbe5fd85e6516464262a3b5ca6f6e17be2f2640cae97"
-    },
-    "resource_bindings": {
-      "package_sha256": "f5edc14cbd5303c11df6b14f7d1a8d67c1e54e797bed864d29873842abfebc62",
-      "media_sources_sha256": "e388cd85ab3750ee98f157fe378c5df2a381b0bff85ac1b0dd4a789019a450d6",
-      "visual_viseme_library_sha256": "9fc8c87d43bf3b0bc2d2e824d5ff661ddf4062db667bfff42d1f1771ad375a4f",
-      "master_sha256": "5f15e2eabe34274a337be8623deb599399e5336b1ff58946f4924c589bc08fdd",
-      "motion_source_sha256": "e51f1a62339c3baa6f6f391624dcfa3f8f18aed27949dd38e07a3c41db2518a7"
-    },
-    "runtime_inputs": {
-      "speech_audio_sha256": "c714751b040de0a8fe14a7cd4cdd151aad716e936a2232c4a725911379c605c0",
-      "normalized_speech_timeline_sha256": "9e2fab7a7502b7a18461787220f24a98b9d311a4f14bea495ecf9c3b4a913a6e",
-      "approved_render_plan_sha256": "163f78f86a0af1aafc868bc82e8f1f13bb3964d74b9a0036cebe6b0cf013fccd",
-      "base_video_sha256": "af15df4e65e4e8142cc773a7b5cd1001a06e2c58383698738c6a4821f59b4e0a"
-    },
-    "producer_code": {
-      "render_anime_avatar_sha256": "bedceb8aa749beace80218aa1a98799ec684703e8e5dac9f6007cb1d800e534f",
-      "anime_avatar_motion_sha256": "aa2527f17d72192c973d411fd23258b7be800c62e26ddd1f826d39610f3a762b",
-      "anime_avatar_blend_sha256": "1930ffc2941373b2d8eca44efb42db53fe281e398bebc962cd3e9f1dccf8a0ba",
-      "anime_avatar_common_sha256": "bf257600604dc03f72a58aea43ae1fed928710299dab90ee549075a0668efda4",
-      "compose_anime_avatar_inset_sha256": "a9310c2270fe76c4b5ccd3fb604db82cd743f6d39f65775ee44a5feb16a0c549"
-    },
-    "composition": {
-      "shape": "circle",
-      "outer_xywh": [
-        900,
-        350,
-        300,
-        300
-      ],
-      "avatar_crop_xywh": [
-        0,
-        0,
-        900,
-        900
-      ],
-      "border_width": 4,
-      "shadow": {
-        "enabled": true,
-        "offset_x": 0,
-        "offset_y": 6,
-        "blur_radius": 12,
-        "color": "#000000",
-        "opacity": 0.18
-      },
-      "audio_source": "avatar",
-      "base_gain_db": -60,
-      "avatar_gain_db": 12
-    }
-  },
-  "evidence_boundary": "这些值只证明夜希 1.0.0 已认可生产链以及当前实现对该链的精确回归，不是其它角色、时长、台词或角色窗的全局默认值。"
+  "evidence_boundary": "这些值证明夜希 1.0.0 的已接受生产链，不是其它角色、时长或角色窗的全局默认值。"
 }

@@ -2234,6 +2234,30 @@ def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         diversity_enforcement_mode = selection.get(
             "planned_annotation_diversity_enforcement_mode"
         )
+        idle_block_count = selection.get(
+            "planned_annotation_idle_block_count"
+        )
+        unique_idle_clip_count = selection.get(
+            "planned_annotation_unique_idle_clip_count"
+        )
+        maximum_recent_same_idle_clip = selection.get(
+            "planned_annotation_maximum_same_idle_clip_occurrences_in_recent_5"
+        )
+        required_unique_idle_clips = selection.get(
+            "planned_annotation_required_unique_idle_clip_count"
+        )
+        required_maximum_recent_same_idle_clip = selection.get(
+            "planned_annotation_required_maximum_same_idle_clip_occurrences_in_recent_5"
+        )
+        idle_diversity_contract_satisfied = selection.get(
+            "planned_annotation_idle_diversity_contract_satisfied"
+        )
+        idle_diversity_contract = selection.get(
+            "planned_annotation_idle_diversity_contract"
+        )
+        motion_diversity_contract_satisfied = selection.get(
+            "planned_annotation_motion_diversity_contract_satisfied"
+        )
         diversity_is_hard = (
             diversity_enforcement_mode != "continuity-first-fallback"
         )
@@ -2299,6 +2323,72 @@ def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
                 diversity_failures["reported_contract"] = diversity_contract
             if diversity_failures and diversity_is_hard:
                 failed_quality["gesture_diversity"] = diversity_failures
+        if not all(
+            isinstance(value, int)
+            and not isinstance(value, bool)
+            and value >= 0
+            for value in (
+                idle_block_count,
+                unique_idle_clip_count,
+                maximum_recent_same_idle_clip,
+                required_unique_idle_clips,
+                required_maximum_recent_same_idle_clip,
+            )
+        ) or not isinstance(idle_diversity_contract, dict):
+            failed_quality["idle_diversity_accounting"] = {
+                "idle_block_count": idle_block_count,
+                "unique_idle_clip_count": unique_idle_clip_count,
+                "maximum_same_clip_in_recent_5": (
+                    maximum_recent_same_idle_clip
+                ),
+                "required_unique_idle_clip_count": (
+                    required_unique_idle_clips
+                ),
+                "required_maximum_same_clip_in_recent_5": (
+                    required_maximum_recent_same_idle_clip
+                ),
+                "contract": idle_diversity_contract,
+            }
+        else:
+            idle_diversity_failures = {}
+            if unique_idle_clip_count < required_unique_idle_clips:
+                idle_diversity_failures["unique_idle_clip_count"] = {
+                    "observed": unique_idle_clip_count,
+                    "required_minimum": required_unique_idle_clips,
+                }
+            if (
+                maximum_recent_same_idle_clip
+                > required_maximum_recent_same_idle_clip
+            ):
+                idle_diversity_failures[
+                    "maximum_same_idle_clip_occurrences_in_recent_5"
+                ] = {
+                    "observed": maximum_recent_same_idle_clip,
+                    "required_maximum": (
+                        required_maximum_recent_same_idle_clip
+                    ),
+                }
+            if idle_diversity_contract_satisfied is not True:
+                idle_diversity_failures["planner_contract_satisfied"] = {
+                    "observed": idle_diversity_contract_satisfied,
+                    "required": True,
+                }
+            if (
+                idle_diversity_contract.get("satisfied") is not True
+            ):
+                idle_diversity_failures["reported_contract"] = (
+                    idle_diversity_contract
+                )
+            if idle_diversity_failures and diversity_is_hard:
+                failed_quality["idle_diversity"] = idle_diversity_failures
+        if (
+            motion_diversity_contract_satisfied is not True
+            and diversity_is_hard
+        ):
+            failed_quality["motion_diversity"] = {
+                "observed": motion_diversity_contract_satisfied,
+                "required": True,
+            }
         selection["machine_plan_gate"] = {
             "minimum_thresholds": minimum_machine_gate,
             "maximum_thresholds": {
@@ -2334,6 +2424,27 @@ def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
                 "planner_contract_satisfied": diversity_contract_satisfied,
                 "contract": diversity_contract,
             },
+            "idle_diversity": {
+                "enforcement_mode": diversity_enforcement_mode,
+                "idle_block_count": idle_block_count,
+                "unique_idle_clip_count": unique_idle_clip_count,
+                "maximum_same_clip_in_recent_5": (
+                    maximum_recent_same_idle_clip
+                ),
+                "required_unique_idle_clip_count": (
+                    required_unique_idle_clips
+                ),
+                "required_maximum_same_clip_in_recent_5": (
+                    required_maximum_recent_same_idle_clip
+                ),
+                "planner_contract_satisfied": (
+                    idle_diversity_contract_satisfied
+                ),
+                "contract": idle_diversity_contract,
+            },
+            "motion_diversity_contract_satisfied": (
+                motion_diversity_contract_satisfied
+            ),
             "passed": not failed_quality,
             "failures": failed_quality,
         }

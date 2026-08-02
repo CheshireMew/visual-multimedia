@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-resource-library.v1",
+  "title": "Visual Multimedia Registered Media Resource Library v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "library_id",
+    "library_version",
+    "kind",
+    "name",
+    "description",
+    "items"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-media-resource-library"
+    },
+    "version": {
+      "const": 1
+    },
+    "library_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "library_version": {
+      "$ref": "#/$defs/semanticVersion"
+    },
+    "kind": {
+      "enum": [
+        "creator-media",
+        "production-assets",
+        "web-components"
+      ]
+    },
+    "name": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "description": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/fileItem"
+          },
+          {
+            "$ref": "#/$defs/componentItem"
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "provenance": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "project_id",
+        "source_id",
+        "promoted_at"
+      ],
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "promoted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "license",
+        "attribution",
+        "terms_url"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "confirmed",
+            "not-required"
+          ]
+        },
+        "license": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "attribution": {
+          "type": "string"
+        },
+        "terms_url": {
+          "type": "string"
+        }
+      }
+    },
+    "fileItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "name",
+        "media_type",
+        "role",
+        "tags",
+        "file",
+        "sha256",
+        "bytes",
+        "mime_type",
+        "acquisition",
+        "rights",
+        "provenance"
+      ],
+      "properties": {
+        "type": {
+          "const": "file"
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "media_type": {
+          "enum": [
+            "photo",
+            "screenshot",
+            "video",
+            "video-frame",
+            "audio",
+            "subtitle",
+            "icon",
+            "document",
+            "generated"
+          ]
+        },
+        "role": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "file": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mime_type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "acquisition": {
+          "$ref": "#/$defs/acquisition"
+        },
+        "rights": {
+          "$ref": "#/$defs/rights"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      }
+    },
+    "acquisition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "source_url",
+        "provider",
+        "captured_at"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "user-provided",
+            "project-owned",
+            "external-download",
+            "generated"
+          ]
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "componentItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "name",
+        "role",
+        "tags",
+        "package",
+        "manifest_sha256",
+        "package_sha256",
+        "provenance"
+      ],
+      "properties": {
+        "type": {
+          "const": "editable-media-package"
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "role": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "package": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "manifest_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "package_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      }
+    }
+  }
+}

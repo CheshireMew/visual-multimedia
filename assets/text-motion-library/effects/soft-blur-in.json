@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "soft-blur-in",
+  "name": "柔焦逐字淡入",
+  "aliases": ["柔和聚焦", "soft blur"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "replace",
+    "purpose": "在同一标题槽位中柔和替换短句，同时保留逐字节奏。",
+    "energy": "calm",
+    "semantic_tags": ["soft", "focus", "editorial", "replace"]
+  },
+  "segmentation": {
+    "unit": "grapheme",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 900, "stagger_ms": 25, "easing": "ease-out"},
+    "exit": {"duration_ms": 600, "stagger_ms": 15, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 300, "micro_delay_ms": 0},
+    "hold_ms": 900
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 16, "blur_px": 12}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "blur_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "blur_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -16, "blur_px": 12}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 28,
+    "recommended_max_lines": 2,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 180},
+    "notes": ["长标题应改用逐词效果并降低错峰。", "正文和高频字幕不使用大模糊。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "replace", "id": "old-visible", "at": 0, "meaning": "旧文字完整可读。"},
+      {"operation": "replace", "id": "overlap", "at": 0.55, "meaning": "新旧文字只在交叉窗口共同挂载。"},
+      {"operation": "replace", "id": "new-visible", "at": 1, "meaning": "新文字清晰稳定。"}
+    ]
+  }
+}
