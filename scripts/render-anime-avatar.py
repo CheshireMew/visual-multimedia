@@ -12,6 +12,7 @@ import math
 import shutil
 import subprocess
 import sys
+import time
 import uuid
 import wave
 from collections import OrderedDict
@@ -36,6 +37,7 @@ from anime_avatar_common import (
     probe_video,
     read_json,
     resolve_avatar_library,
+    resolve_media_cache_root,
     resolve_project_path,
     resolve_source,
     validate_library_payload,
@@ -43,6 +45,7 @@ from anime_avatar_common import (
     write_json,
 )
 from anime_avatar_motion import plan_gesture_motion
+from anime_avatar_segments import plan_unit_ranges
 
 
 @dataclass(frozen=True)
@@ -794,11 +797,10 @@ def validate_render_plan_payload(
         "inputs",
         "library_capabilities",
         "execution",
-        "target_timeline",
-        "source_schedule",
-        "selection",
-        "joins",
-        "deterministic_seam_plan",
+        "master",
+        "units",
+        "seams",
+        "summary",
         "approval",
     }
     if set(payload) != expected_fields:
@@ -807,8 +809,8 @@ def validate_render_plan_payload(
         errors.append(
             "protocol 必须是 visual-multimedia-anime-avatar-render-plan"
         )
-    if payload.get("version") != 2:
-        errors.append("version 必须是 2")
+    if payload.get("version") != 3:
+        errors.append("version 必须是 3；v2 计划已退出活动渲染路径")
     if payload.get("status") not in {"ready", "rejected"}:
         errors.append("status 必须是 ready 或 rejected")
     inputs = payload.get("inputs")
@@ -854,84 +856,106 @@ def validate_render_plan_payload(
         or not isinstance(library_capabilities.get("facts"), dict)
     ):
         errors.append("library_capabilities 必须绑定角色版本和能力事实")
-    source_schedule = payload.get("source_schedule")
-    if not isinstance(source_schedule, dict):
-        errors.append("source_schedule 必须是对象")
-        source_schedule = {}
-    positions = source_schedule.get("source_position_by_internal_frame")
-    boundaries = source_schedule.get("boundaries")
-    if (
-        not isinstance(positions, list)
-        or not positions
-        or any(
-            isinstance(value, bool) or not isinstance(value, (int, float))
-            for value in positions
+    def valid_artifact(record: Any) -> bool:
+        return (
+            isinstance(record, dict)
+            and set(record) == {"locator", "sha256"}
+            and isinstance(record.get("locator"), str)
+            and record["locator"].startswith(("project://", "skill://"))
+            and isinstance(record.get("sha256"), str)
+            and len(record["sha256"]) == 64
+        )
+
+    master = payload.get("master")
+    if not isinstance(master, dict) or not all(
+        key in master
+        for key in (
+            "cache_key",
+            "content_sha256",
+            "manifest_sha256",
+            "width",
+            "height",
+            "fps",
         )
     ):
-        errors.append(
-            "source_schedule.source_position_by_internal_frame 必须是非空数字数组"
-        )
-    if (
-        not isinstance(boundaries, list)
-        or any(
-            isinstance(value, bool) or not isinstance(value, int)
-            for value in boundaries
-        )
-    ):
-        errors.append("source_schedule.boundaries 必须是整数数组")
-        boundaries = []
-    joins = payload.get("joins")
-    if not isinstance(joins, list):
-        errors.append("joins 必须是数组")
-        joins = []
-    allowed_categories = {
-        "original_source_continuity",
-        "strict_optical_flow",
-        "micro_optical_flow",
-        "rejected",
-    }
-    categories = [
-        item.get("category")
-        for item in joins
-        if isinstance(item, dict)
-    ]
-    if (
-        len(categories) != len(joins)
-        or any(category not in allowed_categories for category in categories)
-    ):
-        errors.append("joins.category 存在未知接缝类型")
-    boundary_join_frames = sorted(
-        int(item["output_frame"])
-        for item in joins
+        errors.append("master 必须绑定共享母版键、内容哈希、尺寸和帧率")
+    units = payload.get("units")
+    if not isinstance(units, list) or not units:
+        errors.append("units 必须是非空数组")
+        units = []
+    expected_start = 0
+    ids: set[str] = set()
+    for index, unit in enumerate(units):
+        if not isinstance(unit, dict):
+            errors.append(f"units[{index}] 必须是对象")
+            continue
+        unit_id = unit.get("id")
+        start = unit.get("start_frame")
+        end = unit.get("end_frame_exclusive")
+        if not isinstance(unit_id, str) or not unit_id or unit_id in ids:
+            errors.append(f"units[{index}].id 缺失或重复")
+        else:
+            ids.add(unit_id)
+        if start != expected_start or not isinstance(end, int) or end <= expected_start:
+            errors.append(f"units[{index}] 必须连续覆盖时间线")
+            continue
+        if unit.get("frame_count") != end - start:
+            errors.append(f"units[{index}].frame_count 与边界不一致")
+        expected_start = end
+        for field in ("schedule", "diagnostics"):
+            if not valid_artifact(unit.get(field)):
+                errors.append(f"units[{index}].{field} 必须绑定计划内制品和哈希")
+        instructions_sha256 = unit.get("render_instructions_sha256")
         if (
-            isinstance(item, dict)
-            and item.get("category") != "original_source_continuity"
-            and isinstance(item.get("output_frame"), int)
-        )
-    )
-    if sorted(boundaries) != boundary_join_frames:
-        errors.append("joins 中的非原片连续接缝与 source_schedule.boundaries 不一致")
-    deterministic = payload.get("deterministic_seam_plan")
-    if not isinstance(deterministic, dict):
-        errors.append("deterministic_seam_plan 必须是对象")
-    else:
-        expected_counts = {
-            "original_source_continuity_count": categories.count(
-                "original_source_continuity"
-            ),
-            "strict_optical_flow_join_count": categories.count(
-                "strict_optical_flow"
-            ),
-            "micro_optical_flow_transition_count": categories.count(
-                "micro_optical_flow"
-            ),
-            "rejected_join_count": categories.count("rejected"),
-        }
-        for key, expected in expected_counts.items():
-            if deterministic.get(key) != expected:
-                errors.append(f"deterministic_seam_plan.{key} 计数不一致")
-        if deterministic.get("route_retry_count") != 0:
-            errors.append("deterministic_seam_plan.route_retry_count 必须是 0")
+            not isinstance(instructions_sha256, str)
+            or len(instructions_sha256) != 64
+        ):
+            errors.append(
+                f"units[{index}].render_instructions_sha256 必须是 sha256"
+            )
+        render_schedule_sha256 = unit.get("render_schedule_sha256")
+        if (
+            not isinstance(render_schedule_sha256, str)
+            or len(render_schedule_sha256) != 64
+        ):
+            errors.append(
+                f"units[{index}].render_schedule_sha256 必须是 sha256"
+            )
+        internal_seams = unit.get("internal_seams")
+        if (
+            not isinstance(internal_seams, dict)
+            or internal_seams.get("rejected") != 0
+        ):
+            errors.append(f"units[{index}] 含有未通过的内部接缝")
+    execution = payload.get("execution")
+    if isinstance(execution, dict) and units:
+        fps = execution.get("internal_fps")
+        duration = execution.get("duration_seconds")
+        if (
+            not isinstance(fps, int)
+            or not isinstance(duration, (int, float))
+            or expected_start != int(math.ceil(float(duration) * fps - 1e-9))
+        ):
+            errors.append("units 没有覆盖 execution 声明的完整帧范围")
+    seams = payload.get("seams")
+    if not isinstance(seams, list) or len(seams) != max(0, len(units) - 1):
+        errors.append("seams 数量必须等于 units 数量减一")
+        seams = []
+    for index, seam in enumerate(seams):
+        if (
+            not isinstance(seam, dict)
+            or seam.get("status") != "ready"
+            or not valid_artifact(seam.get("artifact"))
+        ):
+            errors.append(f"seams[{index}] 尚未通过或制品无效")
+            continue
+        if index < len(units) - 1 and (
+            seam.get("left_unit_id") != units[index].get("id")
+            or seam.get("right_unit_id") != units[index + 1].get("id")
+            or seam.get("boundary_frame")
+            != units[index].get("end_frame_exclusive")
+        ):
+            errors.append(f"seams[{index}] 与相邻单元边界不一致")
     approval = payload.get("approval")
     if not isinstance(approval, dict):
         errors.append("approval 必须是对象")
@@ -1718,45 +1742,729 @@ def save_render_review_from_video(
     outputs.append(str(extraction_manifest))
     return outputs
 
+MASTER_CACHE_VERSION = "anime-avatar-medium-master-v1"
+UNIT_CACHE_VERSION = "anime-avatar-segment-cache-v1"
 
-def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
+
+def canonical_json_sha256(payload: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def archive_cache_entry(cache_root: Path, entry: Path, label: str) -> Path:
+    archive_root = cache_root / "archive" / label
+    archive_root.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    destination = archive_root / f"{entry.name}.{timestamp}"
+    shutil.move(str(entry), str(destination))
+    return destination
+
+
+def ensure_medium_master(
+    ffmpeg: str,
+    ffprobe: str,
+    motion_path: Path,
+    crop: tuple[int, int, int, int],
+    master_size: tuple[int, int],
+    fps: int,
+) -> dict[str, Any]:
+    cache_root = resolve_media_cache_root()
+    specification = {
+        "version": MASTER_CACHE_VERSION,
+        "motion_source_sha256": file_sha256(motion_path),
+        "crop_xywh": list(crop),
+        "master_size": list(master_size),
+        "fps": fps,
+        "codec": "libx264-crf10-yuv420p",
+        "scale": "lanczos",
+    }
+    cache_key = canonical_json_sha256(specification)
+    entry = cache_root / "anime-avatar-masters" / "v1" / cache_key
+    master_path = entry / "master.mp4"
+    manifest_path = entry / "manifest.json"
+
+    def inspect_existing() -> dict[str, Any] | None:
+        if not entry.exists():
+            return None
+        try:
+            manifest = read_json(manifest_path)
+            if (
+                manifest.get("protocol")
+                != "visual-multimedia-anime-avatar-master-cache"
+                or manifest.get("version") != 1
+                or manifest.get("cache_key") != cache_key
+                or manifest.get("specification") != specification
+                or not master_path.is_file()
+                or manifest.get("content_sha256") != file_sha256(master_path)
+            ):
+                raise ValueError("共享母版缓存清单或内容哈希不一致")
+            probe = probe_video(master_path, ffprobe)
+            if (
+                probe["width"] != master_size[0]
+                or probe["height"] != master_size[1]
+                or abs(float(probe["fps"]) - fps) > 0.02
+            ):
+                raise ValueError("共享母版缓存的尺寸或帧率不一致")
+            return {
+                "path": master_path,
+                "manifest_path": manifest_path,
+                "manifest_sha256": file_sha256(manifest_path),
+                "content_sha256": manifest["content_sha256"],
+                "cache_key": cache_key,
+                "probe": probe,
+                "status": "reused",
+            }
+        except (FileNotFoundError, ValueError, RuntimeError, OSError):
+            archive_cache_entry(cache_root, entry, "anime-avatar-masters")
+            return None
+
+    existing = inspect_existing()
+    if existing is not None:
+        return existing
+    entry.mkdir(parents=True, exist_ok=False)
+    pending = entry / f"master.pending.{uuid.uuid4().hex}.mp4"
+    x, y, width, height = crop
+    output_width, output_height = master_size
+    command = [
+        ffmpeg,
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-n",
+        "-i",
+        str(motion_path),
+        "-vf",
+        (
+            f"crop={width}:{height}:{x}:{y},"
+            f"scale={output_width}:{output_height}:flags=lanczos,"
+            f"fps={fps}"
+        ),
+        "-an",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "slow",
+        "-crf",
+        "10",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        str(pending),
+    ]
+    result = subprocess.run(command, check=False, capture_output=True)
+    if result.returncode != 0:
+        raise RuntimeError(
+            "无法生成中等尺寸角色共享母版："
+            + result.stderr.decode("utf-8", errors="replace")
+        )
+    pending.replace(master_path)
+    probe = probe_video(master_path, ffprobe)
+    if (
+        probe["width"] != output_width
+        or probe["height"] != output_height
+        or abs(float(probe["fps"]) - fps) > 0.02
+    ):
+        raise RuntimeError("生成的共享母版尺寸或帧率与合同不一致")
+    manifest = {
+        "protocol": "visual-multimedia-anime-avatar-master-cache",
+        "version": 1,
+        "cache_key": cache_key,
+        "specification": specification,
+        "file": "master.mp4",
+        "content_sha256": file_sha256(master_path),
+        "probe": probe,
+    }
+    write_json(manifest_path, manifest)
+    return {
+        "path": master_path,
+        "manifest_path": manifest_path,
+        "manifest_sha256": file_sha256(manifest_path),
+        "content_sha256": manifest["content_sha256"],
+        "cache_key": cache_key,
+        "probe": probe,
+        "status": "generated",
+    }
+
+
+def scaled_mouth_crop(
+    mouth_crop: tuple[int, int, int, int],
+    source_crop: tuple[int, int, int, int],
+    master_size: tuple[int, int],
+) -> tuple[int, int, int, int]:
+    scale_x = master_size[0] / source_crop[2]
+    scale_y = master_size[1] / source_crop[3]
+    x, y, width, height = mouth_crop
+    scaled = (
+        max(0, int(round(x * scale_x))),
+        max(0, int(round(y * scale_y))),
+        max(1, int(round(width * scale_x))),
+        max(1, int(round(height * scale_y))),
+    )
+    right = min(master_size[0], scaled[0] + scaled[2])
+    bottom = min(master_size[1], scaled[1] + scaled[3])
+    return scaled[0], scaled[1], right - scaled[0], bottom - scaled[1]
+
+
+def local_speech_units(
+    units: list[SpeechUnit],
+    start_frame: int,
+    end_frame: int,
+    fps: int,
+) -> list[SpeechUnit]:
+    start_seconds = start_frame / fps
+    end_seconds = end_frame / fps
+    values = []
+    for unit in units:
+        center = (unit.start + unit.end) * 0.5
+        if center < start_seconds or center >= end_seconds:
+            continue
+        local_start = max(unit.start, start_seconds) - start_seconds
+        local_end = min(unit.end, end_seconds) - start_seconds
+        if local_end <= local_start:
+            raise RuntimeError("逐字时间区间在帧边界量化后消失")
+        values.append(
+            SpeechUnit(
+                unit.text,
+                local_start,
+                local_end,
+            )
+        )
+    return values
+
+
+def plan_selection_gate(selection: dict[str, Any]) -> dict[str, Any]:
+    failures: dict[str, Any] = {}
+    minimums = {
+        "planned_annotation_stable_pause_closed_match_rate": 1.0,
+        "planned_annotation_silence_dynamic_rate": 1.0,
+    }
+    for key, minimum in minimums.items():
+        observed = selection.get(key)
+        if not isinstance(observed, (int, float)) or float(observed) + 1e-9 < minimum:
+            failures[key] = {"observed": observed, "minimum": minimum}
+    for value_key, limit_key in (
+        (
+            "planned_annotation_maximum_continuous_source_speed",
+            "planned_annotation_source_speed_limit",
+        ),
+        (
+            "planned_annotation_maximum_continuous_source_acceleration",
+            "planned_annotation_source_acceleration_limit",
+        ),
+    ):
+        observed = selection.get(value_key)
+        maximum = selection.get(limit_key)
+        if (
+            not isinstance(observed, (int, float))
+            or not isinstance(maximum, (int, float))
+            or float(observed) > float(maximum) + 1e-9
+        ):
+            failures[value_key] = {"observed": observed, "maximum": maximum}
+    if (
+        selection.get("planned_annotation_diversity_enforcement_mode")
+        != "continuity-first-fallback"
+        and selection.get("planned_annotation_motion_diversity_contract_satisfied")
+        is not True
+    ):
+        failures["motion_diversity"] = {
+            "observed": selection.get(
+                "planned_annotation_motion_diversity_contract_satisfied"
+            ),
+            "required": True,
+        }
+    result = {"passed": not failures, "failures": failures}
+    if failures:
+        raise RuntimeError(
+            "角色单元动作规划没有达到动态待机和连续运动机器门："
+            + json.dumps(failures, ensure_ascii=False)
+        )
+    return result
+
+
+def write_schedule_artifact(
+    path: Path,
+    *,
+    source_positions: np.ndarray,
+    boundaries: list[int],
+    target_labels: list[str],
+    target_levels: np.ndarray,
+    energy: np.ndarray,
+    anchors: list[str | None],
+    roles: list[str],
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        path,
+        source_positions=np.asarray(source_positions, dtype=np.float32),
+        boundaries=np.asarray(boundaries, dtype=np.int32),
+        target_labels=np.asarray(target_labels, dtype="U8"),
+        target_levels=np.asarray(target_levels, dtype=np.float32),
+        energy=np.asarray(energy, dtype=np.float32),
+        anchors=np.asarray([value or "" for value in anchors], dtype="U8"),
+        roles=np.asarray(roles, dtype="U32"),
+    )
+
+
+def load_schedule_artifact(
+    record: dict[str, Any], project_root: Path
+) -> dict[str, Any]:
+    path = resolve_portable_locator(record["locator"], project_root)
+    if file_sha256(path) != record["sha256"]:
+        raise RuntimeError(f"角色计划制品哈希不一致：{path}")
+    with np.load(path, allow_pickle=False) as payload:
+        return {key: payload[key].copy() for key in payload.files}
+
+
+def artifact_record(path: Path, project_root: Path) -> dict[str, str]:
+    return {
+        "locator": portable_locator(path, project_root),
+        "sha256": file_sha256(path),
+    }
+
+
+def join_records(
+    selection: dict[str, Any],
+    reports: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    report_by_boundary = {int(item["boundary"]): item for item in reports}
+    records = []
+    for transition in selection["planned_annotation_selected_clip_transitions"]:
+        record = copy.deepcopy(transition)
+        if transition["boundary"]:
+            boundary = int(transition["output_frame"])
+            preflight = report_by_boundary.get(boundary)
+            if preflight is None:
+                raise RuntimeError(f"接缝 {boundary} 缺少四帧预检")
+            record["preflight"] = copy.deepcopy(preflight)
+            record["category"] = (
+                "ready" if preflight.get("applied") is True else "rejected"
+            )
+        else:
+            record["preflight"] = None
+            record["category"] = "original_source_continuity"
+        records.append(record)
+    return records
+
+
+def shifted_join_reports(
+    reports: list[dict[str, Any]], offset: int
+) -> list[dict[str, Any]]:
+    shifted = []
+    scalar_fields = ("boundary", "local_boundary")
+    range_fields = (
+        "window",
+        "blend_input_window",
+        "blend_input_frame_indices",
+        "output_frame_indices",
+    )
+    for report in reports:
+        value = copy.deepcopy(report)
+        for field in scalar_fields:
+            if field == "local_boundary":
+                continue
+            if isinstance(value.get(field), int):
+                value[field] -= offset
+        for field in range_fields:
+            if isinstance(value.get(field), list):
+                value[field] = [int(item) - offset for item in value[field]]
+        shifted.append(value)
+    return shifted
+
+
+def render_join_instruction_records(
+    joins: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    fields = (
+        "boundary",
+        "blend_input_window",
+        "blend_input_frame_indices",
+        "output_frame_indices",
+        "applied",
+        "local_boundary",
+        "preflight_blended_window_sha256",
+        "local_output_frame_indices",
+        "preflight_output_frame_sha256",
+    )
+    return [
+        {field: copy.deepcopy(item["preflight"].get(field)) for field in fields}
+        for item in joins
+        if item.get("category") == "ready"
+    ]
+
+
+def encode_frame_sequence(
+    ffmpeg: str,
+    frames: list[np.ndarray],
+    fps: int,
+    destination: Path,
+) -> None:
+    if not frames:
+        raise ValueError("不能编码空角色帧序列")
+    height, width = frames[0].shape[:2]
+    command = [
+        ffmpeg,
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-n",
+        "-f",
+        "rawvideo",
+        "-pix_fmt",
+        "bgr24",
+        "-s:v",
+        f"{width}x{height}",
+        "-r",
+        str(fps),
+        "-i",
+        "-",
+        "-an",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "medium",
+        "-crf",
+        "15",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        str(destination),
+    ]
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert process.stdin is not None
+    try:
+        for frame in frames:
+            write_raw_frame(process.stdin, frame)
+        process.stdin.close()
+        stderr = process.stderr.read() if process.stderr is not None else b""
+        return_code = process.wait()
+    except BaseException:
+        try:
+            process.stdin.close()
+        except BrokenPipeError:
+            pass
+        process.wait()
+        raise
+    if return_code != 0:
+        raise RuntimeError(
+            "FFmpeg 无法编码角色接缝桥："
+            + stderr.decode("utf-8", errors="replace")
+        )
+
+
+def cached_segment(
+    cache_root: Path,
+    kind: str,
+    cache_key: str,
+    ffprobe: str,
+    width: int,
+    height: int,
+    fps: int,
+    frame_count: int,
+) -> dict[str, Any] | None:
+    entry = cache_root / kind / cache_key[:24]
+    video = entry / "video.mp4"
+    manifest_path = entry / "manifest.json"
+    if not entry.exists():
+        return None
+    try:
+        manifest = read_json(manifest_path)
+        if (
+            manifest.get("protocol")
+            != "visual-multimedia-anime-avatar-segment-cache"
+            or manifest.get("version") != 1
+            or manifest.get("cache_key") != cache_key
+            or manifest.get("frame_count") != frame_count
+            or not video.is_file()
+            or manifest.get("content_sha256") != file_sha256(video)
+        ):
+            raise ValueError("角色分段缓存清单或哈希不一致")
+        probe = probe_video(video, ffprobe)
+        if (
+            probe["width"] != width
+            or probe["height"] != height
+            or abs(float(probe["fps"]) - fps) > 0.02
+            or int(probe["declared_frame_count"]) != frame_count
+        ):
+            raise ValueError("角色分段缓存的尺寸、帧率或帧数不一致")
+        return {
+            "entry": entry,
+            "video": video,
+            "manifest": manifest_path,
+            "content_sha256": manifest["content_sha256"],
+            "status": "reused",
+        }
+    except (FileNotFoundError, ValueError, RuntimeError, OSError):
+        archive_cache_entry(cache_root, entry, f"anime-avatar-{kind}")
+        return None
+
+
+def commit_segment_cache(
+    cache_root: Path,
+    kind: str,
+    cache_key: str,
+    pending_video: Path,
+    frame_count: int,
+) -> dict[str, Any]:
+    entry = cache_root / kind / cache_key[:24]
+    entry.mkdir(parents=True, exist_ok=False)
+    video = entry / "video.mp4"
+    shutil.move(str(pending_video), str(video))
+    manifest_path = entry / "manifest.json"
+    manifest = {
+        "protocol": "visual-multimedia-anime-avatar-segment-cache",
+        "version": 1,
+        "cache_key": cache_key,
+        "frame_count": frame_count,
+        "file": "video.mp4",
+        "content_sha256": file_sha256(video),
+    }
+    write_json(manifest_path, manifest)
+    return {
+        "entry": entry,
+        "video": video,
+        "manifest": manifest_path,
+        "content_sha256": manifest["content_sha256"],
+        "status": "rendered",
+    }
+
+
+def concat_segments(
+    ffmpeg: str,
+    segments: list[Path],
+    list_path: Path,
+    destination: Path,
+) -> None:
+    for segment in segments:
+        if "'" in str(segment):
+            raise ValueError("FFmpeg 分段路径不能包含单引号")
+    list_path.write_text(
+        "".join(f"file '{segment.as_posix()}'\n" for segment in segments),
+        encoding="utf-8",
+    )
+    command = [
+        ffmpeg,
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-n",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        str(list_path),
+        "-an",
+        "-c:v",
+        "copy",
+        str(destination),
+    ]
+    result = subprocess.run(command, check=False, capture_output=True)
+    if result.returncode != 0:
+        raise RuntimeError(
+            "FFmpeg 无法无重编码装配角色分段："
+            + result.stderr.decode("utf-8", errors="replace")
+        )
+
+
+def materialize_track_clip(source: Path, destination: Path) -> Path:
+    if destination.exists():
+        raise FileExistsError(f"不会覆盖角色交接片段：{destination}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, destination)
+    if file_sha256(source) != file_sha256(destination):
+        raise RuntimeError(f"角色交接片段复制后哈希不一致：{destination}")
+    return destination
+
+
+def ensure_audio_master(
+    ffmpeg: str,
+    audio_path: Path,
+    trim_start: float,
+    trim_end: float | None,
+    cache_root: Path,
+) -> dict[str, Any]:
+    specification = {
+        "version": "anime-avatar-audio-master-v1",
+        "audio_source_sha256": file_sha256(audio_path),
+        "trim_start_seconds": round(trim_start, 9),
+        "trim_end_seconds": round(trim_end, 9) if trim_end is not None else None,
+        "sample_rate": 48000,
+        "channels": 1,
+        "codec": "pcm_s16le",
+    }
+    cache_key = canonical_json_sha256(specification)
+    entry = cache_root / "audio" / cache_key[:24]
+    audio = entry / "audio.wav"
+    manifest_path = entry / "manifest.json"
+    if entry.exists():
+        try:
+            manifest = read_json(manifest_path)
+            if (
+                manifest.get("protocol")
+                != "visual-multimedia-anime-avatar-audio-cache"
+                or manifest.get("version") != 1
+                or manifest.get("cache_key") != cache_key
+                or manifest.get("specification") != specification
+                or not audio.is_file()
+                or manifest.get("content_sha256") != file_sha256(audio)
+            ):
+                raise ValueError("连续音频母版缓存无效")
+            with wave.open(str(audio), "rb") as source:
+                duration = source.getnframes() / source.getframerate()
+            return {
+                "path": audio,
+                "manifest": manifest_path,
+                "cache_key": cache_key,
+                "content_sha256": manifest["content_sha256"],
+                "duration_seconds": duration,
+                "status": "reused",
+            }
+        except (FileNotFoundError, ValueError, OSError):
+            archive_cache_entry(cache_root, entry, "anime-avatar-audio")
+    entry.mkdir(parents=True, exist_ok=False)
+    pending = entry / "audio.pending.wav"
+    duration = extract_audio(
+        ffmpeg,
+        audio_path,
+        pending,
+        trim_start,
+        trim_end,
+    )
+    pending.replace(audio)
+    manifest = {
+        "protocol": "visual-multimedia-anime-avatar-audio-cache",
+        "version": 1,
+        "cache_key": cache_key,
+        "specification": specification,
+        "file": "audio.wav",
+        "content_sha256": file_sha256(audio),
+        "duration_seconds": round(duration, 9),
+    }
+    write_json(manifest_path, manifest)
+    return {
+        "path": audio,
+        "manifest": manifest_path,
+        "cache_key": cache_key,
+        "content_sha256": manifest["content_sha256"],
+        "duration_seconds": duration,
+        "status": "generated",
+    }
+
+
+def cached_plan_bundle(
+    cache_root: Path,
+    kind: str,
+    cache_key: str,
+    files: tuple[str, ...],
+) -> dict[str, Any] | None:
+    entry = cache_root / "plans" / kind / cache_key[:24]
+    manifest_path = entry / "manifest.json"
+    if not entry.exists():
+        return None
+    try:
+        manifest = read_json(manifest_path)
+        if (
+            manifest.get("protocol")
+            != "visual-multimedia-anime-avatar-plan-cache"
+            or manifest.get("version") != 1
+            or manifest.get("cache_key") != cache_key
+            or set(manifest.get("files") or {}) != set(files)
+        ):
+            raise ValueError("角色计划缓存清单不一致")
+        resolved = {}
+        for name in files:
+            path = entry / name
+            if (
+                not path.is_file()
+                or manifest["files"].get(name) != file_sha256(path)
+            ):
+                raise ValueError("角色计划缓存制品哈希不一致")
+            resolved[name] = path
+        return {"entry": entry, "files": resolved, "status": "reused"}
+    except (FileNotFoundError, ValueError, OSError):
+        archive_cache_entry(cache_root, entry, f"anime-avatar-plan-{kind}")
+        return None
+
+
+def commit_plan_bundle(
+    cache_root: Path,
+    kind: str,
+    cache_key: str,
+    sources: dict[str, Path],
+) -> dict[str, Any]:
+    entry = cache_root / "plans" / kind / cache_key[:24]
+    entry.mkdir(parents=True, exist_ok=False)
+    files = {}
+    resolved = {}
+    for name, source in sources.items():
+        destination = entry / name
+        shutil.copy2(source, destination)
+        files[name] = file_sha256(destination)
+        resolved[name] = destination
+    write_json(
+        entry / "manifest.json",
+        {
+            "protocol": "visual-multimedia-anime-avatar-plan-cache",
+            "version": 1,
+            "cache_key": cache_key,
+            "files": files,
+        },
+    )
+    return {"entry": entry, "files": resolved, "status": "generated"}
+
+
+def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
+    started_at = time.perf_counter()
     planning = args.command == "plan"
-    approved_plan: dict[str, Any] | None = None
-    project_argument = Path(args.project)
-    project, paths = load_project(project_argument)
+    project, paths = load_project(Path(args.project))
     plan_id = validate_task_id(args.plan_id)
-    render_plan_path = resolve_project_path(
+    plan_path = resolve_project_path(
         paths["root"],
         Path("plans") / "anime-avatar" / plan_id / "render-plan.json",
         "角色计划",
     )
     if planning:
-        if render_plan_path.exists():
-            raise FileExistsError(
-                f"不会覆盖已有 render-plan.json：{render_plan_path}"
-            )
+        if plan_path.exists():
+            raise FileExistsError(f"不会覆盖已有 render-plan.json：{plan_path}")
+        approved_plan = None
         task_id = plan_id
-    else:
-        approved_plan = read_json(render_plan_path)
-        validate_render_plan_payload(approved_plan, require_confirmed=True)
-        if approved_plan.get("plan_id") != plan_id:
-            raise ValueError("--plan-id 与 render-plan.json 的 plan_id 不一致")
-        task_id = validate_task_id(
-            args.task_id or str(approved_plan["plan_id"])
-        )
-
-    if planning:
         timeline_path = Path(args.timeline).expanduser()
         if not timeline_path.is_absolute():
             timeline_path = paths["root"] / timeline_path
         timeline_path = timeline_path.resolve()
+        working = paths["root"] / "working" / "anime-avatar-plans" / plan_id
+        report_dir = None
+        output = None
     else:
-        assert approved_plan is not None
-        timeline_record = approved_plan["inputs"]["speech_timeline"]
+        approved_plan = read_json(plan_path)
+        validate_render_plan_payload(approved_plan, require_confirmed=True)
+        if approved_plan.get("plan_id") != plan_id:
+            raise ValueError("--plan-id 与 render-plan.json 的 plan_id 不一致")
+        task_id = validate_task_id(args.task_id or plan_id)
         timeline_path = resolve_portable_locator(
-            timeline_record["locator"],
+            approved_plan["inputs"]["speech_timeline"]["locator"],
             paths["root"],
         )
+        working = paths["root"] / "working" / "anime-avatar" / task_id
+        report_dir = paths["root"] / "reports" / "avatar-renders" / task_id
+        output = resolve_project_path(paths["root"], args.output, "角色轨输出")
+        if output.exists():
+            raise FileExistsError(f"不会覆盖已有输出：{output}")
+    for target, label in (
+        (working, "working id"),
+        *(([(report_dir, "report id")] if report_dir is not None else [])),
+    ):
+        if target.exists():
+            raise FileExistsError(f"{label} 已存在，不会复用或覆盖：{target}")
+
     library_context = resolve_avatar_library(project, paths)
     package = library_context["package"]
     character = package["character"]
@@ -1768,32 +2476,32 @@ def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
     if motion_source.get("status") != "accepted":
         raise ValueError("校准视频尚未通过检查，不能正式渲染")
     manifest = validate_media_manifest(paths["manifest"])
-    if planning:
-        working = (
-            paths["root"] / "working" / "anime-avatar-plans" / task_id
-        )
-        report_dir = None
-        output = None
-        immutable_directories = ((working, "planning plan-id"),)
-    else:
-        working = paths["root"] / "working" / "anime-avatar" / task_id
-        report_dir = (
-            paths["root"] / "reports" / "avatar-renders" / task_id
-        )
-        output = resolve_project_path(paths["root"], args.output, "角色轨输出")
-        if output.exists():
-            raise FileExistsError(f"不会覆盖已有输出：{output}")
-        immutable_directories = (
-            (working, "working task-id"),
-            (report_dir, "report task-id"),
-        )
-    for immutable_directory, label in immutable_directories:
-        if immutable_directory.exists():
-            raise FileExistsError(
-                f"{label} 已存在，不会复用或覆盖：{immutable_directory}；"
-                "请使用新的 id"
-            )
+    timeline = read_json(timeline_path)
+    speech_units = validate_timeline(timeline)
+    _, audio_path = resolve_source(
+        manifest,
+        paths["root"],
+        timeline.get("audio_source_id"),
+        {"audio", "video", "generated"},
+    )
+    audio_record = next(
+        item
+        for item in manifest["sources"]
+        if item["id"] == timeline["audio_source_id"]
+    )
+    if timeline["audio_sha256"] != audio_record["integrity"]["sha256"]:
+        raise ValueError("speech timeline 的 audio_sha256 与素材账本不一致")
 
+    render_config = project["render"]
+    fps = int(render_config["internal_fps"])
+    delivery_fps = int(render_config["delivery_fps"])
+    if delivery_fps != fps:
+        raise ValueError(
+            "分段角色轨要求 delivery_fps 与 internal_fps 相同；"
+            "最终成片帧率由通用视频时间线处理，角色轨不再整条补帧。"
+        )
+    master_size = tuple(int(value) for value in render_config["master_size"])
+    width, height = master_size
     motion_path = library_context["motion_source_path"]
     crop = parse_xywh(
         motion_source.get("source_crop_xywh"),
@@ -1804,135 +2512,70 @@ def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         "motion_source.mouth_review_crop_xywh",
     )
     ensure_crop(mouth_crop, crop[2], crop[3], "mouth_review_crop_xywh")
-
-    library_file = library_context["library_path"]
-    library = library_context["library"]
-    raw_source_frame_count = library.get("source_frame_count")
-    if (
-        isinstance(raw_source_frame_count, bool)
-        or not isinstance(raw_source_frame_count, int)
-        or raw_source_frame_count <= 0
-    ):
-        raise ValueError("视觉口型库 source_frame_count 必须是正整数")
-    expected_source_frame_count = int(raw_source_frame_count)
-
-    render_config = project["render"]
-    fps = int(render_config["internal_fps"])
-    delivery_fps = int(render_config["delivery_fps"])
-    width, height = [int(value) for value in render_config["output_size"]]
-
-    timeline = read_json(timeline_path)
-    units = validate_timeline(timeline)
-    audio_record, audio_path = resolve_source(
-        manifest,
-        paths["root"],
-        timeline.get("audio_source_id"),
-        {"audio", "video", "generated"},
-    )
-    if timeline["audio_sha256"] != audio_record["integrity"]["sha256"]:
-        raise ValueError(
-            "speech timeline 的 audio_sha256 与项目素材账本中的真实音频不一致"
-        )
     ffmpeg = executable("ffmpeg", args.ffmpeg)
     ffprobe = executable("ffprobe", args.ffprobe)
-
-    run_id = uuid.uuid4().hex
-    trimmed_audio = working / "trimmed-audio.wav"
-    source_frame_store_file = working / "source-frames-bgr-u8.bin"
-    silent_video = working / "motion-match-silent.mp4"
-    motion_match_video = working / "motion-match-with-audio.mp4"
     script_directory = Path(__file__).resolve().parent
     provenance_paths = {
         "avatar_project": paths["project"].resolve(),
         "media_sources": paths["manifest"].resolve(),
         "avatar_library_package": library_context["package_path"].resolve(),
-        "avatar_library_media_sources": (
-            library_context["manifest_path"].resolve()
-        ),
+        "avatar_library_media_sources": library_context["manifest_path"].resolve(),
         "motion_source": motion_path.resolve(),
         "audio_source": audio_path.resolve(),
         "renderer_script": script_directory / "render-anime-avatar.py",
         "motion_planner_script": script_directory / "anime_avatar_motion.py",
         "join_blender_script": script_directory / "anime_avatar_blend.py",
-        "shared_avatar_runtime_script": (
-            script_directory / "anime_avatar_common.py"
-        ),
-        "visual_viseme_library": library_file.resolve(),
+        "shared_avatar_runtime_script": script_directory / "anime_avatar_common.py",
+        "visual_viseme_library": library_context["library_path"].resolve(),
         "speech_timeline": timeline_path,
     }
     provenance_sha256 = {
         key: file_sha256(path) for key, path in provenance_paths.items()
     }
     if approved_plan is not None:
-        stale_inputs = {}
-        planned_inputs = approved_plan.get("inputs") or {}
-        for key, current_sha256 in provenance_sha256.items():
-            planned = planned_inputs.get(key)
-            planned_sha256 = (
-                planned.get("sha256") if isinstance(planned, dict) else None
-            )
-            if planned_sha256 != current_sha256:
-                stale_inputs[key] = {
-                    "planned_sha256": planned_sha256,
-                    "current_sha256": current_sha256,
-                }
-        if stale_inputs:
+        stale = {
+            key: {
+                "planned": approved_plan["inputs"].get(key, {}).get("sha256"),
+                "current": digest,
+            }
+            for key, digest in provenance_sha256.items()
+            if approved_plan["inputs"].get(key, {}).get("sha256") != digest
+        }
+        if stale:
             raise RuntimeError(
-                "已确认 render-plan.json 已失效；以下输入或代码在规划后发生变化："
-                + json.dumps(stale_inputs, ensure_ascii=False)
+                "已确认 render-plan.json 的真实输入或生产代码已经变化："
+                + json.dumps(stale, ensure_ascii=False)
             )
-        provenance_paths["approved_render_plan"] = render_plan_path
-        provenance_sha256["approved_render_plan"] = file_sha256(
-            render_plan_path
-        )
+
     working.mkdir(parents=True, exist_ok=False)
     if report_dir is not None:
         report_dir.mkdir(parents=True, exist_ok=False)
     if output is not None:
         output.parent.mkdir(parents=True, exist_ok=True)
-
-    source_frames, source_fps, descriptors, source_store_report = (
-        build_disk_backed_source_store(
-            motion_path,
-            crop,
-            mouth_crop,
-            expected_source_frame_count,
-            source_frame_store_file,
-        )
+    project_cache = paths["root"] / "working" / "anime-avatar-cache" / "v1"
+    project_cache.mkdir(parents=True, exist_ok=True)
+    master = ensure_medium_master(
+        ffmpeg,
+        ffprobe,
+        motion_path,
+        crop,
+        master_size,
+        fps,
     )
-    library_validation = validate_library_payload(
-        library,
-        source_id=motion_source["source_id"],
-        source_fps=source_fps,
-        source_frame_count=len(source_frames),
-        source_crop=crop,
-    )
-    if not library_validation["ok"]:
-        raise ValueError(
-            "视觉口型库未通过质量门：\n- "
-            + "\n- ".join(library_validation["errors"])
-        )
-    if abs(source_fps - fps) > 0.02:
-        raise ValueError(
-            f"校准视频为 {source_fps:.6f} fps，但项目 internal_fps={fps}。"
-            "先统一帧率和标注边界，不能在运行时静默换算帧号。"
-        )
-
-    audio_duration = extract_audio(
+    audio_master = ensure_audio_master(
         ffmpeg,
         audio_path,
-        trimmed_audio,
         float(timeline["trim_start_seconds"]),
         (
             float(timeline["trim_end_seconds"])
             if timeline["trim_end_seconds"] is not None
             else None
         ),
+        project_cache,
     )
-    if units[-1].end > audio_duration + 0.08:
-        raise ValueError(
-            f"最后字结束于 {units[-1].end:.3f}s，超过裁切音频 {audio_duration:.3f}s"
-        )
+    audio_duration = float(audio_master["duration_seconds"])
+    if speech_units[-1].end > audio_duration + 0.08:
+        raise ValueError("逐字时间轴越出连续音频母版")
     if planning:
         requested_duration = (
             float(args.duration_seconds)
@@ -1940,1011 +2583,896 @@ def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
             else audio_duration
         )
     else:
-        assert approved_plan is not None
-        requested_duration = float(
-            approved_plan["execution"]["duration_seconds"]
-        )
-    if requested_duration <= 0:
-        raise ValueError("--duration-seconds 必须大于 0")
-    duration_tolerance = 0.5 / fps
-    if requested_duration + duration_tolerance < audio_duration:
-        raise ValueError(
-            "--duration-seconds 短于裁切后的完整音频："
-            f"音频 {audio_duration:.6f}s，目标 {requested_duration:.6f}s"
-        )
-    requested_internal_frames = int(math.ceil(requested_duration * fps - 1e-9))
-    if planning:
-        samples, sample_rate = read_wave(trimmed_audio)
-        phone_events = build_phone_events(units)
-        target_labels, target_levels, energy, anchors, roles, phone_report = (
-            build_target_timeline(
-                units,
-                phone_events,
-                samples,
-                sample_rate,
-                audio_duration,
-                fps,
-                requested_internal_frames,
-            )
-        )
-    else:
-        assert approved_plan is not None
-        planned_target = approved_plan["target_timeline"]
-        target_labels = list(planned_target["visemes"])
-        target_levels = np.asarray(
-            planned_target["intensities"],
-            dtype=np.float32,
-        )
-        energy = np.asarray(planned_target["energy"], dtype=np.float32)
-        anchors = list(planned_target["anchors"])
-        roles = list(planned_target["roles"])
-        phone_report = list(planned_target["phone_events"])
-        target_lengths = {
-            len(target_labels),
-            len(target_levels),
-            len(energy),
-            len(anchors),
-            len(roles),
-        }
-        if target_lengths != {requested_internal_frames}:
-            raise ValueError(
-                "render-plan.json 的目标时间线数组长度与计划时长不一致"
-            )
+        requested_duration = float(approved_plan["execution"]["duration_seconds"])
+        planned_master = approved_plan["master"]
+        if (
+            planned_master["cache_key"] != master["cache_key"]
+            or planned_master["content_sha256"] != master["content_sha256"]
+            or planned_master["manifest_sha256"] != master["manifest_sha256"]
+        ):
+            raise RuntimeError("已确认计划绑定的中等尺寸共享母版已经变化")
+    if requested_duration <= 0 or requested_duration + 0.5 / fps < audio_duration:
+        raise ValueError("目标角色轨时长必须覆盖完整连续音频母版")
+    total_frames = int(math.ceil(requested_duration * fps - 1e-9))
 
+    library = library_context["library"]
+    expected_source_frame_count = int(library["source_frame_count"])
     source_labels, source_levels, source_takes = source_annotation(
         library,
-        len(source_frames),
+        expected_source_frame_count,
     )
-    silent_intervals = [
-        {
-            "start_frame": start,
-            "end_frame_exclusive": end,
-            "start_seconds": round(start / fps, 6),
-            "end_seconds": round(end / fps, 6),
-            "behavior": "continuous closed-mouth source motion",
-        }
-        for start, end, role in label_runs(roles)
-        if role == "silence"
-    ]
-    join_preflight_cache: dict[tuple[int, ...], dict[str, Any]] = {}
-    sampler = SourceFrameSampler(source_frames, width, height)
+    source_frames = None
+    sampler = None
+    descriptors = None
+    source_store_report = None
 
-    def plan_and_validate_selection() -> tuple[
-        np.ndarray,
-        list[int],
-        dict[str, Any],
-    ]:
-        source_positions, boundaries, selection = plan_gesture_motion(
+    def open_sampler() -> SourceFrameSampler:
+        nonlocal source_frames, sampler, descriptors, source_store_report
+        if sampler is not None:
+            return sampler
+        master_crop = (0, 0, width, height)
+        master_mouth_crop = scaled_mouth_crop(mouth_crop, crop, master_size)
+        source_frames, source_fps, descriptors, source_store_report = (
+            build_disk_backed_source_store(
+                master["path"],
+                master_crop,
+                master_mouth_crop,
+                expected_source_frame_count,
+                working / "source-frames-bgr-u8.bin",
+            )
+        )
+        validation = validate_library_payload(
             library,
-            source_labels,
-            source_levels,
-            source_takes,
-            descriptors,
-            target_labels,
-            target_levels,
-            anchors,
-            roles,
-            fps=fps,
+            source_id=motion_source["source_id"],
+            source_fps=source_fps,
+            source_frame_count=len(source_frames),
+            source_crop=crop,
         )
-        selection["total_internal_frames"] = len(source_positions)
-        selection["silent_intervals"] = silent_intervals
-
-        minimum_machine_gate = {
-            "planned_annotation_stable_pause_closed_match_rate": 1.0,
-            "planned_annotation_silence_dynamic_rate": 1.0,
-        }
-        failed_quality = {
-            key: {
-                "observed": float(selection.get(key, -1.0)),
-                "required_minimum": minimum,
-            }
-            for key, minimum in minimum_machine_gate.items()
-            if float(selection.get(key, -1.0)) + 1e-9 < minimum
-        }
-        source_speed = selection.get(
-            "planned_annotation_maximum_continuous_source_speed"
-        )
-        source_speed_limit = selection.get(
-            "planned_annotation_source_speed_limit"
-        )
-        source_acceleration = selection.get(
-            "planned_annotation_maximum_continuous_source_acceleration"
-        )
-        source_acceleration_limit = selection.get(
-            "planned_annotation_source_acceleration_limit"
-        )
-        boundary_count = selection.get(
-            "planned_annotation_boundary_count"
-        )
-        minimum_boundary_gap = selection.get(
-            "planned_annotation_minimum_boundary_gap"
-        )
-        required_boundary_gap = selection.get(
-            "planned_annotation_required_minimum_boundary_gap"
-        )
-        upper_bound_checks = {
-            "planned_annotation_maximum_continuous_source_speed": (
-                source_speed,
-                source_speed_limit,
-            ),
-            "planned_annotation_maximum_continuous_source_acceleration": (
-                source_acceleration,
-                source_acceleration_limit,
-            ),
-            "planned_annotation_realized_strength_mean_absolute_error": (
-                selection.get(
-                    "planned_annotation_realized_strength_mean_absolute_error"
-                ),
-                1.25,
-            ),
-            "planned_annotation_realized_strength_p95_absolute_error": (
-                selection.get(
-                    "planned_annotation_realized_strength_p95_absolute_error"
-                ),
-                1.75,
-            ),
-        }
-        for key, (observed, maximum) in upper_bound_checks.items():
-            if (
-                not isinstance(observed, (int, float))
-                or not isinstance(maximum, (int, float))
-                or float(observed) > float(maximum) + 1e-9
-            ):
-                failed_quality[key] = {
-                    "observed": observed,
-                    "required_maximum": maximum,
-                }
-        if (
-            not isinstance(boundary_count, int)
-            or not isinstance(required_boundary_gap, int)
-            or (
-                boundary_count >= 2
-                and (
-                    not isinstance(minimum_boundary_gap, int)
-                    or minimum_boundary_gap < required_boundary_gap
-                )
+        if not validation["ok"]:
+            raise ValueError(
+                "视觉口型库未通过共享母版消费者质量门：\n- "
+                + "\n- ".join(validation["errors"])
             )
-        ):
-            failed_quality["planned_annotation_minimum_boundary_gap"] = {
-                "observed": minimum_boundary_gap,
-                "required_minimum": required_boundary_gap,
-                "boundary_count": boundary_count,
-            }
-
-        accounting_fields = (
-            "planned_annotation_original_anchor_count",
-            "planned_annotation_realized_anchor_count",
-            "planned_annotation_absorbed_or_unrealized_anchor_count",
-            "planned_annotation_original_vowel_anchor_count",
-            "planned_annotation_realized_vowel_anchor_count",
-            "planned_annotation_absorbed_vowel_anchor_count",
-        )
-        accounting_values = {
-            key: selection.get(key) for key in accounting_fields
-        }
-        accounting_consistent = all(
-            isinstance(value, int) and value >= 0
-            for value in accounting_values.values()
-        )
-        if accounting_consistent:
-            accounting_consistent = (
-                accounting_values[
-                    "planned_annotation_original_anchor_count"
-                ]
-                == accounting_values[
-                    "planned_annotation_realized_anchor_count"
-                ]
-                + accounting_values[
-                    "planned_annotation_absorbed_or_unrealized_anchor_count"
-                ]
-                and accounting_values[
-                    "planned_annotation_original_vowel_anchor_count"
-                ]
-                == accounting_values[
-                    "planned_annotation_realized_vowel_anchor_count"
-                ]
-                + accounting_values[
-                    "planned_annotation_absorbed_vowel_anchor_count"
-                ]
-            )
-        coverage_pairs = (
-            (
-                "planned_annotation_original_anchor_count",
-                "planned_annotation_realized_anchor_count",
-                "planned_annotation_realized_anchor_coverage_rate",
-            ),
-            (
-                "planned_annotation_original_vowel_anchor_count",
-                "planned_annotation_realized_vowel_anchor_count",
-                "planned_annotation_realized_vowel_anchor_coverage_rate",
-            ),
-        )
-        for original_key, realized_key, coverage_key in coverage_pairs:
-            original = accounting_values.get(original_key)
-            realized = accounting_values.get(realized_key)
-            observed_coverage = selection.get(coverage_key)
-            expected_coverage = (
-                realized / original
-                if isinstance(original, int)
-                and original > 0
-                and isinstance(realized, int)
-                else 1.0
-            )
-            if (
-                not isinstance(observed_coverage, (int, float))
-                or abs(float(observed_coverage) - expected_coverage) > 1e-6
-            ):
-                accounting_consistent = False
-        clusters = selection.get(
-            "planned_annotation_coarticulation_clusters"
-        )
-        if not isinstance(clusters, list):
-            accounting_consistent = False
-        minimum_realized_event_gap = selection.get(
-            "planned_annotation_minimum_realized_event_gap"
-        )
-        required_event_gap = selection.get(
-            "planned_annotation_required_minimum_event_gap"
-        )
-        realized_vowel_count = accounting_values.get(
-            "planned_annotation_realized_vowel_anchor_count"
-        )
-        if (
-            not isinstance(required_event_gap, int)
-            or not isinstance(realized_vowel_count, int)
-            or (
-                realized_vowel_count >= 2
-                and (
-                    not isinstance(minimum_realized_event_gap, int)
-                    or minimum_realized_event_gap < required_event_gap
-                )
-            )
-        ):
-            accounting_consistent = False
-        if not accounting_consistent:
-            failed_quality["coarticulation_anchor_accounting"] = {
-                "counts": accounting_values,
-                "clusters_present": isinstance(clusters, list),
-                "minimum_realized_event_gap": (
-                    minimum_realized_event_gap
-                ),
-                "required_minimum_event_gap": required_event_gap,
-                "realized_anchor_coverage_rate": selection.get(
-                    "planned_annotation_realized_anchor_coverage_rate"
-                ),
-                "realized_vowel_anchor_coverage_rate": selection.get(
-                    "planned_annotation_realized_vowel_anchor_coverage_rate"
-                ),
-            }
-        gesture_block_count = selection.get(
-            "planned_annotation_gesture_block_count"
-        )
-        selected_gesture_take_count = selection.get(
-            "planned_annotation_selected_gesture_take_count"
-        )
-        unique_gesture_clip_count = selection.get(
-            "planned_annotation_unique_gesture_clip_count"
-        )
-        maximum_recent_same_clip = selection.get(
-            "planned_annotation_maximum_same_gesture_clip_occurrences_in_recent_5"
-        )
-        required_unique_clips = selection.get(
-            "planned_annotation_required_unique_gesture_clip_count"
-        )
-        required_unique_takes = selection.get(
-            "planned_annotation_required_unique_gesture_take_count"
-        )
-        required_maximum_recent_same_clip = selection.get(
-            "planned_annotation_required_maximum_same_gesture_clip_occurrences_in_recent_5"
-        )
-        diversity_contract_satisfied = selection.get(
-            "planned_annotation_gesture_diversity_contract_satisfied"
-        )
-        diversity_contract = selection.get(
-            "planned_annotation_gesture_diversity_contract"
-        )
-        diversity_enforcement_mode = selection.get(
-            "planned_annotation_diversity_enforcement_mode"
-        )
-        idle_block_count = selection.get(
-            "planned_annotation_idle_block_count"
-        )
-        unique_idle_clip_count = selection.get(
-            "planned_annotation_unique_idle_clip_count"
-        )
-        maximum_recent_same_idle_clip = selection.get(
-            "planned_annotation_maximum_same_idle_clip_occurrences_in_recent_5"
-        )
-        required_unique_idle_clips = selection.get(
-            "planned_annotation_required_unique_idle_clip_count"
-        )
-        required_maximum_recent_same_idle_clip = selection.get(
-            "planned_annotation_required_maximum_same_idle_clip_occurrences_in_recent_5"
-        )
-        idle_diversity_contract_satisfied = selection.get(
-            "planned_annotation_idle_diversity_contract_satisfied"
-        )
-        idle_diversity_contract = selection.get(
-            "planned_annotation_idle_diversity_contract"
-        )
-        motion_diversity_contract_satisfied = selection.get(
-            "planned_annotation_motion_diversity_contract_satisfied"
-        )
-        diversity_is_hard = (
-            diversity_enforcement_mode != "continuity-first-fallback"
-        )
-        if not all(
-            isinstance(value, int)
-            and not isinstance(value, bool)
-            and value >= 0
-            for value in (
-                gesture_block_count,
-                selected_gesture_take_count,
-                unique_gesture_clip_count,
-                maximum_recent_same_clip,
-                required_unique_clips,
-                required_unique_takes,
-                required_maximum_recent_same_clip,
-            )
-        ) or not isinstance(diversity_contract, dict):
-            failed_quality["gesture_diversity_accounting"] = {
-                "gesture_block_count": gesture_block_count,
-                "selected_gesture_take_count": selected_gesture_take_count,
-                "unique_gesture_clip_count": unique_gesture_clip_count,
-                "maximum_same_clip_in_recent_5": maximum_recent_same_clip,
-                "required_unique_gesture_clip_count": required_unique_clips,
-                "required_unique_gesture_take_count": required_unique_takes,
-                "required_maximum_same_clip_in_recent_5": (
-                    required_maximum_recent_same_clip
-                ),
-                "contract": diversity_contract,
-            }
-        else:
-            diversity_failures = {}
-            if selected_gesture_take_count < required_unique_takes:
-                diversity_failures["selected_gesture_take_count"] = {
-                    "observed": selected_gesture_take_count,
-                    "required_minimum": required_unique_takes,
-                }
-            if unique_gesture_clip_count < required_unique_clips:
-                diversity_failures["unique_gesture_clip_count"] = {
-                    "observed": unique_gesture_clip_count,
-                    "required_minimum": required_unique_clips,
-                }
-            if (
-                maximum_recent_same_clip
-                > required_maximum_recent_same_clip
-            ):
-                diversity_failures[
-                    "maximum_same_gesture_clip_occurrences_in_recent_5"
-                ] = {
-                    "observed": maximum_recent_same_clip,
-                    "required_maximum": required_maximum_recent_same_clip,
-                }
-            if diversity_contract_satisfied is not True:
-                diversity_failures["planner_contract_satisfied"] = {
-                    "observed": diversity_contract_satisfied,
-                    "required": True,
-                }
-            contract_global = diversity_contract.get("global")
-            if (
-                not isinstance(contract_global, dict)
-                or contract_global.get("satisfied") is not True
-                or diversity_contract.get("satisfied") is not True
-            ):
-                diversity_failures["reported_contract"] = diversity_contract
-            if diversity_failures and diversity_is_hard:
-                failed_quality["gesture_diversity"] = diversity_failures
-        if not all(
-            isinstance(value, int)
-            and not isinstance(value, bool)
-            and value >= 0
-            for value in (
-                idle_block_count,
-                unique_idle_clip_count,
-                maximum_recent_same_idle_clip,
-                required_unique_idle_clips,
-                required_maximum_recent_same_idle_clip,
-            )
-        ) or not isinstance(idle_diversity_contract, dict):
-            failed_quality["idle_diversity_accounting"] = {
-                "idle_block_count": idle_block_count,
-                "unique_idle_clip_count": unique_idle_clip_count,
-                "maximum_same_clip_in_recent_5": (
-                    maximum_recent_same_idle_clip
-                ),
-                "required_unique_idle_clip_count": (
-                    required_unique_idle_clips
-                ),
-                "required_maximum_same_clip_in_recent_5": (
-                    required_maximum_recent_same_idle_clip
-                ),
-                "contract": idle_diversity_contract,
-            }
-        else:
-            idle_diversity_failures = {}
-            if unique_idle_clip_count < required_unique_idle_clips:
-                idle_diversity_failures["unique_idle_clip_count"] = {
-                    "observed": unique_idle_clip_count,
-                    "required_minimum": required_unique_idle_clips,
-                }
-            if (
-                maximum_recent_same_idle_clip
-                > required_maximum_recent_same_idle_clip
-            ):
-                idle_diversity_failures[
-                    "maximum_same_idle_clip_occurrences_in_recent_5"
-                ] = {
-                    "observed": maximum_recent_same_idle_clip,
-                    "required_maximum": (
-                        required_maximum_recent_same_idle_clip
-                    ),
-                }
-            if idle_diversity_contract_satisfied is not True:
-                idle_diversity_failures["planner_contract_satisfied"] = {
-                    "observed": idle_diversity_contract_satisfied,
-                    "required": True,
-                }
-            if (
-                idle_diversity_contract.get("satisfied") is not True
-            ):
-                idle_diversity_failures["reported_contract"] = (
-                    idle_diversity_contract
-                )
-            if idle_diversity_failures and diversity_is_hard:
-                failed_quality["idle_diversity"] = idle_diversity_failures
-        if (
-            motion_diversity_contract_satisfied is not True
-            and diversity_is_hard
-        ):
-            failed_quality["motion_diversity"] = {
-                "observed": motion_diversity_contract_satisfied,
-                "required": True,
-            }
-        selection["machine_plan_gate"] = {
-            "minimum_thresholds": minimum_machine_gate,
-            "maximum_thresholds": {
-                key: maximum
-                for key, (_, maximum) in upper_bound_checks.items()
-            },
-            "minimum_boundary_gap": required_boundary_gap,
-            "coarticulation_anchor_accounting": {
-                "counts": accounting_values,
-                "consistent": accounting_consistent,
-                "minimum_realized_event_gap": (
-                    minimum_realized_event_gap
-                ),
-                "required_minimum_event_gap": required_event_gap,
-                "realized_anchor_coverage_rate": selection.get(
-                    "planned_annotation_realized_anchor_coverage_rate"
-                ),
-                "realized_vowel_anchor_coverage_rate": selection.get(
-                    "planned_annotation_realized_vowel_anchor_coverage_rate"
-                ),
-            },
-            "gesture_diversity": {
-                "enforcement_mode": diversity_enforcement_mode,
-                "gesture_block_count": gesture_block_count,
-                "selected_gesture_take_count": selected_gesture_take_count,
-                "unique_gesture_clip_count": unique_gesture_clip_count,
-                "maximum_same_clip_in_recent_5": maximum_recent_same_clip,
-                "required_unique_gesture_clip_count": required_unique_clips,
-                "required_unique_gesture_take_count": required_unique_takes,
-                "required_maximum_same_clip_in_recent_5": (
-                    required_maximum_recent_same_clip
-                ),
-                "planner_contract_satisfied": diversity_contract_satisfied,
-                "contract": diversity_contract,
-            },
-            "idle_diversity": {
-                "enforcement_mode": diversity_enforcement_mode,
-                "idle_block_count": idle_block_count,
-                "unique_idle_clip_count": unique_idle_clip_count,
-                "maximum_same_clip_in_recent_5": (
-                    maximum_recent_same_idle_clip
-                ),
-                "required_unique_idle_clip_count": (
-                    required_unique_idle_clips
-                ),
-                "required_maximum_same_clip_in_recent_5": (
-                    required_maximum_recent_same_idle_clip
-                ),
-                "planner_contract_satisfied": (
-                    idle_diversity_contract_satisfied
-                ),
-                "contract": idle_diversity_contract,
-            },
-            "motion_diversity_contract_satisfied": (
-                motion_diversity_contract_satisfied
-            ),
-            "passed": not failed_quality,
-            "failures": failed_quality,
-        }
-        selection["lip_sync_indicators"] = {
-            "speech_viseme_match_rate": selection.get(
-                "planned_annotation_speech_viseme_match_rate"
-            ),
-            "large_mouth_realized_core_coverage_rate": selection.get(
-                "planned_annotation_large_mouth_realized_core_coverage_rate"
-            ),
-            "realized_anchor_coverage_rate": selection.get(
-                "planned_annotation_realized_anchor_coverage_rate"
-            ),
-            "realized_vowel_anchor_coverage_rate": selection.get(
-                "planned_annotation_realized_vowel_anchor_coverage_rate"
-            ),
-            "machine_acceptance": "not-assessed",
-            "visual_acceptance": "requires-agent-full-view-and-user-review",
-        }
-        if failed_quality:
-            raise RuntimeError(
-                "动作片段规划没有达到结构与动态待机机器门："
-                + json.dumps(failed_quality, ensure_ascii=False)
-            )
-        return source_positions, boundaries, selection
+        sampler = SourceFrameSampler(source_frames, width, height)
+        return sampler
 
     if planning:
-        source_positions, boundaries, selection = (
-            plan_and_validate_selection()
+        samples, sample_rate = read_wave(audio_master["path"])
+        ranges = plan_unit_ranges(
+            speech_units,
+            total_frames,
+            fps,
+            float(render_config["target_unit_seconds"]),
+            float(render_config["maximum_continuous_unit_seconds"]),
+            float(render_config["split_silence_seconds"]),
         )
-        join_smoothing = preflight_output_resolution_join_windows(
-            sampler,
-            source_positions,
-            boundaries,
-            join_preflight_cache,
-        )
-        report_by_boundary = {
-            int(item["boundary"]): item for item in join_smoothing
-        }
-        join_records = []
-        for transition in selection[
-            "planned_annotation_selected_clip_transitions"
-        ]:
-            record = copy.deepcopy(transition)
-            if transition["boundary"]:
-                boundary = int(transition["output_frame"])
-                preflight = report_by_boundary.get(boundary)
-                if preflight is None:
-                    raise RuntimeError(
-                        f"接缝 {boundary} 没有对应的四帧预检结果"
-                    )
-                mode = preflight.get("transition_mode")
-                if preflight.get("applied") is not True:
-                    category = "rejected"
-                elif mode == "strict_optical_flow":
-                    category = "strict_optical_flow"
-                elif mode == "micro_optical_flow_luma_fallback":
-                    category = "micro_optical_flow"
-                else:
-                    raise RuntimeError(
-                        f"接缝 {boundary} 返回未知过渡模式：{mode}"
-                    )
-                record["preflight"] = copy.deepcopy(preflight)
+        plan_dir = plan_path.parent
+        plan_dir.mkdir(parents=True, exist_ok=False)
+        unit_payloads = []
+        in_memory_schedules: list[dict[str, Any]] = []
+        rejected_count = 0
+        reused_unit_plan_count = 0
+        generated_unit_plan_count = 0
+        reused_seam_plan_count = 0
+        generated_seam_plan_count = 0
+        for index, (start_frame, end_frame) in enumerate(ranges, start=1):
+            unit_id = f"avatar-{index:03d}"
+            frame_count = end_frame - start_frame
+            current_units = local_speech_units(
+                speech_units,
+                start_frame,
+                end_frame,
+                fps,
+            )
+            sample_start = int(round(start_frame * sample_rate / fps))
+            sample_end = min(
+                len(samples),
+                int(round(end_frame * sample_rate / fps)),
+            )
+            current_samples = samples[sample_start:sample_end]
+            events = build_phone_events(current_units)
+            (
+                target_labels,
+                target_levels,
+                energy,
+                anchors,
+                roles,
+                phone_report,
+            ) = build_target_timeline(
+                current_units,
+                events,
+                current_samples,
+                sample_rate,
+                frame_count / fps,
+                fps,
+                frame_count,
+            )
+            local_input = {
+                "start_frame": start_frame,
+                "end_frame_exclusive": end_frame,
+                "speech": [
+                    {
+                        "text": item.text,
+                        "start_seconds": round(item.start, 9),
+                        "end_seconds": round(item.end, 9),
+                    }
+                    for item in current_units
+                ],
+                "audio_pcm_sha256": hashlib.sha256(
+                    np.asarray(current_samples, dtype=np.float32).tobytes()
+                ).hexdigest(),
+            }
+            local_input_sha256 = canonical_json_sha256(local_input)
+            target_timeline_sha256 = canonical_json_sha256(
+                {
+                    "target_labels": list(target_labels),
+                    "target_levels": np.asarray(
+                        target_levels,
+                        dtype=np.float32,
+                    ).tolist(),
+                    "energy": np.asarray(energy, dtype=np.float32).tolist(),
+                    "anchors": list(anchors),
+                    "roles": list(roles),
+                }
+            )
+            unit_dir = plan_dir / "units" / unit_id
+            schedule_path = unit_dir / "schedule.npz"
+            diagnostics_path = unit_dir / "diagnostics.json"
+            plan_cache_key = canonical_json_sha256(
+                {
+                    "version": "anime-avatar-unit-plan-v2",
+                    "target_timeline_sha256": target_timeline_sha256,
+                    "master_sha256": master["content_sha256"],
+                    "library_sha256": provenance_sha256[
+                        "visual_viseme_library"
+                    ],
+                    "motion_planner_sha256": provenance_sha256[
+                        "motion_planner_script"
+                    ],
+                    "fps": fps,
+                }
+            )
+            cached_plan = cached_plan_bundle(
+                project_cache,
+                "units",
+                plan_cache_key,
+                ("schedule.npz", "diagnostics.json"),
+            )
+            unit_dir.mkdir(parents=True, exist_ok=False)
+            if cached_plan is not None:
+                reused_unit_plan_count += 1
+                shutil.copy2(
+                    cached_plan["files"]["schedule.npz"], schedule_path
+                )
+                schedule_payload = load_schedule_artifact(
+                    artifact_record(schedule_path, paths["root"]),
+                    paths["root"],
+                )
+                source_positions = schedule_payload["source_positions"]
+                boundaries = [
+                    int(value) for value in schedule_payload["boundaries"].tolist()
+                ]
+                target_labels = [
+                    str(value) for value in schedule_payload["target_labels"].tolist()
+                ]
+                target_levels = schedule_payload["target_levels"]
+                energy = schedule_payload["energy"]
+                anchors = [
+                    str(value) if str(value) else None
+                    for value in schedule_payload["anchors"].tolist()
+                ]
+                roles = [
+                    str(value) for value in schedule_payload["roles"].tolist()
+                ]
+                diagnostic_payload = read_json(
+                    cached_plan["files"]["diagnostics.json"]
+                )
+                selection = diagnostic_payload["selection"]
+                joins = diagnostic_payload["joins"]
+                machine_gate = diagnostic_payload["machine_gate"]
+                write_json(
+                    diagnostics_path,
+                    {
+                        "protocol": (
+                            "visual-multimedia-anime-avatar-unit-diagnostics"
+                        ),
+                        "version": 1,
+                        "unit_id": unit_id,
+                        "local_input": local_input,
+                        "phone_events": phone_report,
+                        "selection": selection,
+                        "joins": joins,
+                        "machine_gate": machine_gate,
+                    },
+                )
             else:
-                category = "original_source_continuity"
-                record["preflight"] = None
-            record["category"] = category
-            join_records.append(record)
-
-        category_counts = {
-            category: sum(
-                item["category"] == category for item in join_records
+                generated_unit_plan_count += 1
+                plan_sampler = open_sampler()
+                assert descriptors is not None
+                (
+                    source_positions,
+                    boundaries,
+                    selection,
+                ) = plan_gesture_motion(
+                    library,
+                    source_labels,
+                    source_levels,
+                    source_takes,
+                    descriptors,
+                    target_labels,
+                    target_levels,
+                    anchors,
+                    roles,
+                    fps=fps,
+                    sequence_seed=int(target_timeline_sha256[:8], 16),
+                )
+                machine_gate = plan_selection_gate(selection)
+                preflight = preflight_output_resolution_join_windows(
+                    plan_sampler,
+                    source_positions,
+                    boundaries,
+                    {},
+                )
+                joins = join_records(selection, preflight)
+                write_schedule_artifact(
+                    schedule_path,
+                    source_positions=source_positions,
+                    boundaries=boundaries,
+                    target_labels=target_labels,
+                    target_levels=target_levels,
+                    energy=energy,
+                    anchors=anchors,
+                    roles=roles,
+                )
+                write_json(
+                    diagnostics_path,
+                    {
+                        "protocol": (
+                            "visual-multimedia-anime-avatar-unit-diagnostics"
+                        ),
+                        "version": 1,
+                        "unit_id": unit_id,
+                        "local_input": local_input,
+                        "phone_events": phone_report,
+                        "selection": selection,
+                        "joins": joins,
+                        "machine_gate": machine_gate,
+                    },
+                )
+                commit_plan_bundle(
+                    project_cache,
+                    "units",
+                    plan_cache_key,
+                    {
+                        "schedule.npz": schedule_path,
+                        "diagnostics.json": diagnostics_path,
+                    },
+                )
+            rejected = sum(item["category"] == "rejected" for item in joins)
+            rejected_count += rejected
+            schedule_record = artifact_record(schedule_path, paths["root"])
+            diagnostics_record = artifact_record(diagnostics_path, paths["root"])
+            render_instructions_sha256 = canonical_json_sha256(
+                {
+                    "joins": render_join_instruction_records(joins),
+                }
             )
-            for category in (
-                "original_source_continuity",
-                "strict_optical_flow",
-                "micro_optical_flow",
-                "rejected",
+            render_schedule_sha256 = canonical_json_sha256(
+                {
+                    "source_positions": np.asarray(
+                        source_positions,
+                        dtype=np.float32,
+                    ).tolist(),
+                    "boundaries": [int(value) for value in boundaries],
+                }
             )
-        }
-        deterministic_seam_plan = {
-            "planning_pass_count": 1,
-            "selected_transition_count": len(join_records),
-            "boundary_count": len(boundaries),
-            "original_source_continuity_count": category_counts[
-                "original_source_continuity"
-            ],
-            "strict_optical_flow_join_count": category_counts[
-                "strict_optical_flow"
-            ],
-            "micro_optical_flow_transition_count": category_counts[
-                "micro_optical_flow"
-            ],
-            "rejected_join_count": category_counts["rejected"],
-            "micro_transition_internal_frames": 2,
-            "micro_transition_seconds": round(2 / fps, 6),
-            "cached_exact_join_windows": len(join_preflight_cache),
-            "all_boundaries_preflighted_before_encoding": True,
-            "all_accepted_boundaries_smoothed": True,
-            "route_retry_count": 0,
-        }
-        selection["deterministic_seam_plan"] = deterministic_seam_plan
-        plan_status = (
-            "rejected"
-            if category_counts["rejected"]
-            else "ready"
-        )
-        render_plan_payload = {
+            cache_key = canonical_json_sha256(
+                {
+                    "version": UNIT_CACHE_VERSION,
+                    "kind": "unit-core",
+                    "master_sha256": master["content_sha256"],
+                    "render_schedule_sha256": render_schedule_sha256,
+                    "render_instructions_sha256": (
+                        render_instructions_sha256
+                    ),
+                    "fps": fps,
+                    "master_size": list(master_size),
+                }
+            )
+            unit_payloads.append(
+                {
+                    "id": unit_id,
+                    "order": index,
+                    "start_frame": start_frame,
+                    "end_frame_exclusive": end_frame,
+                    "frame_count": frame_count,
+                    "local_input_sha256": local_input_sha256,
+                    "render_instructions_sha256": (
+                        render_instructions_sha256
+                    ),
+                    "render_schedule_sha256": render_schedule_sha256,
+                    "schedule": schedule_record,
+                    "diagnostics": diagnostics_record,
+                    "internal_seams": {
+                        "count": len(boundaries),
+                        "rejected": rejected,
+                    },
+                    "cache_key": cache_key,
+                }
+            )
+            in_memory_schedules.append(
+                {
+                    "positions": np.asarray(source_positions, dtype=np.float32),
+                    "target_labels": target_labels,
+                    "target_levels": target_levels,
+                    "energy": energy,
+                    "anchors": anchors,
+                    "roles": roles,
+                    "boundaries": boundaries,
+                }
+            )
+        seam_payloads = []
+        for index in range(len(unit_payloads) - 1):
+            left = unit_payloads[index]
+            right = unit_payloads[index + 1]
+            seam_id = f"{left['id']}--{right['id']}"
+            seam_path = plan_dir / "seams" / f"{seam_id}.json"
+            seam_plan_key = canonical_json_sha256(
+                {
+                    "version": "anime-avatar-seam-plan-v1",
+                    "master_sha256": master["content_sha256"],
+                    "left_schedule_sha256": left["schedule"]["sha256"],
+                    "right_schedule_sha256": right["schedule"]["sha256"],
+                    "join_blender_sha256": provenance_sha256[
+                        "join_blender_script"
+                    ],
+                    "fps": fps,
+                }
+            )
+            cached_seam = cached_plan_bundle(
+                project_cache,
+                "seams",
+                seam_plan_key,
+                ("seam.json",),
+            )
+            seam_path.parent.mkdir(parents=True, exist_ok=True)
+            if cached_seam is not None:
+                reused_seam_plan_count += 1
+                shutil.copy2(cached_seam["files"]["seam.json"], seam_path)
+                report = read_json(seam_path)["report"]
+            else:
+                generated_seam_plan_count += 1
+                combined = np.concatenate(
+                    [
+                        in_memory_schedules[index]["positions"][-2:],
+                        in_memory_schedules[index + 1]["positions"][:2],
+                    ]
+                )
+                report = preflight_output_resolution_join_windows(
+                    open_sampler(),
+                    combined,
+                    [2],
+                    {},
+                )[0]
+                write_json(
+                    seam_path,
+                    {
+                        "protocol": "visual-multimedia-anime-avatar-unit-seam",
+                        "version": 1,
+                        "id": seam_id,
+                        "report": report,
+                    },
+                )
+                commit_plan_bundle(
+                    project_cache,
+                    "seams",
+                    seam_plan_key,
+                    {"seam.json": seam_path},
+                )
+            status = "ready" if report.get("applied") is True else "rejected"
+            if status == "rejected":
+                rejected_count += 1
+            seam_record = artifact_record(seam_path, paths["root"])
+            seam_payloads.append(
+                {
+                    "id": seam_id,
+                    "left_unit_id": left["id"],
+                    "right_unit_id": right["id"],
+                    "boundary_frame": left["end_frame_exclusive"],
+                    "artifact": seam_record,
+                    "cache_key": canonical_json_sha256(
+                        {
+                            "version": UNIT_CACHE_VERSION,
+                            "kind": "seam-bridge",
+                            "master_sha256": master["content_sha256"],
+                            "left_schedule_sha256": left["schedule"]["sha256"],
+                            "right_schedule_sha256": right["schedule"]["sha256"],
+                            "artifact_sha256": seam_record["sha256"],
+                            "fps": fps,
+                            "master_size": list(master_size),
+                        }
+                    ),
+                    "status": status,
+                }
+            )
+        plan_status = "ready" if rejected_count == 0 else "rejected"
+        render_plan = {
             "protocol": "visual-multimedia-anime-avatar-render-plan",
-            "version": 2,
+            "version": 3,
             "status": plan_status,
-            "plan_id": task_id,
+            "plan_id": plan_id,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "inputs": {
                 key: {
-                    "locator": portable_locator(
-                        provenance_paths[key],
-                        paths["root"],
-                    ),
+                    "locator": portable_locator(path, paths["root"]),
                     "sha256": provenance_sha256[key],
                 }
-                for key in provenance_paths
+                for key, path in provenance_paths.items()
             },
             "library_capabilities": {
                 "resource": {
                     "id": package["id"],
                     "version": package["library_version"],
                 },
-                "facts": library_validation["capability_facts"],
+                "facts": {
+                    "dynamic_closed_idle": package["capabilities"][
+                        "dynamic_closed_idle"
+                    ],
+                    "whole_frame": package["capabilities"]["whole_frame"],
+                    "visemes": package["capabilities"]["visemes"],
+                },
             },
             "execution": {
                 "duration_seconds": round(requested_duration, 9),
                 "audio_duration_seconds": round(audio_duration, 9),
                 "internal_fps": fps,
                 "delivery_fps": delivery_fps,
-                "output_size": [width, height],
+                "master_size": list(master_size),
             },
-            "target_timeline": {
-                "visemes": target_labels,
-                "intensities": [
-                    float(value) for value in target_levels
-                ],
-                "energy": [float(value) for value in energy],
-                "anchors": anchors,
-                "roles": roles,
-                "phone_events": phone_report,
+            "master": {
+                "cache_key": master["cache_key"],
+                "content_sha256": master["content_sha256"],
+                "manifest_sha256": master["manifest_sha256"],
+                "width": width,
+                "height": height,
+                "fps": float(master["probe"]["fps"]),
             },
-            "source_schedule": {
-                "source_position_by_internal_frame": [
-                    float(value) for value in source_positions
-                ],
-                "boundaries": [int(value) for value in boundaries],
+            "units": unit_payloads,
+            "seams": seam_payloads,
+            "summary": {
+                "unit_count": len(unit_payloads),
+                "seam_bridge_count": len(seam_payloads),
+                "rejected_seam_count": rejected_count,
+                "generated_unit_plan_count": generated_unit_plan_count,
+                "reused_unit_plan_count": reused_unit_plan_count,
+                "generated_seam_plan_count": generated_seam_plan_count,
+                "reused_seam_plan_count": reused_seam_plan_count,
+                "target_unit_seconds": float(
+                    render_config["target_unit_seconds"]
+                ),
+                "maximum_continuous_unit_seconds": float(
+                    render_config["maximum_continuous_unit_seconds"]
+                ),
+                "split_silence_seconds": float(
+                    render_config["split_silence_seconds"]
+                ),
+                "speech_safe_boundaries_only": True,
+                "per_frame_arrays_externalized": True,
+                "local_invalidation": (
+                    "changed unit core plus adjacent two-frame seam bridges"
+                ),
             },
-            "selection": selection,
-            "joins": join_records,
-            "deterministic_seam_plan": deterministic_seam_plan,
             "approval": {
                 "status": "pending",
                 "confirmed_at": None,
                 "approved_plan_sha256": None,
             },
         }
-        validate_render_plan_payload(
-            render_plan_payload,
-            require_confirmed=False,
-        )
-        render_plan_path.parent.mkdir(parents=True, exist_ok=True)
-        write_json(render_plan_path, render_plan_payload)
-        sampler.close()
-        del sampler
-        del source_frames
-        gc.collect()
+        write_json(plan_path, render_plan)
+        if sampler is not None:
+            sampler.close()
+        validate_render_plan_payload(render_plan, require_confirmed=False)
         if plan_status == "rejected":
-            failed_details = [
-                {
-                    "boundary": int(item["output_frame"]),
-                    "reason": item["preflight"].get("reason"),
-                    "failed_checks": item["preflight"].get(
-                        "failed_checks"
-                    ),
-                }
-                for item in join_records
-                if item["category"] == "rejected"
-            ]
             raise RuntimeError(
-                "接缝计划已写出，但人物结构或运动不兼容，不能确认或编码："
-                + json.dumps(
-                    {
-                        "render_plan": str(render_plan_path),
-                        "rejected": failed_details,
-                    },
-                    ensure_ascii=False,
-                )
+                f"分段角色计划含 {rejected_count} 个未通过接缝，不能确认"
             )
         return {
             "ok": True,
             "status": "ready",
-            "plan_id": task_id,
-            "render_plan": str(render_plan_path),
-            "library_capabilities": library_validation["capability_facts"],
-            "deterministic_seam_plan": deterministic_seam_plan,
-            "next": (
-                "检查 render-plan.json 中的全部原片连续、严格光流和微过渡"
-                "接缝；确认后运行 confirm-plan，再由 render 消费。"
-            ),
+            "plan_id": plan_id,
+            "render_plan": str(plan_path),
+            "master": {
+                "size": list(master_size),
+                "status": master["status"],
+                "cache_key": master["cache_key"],
+            },
+            "unit_count": len(unit_payloads),
+            "seam_bridge_count": len(seam_payloads),
+            "generated_unit_plans": generated_unit_plan_count,
+            "reused_unit_plans": reused_unit_plan_count,
+            "generated_seam_plans": generated_seam_plan_count,
+            "reused_seam_plans": reused_seam_plan_count,
+            "plan_seconds": round(time.perf_counter() - started_at, 3),
+            "next": "检查分段摘要和接缝制品，确认后运行 confirm-plan。",
         }
 
     assert approved_plan is not None
-    source_positions = np.asarray(
-        approved_plan["source_schedule"][
-            "source_position_by_internal_frame"
-        ],
-        dtype=np.float32,
-    )
-    boundaries = [
-        int(value)
-        for value in approved_plan["source_schedule"]["boundaries"]
-    ]
-    selection = copy.deepcopy(approved_plan["selection"])
-    join_smoothing = [
-        copy.deepcopy(item["preflight"])
-        for item in approved_plan["joins"]
-        if item["category"]
-        in {"strict_optical_flow", "micro_optical_flow"}
-    ]
-    if len(source_positions) != requested_internal_frames:
-        raise ValueError(
-            "render-plan.json 的源帧计划长度与计划时长不一致"
-        )
-    print(
-        "已载入并验证已确认接缝计划："
-        f"boundaries={len(boundaries)}, "
-        "strict="
-        f"{selection['deterministic_seam_plan']['strict_optical_flow_join_count']}, "
-        "micro="
-        f"{selection['deterministic_seam_plan']['micro_optical_flow_transition_count']}",
-        flush=True,
-    )
     assert output is not None
     assert report_dir is not None
-    streaming_result = encode_silent_stream(
-        ffmpeg,
-        sampler,
-        source_positions,
-        boundaries,
-        join_smoothing,
-        fps,
-        silent_video,
-    )
-    sampler.close()
-    del sampler
-    del source_frames
-    gc.collect()
+    units = approved_plan["units"]
+    schedules = [
+        load_schedule_artifact(unit["schedule"], paths["root"])
+        for unit in units
+    ]
+    diagnostics = []
+    for unit in units:
+        diagnostics_path = resolve_portable_locator(
+            unit["diagnostics"]["locator"], paths["root"]
+        )
+        if file_sha256(diagnostics_path) != unit["diagnostics"]["sha256"]:
+            raise RuntimeError(f"角色诊断制品哈希不一致：{diagnostics_path}")
+        diagnostics.append(read_json(diagnostics_path))
+    seam_artifacts = []
+    for seam in approved_plan["seams"]:
+        seam_path = resolve_portable_locator(
+            seam["artifact"]["locator"], paths["root"]
+        )
+        if file_sha256(seam_path) != seam["artifact"]["sha256"]:
+            raise RuntimeError(f"角色接缝制品哈希不一致：{seam_path}")
+        seam_artifacts.append(read_json(seam_path))
 
-    video_duration = len(source_positions) / fps
+    core_results: list[dict[str, Any] | None] = []
+    for index, unit in enumerate(units):
+        frame_count = unit["frame_count"] - (1 if index else 0) - (
+            1 if index < len(units) - 1 else 0
+        )
+        core_results.append(
+            cached_segment(
+                project_cache,
+                "units",
+                unit["cache_key"],
+                ffprobe,
+                width,
+                height,
+                fps,
+                frame_count,
+            )
+        )
+    seam_results: list[dict[str, Any] | None] = []
+    for seam in approved_plan["seams"]:
+        seam_results.append(
+            cached_segment(
+                project_cache,
+                "seams",
+                seam["cache_key"],
+                ffprobe,
+                width,
+                height,
+                fps,
+                2,
+            )
+        )
+    cache_inspected_at = time.perf_counter()
+    if any(item is None for item in core_results + seam_results):
+        render_sampler = open_sampler()
+        for index, (unit, schedule, diagnostic) in enumerate(
+            zip(units, schedules, diagnostics, strict=True)
+        ):
+            if core_results[index] is not None:
+                continue
+            trim_left = 1 if index else 0
+            trim_right = 1 if index < len(units) - 1 else 0
+            positions = np.asarray(schedule["source_positions"], dtype=np.float32)
+            end = len(positions) - trim_right if trim_right else len(positions)
+            core_positions = positions[trim_left:end]
+            original_boundaries = [
+                int(value) for value in schedule["boundaries"].tolist()
+            ]
+            boundaries = [
+                value - trim_left
+                for value in original_boundaries
+                if trim_left < value < end
+            ]
+            reports = [
+                copy.deepcopy(item["preflight"])
+                for item in diagnostic["joins"]
+                if item["category"] == "ready"
+                and trim_left < int(item["output_frame"]) < end
+            ]
+            reports = shifted_join_reports(reports, trim_left)
+            if any(
+                boundary < 2 or boundary + 1 >= len(core_positions)
+                for boundary in boundaries
+            ):
+                raise RuntimeError(
+                    f"{unit['id']} 的内部接缝贴近分段桥；请调整分段边界"
+                )
+            pending = working / f"{unit['id']}.core.mp4"
+            encode_silent_stream(
+                ffmpeg,
+                render_sampler,
+                core_positions,
+                boundaries,
+                reports,
+                fps,
+                pending,
+            )
+            core_results[index] = commit_segment_cache(
+                project_cache,
+                "units",
+                unit["cache_key"],
+                pending,
+                len(core_positions),
+            )
+        for index, seam in enumerate(approved_plan["seams"]):
+            if seam_results[index] is not None:
+                continue
+            combined = np.concatenate(
+                [
+                    schedules[index]["source_positions"][-2:],
+                    schedules[index + 1]["source_positions"][:2],
+                ]
+            ).astype(np.float32)
+            frames = [
+                render_sampler.sample(float(position)) for position in combined
+            ]
+            report = blend_compatible_join_window_in_place(frames, 2)
+            planned_report = seam_artifacts[index]["report"]
+            if (
+                report.get("applied") is not True
+                or [frame_sha256(frame) for frame in frames]
+                != planned_report.get("preflight_blended_window_sha256")
+            ):
+                raise RuntimeError(f"{seam['id']} 无法复现已确认的两帧接缝桥")
+            bridge_frames = [frames[1], frames[2]]
+            pending = working / f"{seam['id']}.bridge.mp4"
+            encode_frame_sequence(ffmpeg, bridge_frames, fps, pending)
+            seam_results[index] = commit_segment_cache(
+                project_cache,
+                "seams",
+                seam["cache_key"],
+                pending,
+                2,
+            )
+    if sampler is not None:
+        sampler.close()
+    completed_cores = [item for item in core_results if item is not None]
+    completed_seams = [item for item in seam_results if item is not None]
+    if len(completed_cores) != len(units) or len(completed_seams) != len(
+        approved_plan["seams"]
+    ):
+        raise RuntimeError("角色分段缓存构建没有完整闭合")
+    segments: list[Path] = []
+    for index, item in enumerate(completed_cores):
+        segments.append(item["video"])
+        if index < len(completed_seams):
+            segments.append(completed_seams[index]["video"])
+    silent_assembled = working / "avatar-track-silent.mp4"
+    concat_segments(
+        ffmpeg,
+        segments,
+        working / "segments.ffconcat",
+        silent_assembled,
+    )
+    video_duration = total_frames / fps
     mux_audio(
         ffmpeg,
-        silent_video,
-        trimmed_audio,
-        motion_match_video,
+        silent_assembled,
+        audio_master["path"],
+        output,
         video_duration,
     )
-    if delivery_fps == fps:
-        with motion_match_video.open("rb") as source_video:
-            with output.open("xb") as destination_video:
-                shutil.copyfileobj(
-                    source_video,
-                    destination_video,
-                    length=1024 * 1024,
-                )
-    else:
-        interpolate_delivery(
-            ffmpeg,
-            motion_match_video,
-            output,
-            delivery_fps,
-            video_duration,
-        )
-
-    nearest_source_indices = np.clip(
-        np.rint(source_positions).astype(np.int32),
-        0,
-        len(source_labels) - 1,
-    )
     output_probe = probe_video(output, ffprobe)
-    duration_tolerance = max(0.002, 0.5 / delivery_fps)
-    if abs(output_probe["video_duration_seconds"] - video_duration) > duration_tolerance:
-        raise RuntimeError(
-            "交付视频画面时长与内部帧时间线不一致："
-            f"预期 {video_duration:.6f}s，"
-            f"实际 {output_probe['video_duration_seconds']:.6f}s"
+    if (
+        output_probe["width"] != width
+        or output_probe["height"] != height
+        or abs(float(output_probe["fps"]) - fps) > 0.02
+        or int(output_probe["declared_frame_count"]) != total_frames
+    ):
+        raise RuntimeError("最终角色轨尺寸、帧率或帧数与确认计划不一致")
+    global_positions = np.concatenate(
+        [schedule["source_positions"] for schedule in schedules]
+    ).astype(np.float32)
+    global_labels = [
+        str(value)
+        for schedule in schedules
+        for value in schedule["target_labels"].tolist()
+    ]
+    global_levels = np.concatenate(
+        [schedule["target_levels"] for schedule in schedules]
+    ).astype(np.float32)
+    global_boundaries = []
+    for unit, schedule in zip(units, schedules, strict=True):
+        global_boundaries.extend(
+            unit["start_frame"] + int(value)
+            for value in schedule["boundaries"].tolist()
         )
-    final_provenance_sha256 = {
-        key: file_sha256(path) for key, path in provenance_paths.items()
-    }
-    if final_provenance_sha256 != provenance_sha256:
-        raise RuntimeError(
-            "渲染期间脚本、口型库或时间线发生变化，拒绝写出混合版本报告"
-        )
+    global_boundaries.extend(
+        int(seam["boundary_frame"]) for seam in approved_plan["seams"]
+    )
     review_outputs = save_render_review_from_video(
         report_dir,
         output,
-        source_positions,
-        boundaries,
-        target_labels,
-        target_levels,
+        global_positions,
+        sorted(set(global_boundaries)),
+        global_labels,
+        global_levels,
         source_labels,
         source_levels,
         fps,
         delivery_fps,
     )
+    unit_results = []
+    for index, (unit, result) in enumerate(zip(units, completed_cores, strict=True)):
+        unit_results.append(
+            {
+                "id": unit["id"],
+                "start_frame": unit["start_frame"],
+                "end_frame_exclusive": unit["end_frame_exclusive"],
+                "cache_key": unit["cache_key"],
+                "status": result["status"],
+                "content_sha256": result["content_sha256"],
+                "adjacent_seam_ids": [
+                    seam["id"]
+                    for seam in approved_plan["seams"]
+                    if seam["left_unit_id"] == unit["id"]
+                    or seam["right_unit_id"] == unit["id"]
+                ],
+            }
+        )
+    clip_records = []
+    track_clip_root = report_dir / "track-clips"
+    for index, (unit, result) in enumerate(
+        zip(units, completed_cores, strict=True)
+    ):
+        start_frame = unit["start_frame"] + (1 if index else 0)
+        duration_frames = unit["frame_count"] - (1 if index else 0) - (
+            1 if index < len(units) - 1 else 0
+        )
+        core_file = materialize_track_clip(
+            result["video"],
+            track_clip_root / f"{unit['id']}-core.mp4",
+        )
+        clip_records.append(
+            {
+                "id": f"{unit['id']}-core",
+                "kind": "unit-core",
+                "timeline_start_frame": start_frame,
+                "duration_frames": duration_frames,
+                "file": core_file.resolve().relative_to(paths["root"]).as_posix(),
+                "sha256": result["content_sha256"],
+            }
+        )
+        if index < len(completed_seams):
+            seam = approved_plan["seams"][index]
+            seam_result = completed_seams[index]
+            seam_file = materialize_track_clip(
+                seam_result["video"],
+                track_clip_root / f"{seam['id']}.mp4",
+            )
+            clip_records.append(
+                {
+                    "id": seam["id"],
+                    "kind": "seam-bridge",
+                    "timeline_start_frame": seam["boundary_frame"] - 1,
+                    "duration_frames": 2,
+                    "file": seam_file.resolve().relative_to(
+                        paths["root"]
+                    ).as_posix(),
+                    "sha256": seam_result["content_sha256"],
+                }
+            )
+    expected_cursor = 0
+    for record in sorted(
+        clip_records, key=lambda item: item["timeline_start_frame"]
+    ):
+        if record["timeline_start_frame"] != expected_cursor:
+            raise RuntimeError("角色分段交接清单没有连续覆盖完整时间线")
+        expected_cursor += record["duration_frames"]
+    if expected_cursor != total_frames:
+        raise RuntimeError("角色分段交接清单的总帧数与计划不一致")
+    track_audio = materialize_track_clip(
+        audio_master["path"],
+        track_clip_root / "continuous-audio.wav",
+    )
+    track_clips_path = report_dir / "avatar-track-clips.json"
+    write_json(
+        track_clips_path,
+        {
+            "protocol": "visual-multimedia-anime-avatar-track-clips",
+            "version": 1,
+            "fps": fps,
+            "width": width,
+            "height": height,
+            "duration_frames": total_frames,
+            "clips": sorted(
+                clip_records, key=lambda item: item["timeline_start_frame"]
+            ),
+            "audio": {
+                "timeline_start_frame": 0,
+                "duration_frames": total_frames,
+                "file": track_audio.resolve().relative_to(paths["root"]).as_posix(),
+                "sha256": audio_master["content_sha256"],
+            },
+        },
+    )
     report = {
         "protocol": "visual-multimedia-anime-avatar-render",
-        "version": 3,
+        "version": 4,
         "task_id": task_id,
-        "run_id": run_id,
-        "immutable_run_directories": {
-            "working": str(working),
-            "report": str(report_dir),
-            "task_id_reuse_rejected": True,
-        },
-        "input_provenance": {
-            key: {
-                "path": str(provenance_paths[key]),
-                "sha256": provenance_sha256[key],
-            }
-            for key in provenance_paths
-        },
+        "run_id": uuid.uuid4().hex,
         "approved_render_plan": {
-            "path": str(render_plan_path),
-            "plan_id": approved_plan["plan_id"],
+            "path": str(plan_path),
             "approved_plan_sha256": approved_plan["approval"][
                 "approved_plan_sha256"
             ],
-            "full_render_consumed_plan_without_replanning": True,
-            "input_hashes_revalidated_before_encoding": True,
+            "input_hashes_revalidated": True,
+            "runtime_replanning": False,
         },
-        "library_capabilities": copy.deepcopy(
-            approved_plan["library_capabilities"]
-        ),
-        "character_id": character["id"],
-        "motion_source_id": motion_source["source_id"],
-        "audio_source_id": timeline["audio_source_id"],
-        "speech_timeline": str(timeline_path),
-        "text": timeline["text"],
-        "audio_trim": {
-            "start_seconds": timeline["trim_start_seconds"],
-            "end_seconds": timeline["trim_end_seconds"],
-            "rendered_duration_seconds": round(audio_duration, 6),
+        "master": {
+            "size": list(master_size),
+            "cache_key": master["cache_key"],
+            "status": master["status"],
+            "content_sha256": master["content_sha256"],
         },
-        "output_timing": {
-            "requested_duration_seconds": round(
-                requested_duration,
-                6,
-            ),
-            "audio_duration_seconds": round(audio_duration, 6),
-            "timeline_duration_seconds": round(video_duration, 6),
-            "silence_idle_seconds": round(
-                sum(role == "silence" for role in roles) / fps,
-                6,
+        "continuous_audio_master": {
+            "cache_key": audio_master["cache_key"],
+            "status": audio_master["status"],
+            "content_sha256": audio_master["content_sha256"],
+            "mux_count": 1,
+        },
+        "track_clips": {
+            "path": str(track_clips_path),
+            "sha256": file_sha256(track_clips_path),
+            "consumer_boundary": (
+                "ordinary video and interview video timelines import each clip "
+                "as a normal aligned visual asset"
             ),
         },
-        "architecture": (
-            "confirmed speech timeline -> Mandarin phoneme/viseme nuclei -> "
-            "within-syllable acoustic intensity -> reusable AI-reviewed "
-            "whole-frame gesture/idle clip scheduler -> directed natural chains "
-            "or compatibility-gated low-mouth endpoints -> bounded monotonic "
-            "source-time mapping -> immutable confirmed render-plan.json with "
-            "input/code hashes and every original/strict/micro join -> "
-            "no runtime route planning -> deterministic two-frame optical-flow "
-            "writeback while streaming directly into FFmpeg -> "
-            "motion-compensated delivery"
-        ),
-        "classification_boundary": {
-            "source_classification": "read only from visual-viseme-library.json",
-            "runtime_image_classification": False,
-            "pixel_or_contour_mouth_classification": False,
-        },
-        "phone_events": phone_report,
-        "target_by_internal_frame": [
+        "units": unit_results,
+        "seams": [
             {
-                "frame": index,
-                "seconds": round(index / fps, 6),
-                "viseme": target_labels[index],
-                "phone_nucleus_anchor": anchors[index],
-                "intensity": round(float(target_levels[index]), 4),
-                "energy": round(float(energy[index]), 4),
+                "id": seam["id"],
+                "cache_key": seam["cache_key"],
+                "status": result["status"],
+                "content_sha256": result["content_sha256"],
+                "frame_count": 2,
             }
-            for index in range(len(source_positions))
-        ],
-        "source_position_by_internal_frame": [
-            round(float(value), 6) for value in source_positions
-        ],
-        "selected_annotation_by_internal_frame": [
-            {
-                "source_position": round(
-                    float(source_positions[output_index]),
-                    6,
-                ),
-                "nearest_source_frame": int(source_index),
-                "viseme": source_labels[source_index],
-                "intensity": round(float(source_levels[source_index]), 4),
-                "take": int(source_takes[source_index]),
-            }
-            for output_index, source_index in enumerate(
-                nearest_source_indices
+            for seam, result in zip(
+                approved_plan["seams"], completed_seams, strict=True
             )
         ],
-        "selection": selection,
-        "join_smoothing": join_smoothing,
-        "speed_configuration": {
-            "internal_fps": fps,
-            "delivery_fps": delivery_fps,
-            "planner_source_speed_limit": selection.get(
-                "planned_annotation_source_speed_limit"
-            ),
-            "planner_source_acceleration_limit": selection.get(
-                "planned_annotation_source_acceleration_limit"
-            ),
-            "observed_minimum_continuous_source_speed": selection.get(
-                "planned_annotation_minimum_continuous_source_speed"
-            ),
-            "observed_maximum_continuous_source_speed": selection.get(
-                "planned_annotation_maximum_continuous_source_speed"
-            ),
-            "observed_maximum_continuous_source_acceleration": selection.get(
-                "planned_annotation_maximum_continuous_source_acceleration"
-            ),
-            "required_minimum_boundary_gap": selection.get(
-                "planned_annotation_required_minimum_boundary_gap"
-            ),
-            "delivery_motion_interpolation": (
-                "disabled"
-                if delivery_fps == fps
-                else (
-                    "FFmpeg minterpolate mci/aobmc/bidir/vsbmc=1 "
-                    f"to {delivery_fps} fps"
-                )
-            ),
-        },
-        "technical_result": {
+        "assembly": {
+            "visual_strategy": "stream-copy ordered unit cores and two-frame seam bridges",
+            "audio_strategy": "one continuous master mux",
             "output": str(output),
-            "internal_fps": fps,
-            "internal_frame_count": len(source_positions),
-            "delivery_probe": output_probe,
-            "fixed_source_crop_xywh": list(crop),
-            "output_size": [width, height],
-            "fixed_anchor_policy": (
-                "one source crop for every frame; no per-frame landmark or accessory tracking"
+            "output_sha256": file_sha256(output),
+            "probe": output_probe,
+        },
+        "performance": {
+            "cache_inspection_seconds": round(cache_inspected_at - started_at, 3),
+            "total_seconds": round(time.perf_counter() - started_at, 3),
+            "rendered_unit_count": sum(
+                item["status"] == "rendered" for item in completed_cores
             ),
-            "streaming_memory_policy": {
-                "source_frame_store": source_store_report,
-                "source_frame_store_is_disk_backed": True,
-                "full_resolution_source_frames_held_in_python_list": 0,
-                "target_duration_full_resolution_frames_retained": 0,
-                "maximum_resident_output_frames": streaming_result[
-                    "maximum_resident_output_frames"
-                ],
-                "maximum_resident_cached_source_frames": streaming_result[
-                    "maximum_resident_cached_source_frames"
-                ],
-                "source_cache_capacity_frames": streaming_result[
-                    "source_cache_capacity_frames"
-                ],
-                "full_resolution_image_heap_complexity": "O(1)",
-                "timeline_metadata_memory_complexity": "O(target_frames)",
-                "final_video_copy_uses_bounded_buffer": delivery_fps == fps,
-                "review_frames_read_from_final_encoded_delivery": True,
-                "review_full_resolution_frames_retained": 0,
-            },
-            "streaming_result": streaming_result,
+            "reused_unit_count": sum(
+                item["status"] == "reused" for item in completed_cores
+            ),
+            "rendered_seam_count": sum(
+                item["status"] == "rendered" for item in completed_seams
+            ),
+            "reused_seam_count": sum(
+                item["status"] == "reused" for item in completed_seams
+            ),
         },
         "review_artifacts": review_outputs,
         "human_full_review": {
             "required": True,
             "completed": False,
             "checks": [
-                "watch the complete output with sound",
-                "inspect every smoothed two-frame boundary strip",
-                "confirm motion remains continuous across speech and silence rather than restarting per interval",
-                "confirm bounded clip time-stretch does not make head, hair, ears or shoulders move unnaturally fast",
-                "confirm no unsmoothed hard cut remains at any planned source transition",
-                "confirm no rapid meaningless open-close",
-                "confirm large openings appear on sufficiently strong vowel nuclei",
-                "confirm late sections keep varied continuous motion rather than mechanically repeating one take",
-                "confirm every silent interval uses moving closed-mouth source frames rather than a frozen frame",
-                "confirm no fixed post-speech tail was added beyond the requested timeline",
-                "confirm identity, chin, hair, ears, accessories and shoulders stay coherent",
+                "完整观看口型、闭嘴待机和单元接缝",
+                "确认长静音没有机械重启同一段动作",
+                "确认角色身份、头发、耳朵、饰品和肩部连续",
             ],
         },
     }
@@ -2953,17 +3481,15 @@ def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
     return {
         "ok": True,
         "task_id": task_id,
-        "run_id": run_id,
         "output": str(output),
         "report": str(report_path),
-        "audio_duration_seconds": round(audio_duration, 6),
-        "internal_frames": len(source_positions),
-        "delivery_fps": delivery_fps,
-        "selection": selection,
+        "master_size": list(master_size),
+        "unit_count": len(units),
+        "rendered_units": report["performance"]["rendered_unit_count"],
+        "reused_units": report["performance"]["reused_unit_count"],
+        "total_seconds": report["performance"]["total_seconds"],
         "review_artifacts": review_outputs,
-        "next": (
-            "完整观看输出并查看 boundary strips；确认后再进入常规视频时间线做圆形或方形窗口合成。"
-        ),
+        "next": "验收联系表和完整角色轨后，再作为普通视频时间线的分段覆盖轨使用。",
     }
 
 
@@ -3018,7 +3544,7 @@ def main() -> int:
     report = (
         confirm_render_plan(args)
         if args.command == "confirm-plan"
-        else run_avatar_pipeline(args)
+        else run_segmented_avatar_pipeline(args)
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0

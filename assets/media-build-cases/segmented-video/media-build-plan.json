@@ -1,0 +1,105 @@
+{
+  "protocol": "visual-multimedia-media-build-plan",
+  "version": 1,
+  "project_id": "segmented-video-contract-case",
+  "media_kind": "video",
+  "profile": "generic-segmented-video",
+  "stage_target": "full-preview",
+  "created_at": "2026-08-03T00:00:00.000Z",
+  "source_contract": "assets/media-build-cases/segmented-video/source-contract.json",
+  "source_contract_sha256": "d42c8a998c5a713d8ff19f373cf810fb2693d4c573e67593bd0fae3a566a34a6",
+  "producer": {
+    "entry": "scripts/generate-media-build-case.mjs",
+    "sha256": "2ab1911ccbe402bf15b79c398d956b8c8fbcaea1e9e86aa4067ce2840a2209bf",
+    "modules": [
+      {
+        "file": "scripts/generate-media-build-case.mjs",
+        "sha256": "2ab1911ccbe402bf15b79c398d956b8c8fbcaea1e9e86aa4067ce2840a2209bf"
+      },
+      {
+        "file": "scripts/media_build_contract.mjs",
+        "sha256": "ce5bf165c6fe0a3b97f79363131773db6d1cdb97d2637aba8558c9c6e8420298"
+      },
+      {
+        "file": "scripts/interview_explainer_common.mjs",
+        "sha256": "de54bd8ba33a129c53ac56b29a464771c2187bfb992776cedacd848515717c56"
+      }
+    ]
+  },
+  "output": {
+    "file": "assets/media-build-cases/segmented-video/output/segmented-video.mp4",
+    "width": 160,
+    "height": 90,
+    "fps": 25,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "quality_profile": "proxy"
+  },
+  "units": [
+    {
+      "id": "scene-1",
+      "order": 1,
+      "kind": "pre-rendered-media",
+      "source_unit_id": "scene-1",
+      "timeline_start_frame": 0,
+      "duration_frames": 25,
+      "dependencies": [
+        {
+          "role": "source",
+          "file": "assets/media-build-cases/segmented-video/inputs/scene-1.json",
+          "sha256": "18bd2323b05f993006421351de797abd6ce1b3de5d0279aea4c11c90a9c84bd9"
+        },
+        {
+          "role": "avatar-track",
+          "file": "assets/media-build-cases/segmented-video/inputs/avatar-1.json",
+          "sha256": "f2fc190f3ba659c75edcf46693872187c551e7010e05057942a9b00912247f87"
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "order": 2,
+      "kind": "pre-rendered-media",
+      "source_unit_id": "scene-2",
+      "timeline_start_frame": 25,
+      "duration_frames": 25,
+      "dependencies": [
+        {
+          "role": "source",
+          "file": "assets/media-build-cases/segmented-video/inputs/scene-2.json",
+          "sha256": "749b3ca4ebf03092f17be9ec4d1f58b76ad3429bf2b703f4caa0c7399e1c96a7"
+        },
+        {
+          "role": "avatar-track",
+          "file": "assets/media-build-cases/segmented-video/inputs/avatar-2.json",
+          "sha256": "d38b01fff2bce2279073f1ec1dd5f41c5eb687096b77fbe73c4bcc9c4d46007a"
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "order": 3,
+      "kind": "pre-rendered-media",
+      "source_unit_id": "scene-3",
+      "timeline_start_frame": 50,
+      "duration_frames": 25,
+      "dependencies": [
+        {
+          "role": "source",
+          "file": "assets/media-build-cases/segmented-video/inputs/scene-3.json",
+          "sha256": "c58efd803c688bc6909cf7782a6425cad0b1625c65133c917b1ea72de7e93282"
+        },
+        {
+          "role": "avatar-track",
+          "file": "assets/media-build-cases/segmented-video/inputs/avatar-3.json",
+          "sha256": "791c8d7e9fc988a8d959d66e52562d64db3346fd76224fd633cfced6f83ce6ef"
+        }
+      ]
+    }
+  ],
+  "assembly": {
+    "strategy": "ordered-concat",
+    "audio_strategy": "continuous-master",
+    "caption_strategy": "none"
+  }
+}

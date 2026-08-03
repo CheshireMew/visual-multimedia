@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-project-state.v3",
+  "title": "Visual Multimedia Media Project State v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "project_id",
+    "media_kind",
+    "profile",
+    "execution_policy",
+    "stage_template",
+    "status",
+    "current_stage",
+    "stages",
+    "contracts",
+    "production_decisions",
+    "artifacts",
+    "blockers",
+    "next_action",
+    "updated_at"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-media-project-state"},
+    "version": {"const": 3},
+    "project_id": {"$ref": "#/$defs/id"},
+    "media_kind": {"enum": ["video", "mixed-video", "audio", "podcast"]},
+    "profile": {"type": ["string", "null"], "minLength": 1},
+    "execution_policy": {"$ref": "#/$defs/executionPolicy"},
+    "stage_template": {"$ref": "#/$defs/stageTemplate"},
+    "status": {"enum": ["in-progress", "waiting-approval", "blocked", "complete"]},
+    "current_stage": {
+      "oneOf": [
+        {"$ref": "#/$defs/id"},
+        {"type": "null"}
+      ]
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"$ref": "#/$defs/stage"}
+    },
+    "contracts": {"$ref": "#/$defs/contracts"},
+    "production_decisions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/productionDecision"}
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/artifact"}
+    },
+    "blockers": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "next_action": {"type": "string"},
+    "updated_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "executionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "authorized_by", "authorized_at", "evidence"],
+      "properties": {
+        "mode": {"enum": ["staged", "full-auto"]},
+        "authorized_by": {"type": ["string", "null"], "enum": ["user", null]},
+        "authorized_at": {"type": ["string", "null"], "format": "date-time"},
+        "evidence": {"type": "string"}
+      }
+    },
+    "stageTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "sha256"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "order",
+        "label",
+        "depends_on",
+        "required_artifact_roles",
+        "status",
+        "artifact_ids",
+        "artifact_set_sha256",
+        "submitted_at",
+        "approval",
+        "invalidation"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "order": {"type": "integer", "minimum": 1},
+        "label": {"type": "string", "minLength": 1},
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "required_artifact_roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "status": {
+          "enum": [
+            "blocked",
+            "ready",
+            "in-progress",
+            "waiting-approval",
+            "approved",
+            "rejected",
+            "invalidated"
+          ]
+        },
+        "artifact_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "artifact_set_sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "submitted_at": {"type": ["string", "null"], "format": "date-time"},
+        "approval": {
+          "oneOf": [
+            {"$ref": "#/$defs/approval"},
+            {"type": "null"}
+          ]
+        },
+        "invalidation": {
+          "oneOf": [
+            {"$ref": "#/$defs/invalidation"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "decided_by", "decided_at", "evidence", "artifact_set_sha256"],
+      "properties": {
+        "decision": {"enum": ["approved", "rejected"]},
+        "decided_by": {"enum": ["user", "profile", "system"]},
+        "decided_at": {"type": "string", "format": "date-time"},
+        "evidence": {"type": "string", "minLength": 1},
+        "artifact_set_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "invalidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "invalidated_at", "previous_artifact_set_sha256", "caused_by_stage"],
+      "properties": {
+        "reason": {"type": "string", "minLength": 1},
+        "invalidated_at": {"type": "string", "format": "date-time"},
+        "previous_artifact_set_sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "caused_by_stage": {"$ref": "#/$defs/id"}
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "media_sources",
+        "resource_adoptions",
+        "transcript",
+        "clip_selections",
+        "timeline",
+        "style_profile",
+        "sound_profile",
+        "promotion_candidates",
+        "review",
+        "delivery"
+      ],
+      "properties": {
+        "media_sources": {"$ref": "#/$defs/localPath"},
+        "resource_adoptions": {"type": ["string", "null"]},
+        "transcript": {"type": ["string", "null"]},
+        "clip_selections": {"type": ["string", "null"]},
+        "timeline": {"type": ["string", "null"]},
+        "style_profile": {"type": ["string", "null"]},
+        "sound_profile": {"type": ["string", "null"]},
+        "promotion_candidates": {"type": ["string", "null"]},
+        "review": {"type": ["string", "null"]},
+        "delivery": {"type": ["string", "null"]}
+      }
+    },
+    "productionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "status",
+        "decision",
+        "rationale",
+        "applies_to",
+        "evidence_artifact_ids",
+        "decided_by",
+        "decided_at",
+        "superseded_by"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "category": {"enum": ["content", "editorial", "visual", "motion", "audio", "technical", "delivery"]},
+        "status": {"enum": ["active", "superseded"]},
+        "decision": {"type": "string", "minLength": 1},
+        "rationale": {"type": "string", "minLength": 1},
+        "applies_to": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "evidence_artifact_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "decided_by": {"enum": ["user", "agent", "profile", "system"]},
+        "decided_at": {"type": "string", "format": "date-time"},
+        "superseded_by": {
+          "oneOf": [
+            {"$ref": "#/$defs/id"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "stage_id", "role", "kind", "file", "sha256"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "stage_id": {"$ref": "#/$defs/id"},
+        "role": {"$ref": "#/$defs/id"},
+        "kind": {
+          "enum": [
+            "document",
+            "image",
+            "audio",
+            "video",
+            "web-package",
+            "timeline",
+            "report"
+          ]
+        },
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

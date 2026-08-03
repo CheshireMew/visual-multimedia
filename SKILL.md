@@ -112,23 +112,13 @@ description: 把用户已经确认的主题、内容真源或现有素材转化�
 
 制作配方只决定视觉与动效怎样表达。内容取舍读取 `editorial_position`，文字和口播方式读取 `voice_contract`，构图从当前内容关系产生。首次确认后，把实际采用的字体、色彩、图形、材质、图片处理、密度和动效规则集中保存为当前项目的视觉风格档案；同一系列后续成品默认继承，只有内容不适用、用户要求变化或目标平台造成实质冲突时才调整，并说明变化范围。音乐、环境声、音效、声音身份、混音和语义同步另存为独立声音档案，不写入视觉档案，也不从视觉参考自动推导。
 
-### 6. 在最早未确认的层面做样稿
+### 6. 用可展示成果分阶段确认
 
-- **文案确认**：确认主张、推进、语气和配套文字职责。
-- **风格样稿**：只验证字体、线条、颜色、纹理、图标、光影、密度和留白。
-- **构图样稿**：验证完整内容骨架、层级、容量、字幕安全区和持续可见的上下文。
-- **动效或声音样稿**：只实现一个代表性变化、转场、短循环、旁白段落或声音处理。
-- **完整成品**：沿已经确认的文案和样稿扩展，不重新发明结构或风格。
+静态成品和一次性短任务在最早未确认层做样稿：文案确认主张与推进，风格样稿确认视觉语言，构图样稿确认完整信息骨架，动效或声音样稿确认一个代表性变化。样稿说明它验证什么；确认后沿同一真源扩展，不把样稿复制成完整成品。批量任务按条目独立推进，共同上游变化时说明受影响范围。
 
-时间型样稿同时标明它代表哪个语义片段、验证哪种运动或声音处理，以及完整制作时哪些其它片段仍需各自设计。样稿时长只覆盖该验证目标；完整成品的时长继续由全量文案、真实声音和素材决定。
+新的或实质重做的长视频、混合视频、音频和播客统一读取 `references/staged-media-production.md`，使用内容与声音、导演与制作方向、综合样片、全量代理或预览、最终母版与交付五阶段。普通视频和采访讲解型等 profile 使用同一机制。每阶段提交项目内真实成果后向用户展示并停止；只有用户明确授权全自动完成时才连续推进。反馈使最早受影响阶段及下游失效，未受影响的已确认上游保留。一个明确且低成本的局部修改不为形式完整重走五阶段。
 
-用户说“先做一个小样”时，根据当前上下文判断要验证哪一层，并在制作前用一句话说明本次样稿负责什么。这个差异会改变大部分结果且无法从上下文判断时，只询问这一项。每个新的高影响层首次形成可展示结果时停下验收；样稿未确认时停在样稿，用户明确授权一次完成时才连续完成各层并直接验收成品。
-
-确认点由错误被放大的范围、返工成本和外部费用决定，不固定要求所有任务经过相同阶段。进入付费模型调用、长时间批量制作、大规模转码或会让前序判断扩散到大量成品的步骤前，先在最早未确认层交付足以判断方向的最小样稿并等待确认；用户已经看过等价样稿，或明确授权按当前方向一次完成时，可以继续执行而不重复暂停。
-
-批量制作时，每个条目独立记录当前确认层。用户只确认部分条目时，只推进已经确认的条目；未确认或要求修改的条目停留在当前层，不阻塞其它条目，也不让已经通过的条目退回重做。修改共同文案、共享样式、布局规则或其它会影响已通过条目的上游真源时，先说明影响范围，再更新受影响的条目。
-
-参考样本按内容、信息结构、视觉或声音风格、运动或剪辑方式、平台包装分层理解。用户只要求参考某种风格时，只提炼该层，不复制样本的流程、布局、观点、经历或固定场景。
+进入付费模型、长时批量制作、大规模转码或高成本渲染前，必须已有足以判断方向的确认成果。时间型综合样片使用真实素材、真实声音和主要合成元素，覆盖会重复出现的版式或声音家族；完整预览覆盖全量内容、节奏、字幕、声音和连续性。参考样本只影响用户要求参考的内容、信息结构、视觉声音风格、运动剪辑或平台包装层，不复制无关层面。
 
 ### 7. 制作、检查与交付
 
@@ -159,11 +149,12 @@ description: 把用户已经确认的主题、内容真源或现有素材转化�
 | 文字本身的进入、退出、替换、强调或逐字素、逐词、逐行构建承担主要表达职责 | `references/text-motion-production.md` | 从行为去重的正式目录选择效果，把分段和执行配方接入既有确定性时间线，并用当前真实文字审阅 |
 | 社交平台卡片、封面、轮播图或以静态卡为基础的短动态图 | `references/social-card-production.md` | 完成逐页职责、版式容量、多比例重新构图、缩略图与真实画布验收 |
 | 网页视觉中使用照片、截图、产品图、生成图或视频帧 | `references/visual-asset-placement.md` | 确认素材来源，按场景槽位处理主体、文字安全区、截图完整性和各输出变体裁切 |
+| 新的或实质重做的长视频、混合视频、音频、播客，或其它跨轮高成本时间型媒体 | `references/staged-media-production.md` | 用通用五阶段提交真实成果、逐阶段验收、记录全自动授权并控制局部失效范围 |
 | 视频、音频或播客实际进入素材导入、Faster-Whisper XXL 转写、片段选择、长任务状态、审阅和分级交付 | `references/media-project-contracts.md` | 使用唯一素材账本、事实转写、原片与代理关系、项目状态、结构化审阅和机器可读交付报告 |
 | 把网页素材交给 MediaFlow Pro 继续精调、混剪、配音、字幕、外部转写或最终导出 | `references/structured-media-editor-cli.md` | 从本机配置定位公开 CLI，调用当前声明的网页、Faster-Whisper XXL 或 GPT-SoVITS 操作 |
 | 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 v5 网页包建立渲染副本，调用 HyperFrames 并核对真实成片 |
 | 剪辑已有实拍、讲课、访谈、录屏或混合视频 | `references/video-post-production.md` | 建立视频时间线并完成画面、字幕和声音装配 |
-| 建立、采用或使用无需 Live2D 的二次元中文口播角色 | `references/anime-avatar-production.md` | 从母版和唯一校准视频建立 AI 视觉口型库，或按角色名采用注册资源；验证真实语音时间轴，经 plan → confirm-plan → render 生成完整人物轨 |
+| 建立、采用或使用无需 Live2D 的二次元中文口播角色 | `references/anime-avatar-production.md` | 从母版和唯一校准视频建立 AI 视觉口型库，或按角色名采用注册资源；验证真实语音时间轴，经 plan → confirm-plan → render 生成中等尺寸分段角色轨、连续音频和可移交片段清单 |
 | 把二次元角色轨放入底片固定圆形或方形窗口 | `references/anime-avatar-production.md` | 用同一固定裁切、遮罩、坐标和音轨装配全片；无声区间继续消费角色轨中的动态闭嘴待机 |
 | 已经选定原声片段，并要用“可选原声钩子 → 必要背景 → 原声证据 → 紧接解释 → 独立总结”讲清访谈 | `references/interview-explainer-production.md` | 采用采访原声讲解型 profile，在 Skill 外项目中冻结计划、保留原声时间码、逐段渲染并分开记录机器、Agent 与用户审阅 |
 | 用户明确要求 Live Photo | `references/live-photo-delivery.md` | 用同一静态构图生成配对文件，检查元数据、`.pvt`、联系表和设备导入 |
@@ -173,9 +164,13 @@ description: 把用户已经确认的主题、内容真源或现有素材转化�
 
 需要实际处理媒体文案时，先按“先完成媒体文案”选定动作，再用 `references/content-to-media.md` 确定真源、受众、渠道职责和文案合同。新写、扩写、实质重组、审查或审查后改写完整口播、旁白、播客独白和主持连接语时，接着读取 `references/voiceover-reference-library.md`：保留用户或上游已经给出的声音样稿与创作参考，只读定位当前私人库；声音候选按成品语境和资格查找，不使用主题词，完整案例和钩子按写作任务与语境浏览。库未配置、为空或没有合适创作参考时普通写作继续，不初始化、不凑数；用户明确要求贴近个人声音但没有可靠声音证据时返回这一缺口。最后读取 `references/voiceover-writing.md`，交付诊断或更新唯一活动口播。轻量媒体文字和确定性派生直接进入 `references/media-writing.md`，不读取私人库。长内容转视频的确认旁白，以及采访原声讲解型中的背景、逐段解释和总结，也必须先完成对应完整口播路径，再进入导演计划、旁白包和渲染合同。
 
-代码生成视觉同时读取 `references/content-to-media.md`、`references/visual-production-profiles.md` 和 `references/web-visual-production.md`。已有项目视觉档案时先继承，再检查当前内容是否仍适用；没有时由制作配方 reference 自动选择。只有文字自身的分段运动承担主要表达职责时再读取 `references/text-motion-production.md`，通过 `scripts/text-motion-library.mjs` 按操作、分段、能量、真实字数和实际行数选择效果，并把选中记录、`assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js` 物化进当前自包含网页包；普通标题淡入继续留在网页主时间线，不为形式完整调用文字动效库。项目确实存在可复用声音语言时另读 `references/sound-production-profiles.md`，不能用视觉档案代替。成品属于社交卡、平台封面、轮播图或静态卡式短动态图时再读取 `references/social-card-production.md`；实际使用照片、截图、生成图或视频帧时读取 `references/visual-asset-placement.md`。用户要求查找、注册、采用共享素材或网页组件，或当前项目的确认成果值得晋升时读取 `references/reusable-media-resources.md`；未发生共享复用时不为形式完整建立注册表。视频、音频或播客实际进入文件制作时读取 `references/media-project-contracts.md`，从 `assets/media-project-starter/` 建立项目合同；有真实人物表达的现有素材先建立绑定原片哈希并经过听音复核的事实转写，再选择片段。跨多轮、需要等待确认或产生多个中间产物时维护项目状态，短任务不为形式完整增加状态文件。带声音的无实拍视频再读取 `references/video-post-production.md`。建立、采用、渲染二次元口播角色或合成固定角色窗时读取 `references/anime-avatar-production.md`，并只读取 `references/speech-synthesis.md`、`references/video-post-production.md` 和 `references/review-and-export.md` 中当前阶段实际需要的部分。已经选定真实访谈片段并明确采用“背景—原声—解释—总结”结构时，额外读取 `references/interview-explainer-production.md` 并只通过 `scripts/interview-explainer.mjs` 运行；普通访谈剪辑、纯混剪、人物故事、录屏或其它视频不得被自动改造成这种类型。长视频、录屏或关键区间不明确时先用 `scripts/make-video-contact-sheet.py` 检查稀疏代表帧，再用 `scripts/validate-clip-selections.mjs` 检查真实选段。需要生成声音时同时读取 `references/speech-synthesis.md`；播客封面或音频可视化只让网页负责视觉部分。用户明确要求 Live Photo 时才读取 `references/live-photo-delivery.md`。用户明确要求参考复刻、匹配、逐帧对齐或候选比较时读取 `references/reference-video-alignment.md`；需要 MediaFlow Pro 执行机器比较时再读取 `references/structured-media-editor-cli.md`。实际生成文件时总是读取 `references/review-and-export.md`。
+代码生成视觉同时读取 `references/content-to-media.md`、`references/visual-production-profiles.md` 和 `references/web-visual-production.md`。已有项目视觉档案时先继承；只有文字自身承担主要运动表达时再读取 `references/text-motion-production.md`，由 `scripts/text-motion-library.mjs` 选择效果，并把 `assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js` 物化到当前网页包。项目确实存在可复用声音语言时另读 `references/sound-production-profiles.md`。社交卡、平台封面、轮播图或静态卡式短动态图再读取 `references/social-card-production.md`；实际使用照片、截图、生成图或视频帧时读取 `references/visual-asset-placement.md`。共享素材或网页组件的注册、采用与晋升读取 `references/reusable-media-resources.md`。
 
-口播私人库的正式入口是 `scripts/voiceover_reference_library.py`，候选选择使用 `voice-candidates`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用，角色窗链路用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型先 `list-profiles`，再沿 `plan → confirm-plan → render → review → finalize` 的唯一活动链执行。
+新的或实质重做的长视频、混合视频、音频和播客先读取 `references/staged-media-production.md`，再读取 `references/media-project-contracts.md` 并从 `assets/media-project-starter/` 建立项目。综合样片后的多场景或高成本视频按同一通用构建计划拆成可缓存单元，普通视频和 profile 都不得回到整片粗粒度重渲染。真实人物素材先建立绑定原片哈希并经过听音复核的事实转写，再选择片段。带声音的无实拍视频另读 `references/video-post-production.md`。二次元口播角色或固定角色窗读取 `references/anime-avatar-production.md`。已经选定真实访谈片段并明确采用“背景—原声—解释—总结”结构时，额外读取 `references/interview-explainer-production.md` 并只通过 `scripts/interview-explainer.mjs` 运行；它仍提交到通用阶段，不建立自己的批准系统。普通访谈剪辑、纯混剪、人物故事、录屏或其它视频不得自动变成这种类型。长视频或关键区间不明确时先用 `scripts/make-video-contact-sheet.py` 检查代表帧，再用 `scripts/validate-clip-selections.mjs` 检查真实选段。
+
+需要生成声音时读取 `references/speech-synthesis.md`；播客封面或音频可视化只让网页负责视觉部分。用户明确要求 Live Photo 时才读取 `references/live-photo-delivery.md`。明确要求参考复刻、匹配、逐帧对齐或候选比较时读取 `references/reference-video-alignment.md`；需要 MediaFlow Pro 执行机器比较时再读取 `references/structured-media-editor-cli.md`。实际生成文件时总是读取 `references/review-and-export.md`。
+
+口播私人库的正式入口是 `scripts/voiceover_reference_library.py`，候选选择使用 `voice-candidates`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用。活动角色工程使用 v4 中等母版和 v3 分段计划，完整轨用于观看，项目内片段清单用于普通视频或采访视频的局部时间线消费；角色窗链路用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型先 `list-profiles`，再沿 `plan → confirm-plan → render → review → finalize` 的唯一活动链执行。
 
 ## 实际制作与交付边界
 

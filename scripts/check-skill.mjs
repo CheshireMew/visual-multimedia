@@ -288,7 +288,8 @@ for (const schema of [
   "schemas/sound-production-profile.v1.schema.json",
   "schemas/media-transcript.v1.schema.json",
   "schemas/clip-selections.v2.schema.json",
-  "schemas/media-project-state.v2.schema.json",
+  "schemas/media-stage-template.v1.schema.json",
+  "schemas/media-project-state.v3.schema.json",
   "schemas/media-review.v3.schema.json",
   "schemas/media-delivery.v2.schema.json",
   "schemas/video-direction-plan.v1.schema.json",
@@ -298,7 +299,8 @@ for (const schema of [
   "schemas/narration-bundle.v1.schema.json",
   "schemas/interview-explainer-plan.v2.schema.json",
   "schemas/interview-explainer-plan-confirmation.v1.schema.json",
-  "schemas/media-build-report.v1.schema.json",
+  "schemas/media-build-plan.v1.schema.json",
+  "schemas/media-build-report.v2.schema.json",
 ]) {
   readJson(ensurePath(schema));
 }
@@ -324,6 +326,30 @@ for (const reusableResource of [
   "scripts/self-test-reusable-production-resources.mjs",
 ]) {
   ensurePath(reusableResource);
+}
+for (const stagedMediaResource of [
+  "references/staged-media-production.md",
+  "assets/media-stage-templates/time-media-production.v1.json",
+  "scripts/media_project_state.mjs",
+  "scripts/media-project.mjs",
+  "scripts/self-test-media-project-stages.mjs",
+]) {
+  ensurePath(stagedMediaResource);
+}
+for (const mediaBuildResource of [
+  "scripts/media_build_contract.mjs",
+  "scripts/self-test-media-build-contract.mjs",
+  "scripts/generate-media-build-case.mjs",
+  "assets/media-build-cases/segmented-video/source-contract.json",
+  "assets/media-build-cases/segmented-video/media-build-plan.json",
+  "assets/media-build-cases/segmented-video/inputs/scene-1.json",
+  "assets/media-build-cases/segmented-video/inputs/scene-2.json",
+  "assets/media-build-cases/segmented-video/inputs/scene-3.json",
+  "assets/media-build-cases/segmented-video/inputs/avatar-1.json",
+  "assets/media-build-cases/segmented-video/inputs/avatar-2.json",
+  "assets/media-build-cases/segmented-video/inputs/avatar-3.json",
+]) {
+  ensurePath(mediaBuildResource);
 }
 for (const voiceoverReferenceResource of [
   "references/voiceover-writing.md",
@@ -695,6 +721,21 @@ if (failures.length === 0) {
   );
   runChecked(
     process.execPath,
+    [path.join(scriptDir, "self-test-media-project-stages.mjs")],
+    "通用视频上层阶段—逐层确认—下游失效真实链路检查"
+  );
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-media-build-contract.mjs")],
+    "通用构建单元—局部失效—装配缓存合同检查"
+  );
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "generate-media-build-case.mjs"), "--check"],
+    "通用媒体构建生产者案例检查"
+  );
+  runChecked(
+    process.execPath,
     [path.join(scriptDir, "self-test-video-generation-chain.mjs")],
     "长内容—导演计划—费用门—远程任务—素材入账—时间线—交付真实链路检查"
   );
@@ -768,10 +809,30 @@ if (failures.length === 0) {
     "scripts/compose-anime-avatar-inset.py",
     "scripts/check-anime-avatar-resources.py",
     "assets/anime-avatar-libraries/catalog.json",
-    "schemas/anime-avatar-render-plan.v2.schema.json",
+    "schemas/anime-avatar-project.v4.schema.json",
+    "schemas/anime-avatar-render-plan.v3.schema.json",
+    "schemas/anime-avatar-track-clips.v1.schema.json",
     "schemas/anime-avatar-inset.v1.schema.json",
   ]) {
     ensurePath(file, `二次元口播正式资源 ${file}`);
+  }
+  for (const legacyActiveSchema of [
+    "schemas/anime-avatar-project.v2.schema.json",
+    "schemas/anime-avatar-project.v3.schema.json",
+    "schemas/anime-avatar-join-plan.v1.schema.json",
+    "schemas/anime-avatar-render-plan.v2.schema.json",
+  ]) {
+    if (fs.existsSync(path.join(skillRoot, legacyActiveSchema))) {
+      fail(`二次元口播旧合同仍留在活动 schema 目录：${legacyActiveSchema}`);
+    }
+  }
+  for (const archivedAvatarSchema of [
+    "archive/schemas/anime-avatar-project.v2.schema.json",
+    "archive/schemas/anime-avatar-project.v3.schema.json",
+    "archive/schemas/anime-avatar-join-plan.v1.schema.json",
+    "archive/schemas/anime-avatar-render-plan.v2.schema.json",
+  ]) {
+    ensurePath(archivedAvatarSchema, `二次元口播旧合同归档 ${archivedAvatarSchema}`);
   }
   const avatarCatalog = readJson(
     path.join(skillRoot, "assets", "anime-avatar-libraries", "catalog.json")
@@ -793,6 +854,11 @@ if (failures.length === 0) {
     avatarPython,
     [path.join(scriptDir, "anime_avatar_motion.py"), "--self-test"],
     "二次元口播连续动作规划回归检查"
+  );
+  runChecked(
+    avatarPython,
+    [path.join(scriptDir, "self-test-anime-avatar-segmentation.py")],
+    "二次元口播真实静音分段与连续发音保护回归检查"
   );
   runChecked(
     avatarPython,
@@ -820,6 +886,27 @@ if (failures.length === 0) {
     || !avatarRenderHelp.stdout.includes("--plan-id")
   ) {
     fail("二次元口播渲染仍暴露外部计划路径，或没有通过 project + plan-id 唯一解析计划");
+  }
+  const avatarRenderSource = fs.readFileSync(
+    path.join(scriptDir, "render-anime-avatar.py"),
+    "utf8"
+  );
+  for (const token of [
+    "run_segmented_avatar_pipeline",
+    "anime-avatar-medium-master-v1",
+    "anime-avatar-segment-cache-v1",
+    "avatar-track-clips.json",
+    "continuous-audio.wav",
+  ]) {
+    if (!avatarRenderSource.includes(token)) {
+      fail(`二次元口播分段生产链缺少活动实现：${token}`);
+    }
+  }
+  if (
+    avatarRenderSource.includes("def run_avatar_pipeline(")
+    || avatarRenderSource.includes('render_config["output_size"]')
+  ) {
+    fail("二次元口播旧整轨渲染架构仍留在活动脚本");
   }
 
   const requiredInterviewTokens = [

@@ -68,6 +68,31 @@ def executable(name: str, override: str | None = None) -> str:
     return found
 
 
+def resolve_media_cache_root() -> Path:
+    node = executable("node")
+    reader = SKILL_ROOT / "scripts" / "local-media-environment.mjs"
+    result = subprocess.run(
+        [node, str(reader), "cache-root"],
+        cwd=str(SKILL_ROOT),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            "无法从 visual-multimedia 唯一本机配置解析缓存根目录："
+            + (result.stderr or result.stdout).strip()
+        )
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        raise RuntimeError("本机配置读取器没有返回有效 JSON") from error
+    cache_root = Path(str(payload.get("cache_root") or "")).resolve()
+    if not cache_root.is_dir():
+        raise FileNotFoundError(f"缓存根目录不存在：{cache_root}")
+    return cache_root
+
+
 def run(
     command: list[str],
     *,
@@ -186,8 +211,8 @@ def load_project(project_root: Path) -> tuple[dict[str, Any], dict[str, Path]]:
     errors: list[str] = []
     if project.get("protocol") != "visual-multimedia-anime-avatar-project":
         errors.append("protocol 必须是 visual-multimedia-anime-avatar-project")
-    if project.get("version") != 3:
-        errors.append("version 必须是 3；旧项目请先运行 migrate-library")
+    if project.get("version") != 4:
+        errors.append("version 必须是 4；v3 项目请先运行 migrate-project-v3")
     library = project.get("library")
     if not isinstance(library, dict):
         errors.append("library 必须是对象")
@@ -209,17 +234,55 @@ def load_project(project_root: Path) -> tuple[dict[str, Any], dict[str, Path]]:
             errors.append("render.language 必须是 zh-CN")
         internal_fps = render.get("internal_fps")
         delivery_fps = render.get("delivery_fps")
-        output_size = render.get("output_size")
+        master_size = render.get("master_size")
+        target_unit_seconds = render.get("target_unit_seconds")
+        maximum_continuous_unit_seconds = render.get(
+            "maximum_continuous_unit_seconds"
+        )
+        split_silence_seconds = render.get("split_silence_seconds")
         if not isinstance(internal_fps, int) or not 20 <= internal_fps <= 60:
             errors.append("render.internal_fps 必须是 20..60 的整数")
-        if not isinstance(delivery_fps, int) or not 24 <= delivery_fps <= 60:
-            errors.append("render.delivery_fps 必须是 24..60 的整数")
+        if not isinstance(delivery_fps, int) or not 20 <= delivery_fps <= 60:
+            errors.append("render.delivery_fps 必须是 20..60 的整数")
         if (
-            not isinstance(output_size, list)
-            or len(output_size) != 2
-            or any(not isinstance(value, int) or value < 256 for value in output_size)
+            not isinstance(master_size, list)
+            or len(master_size) != 2
+            or any(
+                not isinstance(value, int) or not 256 <= value <= 640
+                for value in master_size
+            )
         ):
-            errors.append("render.output_size 必须是两个不小于 256 的整数")
+            errors.append("render.master_size 必须是两个 256..640 的整数")
+        if (
+            isinstance(target_unit_seconds, bool)
+            or not isinstance(target_unit_seconds, (int, float))
+            or not 6 <= float(target_unit_seconds) <= 45
+        ):
+            errors.append("render.target_unit_seconds 必须在 6..45 秒之间")
+        if (
+            isinstance(maximum_continuous_unit_seconds, bool)
+            or not isinstance(maximum_continuous_unit_seconds, (int, float))
+            or not 12 <= float(maximum_continuous_unit_seconds) <= 90
+        ):
+            errors.append(
+                "render.maximum_continuous_unit_seconds 必须在 12..90 秒之间"
+            )
+        elif (
+            isinstance(target_unit_seconds, (int, float))
+            and not isinstance(target_unit_seconds, bool)
+            and float(maximum_continuous_unit_seconds)
+            < float(target_unit_seconds)
+        ):
+            errors.append(
+                "render.maximum_continuous_unit_seconds 不能短于 "
+                "render.target_unit_seconds"
+            )
+        if (
+            isinstance(split_silence_seconds, bool)
+            or not isinstance(split_silence_seconds, (int, float))
+            or not 0.6 <= float(split_silence_seconds) <= 6
+        ):
+            errors.append("render.split_silence_seconds 必须在 0.6..6 秒之间")
     if errors:
         raise ValueError("avatar-project.json 无效：\n- " + "\n- ".join(errors))
     return project, paths

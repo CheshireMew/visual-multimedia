@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-render-plan.v2",
+  "title": "Immutable Anime Avatar Render Plan v2",
+  "type": "object",
+  "required": [
+    "protocol", "version", "status", "plan_id", "created_at", "inputs",
+    "library_capabilities", "execution", "target_timeline", "source_schedule",
+    "selection", "joins", "deterministic_seam_plan", "approval"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-anime-avatar-render-plan"},
+    "version": {"const": 2},
+    "status": {"enum": ["ready", "rejected"]}
+  }
+}

@@ -46,7 +46,9 @@ node scripts/interview-explainer.mjs finalize --project <目录>
   [--ffprobe <路径>] [--python <路径>]
 
 这是采访原声讲解型视频的唯一公共入口。计划确认后，任何输入、profile 或生产脚本
-哈希变化都会使确认失效；渲染不会重新选段、改旁白或切换到 avatar/HyperFrames。`);
+哈希变化都会使确认失效；渲染不会重新选段、改旁白或切换到 avatar/HyperFrames。
+项目阶段统一由 scripts/media-project.mjs 管理：content 确认后才能 plan，direction 和
+integrated-sample 确认后才能完整 render，full-preview 确认后才能 finalize。`);
 }
 
 function listProfiles() {
@@ -215,7 +217,8 @@ function createProject(args) {
   const statePath = path.join(project, "media-project-state.json");
   const state = readJson(statePath);
   state.project_id = projectId;
-  state.next_action = "登记原片和旁白，建立已听音转写、选段、旁白包与解释场景。";
+  state.media_kind = "mixed-video";
+  state.profile = "interview-explainer";
   state.updated_at = new Date().toISOString();
   writeJson(statePath, state);
   const draftPath = path.join(project, "interview-explainer-draft.json");
@@ -242,7 +245,7 @@ function createProject(args) {
     project,
     project_id: projectId,
     profile: `${draft.profile.id}@${draft.profile.version}`,
-    next: "导入真实素材并填写项目合同；不要复制旧项目计划或产物。",
+    next: "导入真实素材并填写内容合同；提交通用 content 阶段并等待确认。",
   }, null, 2));
 }
 

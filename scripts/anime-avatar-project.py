@@ -68,13 +68,16 @@ def _project_directories(root: Path) -> None:
 def _project_payload(library: dict) -> dict:
     return {
         "protocol": "visual-multimedia-anime-avatar-project",
-        "version": 3,
+        "version": 4,
         "library": library,
         "render": {
             "language": "zh-CN",
             "internal_fps": 24,
-            "delivery_fps": 48,
-            "output_size": [900, 900],
+            "delivery_fps": 24,
+            "master_size": [384, 384],
+            "target_unit_seconds": 24,
+            "maximum_continuous_unit_seconds": 48,
+            "split_silence_seconds": 1.2,
         },
     }
 
@@ -159,7 +162,10 @@ def init_project(args: argparse.Namespace) -> dict:
             "algorithm_defaults": [
                 "render.internal_fps",
                 "render.delivery_fps",
-                "render.output_size",
+                "render.master_size",
+                "render.target_unit_seconds",
+                "render.maximum_continuous_unit_seconds",
+                "render.split_silence_seconds",
             ],
             "asset_calibration": [
                 "motion_source.source_crop_xywh",
@@ -1197,7 +1203,10 @@ def migrate_library(args: argparse.Namespace) -> dict:
             "algorithm_defaults": [
                 "project render.internal_fps",
                 "project render.delivery_fps",
-                "project render.output_size",
+                "project render.master_size",
+                "project render.target_unit_seconds",
+                "project render.maximum_continuous_unit_seconds",
+                "project render.split_silence_seconds",
             ],
             "asset_calibration": [
                 "motion_source.source_crop_xywh",
@@ -1208,6 +1217,47 @@ def migrate_library(args: argparse.Namespace) -> dict:
         registration_method="migrate-project-v1",
         source_project_hint=source_hint,
     )
+
+
+def migrate_project_v3(args: argparse.Namespace) -> dict:
+    paths = project_paths(ensure_external_media_project_root(Path(args.project)))
+    legacy = read_json(paths["project"])
+    if (
+        legacy.get("protocol") != "visual-multimedia-anime-avatar-project"
+        or legacy.get("version") != 3
+    ):
+        raise ValueError("migrate-project-v3 只接受 anime avatar project v3")
+    library = legacy.get("library")
+    if not isinstance(library, dict):
+        raise ValueError("旧项目 library 无效")
+    legacy_render = legacy.get("render")
+    if not isinstance(legacy_render, dict):
+        raise ValueError("旧项目 render 无效")
+    archive_root = paths["root"] / "archive" / "avatar-project-contracts"
+    archive_root.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    archive_path = archive_root / f"avatar-project.v3.{timestamp}.json"
+    shutil.copy2(paths["project"], archive_path)
+    migrated = _project_payload(copy.deepcopy(library))
+    migrated["render"]["language"] = legacy_render.get("language", "zh-CN")
+    migrated["render"]["internal_fps"] = int(
+        legacy_render.get("internal_fps", 24)
+    )
+    migrated["render"]["delivery_fps"] = migrated["render"]["internal_fps"]
+    write_json(paths["project"], migrated)
+    loaded, _ = load_project(paths["root"])
+    return {
+        "ok": True,
+        "project": str(paths["root"]),
+        "avatar_project": str(paths["project"]),
+        "archived_v3_project": str(archive_path),
+        "version": loaded["version"],
+        "render": loaded["render"],
+        "next": (
+            "v4 常规渲染只使用中等尺寸共享母版和分段计划；"
+            "归档的 v3 文件仅保留迁移证据，不再进入活动运行路径。"
+        ),
+    }
 
 
 def parse_args() -> argparse.Namespace:
@@ -1295,6 +1345,13 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     migrate_parser.set_defaults(handler=migrate_library)
+
+    migrate_project_parser = subparsers.add_parser(
+        "migrate-project-v3",
+        help="归档旧项目合同并一次性迁移到中等母版和分段渲染 v4",
+    )
+    migrate_project_parser.add_argument("--project", required=True)
+    migrate_project_parser.set_defaults(handler=migrate_project_v3)
 
     review_parser = subparsers.add_parser(
         "prepare-review",

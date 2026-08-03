@@ -1,0 +1,8 @@
+{
+  "protocol": "visual-multimedia-synthetic-video-source",
+  "version": 1,
+  "id": "scene-1",
+  "color": "red",
+  "tone_hz": 330,
+  "duration_frames": 25
+}

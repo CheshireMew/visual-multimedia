@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.anime-avatar-project.v4",
+  "title": "Anime Avatar Project v4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "library", "render"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-anime-avatar-project"},
+    "version": {"const": 4},
+    "library": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "package_file"],
+          "properties": {
+            "kind": {"const": "project"},
+            "package_file": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id", "version"],
+          "properties": {
+            "kind": {"const": "registered"},
+            "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+            "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}
+          }
+        }
+      ]
+    },
+    "render": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "internal_fps",
+        "delivery_fps",
+        "master_size",
+        "target_unit_seconds",
+        "maximum_continuous_unit_seconds",
+        "split_silence_seconds"
+      ],
+      "properties": {
+        "language": {"const": "zh-CN"},
+        "internal_fps": {"type": "integer", "minimum": 20, "maximum": 60},
+        "delivery_fps": {"type": "integer", "minimum": 20, "maximum": 60},
+        "master_size": {
+          "type": "array",
+          "prefixItems": [
+            {"type": "integer", "minimum": 256, "maximum": 640},
+            {"type": "integer", "minimum": 256, "maximum": 640}
+          ],
+          "items": false
+        },
+        "target_unit_seconds": {"type": "number", "minimum": 6, "maximum": 45},
+        "maximum_continuous_unit_seconds": {"type": "number", "minimum": 12, "maximum": 90},
+        "split_silence_seconds": {"type": "number", "minimum": 0.6, "maximum": 6}
+      }
+    }
+  }
+}

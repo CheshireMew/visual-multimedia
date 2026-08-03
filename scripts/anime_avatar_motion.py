@@ -12,6 +12,7 @@ jumping the source motion.
 from __future__ import annotations
 
 import argparse
+import hashlib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, replace
 from typing import Any, Mapping, Sequence
@@ -1674,10 +1675,20 @@ def _option_intrinsic_penalty(option: Option) -> float:
     )
 
 
+def _seed_tiebreaker(clip_id: str, sequence_seed: int) -> float:
+    if not sequence_seed:
+        return 0.0
+    value = hashlib.sha256(
+        f"{sequence_seed}:{clip_id}".encode("utf-8")
+    ).digest()
+    return int.from_bytes(value[:4], "big") / (2**32) * 1e-6
+
+
 def _selection_penalty(
     state: BeamState,
     current: Option,
     transition: Transition | None,
+    sequence_seed: int,
 ) -> float:
     if current.clip.kind == "gesture":
         recent_clip_ids = state.recent_gesture_clip_ids
@@ -1689,6 +1700,7 @@ def _selection_penalty(
     penalty = (
         _option_intrinsic_penalty(current)
         + repeat_weight * repeated_clip
+        + _seed_tiebreaker(current.clip.id, sequence_seed)
     )
     if current.clip.kind == "gesture":
         same_viseme = [
@@ -1740,7 +1752,7 @@ def _selection_penalty(
     return penalty
 
 
-def _initial_state(option: Option) -> BeamState:
+def _initial_state(option: Option, sequence_seed: int) -> BeamState:
     if option.clip.kind == "gesture":
         gesture_clip_ids = frozenset({option.clip.id})
         gesture_take_ids = frozenset({option.clip.take})
@@ -1762,7 +1774,10 @@ def _initial_state(option: Option) -> BeamState:
         idle_clip_ids = frozenset({option.clip.id})
         recent_idle = (option.clip.id,)
     return BeamState(
-        cost=_option_intrinsic_penalty(option),
+        cost=(
+            _option_intrinsic_penalty(option)
+            + _seed_tiebreaker(option.clip.id, sequence_seed)
+        ),
         options=(option,),
         transitions=(),
         last_boundary_frame=None,
@@ -1975,6 +1990,7 @@ def _choose_options(
     minimum_boundary_gap: int,
     *,
     enforce_diversity: bool = True,
+    sequence_seed: int = 0,
 ) -> tuple[
     tuple[Option, ...],
     tuple[Transition, ...],
@@ -1994,7 +2010,7 @@ def _choose_options(
     ) = _compatibility_thresholds(descriptors)
     states = []
     for option in eligible_options_by_block[0]:
-        state = _initial_state(option)
+        state = _initial_state(option, sequence_seed)
         if (
             not enforce_diversity
             or _diversity_reachable(state, 1, policy)
@@ -2042,7 +2058,12 @@ def _choose_options(
                     < minimum_boundary_gap
                 ):
                     continue
-                penalty = _selection_penalty(state, current, transition)
+                penalty = _selection_penalty(
+                    state,
+                    current,
+                    transition,
+                    sequence_seed,
+                )
                 candidate = _append_state(
                     state,
                     current,
@@ -3124,6 +3145,7 @@ def plan_gesture_motion(
     roles: Sequence[str],
     *,
     fps: float = 24.0,
+    sequence_seed: int = 0,
 ) -> tuple[np.ndarray, list[int], dict[str, Any]]:
     """Plan complete gesture/idle clips and return fractional source positions."""
 
@@ -3153,6 +3175,7 @@ def plan_gesture_motion(
     )
     def attempt(
         allow_recovery: bool,
+        active_sequence_seed: int,
     ) -> tuple[
         list[Block],
         list[CoarticulationCluster],
@@ -3182,6 +3205,7 @@ def plan_gesture_motion(
                 natural,
                 minimum_interval,
                 enforce_diversity=True,
+                sequence_seed=active_sequence_seed,
             )
             return (
                 blocks,
@@ -3200,6 +3224,7 @@ def plan_gesture_motion(
             natural,
             minimum_interval,
             enforce_diversity=False,
+            sequence_seed=active_sequence_seed,
         )
         return (
             blocks,
@@ -3209,36 +3234,72 @@ def plan_gesture_motion(
             "continuity-first-fallback",
         )
 
-    try:
-        (
-            blocks,
-            clusters,
-            anticipatory_preroll,
-            options,
-            transitions,
-            thresholds,
-            diversity_policy,
-            diversity_enforcement_mode,
-        ) = attempt(False)
-        planner_mode = "standard"
-    except ValueError:
-        (
-            blocks,
-            clusters,
-            anticipatory_preroll,
-            options,
-            transitions,
-            thresholds,
-            diversity_policy,
-            diversity_enforcement_mode,
-        ) = attempt(True)
-        planner_mode = "bounded-recovery"
-    positions, boundaries = _assemble_positions(
-        len(target_labels),
-        blocks,
-        options,
-        transitions,
-    )
+    def select_route(active_sequence_seed: int) -> tuple[Any, ...]:
+        route_error: ValueError | None = None
+        for allow_recovery, planner_mode in (
+            (False, "standard"),
+            (True, "bounded-recovery"),
+        ):
+            try:
+                (
+                    blocks,
+                    clusters,
+                    anticipatory_preroll,
+                    options,
+                    transitions,
+                    thresholds,
+                    diversity_policy,
+                    diversity_enforcement_mode,
+                ) = attempt(allow_recovery, active_sequence_seed)
+                positions, boundaries = _assemble_positions(
+                    len(target_labels),
+                    blocks,
+                    options,
+                    transitions,
+                )
+                return (
+                    blocks,
+                    clusters,
+                    anticipatory_preroll,
+                    options,
+                    transitions,
+                    thresholds,
+                    diversity_policy,
+                    diversity_enforcement_mode,
+                    planner_mode,
+                    positions,
+                    boundaries,
+                )
+            except ValueError as error:
+                route_error = error
+        assert route_error is not None
+        raise route_error
+
+    seed_candidates = [sequence_seed]
+    if sequence_seed:
+        seed_candidates.append(0)
+    route_error: ValueError | None = None
+    for retry_index, active_sequence_seed in enumerate(seed_candidates):
+        try:
+            (
+                blocks,
+                clusters,
+                anticipatory_preroll,
+                options,
+                transitions,
+                thresholds,
+                diversity_policy,
+                diversity_enforcement_mode,
+                planner_mode,
+                positions,
+                boundaries,
+            ) = select_route(active_sequence_seed)
+            break
+        except ValueError as error:
+            route_error = error
+    else:
+        assert route_error is not None
+        raise route_error
     report = _report(
         positions,
         boundaries,
@@ -3272,6 +3333,8 @@ def plan_gesture_motion(
         if transition.boundary
     ]
     report["planned_annotation_planner_mode"] = planner_mode
+    report["planned_annotation_sequence_seed"] = active_sequence_seed
+    report["planned_annotation_seed_retry_count"] = retry_index
     return positions.astype(np.float32, copy=False), boundaries, report
 
 
@@ -3466,7 +3529,7 @@ def _selection_regression_tests() -> dict[str, Any]:
         8,
     )
     assert first_selected[0].clip.peak_strength_level == 1.0
-    assert _initial_state(first_selected[0]).cost > 0.0
+    assert _initial_state(first_selected[0], 0).cost > 0.0
     assert (
         _option_intrinsic_penalty(
             _gesture_options(first_block, first_high)[0]

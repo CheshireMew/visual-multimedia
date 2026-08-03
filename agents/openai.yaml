@@ -1,4 +1,4 @@
 interface:
   display_name: "Visual Multimedia"
-  short_description: "审查或写作自然口播，并用外部转写、声音克隆与可编辑流程制作视觉和音视频"
-  default_prompt: "使用 $visual-multimedia 保留已经成立的内容，按需要完成媒体文案、外部转写、声音克隆和可编辑媒体制作。"
+  short_description: "审查或写作媒体文案，并分阶段验收可编辑视觉、视频、音频与播客"
+  default_prompt: "使用 $visual-multimedia 把已确认内容制作成可编辑媒体；长视频、音频或播客按阶段展示真实成果，确认后再继续。"

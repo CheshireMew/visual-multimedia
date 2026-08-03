@@ -52,7 +52,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 4. 标准图层字段用 `web.clip.update`，自定义参数用 `web.clip.parameter.update`；两者都只提交本次真正改变的路径，不提交整份 HTML。
 5. 图层或参数需要随时间变化时，分别使用 `web.clip.keyframe.set/remove` 与 `web.clip.parameter.keyframe.set/remove`。时间使用当前场景毫秒值，仍由同一个 `window.__hf` 时间边界渲染。
 6. `web.clip.render` 生成与当前修订一致的浏览器缓存。
-7. 只导出当前网页片段时使用 `web.clip.export`；需要和其它轨道一起输出时使用合同中声明的 `preview.render` 或 `export.sequence`。两者都必须从当前修订重新逐帧读取，再按 `review-and-export.md` 检查真实成品。
+7. 只导出当前网页片段时使用 `web.clip.export`；短序列或一次性整片使用 `preview.render` 或 `export.sequence`。多场景、长时或高成本视频把已确认的通用构建单元映射为连续 `start_frame/end_frame` 后使用 `export.sequence.build`。它只接受真实时间线范围：MediaFlow Pro 自己计算区间指纹、逐单元返回 `rendered/reused`，整条音频单独连续处理，再返回装配状态和可保存的构建报告。调用端把这些事实写回 v2 构建报告，不能自造命中结果。
 
 合同声明对应能力时，可以继续使用：
 
@@ -71,6 +71,10 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 需要把可保真的时间线交给 Final Cut Pro 时，只在 `describe` 声明 `export.fcpxml` 与 `fcpxml-export` 后调用该操作。它会先检查转场、音频总线、网页缓存等语义能否可靠交接；拒绝结果表示当前时间线不能无损映射，调用端不得绕过预检另写一份低保真 XML。
 
 采访原声讲解型 profile 当前采用“一段旁白一个已经验证的网页包”，并把每个片段以 `source_in=0` 和计划中的精确帧数加入 MediaFlow Pro。这是活动 profile 对当前消费者能力的适配，不是 MediaFlow Pro 或所有视频的全局规则。只有多场景任意入点经过真实链路验证，并通过新 profile 版本与新计划显式启用后，才可改用单包非零入点；调用端不能在渲染阶段自行试错或回退。
+
+`export.sequence.build` 是普通视频与 profile 共用的消费者能力，不保存 visual-multimedia 的阶段批准、文案或 profile 私有字段。输入单元必须有唯一 id、按顺序连续且位于真实序列范围内；输出规格来自当前请求的 preset。相同区间、素材、网页状态、字幕、全局视觉设置和规格才命中画面缓存；音频素材、路由或效果变化只失效连续音频母版和最终装配。变更构建单元划分时先更新通用构建计划，不在消费者内部猜场景边界。
+
+导入角色轨或其它由多个连续片段组成的覆盖轨时，先逐个导入真实素材，再使用本轮 `describe` 中的 `timeline.clip.batch.add` 一次提交全部已对齐片段。这个操作在应用层形成一项原子编辑：任何一项无效时整批不落盘，成功后可一次撤销，带相同 `request_id` 的重试不会重复摆放。它是普通时间线能力，不读取 `avatar-track-clips.json` 私有字段；调用端只把清单中的项目相对文件、起始帧和时长映射成公开参数。
 
 ## 五、外部转写与声音克隆
 

@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-build-plan.v1",
+  "title": "Visual Multimedia Media Build Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "project_id",
+    "media_kind",
+    "profile",
+    "stage_target",
+    "created_at",
+    "source_contract",
+    "source_contract_sha256",
+    "producer",
+    "output",
+    "units",
+    "assembly"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-media-build-plan"},
+    "version": {"const": 1},
+    "project_id": {"$ref": "#/$defs/id"},
+    "media_kind": {"enum": ["video", "mixed-video", "audio", "podcast"]},
+    "profile": {"type": "string", "minLength": 1},
+    "stage_target": {
+      "enum": ["integrated-sample", "full-preview", "final-delivery"]
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "source_contract": {"$ref": "#/$defs/localPath"},
+    "source_contract_sha256": {"$ref": "#/$defs/sha256"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry", "sha256", "modules"],
+      "properties": {
+        "entry": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "modules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["file", "sha256"],
+            "properties": {
+              "file": {"$ref": "#/$defs/localPath"},
+              "sha256": {"$ref": "#/$defs/sha256"}
+            }
+          }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "width",
+        "height",
+        "fps",
+        "audio_sample_rate",
+        "audio_channels",
+        "quality_profile"
+      ],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "audio_sample_rate": {"type": "integer", "minimum": 1},
+        "audio_channels": {"type": "integer", "minimum": 1},
+        "quality_profile": {"enum": ["sample", "proxy", "final"]}
+      }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "order",
+          "kind",
+          "source_unit_id",
+          "timeline_start_frame",
+          "duration_frames",
+          "dependencies"
+        ],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "order": {"type": "integer", "minimum": 1},
+          "kind": {
+            "enum": [
+              "source-range",
+              "timeline-range",
+              "editable-scene",
+              "avatar-track",
+              "pre-rendered-media"
+            ]
+          },
+          "source_unit_id": {"$ref": "#/$defs/id"},
+          "timeline_start_frame": {"type": "integer", "minimum": 0},
+          "duration_frames": {"type": "integer", "minimum": 1},
+          "dependencies": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["role", "file", "sha256"],
+              "properties": {
+                "role": {"type": "string", "minLength": 1},
+                "file": {"$ref": "#/$defs/localPath"},
+                "sha256": {"$ref": "#/$defs/sha256"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "assembly": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "audio_strategy", "caption_strategy"],
+      "properties": {
+        "strategy": {"enum": ["ordered-concat"]},
+        "audio_strategy": {"enum": ["continuous-master", "unit-audio", "none"]},
+        "caption_strategy": {"enum": ["burned-in", "embedded-track", "sidecar", "none"]}
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  }
+}

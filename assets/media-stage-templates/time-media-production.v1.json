@@ -1,0 +1,50 @@
+{
+  "protocol": "visual-multimedia-media-stage-template",
+  "version": 1,
+  "id": "time-media-production",
+  "template_version": "1.0.0",
+  "name": "时间型媒体分阶段生产",
+  "media_kinds": ["video", "mixed-video", "audio", "podcast"],
+  "stages": [
+    {
+      "id": "content",
+      "order": 1,
+      "label": "内容与声音",
+      "purpose": "确认活动文案、原声或声音职责，以及逐段要表达的内容。",
+      "depends_on": [],
+      "required_artifact_roles": ["content-contract"]
+    },
+    {
+      "id": "direction",
+      "order": 2,
+      "label": "导演与制作方向",
+      "purpose": "确认镜头、网页视觉、角色、构图、动效与声音方向。",
+      "depends_on": ["content"],
+      "required_artifact_roles": ["direction-package"]
+    },
+    {
+      "id": "integrated-sample",
+      "order": 3,
+      "label": "综合样片",
+      "purpose": "用真实素材、声音和主要合成元素验证代表性连续片段。",
+      "depends_on": ["direction"],
+      "required_artifact_roles": ["integrated-sample"]
+    },
+    {
+      "id": "full-preview",
+      "order": 4,
+      "label": "全量代理或预览",
+      "purpose": "以较低成本检查完整内容、节奏、连续性、字幕和声音。",
+      "depends_on": ["integrated-sample"],
+      "required_artifact_roles": ["full-preview"]
+    },
+    {
+      "id": "final-delivery",
+      "order": 5,
+      "label": "最终母版与交付",
+      "purpose": "从已经确认的完整代理生成最终规格成品和交付依据。",
+      "depends_on": ["full-preview"],
+      "required_artifact_roles": ["final-delivery"]
+    }
+  ]
+}

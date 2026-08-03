@@ -1,10 +1,8 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import {fileURLToPath} from "node:url";
 import {
-  canonical,
   commandPath,
   ensureFile,
   escapeAssText,
@@ -19,10 +17,15 @@ import {
   relativeProjectPath,
   run,
   sha256File,
-  slash,
   toolVersion,
   writeJson,
 } from "./interview_explainer_common.mjs";
+import {
+  assemblyCacheKey,
+  buildUnitCacheKey,
+  createMediaBuildPlan,
+  validateMediaBuildReport,
+} from "./media_build_contract.mjs";
 import {
   loadLocalMediaEnvironment,
   mediaFlowProDescribe,
@@ -30,13 +33,53 @@ import {
 } from "./local-media-environment.mjs";
 import {assertPlanAndConfirmation} from "./interview_explainer_plan.mjs";
 import {assertJsonSchema} from "./json_schema_contract.mjs";
+import {
+  assertStageApproved,
+  submitStage,
+  validateProjectState,
+} from "./media_project_state.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SCHEMA_DIR = path.resolve(SCRIPT_DIR, "..", "schemas");
 const PUBLIC_ENTRY = path.join(SCRIPT_DIR, "interview-explainer.mjs");
 
-function sha256Text(value) {
-  return crypto.createHash("sha256").update(value, "utf8").digest("hex");
+function loadGenericState(projectRoot) {
+  const statePath = path.join(projectRoot, "media-project-state.json");
+  ensureFile(statePath, "通用媒体项目状态");
+  const validation = validateProjectState(statePath);
+  if (!validation.ok) {
+    throw new Error(`通用媒体项目状态未通过：\n- ${validation.errors.join("\n- ")}`);
+  }
+  return {statePath, state: readJson(statePath)};
+}
+
+function bindFullPreviewStage(projectRoot, outputPath) {
+  const {statePath, state} = loadGenericState(projectRoot);
+  assertStageApproved(state, "integrated-sample");
+  const stage = state.stages.find((item) => item.id === "full-preview");
+  const relative = relativeProjectPath(projectRoot, outputPath);
+  const expectedSha = sha256File(outputPath);
+  if (["waiting-approval", "approved"].includes(stage.status)) {
+    const artifact = state.artifacts.find(
+      (item) => item.stage_id === "full-preview" && item.role === "full-preview",
+    );
+    if (!artifact || artifact.file !== relative || artifact.sha256 !== expectedSha) {
+      throw new Error("全量预览阶段已经绑定其它成果；先使 full-preview 及下游失效再渲染");
+    }
+    return validateProjectState(statePath);
+  }
+  submitStage(state, projectRoot, "full-preview", [{
+    id: "interview-full-preview",
+    role: "full-preview",
+    kind: "video",
+    file: relative,
+  }]);
+  writeJson(statePath, state);
+  const validation = validateProjectState(statePath);
+  if (!validation.ok) {
+    throw new Error(`全量预览阶段状态未通过：\n- ${validation.errors.join("\n- ")}`);
+  }
+  return validation;
 }
 
 function sourceMap(projectRoot, plan) {
@@ -155,31 +198,61 @@ function loudnorm(plan) {
   return `loudnorm=I=${value.target_lufs}:TP=${value.true_peak_dbfs}:LRA=${value.lra}`;
 }
 
-function segmentCacheKey(plan, segment) {
-  const renderingModules = plan.producer.modules.filter((item) => (
-    /interview_explainer_(?:common|render)\.mjs$/u.test(item.file)
-    || /editable-media-contract\.mjs$/u.test(item.file)
-  ));
-  const inputRoles = new Set(segment.kind === "source-clip"
-    ? [`source:${segment.content.source_id}`]
-    : [
-      `audio:${segment.content.audio_source_id}`,
-      `scene-package:${segment.id}`,
-  ]);
-  return sha256Text(canonical({
-    rendering_modules: renderingModules,
-    inputs: plan.inputs.filter((item) => inputRoles.has(item.role)),
-    output_contract: {
+function genericBuildPlan(projectRoot, plan, planPath) {
+  const contractFile = relativeProjectPath(projectRoot, planPath);
+  const units = plan.sequence.map((segment) => {
+    const inputRoles = new Set(segment.kind === "source-clip"
+      ? [`source:${segment.content.source_id}`]
+      : [
+        `audio:${segment.content.audio_source_id}`,
+        `scene-package:${segment.id}`,
+      ]);
+    const dependencies = plan.inputs
+      .filter((item) => inputRoles.has(item.role))
+      .map((item) => ({role: item.role, file: item.file, sha256: item.sha256}));
+    if (!dependencies.length) {
+      throw new Error(`构建单元 ${segment.id} 没有绑定真实输入依赖`);
+    }
+    return {
+      id: segment.id,
+      order: segment.order,
+      kind: segment.kind === "source-clip" ? "source-range" : "editable-scene",
+      source_unit_id: segment.id,
+      timeline_start_frame: segment.timeline_start_frame,
+      duration_frames: segment.duration_frames,
+      dependencies,
+    };
+  });
+  return createMediaBuildPlan({
+    projectRoot,
+    producerRoot: path.resolve(SCRIPT_DIR, ".."),
+    projectId: plan.project_id,
+    mediaKind: "mixed-video",
+    profile: "interview-explainer",
+    stageTarget: "full-preview",
+    createdAt: plan.created_at,
+    sourceContract: contractFile,
+    producerEntry: "scripts/interview-explainer.mjs",
+    producerModules: [
+      ...plan.producer.modules.map((item) => item.file),
+      "scripts/media_build_contract.mjs",
+    ],
+    output: {
+      file: plan.output.file,
       width: plan.output.width,
       height: plan.output.height,
       fps: plan.output.fps,
       audio_sample_rate: plan.output.audio_sample_rate,
       audio_channels: plan.output.audio_channels,
-      loudness: plan.output.loudness,
+      quality_profile: "proxy",
     },
-    style: plan.style,
-    segment,
-  }));
+    units,
+    assembly: {
+      strategy: "ordered-concat",
+      audio_strategy: "continuous-master",
+      caption_strategy: plan.output.caption_mode,
+    },
+  });
 }
 
 function readValidCache(cachePath, outputPath, key, ffprobe, expectedFrames) {
@@ -293,11 +366,15 @@ function assertMediaFlowProCapabilities(environment) {
     "runtime.inspect",
     "project.create",
     "project.inspect",
+    "asset.import",
     "web.import",
     "timeline.get",
     "timeline.track.add",
     "timeline.clip.add",
+    "timeline.clip.delete",
+    "timeline.clip.source.replace",
     "web.clip.export",
+    "export.sequence.build",
   ];
   const missing = required.filter((name) => !operations.has(name));
   if (missing.length) {
@@ -348,7 +425,7 @@ function assertMediaFlowProCapabilities(environment) {
   return describe;
 }
 
-function ensureMediaFlowProProject(environment, contract, planSha, plan) {
+function ensureMediaFlowProProject(environment, contract, projectSpec, plan) {
   const requestedProfile = {
     width: plan.output.width,
     height: plan.output.height,
@@ -364,11 +441,11 @@ function ensureMediaFlowProProject(environment, contract, planSha, plan) {
     null,
     "project.create",
     {
-      name: `${plan.project_id} · interview explainer web scenes`,
-      directory_name: `interview-explainer-${planSha}`,
+      name: projectSpec.name,
+      directory_name: projectSpec.directoryName,
       profile: requestedProfile,
     },
-    `interview-explainer-project-${planSha}`,
+    projectSpec.requestId,
   );
   const editorProject = path.resolve(created.path || "");
   const defaultRoot = path.resolve(contract.default_project_root);
@@ -412,6 +489,173 @@ function ensureMediaFlowProProject(environment, contract, planSha, plan) {
     }
   }
   return {editorProject, inspected};
+}
+
+function resolveMediaFlowArtifact(editorProject, artifact) {
+  if (!artifact) return null;
+  if (artifact.scope === "external") return path.resolve(artifact.path);
+  if (artifact.scope === "project") {
+    return path.resolve(editorProject, ...String(artifact.path).split("/"));
+  }
+  throw new Error(`MediaFlow Pro 返回未知素材范围：${JSON.stringify(artifact)}`);
+}
+
+function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
+  const {
+    plan,
+    mediaflowEnvironment,
+    mediaFlowProContract,
+  } = context;
+  const buildPlanSha = context.buildPlanSha;
+  const assemblyProject = ensureMediaFlowProProject(
+    mediaflowEnvironment,
+    mediaFlowProContract,
+    {
+      name: `${plan.project_id} · final segmented assembly`,
+      directoryName: `interview-explainer-assembly-${plan.project_id}`,
+      requestId: `interview-explainer-assembly-project-${plan.project_id}`,
+    },
+    plan,
+  );
+  const editorProject = assemblyProject.editorProject;
+  const sequenceId = assemblyProject.inspected.project.main_sequence_id;
+  const imported = deliveryUnits.map((unit) => {
+    const result = mediaFlowProExecute(
+      mediaflowEnvironment,
+      editorProject,
+      "asset.import",
+      {source: unit.absoluteFile, timeout: 600},
+      `${plan.project_id}-${unit.id}-assembly-asset-`
+        + `${unit.cache_key.slice(0, 12)}-${unit.sha256.slice(0, 12)}`,
+    );
+    if (!result.asset?.id) {
+      throw new Error(`MediaFlow Pro 没有导入构建单元：${unit.id}`);
+    }
+    return {...unit, assetId: result.asset.id};
+  });
+  const trackName = "Interview explainer / final segmented build";
+  let timeline = mediaFlowProExecute(
+    mediaflowEnvironment,
+    editorProject,
+    "timeline.get",
+    {sequence_id: sequenceId},
+  ).timeline;
+  let track = (timeline.tracks || []).find((item) => item.name === trackName);
+  if (!track) {
+    track = mediaFlowProExecute(
+      mediaflowEnvironment,
+      editorProject,
+      "timeline.track.add",
+      {sequence_id: sequenceId, kind: "video", name: trackName},
+      `${plan.project_id}-assembly-track`,
+    ).track;
+  }
+  timeline = mediaFlowProExecute(
+    mediaflowEnvironment,
+    editorProject,
+    "timeline.get",
+    {sequence_id: sequenceId},
+  ).timeline;
+  const existing = (timeline.clips || []).filter((clip) => clip.track_id === track.id);
+  const retained = new Set();
+  const expected = imported.map((unit) => {
+    const candidate = existing.find((clip) => (
+      !retained.has(clip.id)
+      && clip.timeline_start === unit.timelineStartFrame
+      && clip.source_in === 0
+      && clip.duration === unit.frames
+    ));
+    if (!candidate) return {...unit, clip: null};
+    retained.add(candidate.id);
+    if (candidate.asset_id === unit.assetId) return {...unit, clip: candidate};
+    const replaced = mediaFlowProExecute(
+      mediaflowEnvironment,
+      editorProject,
+      "timeline.clip.source.replace",
+      {
+        sequence_id: sequenceId,
+        clip_id: candidate.id,
+        asset_id: unit.assetId,
+      },
+      `${plan.project_id}-${unit.id}-assembly-replace-${buildPlanSha.slice(0, 16)}`,
+    ).clip;
+    return {...unit, clip: replaced};
+  });
+  const stale = existing.filter((clip) => !retained.has(clip.id));
+  if (stale.length) {
+    mediaFlowProExecute(
+      mediaflowEnvironment,
+      editorProject,
+      "timeline.clip.delete",
+      {
+        sequence_id: sequenceId,
+        clip_ids: stale.map((clip) => clip.id),
+        ripple: false,
+      },
+      `${plan.project_id}-assembly-prune-${buildPlanSha.slice(0, 16)}`,
+    );
+  }
+  const placed = expected.map((unit) => {
+    if (unit.clip) return unit;
+    const clip = mediaFlowProExecute(
+      mediaflowEnvironment,
+      editorProject,
+      "timeline.clip.add",
+      {
+        sequence_id: sequenceId,
+        track_id: track.id,
+        asset_id: unit.assetId,
+        timeline_start: unit.timelineStartFrame,
+        source_in: 0,
+        duration: unit.frames,
+      },
+      `${plan.project_id}-${unit.id}-assembly-clip-${buildPlanSha.slice(0, 16)}`,
+    ).clip;
+    return {...unit, clip};
+  });
+  const result = mediaFlowProExecute(
+    mediaflowEnvironment,
+    editorProject,
+    "export.sequence.build",
+    {
+      sequence_id: sequenceId,
+      units: buildPlan.units.map((unit) => ({
+        id: unit.id,
+        start_frame: unit.timeline_start_frame,
+        end_frame: unit.timeline_start_frame + unit.duration_frames,
+      })),
+      output_path: rawOutput,
+      format: "h264",
+      preset: {
+        name: "Interview explainer segmented preview",
+        format: "h264",
+        container: "mp4",
+        video_codec: "libx264",
+        audio_codec: "aac",
+        pixel_format: "yuv420p",
+        quality_value: 18,
+        preset: "medium",
+        gop_frames: Math.max(1, plan.output.fps * 2),
+        audio_bitrate: 192000,
+      },
+      overwrite: false,
+      timeout: 3600,
+    },
+    null,
+  );
+  const outcome = result.task?.outcome;
+  if (result.task?.status !== "completed" || outcome?.outcome_type !== "sequence_build") {
+    throw new Error(`MediaFlow Pro 分段构建失败：${JSON.stringify(result.task)}`);
+  }
+  const unitsById = new Map(placed.map((unit) => [unit.id, unit]));
+  return {
+    editorProject,
+    rawOutput,
+    outcome,
+    units: outcome.units.map((unit) => ({...unitsById.get(unit.id), mediaflow: unit})),
+    audioFile: resolveMediaFlowArtifact(editorProject, outcome.audio.output),
+    reportFile: resolveMediaFlowArtifact(editorProject, outcome.report),
+  };
 }
 
 function exportWebScene(context, segment, webOutput, cacheKey) {
@@ -613,6 +857,7 @@ function buildCaptions(projectRoot, plan) {
     if (segment.kind === "source-clip") {
       for (const cue of segment.content.subtitle_cues) {
         cues.push({
+          segment_id: segment.id,
           start: offset
             + Number(cue.source_start_seconds)
             - Number(segment.content.start_seconds),
@@ -628,7 +873,12 @@ function buildCaptions(projectRoot, plan) {
     for (const cue of parseVtt(timingPath)) {
       const start = Math.max(0, Math.min(duration, cue.start));
       const end = Math.max(start + 0.05, Math.min(duration, cue.end));
-      cues.push({start: offset + start, end: offset + end, text: cue.text});
+      cues.push({
+        segment_id: segment.id,
+        start: offset + start,
+        end: offset + end,
+        text: cue.text,
+      });
     }
   }
   cues.sort((a, b) => a.start - b.start || a.end - b.end);
@@ -748,34 +998,142 @@ function buildCaptions(projectRoot, plan) {
   return {file: outputPath, burnInFile: burnInPath, cues};
 }
 
-function concatSegments(context, segmentFiles, captions, outputPath, planSha) {
+function prepareDeliveryUnits(context, buildPlan, segmentFiles, segmentReports, captions) {
+  const {projectRoot, plan, ffmpeg, ffprobe} = context;
+  const assLines = fs.readFileSync(captions.burnInFile, "utf8").split(/\r?\n/);
+  const dialogueLines = assLines.filter((line) => line.startsWith("Dialogue: "));
+  if (dialogueLines.length !== captions.cues.length) {
+    throw new Error("全局字幕文本与字幕时间数据不一致");
+  }
+  const captionItems = captions.cues.map((cue, index) => ({
+    cue,
+    dialogue: dialogueLines[index],
+  }));
+  const eventsIndex = assLines.findIndex((line) => line === "[Events]");
+  const formatIndex = assLines.findIndex(
+    (line, index) => index > eventsIndex && line.startsWith("Format: "),
+  );
+  const assHeader = assLines.slice(0, formatIndex + 1);
+  return plan.sequence.map((segment, index) => {
+    const sourceFile = segmentFiles[index];
+    const sourceReport = segmentReports[index];
+    const buildUnit = buildPlan.units[index];
+    if (plan.output.caption_mode !== "burned-in") {
+      return {
+        ...sourceReport,
+        absoluteFile: sourceFile,
+        timelineStartFrame: segment.timeline_start_frame,
+      };
+    }
+    const offset = segment.timeline_start_frame / plan.output.fps;
+    const segmentCaptions = captionItems.filter(
+      (item) => item.cue.segment_id === segment.id,
+    );
+    if (!segmentCaptions.length) {
+      return {
+        ...sourceReport,
+        absoluteFile: sourceFile,
+        timelineStartFrame: segment.timeline_start_frame,
+      };
+    }
+    const shiftedDialogues = segmentCaptions.map(({cue, dialogue}) => dialogue.replace(
+      /^Dialogue: 0,[^,]+,[^,]+,/,
+      `Dialogue: 0,${formatAssTime(cue.start - offset)},`
+        + `${formatAssTime(cue.end - offset)},`,
+    ));
+    const assPath = projectPath(
+      projectRoot,
+      `working/interview-explainer/captions/${segment.id}.ass`,
+      "segment caption",
+    );
+    fs.mkdirSync(path.dirname(assPath), {recursive: true});
+    fs.writeFileSync(
+      assPath,
+      `${[...assHeader, ...shiftedDialogues, ""].join("\n")}`,
+      "utf8",
+    );
+    const key = buildUnitCacheKey(buildPlan, buildUnit, {
+      source_sha256: sourceReport.sha256,
+      caption_mode: "burned-in",
+      caption_sha256: sha256File(assPath),
+    });
+    const outputPath = projectPath(
+      projectRoot,
+      `renders/segments-delivery/${segment.id}.${key.slice(0, 12)}.mp4`,
+      "captioned build unit",
+    );
+    const cachePath = projectPath(
+      projectRoot,
+      `working/interview-explainer/cache/delivery.${segment.id}.${key.slice(0, 12)}.json`,
+      "captioned build unit cache",
+    );
+    let cache = readValidCache(
+      cachePath,
+      outputPath,
+      key,
+      ffprobe,
+      segment.duration_frames,
+    );
+    let status = sourceReport.status;
+    if (!cache) {
+      status = "rendered";
+      fs.mkdirSync(path.dirname(outputPath), {recursive: true});
+      run(ffmpeg, [
+        "-hide_banner", "-loglevel", "error",
+        "-i", sourceFile,
+        "-vf", `ass='${ffmpegFilterPath(assPath)}'`,
+        "-map", "0:v:0", "-map", "0:a:0",
+        "-frames:v", String(segment.duration_frames),
+        "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "copy", "-movflags", "+faststart",
+        "-y", outputPath,
+      ]);
+      cache = {
+        key,
+        output_sha256: sha256File(outputPath),
+        frames: segment.duration_frames,
+      };
+      fs.mkdirSync(path.dirname(cachePath), {recursive: true});
+      writeJson(cachePath, cache);
+    }
+    return {
+      id: segment.id,
+      file: relativeProjectPath(projectRoot, outputPath),
+      absoluteFile: outputPath,
+      sha256: sha256File(outputPath),
+      bytes: fs.statSync(outputPath).size,
+      frames: segment.duration_frames,
+      status,
+      cache_key: key,
+      timelineStartFrame: segment.timeline_start_frame,
+    };
+  });
+}
+
+function archivePreviousPreview(projectRoot, outputPath) {
+  if (!fs.existsSync(outputPath)) return null;
+  const digest = sha256File(outputPath);
+  const extension = path.extname(outputPath);
+  const stem = path.basename(outputPath, extension);
+  const archived = projectPath(
+    projectRoot,
+    `archive/interview-explainer/full-previews/`
+      + `${stem}.${digest.slice(0, 12)}.${Date.now()}${extension}`,
+    "archived full preview",
+  );
+  fs.mkdirSync(path.dirname(archived), {recursive: true});
+  fs.renameSync(outputPath, archived);
+  return archived;
+}
+
+function finalizeMediaFlowAssembly(context, assembled, captions, outputPath) {
   const {projectRoot, plan, ffmpeg} = context;
-  const concatPath = projectPath(
-    projectRoot,
-    `working/interview-explainer/concat.${planSha.slice(0, 12)}.txt`,
-    "concat manifest",
-  );
-  fs.mkdirSync(path.dirname(concatPath), {recursive: true});
-  const concatText = segmentFiles.map((file) => {
-    const normalized = slash(path.resolve(file)).replaceAll("'", "'\\''");
-    return `file '${normalized}'`;
-  }).join("\n");
-  fs.writeFileSync(concatPath, `${concatText}\n`, "utf8");
-  const rawOutput = projectPath(
-    projectRoot,
-    `working/interview-explainer/raw.${planSha.slice(0, 12)}.mp4`,
-    "raw concat",
-  );
-  run(ffmpeg, [
-    "-hide_banner", "-loglevel", "error",
-    "-f", "concat", "-safe", "0", "-i", concatPath,
-    "-c", "copy", "-movflags", "+faststart",
-    "-y", rawOutput,
-  ]);
   const unique = `${Date.now()}-${process.pid}`;
   const temporaryOutput = projectPath(
     projectRoot,
-    `working/interview-explainer/final.${planSha.slice(0, 12)}.${unique}.partial.mp4`,
+    `working/interview-explainer/final.${context.buildPlanSha.slice(0, 12)}.`
+      + `${unique}.partial.mp4`,
     "temporary final",
   );
   fs.mkdirSync(path.dirname(outputPath), {recursive: true});
@@ -783,57 +1141,41 @@ function concatSegments(context, segmentFiles, captions, outputPath, planSha) {
   const audioFilter = `${loudnorm(plan)},aresample=${plan.output.audio_sample_rate},`
     + `aformat=channel_layouts=${plan.output.audio_channels === 1 ? "mono" : "stereo"},`
     + `apad,atrim=duration=${duration.toFixed(6)}`;
-  const common = [
+  const audioInput = assembled.audioFile || assembled.rawOutput;
+  const argumentsValue = [
     "-hide_banner", "-loglevel", "error",
-    "-i", rawOutput,
+    "-i", assembled.rawOutput,
+    "-i", audioInput,
   ];
-  if (plan.output.caption_mode === "burned-in") {
-    const subtitleFilter = `ass='${ffmpegFilterPath(captions.burnInFile)}'`;
-    run(ffmpeg, [
-      ...common,
-      "-vf", subtitleFilter,
-      "-af", audioFilter,
-      "-frames:v", String(plan.total_frames),
-      "-c:v", "libx264", "-preset", "medium", "-crf", "18",
-      "-pix_fmt", "yuv420p",
-      "-c:a", "aac", "-b:a", "192k",
-      "-movflags", "+faststart",
-      "-y", temporaryOutput,
-    ]);
-  } else if (plan.output.caption_mode === "embedded-track") {
-    run(ffmpeg, [
-      ...common,
-      "-i", captionPath,
-      "-map", "0:v:0", "-map", "0:a:0", "-map", "1:0",
-      "-c:v", "copy",
-      "-af", audioFilter,
-      "-c:a", "aac", "-b:a", "192k",
+  if (plan.output.caption_mode === "embedded-track") {
+    argumentsValue.push("-i", captions.file);
+  }
+  argumentsValue.push(
+    "-map", "0:v:0", "-map", "1:a:0",
+  );
+  if (plan.output.caption_mode === "embedded-track") {
+    argumentsValue.push("-map", "2:0");
+  }
+  argumentsValue.push(
+    "-c:v", "copy",
+    "-af", audioFilter,
+    "-c:a", "aac", "-b:a", "192k",
+  );
+  if (plan.output.caption_mode === "embedded-track") {
+    argumentsValue.push(
       "-c:s", "mov_text",
       "-metadata:s:s:0", "language=zho",
-      "-frames:v", String(plan.total_frames),
-      "-movflags", "+faststart",
-      "-y", temporaryOutput,
-    ]);
-  } else {
-    run(ffmpeg, [
-      ...common,
-      "-map", "0:v:0", "-map", "0:a:0",
-      "-c:v", "copy",
-      "-af", audioFilter,
-      "-c:a", "aac", "-b:a", "192k",
-      "-frames:v", String(plan.total_frames),
-      "-movflags", "+faststart",
-      "-y", temporaryOutput,
-    ]);
-  }
-  if (fs.existsSync(outputPath)) {
-    throw new Error(
-      `正式输出已经存在：${outputPath}。入口不会覆盖或自动归档，`
-      + "请明确使用新的 output.file。",
     );
   }
+  argumentsValue.push(
+    "-frames:v", String(plan.total_frames),
+    "-movflags", "+faststart",
+    "-y", temporaryOutput,
+  );
+  run(ffmpeg, argumentsValue);
+  const archived = archivePreviousPreview(projectRoot, outputPath);
   fs.renameSync(temporaryOutput, outputPath);
-  return {rawOutput, concatPath};
+  return archived;
 }
 
 function verifyFinal(ffprobe, outputPath, plan) {
@@ -866,12 +1208,47 @@ function verifyFinal(ffprobe, outputPath, plan) {
 
 export function renderInterviewExplainer(options) {
   const projectRoot = path.resolve(options.project);
+  const genericState = loadGenericState(projectRoot);
+  assertStageApproved(genericState.state, "integrated-sample");
   const {plan, planPath, confirmationPath} = assertPlanAndConfirmation(
     projectRoot,
     options.plan || "interview-explainer-plan.json",
     options.confirmation || "interview-explainer-plan.confirmation.json",
   );
   const planSha = sha256File(planPath);
+  const buildPlan = genericBuildPlan(projectRoot, plan, planPath);
+  const buildPlanPath = projectPath(
+    projectRoot,
+    "media-build-plan.json",
+    "generic media build plan",
+  );
+  writeJson(buildPlanPath, buildPlan);
+  const buildPlanSha = sha256File(buildPlanPath);
+  const outputPath = projectPath(projectRoot, plan.output.file, "final output");
+  const existingReportPath = projectPath(
+    projectRoot,
+    options.report || "reports/media-build-report.json",
+    "build report",
+  );
+  if (fs.existsSync(outputPath) && fs.existsSync(existingReportPath)) {
+    const existing = readJson(existingReportPath);
+    if (
+      existing.version === 2
+      && existing.build_plan_sha256 === buildPlanSha
+      && existing.output?.file === relativeProjectPath(projectRoot, outputPath)
+      && existing.output?.sha256 === sha256File(outputPath)
+    ) {
+      const stage = bindFullPreviewStage(projectRoot, outputPath);
+      return {
+        status: "reused",
+        output: outputPath,
+        output_sha256: existing.output.sha256,
+        report: existingReportPath,
+        stage_status: stage.stages.find((item) => item.id === "full-preview").status,
+        next_action: stage.next_action,
+      };
+    }
+  }
   const ffmpeg = commandPath("ffmpeg", options.ffmpeg, "FFMPEG_BIN");
   const ffprobe = commandPath("ffprobe", options.ffprobe, "FFPROBE_BIN");
   const mediaflowEnvironment = loadLocalMediaEnvironment(options.localConfig);
@@ -879,7 +1256,11 @@ export function renderInterviewExplainer(options) {
   const {editorProject} = ensureMediaFlowProProject(
     mediaflowEnvironment,
     mediaFlowProContract,
-    planSha,
+    {
+      name: `${plan.project_id} · interview explainer web scenes`,
+      directoryName: `interview-explainer-${planSha}`,
+      requestId: `interview-explainer-project-${planSha}`,
+    },
     plan,
   );
   const sources = sourceMap(projectRoot, plan);
@@ -890,14 +1271,23 @@ export function renderInterviewExplainer(options) {
     ffmpeg,
     ffprobe,
     mediaflowEnvironment,
+    mediaFlowProContract,
     editorProject,
     sources,
+    buildPlanSha,
   };
+  const buildUnits = new Map(buildPlan.units.map((item) => [item.id, item]));
 
   const segmentReports = [];
   const segmentFiles = [];
   for (const segment of plan.sequence) {
-    const key = segmentCacheKey(plan, segment);
+    const buildUnit = buildUnits.get(segment.id);
+    if (!buildUnit) throw new Error(`通用构建计划缺少 ${segment.id}`);
+    const key = buildUnitCacheKey(buildPlan, buildUnit, {
+      style: plan.style,
+      segment,
+      loudness: plan.output.loudness,
+    });
     const base = `${segment.id}.${key.slice(0, 12)}`;
     const outputPath = projectPath(
       projectRoot,
@@ -938,38 +1328,48 @@ export function renderInterviewExplainer(options) {
   }
 
   const captions = buildCaptions(projectRoot, plan);
-  const outputPath = projectPath(projectRoot, plan.output.file, "final output");
-  const existingReportPath = projectPath(
-    projectRoot,
-    options.report || "reports/media-build-report.json",
-    "build report",
+  const deliveryUnits = prepareDeliveryUnits(
+    context,
+    buildPlan,
+    segmentFiles,
+    segmentReports,
+    captions,
   );
-  if (fs.existsSync(outputPath) && fs.existsSync(existingReportPath)) {
-    const existing = readJson(existingReportPath);
-    if (
-      existing.plan_sha256 === planSha
-      && existing.output?.file === relativeProjectPath(projectRoot, outputPath)
-      && existing.output?.sha256 === sha256File(outputPath)
-    ) {
-      return {
-        status: "reused",
-        output: outputPath,
-        output_sha256: existing.output.sha256,
-        report: existingReportPath,
-      };
-    }
-  }
-  concatSegments(context, segmentFiles, captions, outputPath, planSha);
+  const rawOutput = projectPath(
+    projectRoot,
+    `working/interview-explainer/assembled.${context.buildPlanSha.slice(0, 12)}.mp4`,
+    "MediaFlow Pro segmented assembly",
+  );
+  const assembled = assembleWithMediaFlow(
+    context,
+    buildPlan,
+    deliveryUnits,
+    rawOutput,
+  );
+  const finalAssemblyKey = assemblyCacheKey(buildPlan, deliveryUnits, {
+    strategy: "continuous-master",
+    audio_cache_key: assembled.outcome.audio.cache_key,
+    loudness: plan.output.loudness,
+    captions: {
+      mode: plan.output.caption_mode,
+      sha256: sha256File(captions.file),
+    },
+  });
+  const archivedPreviousPreview = finalizeMediaFlowAssembly(
+    context,
+    assembled,
+    captions,
+    outputPath,
+  );
   const finalProbe = verifyFinal(ffprobe, outputPath, plan);
   const visible = plan.output.caption_mode === "burned-in"
     || plan.output.caption_mode === "embedded-track";
   const buildReport = {
     protocol: "visual-multimedia-media-build-report",
-    version: 1,
+    version: 2,
     profile: "interview-explainer",
-    plan: relativeProjectPath(projectRoot, planPath),
-    plan_sha256: planSha,
-    confirmation: relativeProjectPath(projectRoot, confirmationPath),
+    build_plan: relativeProjectPath(projectRoot, buildPlanPath),
+    build_plan_sha256: sha256File(buildPlanPath),
     producer: {
       entry: "scripts/interview-explainer.mjs",
       sha256: sha256File(PUBLIC_ENTRY),
@@ -980,13 +1380,26 @@ export function renderInterviewExplainer(options) {
         mediaflow_pro: mediaFlowProContract.version.toString(),
       },
     },
-    segments: segmentReports.map((item) => ({
+    units: assembled.units.map((item) => ({
       id: item.id,
       file: item.file,
       sha256: item.sha256,
       bytes: item.bytes,
       frames: item.frames,
+      status: (
+        item.status === "rendered" || item.mediaflow.status === "rendered"
+          ? "rendered"
+          : "reused"
+      ),
+      cache_key: item.mediaflow.cache_key,
     })),
+    audio: {
+      strategy: "continuous-master",
+      status: assembled.outcome.audio.status,
+      file: null,
+      sha256: assembled.outcome.audio.sha256,
+      cache_key: assembled.outcome.audio.cache_key,
+    },
     captions: {
       mode: plan.output.caption_mode,
       file: relativeProjectPath(projectRoot, captions.file),
@@ -998,6 +1411,10 @@ export function renderInterviewExplainer(options) {
         ? sha256File(captions.burnInFile)
         : null,
       visible_in_standalone_output: visible,
+    },
+    assembly: {
+      status: "assembled",
+      cache_key: finalAssemblyKey,
     },
     output: {
       file: relativeProjectPath(projectRoot, outputPath),
@@ -1014,9 +1431,9 @@ export function renderInterviewExplainer(options) {
     completed_at: nowIso(),
   };
   assertJsonSchema(
-    buildReport,
-    path.join(SCHEMA_DIR, "media-build-report.v1.schema.json"),
-    "媒体构建报告",
+    validateMediaBuildReport(buildReport),
+    path.join(SCHEMA_DIR, "media-build-report.v2.schema.json"),
+    "通用媒体构建报告",
   );
   writeJson(existingReportPath, buildReport);
   const detailPath = projectPath(
@@ -1033,12 +1450,21 @@ export function renderInterviewExplainer(options) {
       default_root: path.resolve(mediaFlowProContract.default_project_root),
       path: editorProject,
     },
+    mediaflow_pro_assembly: {
+      path: assembled.editorProject,
+      report: assembled.reportFile,
+      raw_output: assembled.rawOutput,
+      archived_previous_preview: archivedPreviousPreview,
+    },
     segments: segmentReports,
   });
+  const stage = bindFullPreviewStage(projectRoot, outputPath);
   return {
     status: "rendered",
     output: outputPath,
     output_sha256: buildReport.output.sha256,
     report: existingReportPath,
+    stage_status: stage.stages.find((item) => item.id === "full-preview").status,
+    next_action: stage.next_action,
   };
 }

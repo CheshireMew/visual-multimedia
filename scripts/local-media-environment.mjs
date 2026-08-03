@@ -135,12 +135,20 @@ export function loadLocalMediaEnvironment(configOverride = null) {
   if (new Set(voiceReferenceRoots.map((item) => item.toLowerCase())).size !== voiceReferenceRoots.length) {
     fail("resources.voice_reference_roots 不能重复");
   }
+  if (!document.runtime || typeof document.runtime !== "object") {
+    fail("本机配置缺少 runtime");
+  }
+  const cacheRoot = existingDirectory(
+    document.runtime.cache_root,
+    "runtime.cache_root",
+  );
   return {
     configPath,
     protocol: document.protocol,
     version: document.version,
     mediaflow: {python, sourceRoot, settingsPath},
     voiceReferenceRoots,
+    runtime: {cacheRoot},
   };
 }
 
@@ -353,6 +361,7 @@ function parseOptions(argv) {
 function printHelp() {
   process.stdout.write(`用法：
 node scripts/local-media-environment.mjs inspect [--config <路径>]
+node scripts/local-media-environment.mjs cache-root [--config <路径>]
 node scripts/local-media-environment.mjs voice-list [--config <路径>]
 node scripts/local-media-environment.mjs voice-resolve --voice <id或名称> [--config <路径>]
 node scripts/local-media-environment.mjs mediaflow describe [--config <路径>]
@@ -389,7 +398,12 @@ function main(argv) {
       },
       voice_reference_roots: environment.voiceReferenceRoots,
       registered_voice_count: voices.length,
+      cache_root: environment.runtime.cacheRoot,
     });
+    return;
+  }
+  if (command === "cache-root") {
+    printJson({cache_root: environment.runtime.cacheRoot});
     return;
   }
   if (command === "voice-list") {

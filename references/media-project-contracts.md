@@ -13,15 +13,15 @@
 | `clip-selections.json` | 从真实原片选择哪些区间，并引用已复核转写片段 | 镜头顺序、转场、混音和字幕样式 |
 | `sound-profile.json` | 项目或系列实际采用的声音角色、采用条件、混音与语义同步规则 | 音频路径、逐轨时间线或最终听音结论 |
 | `resource-promotion-candidates.json` | 已验证项目成果是否值得晋升为系列档案或注册资源的候选、证据与决定 | 原始日志、聊天记录或注册包内容 |
-| `media-project-state.json` | 长任务当前检查点、已确认层、合同入口、活动制作决策、产物哈希、阻塞项和下一步 | 内容、时间线、评审问题详情 |
+| `media-project-state.json` | 长任务的通用生产阶段、成果哈希、用户确认、合同入口、活动制作决策、阻塞项和下一步 | 内容、时间线、评审问题详情 |
 | `media-review.json` | 对某个不可变预览或成片的制作依据、承诺检查、完整审看结论和时间码问题 | 修改实现或第二套制作状态 |
 | `media-delivery.json` | 某个输出的检查档位、预期规格、采用素材、证据入口和报告位置 | 内容、构图、剪辑和编码实现 |
 
 网页的 `editable-media.json`、视频时间线或音频项目仍是素材采用与排列的真源。导入素材只说明候选文件可靠进入项目；消费者显式引用 source id 后，素材才算进入当前成品。语义片段图只描述叙事职责，不能复制一份事实转写；项目状态只索引合同和产物，不能复制时间线；评审只描述问题，不能变成第二个任务系统。
 
-外部生成任务只在实际使用外部供应方时建立，并以 `schemas/generation-jobs.v1.schema.json` 为唯一活动结构；已经本地化后，最终素材事实仍进入 `media-sources.json`。其余活动结构以 `schemas/media-sources.v3.schema.json`、`schemas/media-resource-adoptions.v1.schema.json`、`schemas/media-transcript.v1.schema.json`、`schemas/clip-selections.v2.schema.json`、`schemas/sound-production-profile.v1.schema.json`、`schemas/resource-promotion-candidates.v1.schema.json`、`schemas/media-project-state.v2.schema.json`、`schemas/media-review.v3.schema.json` 和 `schemas/media-delivery.v2.schema.json` 为准。注册资源的建立、采用与晋升另读取 `reusable-media-resources.md`，声音档案另读取 `sound-production-profiles.md`。新项目从 `assets/media-project-starter/` 开始，不创建平行的生成状态、素材清单、转写、交付状态或审核记录。
+外部生成任务只在实际使用外部供应方时建立，并以 `schemas/generation-jobs.v1.schema.json` 为唯一活动结构；已经本地化后，最终素材事实仍进入 `media-sources.json`。其余活动结构以 `schemas/media-sources.v3.schema.json`、`schemas/media-resource-adoptions.v1.schema.json`、`schemas/media-transcript.v1.schema.json`、`schemas/clip-selections.v2.schema.json`、`schemas/sound-production-profile.v1.schema.json`、`schemas/resource-promotion-candidates.v1.schema.json`、`schemas/media-project-state.v3.schema.json`、`schemas/media-stage-template.v1.schema.json`、`schemas/media-build-plan.v1.schema.json`、`schemas/media-build-report.v2.schema.json`、`schemas/media-review.v3.schema.json` 和 `schemas/media-delivery.v2.schema.json` 为准。注册资源的建立、采用与晋升另读取 `reusable-media-resources.md`，声音档案另读取 `sound-production-profiles.md`。新项目从 `assets/media-project-starter/` 开始，不创建平行的生成状态、素材清单、转写、交付状态或审核记录。
 
-具体视频类型可以在这些基础合同之上增加自己的 draft、不可变计划、确认和构建报告，但不能复制基础事实。例如采访原声讲解型使用 `interview-explainer-draft.json`、`narration-bundle.json`、`interview-explainer-plan.json`、独立确认和 `media-build-report.json`：draft 负责当前内容、样式及与事实转写边界一致的原声分段译文字幕，旁白包绑定真实音频，计划冻结所有消费者输入，构建报告证明正式生产者实际生成了什么并分别绑定交付字幕与实际烧录字幕。最终审阅、项目状态和交付仍回到上述通用合同，并绑定同一个成片 SHA-256。
+具体视频类型可以在这些基础合同之上增加自己的 draft、不可变计划和确认，但不能再定义一份专用构建报告。例如采访原声讲解型使用 `interview-explainer-draft.json`、`narration-bundle.json`、`interview-explainer-plan.json` 和独立确认：draft 负责当前内容、样式及与事实转写边界一致的原声分段译文字幕，旁白包绑定真实音频，计划冻结 profile 输入；随后投影为通用 `media-build-plan.json`，统一的 v2 构建报告证明每个单元实际生成或复用了什么、连续音频如何处理、最终如何装配。最终审阅、项目状态和交付仍回到上述通用合同，并绑定同一个成片 SHA-256。
 
 ## 二、素材、原片与代理
 
@@ -120,11 +120,13 @@ node scripts/validate-clip-selections.mjs <项目目录>/clip-selections.json
 
 联系表只帮助发现构图、主体、黑帧和大致区间，不能证明动作过程、声音边界或语义完整。
 
-## 六、长任务状态与创意确认
+## 六、长任务状态与阶段确认
 
-只在任务跨多轮、需要等待确认或会产生多个中间产物时维护 `media-project-state.json` v2。短任务不为形式完整而增加状态文件。状态记录当前检查点、合同入口、创意层批准、活动制作决策、产物及其哈希、阻塞项和下一步；内容和时间线继续留在各自真源。制作决策只记录会改变后续脚本、画面、声音、技术规格或交付的选择，必须写明 `applies_to`、依据产物、决策主体和时间；选择被推翻时用同分类的新决策和 `superseded_by` 形成无环替代链，不覆盖历史，也不让已替代决定继续生效。项目采用过注册资源、建立声音档案或产生晋升候选时，分别填写 `contracts.resource_adoptions`、`contracts.sound_profile` 和 `contracts.promotion_candidates`；没有时明确为 `null`，不省略字段，也不把其内容复制进状态文件。
+新的或实质重做的长视频、混合视频、音频和播客使用 `media-project-state.json` v3，并读取 `staged-media-production.md`。通用阶段固定为内容与声音、导演与制作方向、综合样片、全量代理或预览、最终母版与交付；具体视频 profile 只能生产这些阶段的成果，不能建立平行批准状态。默认每阶段提交真实文件后等待用户确认，只有用户明确授权全自动时才连续推进。短小且确定的单点修改不为形式完整经过全部阶段。
 
-风格、构图、动效和声音样稿各自只批准对应层。人物口播或需要反复出现多种构图的长视频，样稿应覆盖实际会重复出现的版式家族，例如人物主讲、人物与证据并列、全屏证据或图形；数量由项目真实版式决定，不固定为三张。批准一个版式不能推导其它版式已经批准。
+状态保存阶段、成果集合哈希、确认依据、合同入口、活动制作决策、阻塞项和下一步；内容和时间线继续留在各自真源。制作决策只记录会改变后续脚本、画面、声音、技术规格或交付的选择，必须写明影响范围、依据产物、决策主体和时间；选择被推翻时形成无环替代链，不覆盖历史，也不让已替代决定继续生效。项目采用过注册资源、建立声音档案或产生晋升候选时，分别填写相应合同入口，没有时为 `null`。
+
+上游内容变化使受影响阶段和全部下游失效，未受影响且已批准的上游继续有效。综合样片必须使用真实素材、真实声音和主要合成元素；人物口播或多版式视频要覆盖实际重复出现的版式家族，不能用一张静态图代表整条生产链。
 
 ```powershell
 node scripts/validate-media-project-state.mjs `

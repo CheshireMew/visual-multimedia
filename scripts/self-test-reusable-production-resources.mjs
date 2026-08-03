@@ -8,6 +8,7 @@ import process from "node:process";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { validateMediaProjectState } from "./validate-media-project-state.mjs";
+import {createProjectState, refreshProjectState} from "./media_project_state.mjs";
 import { validateMediaSources } from "./validate-media-sources.mjs";
 import {
   validateMediaResourceAdoptions,
@@ -74,31 +75,11 @@ function main() {
     sources: [],
   });
   const statePath = path.join(projectRoot, "media-project-state.json");
-  const state = {
-    protocol: "visual-multimedia-media-project-state",
-    version: 2,
-    project_id: "reusable-production-selfcheck",
-    status: "in-progress",
-    current_checkpoint: "brief",
-    contracts: {
-      media_sources: "media-sources.json",
-      resource_adoptions: null,
-      transcript: null,
-      clip_selections: null,
-      timeline: null,
-      style_profile: null,
-      sound_profile: null,
-      promotion_candidates: null,
-      review: null,
-      delivery: null,
-    },
-    creative_approvals: [],
-    production_decisions: [],
-    artifacts: [],
-    blockers: [],
-    next_action: "验证注册资源、项目采用、声音档案和晋升链路。",
-    updated_at: "2026-07-30T00:00:00.000Z",
-  };
+  const state = createProjectState({
+    projectId: "reusable-production-selfcheck",
+    mediaKind: "video",
+    timestamp: "2026-07-30T00:00:00.000Z",
+  });
   writeJson(statePath, state);
 
   run(resourceCli, ["init-registry", "--registry", registryRoot], "建立注册表");
@@ -356,9 +337,7 @@ function main() {
   state.contracts.resource_adoptions = "media-resource-adoptions.json";
   state.contracts.sound_profile = "sound-profile.json";
   state.contracts.promotion_candidates = "resource-promotion-candidates.json";
-  state.current_checkpoint = "motion-sound";
-  state.next_action = "真实资源链路已经生成；等待当前项目的创意确认。";
-  state.updated_at = "2026-07-30T00:01:00.000Z";
+  refreshProjectState(state, "2026-07-30T00:01:00.000Z");
   writeJson(statePath, state);
 
   const sourceValidation = validateMediaSources(

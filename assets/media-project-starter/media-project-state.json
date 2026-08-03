@@ -1,9 +1,89 @@
 {
   "protocol": "visual-multimedia-media-project-state",
-  "version": 2,
+  "version": 3,
   "project_id": "replace-with-project-id",
+  "media_kind": "video",
+  "profile": null,
+  "execution_policy": {
+    "mode": "staged",
+    "authorized_by": null,
+    "authorized_at": null,
+    "evidence": ""
+  },
+  "stage_template": {
+    "id": "time-media-production",
+    "version": "1.0.0",
+    "sha256": "c7df75dc8e54efada015354bf8636ac5dd392540936946a2ec4ce7b28b57d63e"
+  },
   "status": "in-progress",
-  "current_checkpoint": "brief",
+  "current_stage": "content",
+  "stages": [
+    {
+      "id": "content",
+      "order": 1,
+      "label": "内容与声音",
+      "depends_on": [],
+      "required_artifact_roles": ["content-contract"],
+      "status": "ready",
+      "artifact_ids": [],
+      "artifact_set_sha256": null,
+      "submitted_at": null,
+      "approval": null,
+      "invalidation": null
+    },
+    {
+      "id": "direction",
+      "order": 2,
+      "label": "导演与制作方向",
+      "depends_on": ["content"],
+      "required_artifact_roles": ["direction-package"],
+      "status": "blocked",
+      "artifact_ids": [],
+      "artifact_set_sha256": null,
+      "submitted_at": null,
+      "approval": null,
+      "invalidation": null
+    },
+    {
+      "id": "integrated-sample",
+      "order": 3,
+      "label": "综合样片",
+      "depends_on": ["direction"],
+      "required_artifact_roles": ["integrated-sample"],
+      "status": "blocked",
+      "artifact_ids": [],
+      "artifact_set_sha256": null,
+      "submitted_at": null,
+      "approval": null,
+      "invalidation": null
+    },
+    {
+      "id": "full-preview",
+      "order": 4,
+      "label": "全量代理或预览",
+      "depends_on": ["integrated-sample"],
+      "required_artifact_roles": ["full-preview"],
+      "status": "blocked",
+      "artifact_ids": [],
+      "artifact_set_sha256": null,
+      "submitted_at": null,
+      "approval": null,
+      "invalidation": null
+    },
+    {
+      "id": "final-delivery",
+      "order": 5,
+      "label": "最终母版与交付",
+      "depends_on": ["full-preview"],
+      "required_artifact_roles": ["final-delivery"],
+      "status": "blocked",
+      "artifact_ids": [],
+      "artifact_set_sha256": null,
+      "submitted_at": null,
+      "approval": null,
+      "invalidation": null
+    }
+  ],
   "contracts": {
     "media_sources": "media-sources.json",
     "resource_adoptions": null,
@@ -16,10 +96,9 @@
     "review": null,
     "delivery": null
   },
-  "creative_approvals": [],
   "production_decisions": [],
   "artifacts": [],
   "blockers": [],
-  "next_action": "确认内容真源、现有素材和当前交付层。",
-  "updated_at": "2026-07-29T00:00:00.000Z"
+  "next_action": "开始“内容与声音”阶段并提交可展示成果。",
+  "updated_at": "2026-08-03T00:00:00.000Z"
 }

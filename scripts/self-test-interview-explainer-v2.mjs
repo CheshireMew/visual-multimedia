@@ -8,9 +8,12 @@ import process from "node:process";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
+import { validateProjectState } from "./media_project_state.mjs";
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const skillRoot = path.dirname(scriptDir);
 const publicEntry = path.join(scriptDir, "interview-explainer.mjs");
+const mediaProjectEntry = path.join(scriptDir, "media-project.mjs");
 const importer = path.join(scriptDir, "import-media-asset.mjs");
 const transcriptImporter = path.join(scriptDir, "import-media-transcript.mjs");
 const clipValidator = path.join(scriptDir, "validate-clip-selections.mjs");
@@ -286,20 +289,95 @@ function main() {
     path.join(os.tmpdir(), "visual-multimedia-interview-v2-"),
   );
   prepareProject(project, ffmpeg);
+  const stateValidation = validateProjectState(path.join(project, "media-project-state.json"));
+  if (
+    !stateValidation.ok
+    || stateValidation.media_kind !== "mixed-video"
+    || stateValidation.profile !== "interview-explainer"
+    || stateValidation.current_stage !== "content"
+  ) {
+    throw new Error(
+      `采访 profile 没有接入通用 v3 阶段状态：${stateValidation.errors.join("; ")}`,
+    );
+  }
+  run(process.execPath, [
+    mediaProjectEntry,
+    "submit-stage",
+    "--project", project,
+    "--stage", "content",
+    "--artifact", "content-contract:document:interview-explainer-draft.json:interview-content-contract",
+  ]);
+  run(process.execPath, [
+    mediaProjectEntry,
+    "approve-stage",
+    "--project", project,
+    "--stage", "content",
+    "--evidence", "固定生产案例确认采访内容合同",
+  ]);
   run(process.execPath, [publicEntry, "plan", "--project", project, "--ffprobe", ffprobe]);
   const plan = validatePlan(project);
+  const plannedState = validateProjectState(path.join(project, "media-project-state.json"));
+  if (
+    !plannedState.ok
+    || plannedState.current_stage !== "direction"
+    || plannedState.stages.find((stage) => stage.id === "direction")?.status
+      !== "waiting-approval"
+  ) {
+    throw new Error("采访计划没有作为通用 direction 成果停下等待确认");
+  }
+  run(process.execPath, [
+    publicEntry,
+    "confirm-plan",
+    "--project",
+    project,
+    "--confirmed-by",
+    "user",
+    "--evidence",
+    "固定生产案例确认采访导演计划",
+  ]);
+  const blockedRender = spawnSync(process.execPath, [
+    publicEntry,
+    "render",
+    "--project",
+    project,
+    "--ffmpeg",
+    ffmpeg,
+    "--ffprobe",
+    ffprobe,
+  ], {
+    cwd: skillRoot,
+    env: process.env,
+    encoding: "utf8",
+    windowsHide: true,
+  });
+  if (
+    blockedRender.status === 0
+    || !`${blockedRender.stderr || ""}${blockedRender.stdout || ""}`.includes("integrated-sample")
+  ) {
+    throw new Error("采访完整渲染没有在综合样片确认前被通用阶段门阻止");
+  }
 
   let output = null;
   if (options.render) {
     run(process.execPath, [
-      publicEntry,
-      "confirm-plan",
+      mediaProjectEntry,
+      "submit-stage",
       "--project",
       project,
-      "--confirmed-by",
-      "agent",
+      "--stage",
+      "integrated-sample",
+      "--artifact",
+      "integrated-sample:video:source-interview.mp4:interview-integrated-sample",
+    ]);
+    run(process.execPath, [
+      mediaProjectEntry,
+      "approve-stage",
+      "--project",
+      project,
+      "--stage",
+      "integrated-sample",
       "--evidence",
-      "固定生产案例的 v2 协议与渲染链路验证",
+      "固定生产案例确认真实连续样片",
     ]);
     run(process.execPath, [
       publicEntry,
@@ -326,6 +404,16 @@ function main() {
     profile_version: plan.profile.version,
     source_viewer_title: plan.sequence.find((item) => item.kind === "source-clip").content.viewer_title,
     source_card: plan.style.source_card,
+    generic_stage_state: {
+      version: 3,
+      media_kind: stateValidation.media_kind,
+      profile: stateValidation.profile,
+      current_stage: stateValidation.current_stage,
+      plan_stage_status: plannedState.stages.find(
+        (stage) => stage.id === "direction",
+      ).status,
+      full_render_blocked_before_sample_approval: true,
+    },
     rendered_output: output,
   }, null, 2));
 }

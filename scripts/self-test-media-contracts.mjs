@@ -10,6 +10,11 @@ import { fileURLToPath } from "node:url";
 import { validateMediaSources } from "./validate-media-sources.mjs";
 import { validateMediaProjectState } from "./validate-media-project-state.mjs";
 import {
+  createProjectState,
+  decideStage,
+  submitStage,
+} from "./media_project_state.mjs";
+import {
   reviewBasisSha256,
   validateMediaReview,
 } from "./validate-media-review.mjs";
@@ -230,12 +235,9 @@ function main() {
     .relative(projectRoot, resolvedProxy.file)
     .split(path.sep)
     .join("/");
-  writeGeneratedContract("media-project-state.json", {
-    protocol: "visual-multimedia-media-project-state",
-    version: 2,
-    project_id: "media-contract-selfcheck-v2",
-    status: "complete",
-    current_checkpoint: "delivery",
+  const state = createProjectState({
+    projectId: "media-contract-selfcheck-v3",
+    mediaKind: "video",
     contracts: {
       media_sources: "media-sources.json",
       resource_adoptions: null,
@@ -248,20 +250,30 @@ function main() {
       review: "media-review.json",
       delivery: "media-delivery.json",
     },
-    creative_approvals: [],
-    production_decisions: [],
-    artifacts: [
-      {
-        id: "proxy-as-final-negative-case",
-        kind: "final",
-        file: proxyRelative,
-        sha256: resolvedProxy.sha256,
-      },
-    ],
-    blockers: [],
-    next_action: "",
-    updated_at: "2026-07-29T00:00:00.000Z",
+    timestamp: "2026-07-29T00:00:00.000Z",
   });
+  for (const stage of state.stages) {
+    submitStage(
+      state,
+      projectRoot,
+      stage.id,
+      [{
+        id: `proxy-negative-${stage.id}`,
+        role: stage.required_artifact_roles[0],
+        kind: "video",
+        file: proxyRelative,
+      }],
+      "2026-07-29T00:00:00.000Z",
+    );
+    decideStage(
+      state,
+      stage.id,
+      "approved",
+      "固定负例把真实代理文件推进到交付检查，用来证明代理不能冒充最终母版。",
+      {decidedBy: "profile", timestamp: "2026-07-29T00:00:00.000Z"},
+    );
+  }
+  writeGeneratedContract("media-project-state.json", state);
   const reviewBasisArtifacts = [
     {
       id: "media-sources",

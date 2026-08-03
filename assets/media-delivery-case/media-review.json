@@ -4,7 +4,7 @@
   "project_state": "media-project-state.json",
   "review_basis": {
     "created_at": "2026-07-27T00:00:00.000Z",
-    "basis_sha256": "0cb40c6322ae2437c3822af99312e81baa3cf6fc423d7798bd9f7b7f12e73ecf",
+    "basis_sha256": "22b06fa5c9363780af53adbbe7ffde3a781f4abfd552f4c1adaba80e22098f1f",
     "artifacts": [
       {
         "id": "delivery-contract",
@@ -22,7 +22,7 @@
         "id": "project-state",
         "role": "other",
         "file": "media-project-state.json",
-        "sha256": "35cc7c07b76966deb8fbf8677010c4d556263e8e3b9f2a1889bab5fd6d9dfdb7"
+        "sha256": "e798884eceb0d5373c459a541fc90bc7daca1898e816dc83dc28a88ad0b48942"
       }
     ]
   },

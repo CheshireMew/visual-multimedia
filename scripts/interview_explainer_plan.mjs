@@ -25,6 +25,12 @@ import {
 } from "./editable-media-contract.mjs";
 import {validateMediaSources} from "./validate-media-sources.mjs";
 import {assertJsonSchema} from "./json_schema_contract.mjs";
+import {
+  assertStageApproved,
+  decideStage,
+  submitStage,
+  validateProjectState,
+} from "./media_project_state.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.dirname(SCRIPT_DIR);
@@ -38,6 +44,7 @@ const RENDER_PLAN_MODULES = [
   "validate-media-sources.mjs",
   "validate-media-transcript.mjs",
   "validate-clip-selections.mjs",
+  "media_project_state.mjs",
 ].map((name) => path.join(SCRIPT_DIR, name));
 const PROFILE_CATALOG = path.join(
   SKILL_ROOT,
@@ -45,6 +52,66 @@ const PROFILE_CATALOG = path.join(
   "video-production-profiles",
   "catalog.json",
 );
+
+function loadGenericState(projectRoot) {
+  const statePath = path.join(projectRoot, "media-project-state.json");
+  ensureFile(statePath, "通用媒体项目状态");
+  const validation = validateProjectState(statePath);
+  if (!validation.ok) {
+    throw new Error(`通用媒体项目状态未通过：\n- ${validation.errors.join("\n- ")}`);
+  }
+  return {statePath, state: readJson(statePath)};
+}
+
+function writeGenericState(statePath, state) {
+  writeJson(statePath, state);
+  const validation = validateProjectState(statePath);
+  if (!validation.ok) {
+    throw new Error(`更新后的通用阶段状态未通过：\n- ${validation.errors.join("\n- ")}`);
+  }
+  return validation;
+}
+
+function bindDirectionStage(projectRoot, planPath) {
+  const {statePath, state} = loadGenericState(projectRoot);
+  assertStageApproved(state, "content");
+  const stage = state.stages.find((item) => item.id === "direction");
+  const relative = relativeProjectPath(projectRoot, planPath);
+  const expectedSha = sha256File(planPath);
+  if (["waiting-approval", "approved"].includes(stage.status)) {
+    const artifact = state.artifacts.find(
+      (item) => item.stage_id === "direction" && item.role === "direction-package",
+    );
+    if (!artifact || artifact.file !== relative || artifact.sha256 !== expectedSha) {
+      throw new Error("导演阶段已经绑定其它成果；先使 direction 及下游失效再生成新计划");
+    }
+    return validateProjectState(statePath);
+  }
+  submitStage(state, projectRoot, "direction", [{
+    id: "interview-explainer-plan",
+    role: "direction-package",
+    kind: "timeline",
+    file: relative,
+  }]);
+  return writeGenericState(statePath, state);
+}
+
+function approveDirectionStage(projectRoot, confirmedBy, evidence, timestamp) {
+  const {statePath, state} = loadGenericState(projectRoot);
+  const stage = state.stages.find((item) => item.id === "direction");
+  if (stage.status === "approved") return validateProjectState(statePath);
+  if (stage.status !== "waiting-approval") {
+    throw new Error(`导演阶段当前为 ${stage.status}，不能确认采访计划`);
+  }
+  if (confirmedBy !== "user") {
+    return validateProjectState(statePath);
+  }
+  decideStage(state, "direction", "approved", evidence, {
+    decidedBy: "user",
+    timestamp,
+  });
+  return writeGenericState(statePath, state);
+}
 const SCHEMA_DIR = path.join(SKILL_ROOT, "schemas");
 
 function sha256Text(value) {
@@ -349,6 +416,8 @@ function inputRecord(projectRoot, role, target) {
 export function createInterviewExplainerPlan(options) {
   const projectRoot = path.resolve(options.project);
   ensureDirectory(projectRoot, "项目目录");
+  const genericState = loadGenericState(projectRoot);
+  assertStageApproved(genericState.state, "content");
   const draftPath = projectPath(
     projectRoot,
     options.draft || "interview-explainer-draft.json",
@@ -621,12 +690,15 @@ export function createInterviewExplainerPlan(options) {
     const existing = readJson(outputPath);
     plan.created_at = existing.created_at;
     if (canonical(existing) === canonical(plan)) {
+      const stage = bindDirectionStage(projectRoot, outputPath);
       return {
         status: "reused",
         plan: outputPath,
         sha256: sha256File(outputPath),
         total_frames: existing.total_frames,
         duration_seconds: existing.duration_seconds,
+        stage_status: stage.stages.find((item) => item.id === "direction").status,
+        next_action: stage.next_action,
       };
     }
     throw new Error(
@@ -635,12 +707,15 @@ export function createInterviewExplainerPlan(options) {
     );
   }
   writeJson(outputPath, plan);
+  const stage = bindDirectionStage(projectRoot, outputPath);
   return {
     status: "created",
     plan: outputPath,
     sha256: sha256File(outputPath),
     total_frames: plan.total_frames,
     duration_seconds: plan.duration_seconds,
+    stage_status: stage.stages.find((item) => item.id === "direction").status,
+    next_action: stage.next_action,
   };
 }
 
@@ -695,7 +770,19 @@ export function confirmInterviewExplainerPlan(options) {
     const existing = readJson(outputPath);
     confirmation.confirmed_at = existing.confirmed_at;
     if (canonical(existing) === canonical(confirmation)) {
-      return {status: "reused", confirmation: outputPath, plan_sha256: confirmation.plan_sha256};
+      const stage = approveDirectionStage(
+        projectRoot,
+        confirmedBy,
+        confirmation.evidence,
+        confirmation.confirmed_at,
+      );
+      return {
+        status: "reused",
+        confirmation: outputPath,
+        plan_sha256: confirmation.plan_sha256,
+        stage_status: stage.stages.find((item) => item.id === "direction").status,
+        next_action: stage.next_action,
+      };
     }
     throw new Error(
       `确认合同已经存在且内容不同：${outputPath}。`
@@ -703,7 +790,19 @@ export function confirmInterviewExplainerPlan(options) {
     );
   }
   writeJson(outputPath, confirmation);
-  return {status: "created", confirmation: outputPath, plan_sha256: confirmation.plan_sha256};
+  const stage = approveDirectionStage(
+    projectRoot,
+    confirmedBy,
+    confirmation.evidence,
+    confirmation.confirmed_at,
+  );
+  return {
+    status: "created",
+    confirmation: outputPath,
+    plan_sha256: confirmation.plan_sha256,
+    stage_status: stage.stages.find((item) => item.id === "direction").status,
+    next_action: stage.next_action,
+  };
 }
 
 export function assertPlanAndConfirmation(projectRoot, planRelative, confirmationRelative) {
@@ -732,6 +831,8 @@ export function assertPlanAndConfirmation(projectRoot, planRelative, confirmatio
   ) {
     throw new Error("计划确认合同与当前计划不一致");
   }
+  const generic = loadGenericState(projectRoot);
+  assertStageApproved(generic.state, "direction");
   if (plan.producer?.sha256 !== sha256File(PUBLIC_ENTRY)) {
     throw new Error("公共生产脚本已经变化，当前计划确认失效");
   }

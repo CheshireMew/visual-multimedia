@@ -17,21 +17,34 @@
 
 正式运行项目位于当前任务明确的项目目录。Skill 中的 profile、starter、schema 和脚本是生产能力；本次原片、转写、旁白、场景包、计划、确认、渲染结果和审阅记录全部留在项目中。不要从历史项目复制计划、运行报告或派生视频，也不要让新项目引用旧任务绝对路径。
 
-公开入口只有：
+采访 profile 的生产入口是：
 
 ```powershell
 node scripts/interview-explainer.mjs <command> ...
 ```
 
-可用命令依次为：
+通用阶段只通过：
 
-1. `list-profiles`
-2. `create-project`
-3. `plan`
-4. `confirm-plan`
-5. `render`
-6. `review`
-7. `finalize`
+```powershell
+node scripts/media-project.mjs <command> --project <项目目录> ...
+```
+
+采访命令仍依次为 `list-profiles → create-project → plan → confirm-plan → render → review → finalize`，但不能脱离通用五阶段运行：
+
+1. `create-project` 建立 `mixed-video / interview-explainer` 的 v3 状态。完善 draft、原声、旁白包和场景包后，用通用命令提交并确认 `content`。
+2. `plan` 只在内容阶段已确认时运行，生成的不可变计划自动提交为 `direction-package` 并停在等待确认。
+3. `confirm-plan --confirmed-by user` 同时确认通用 `direction`；Agent 确认只能形成 profile 确认合同，不能代替用户阶段批准。
+4. 先制作含真实原声、旁白、网页动画和固定角色窗的连续综合样片，提交并确认 `integrated-sample`。完整 `render` 在此之前必须拒绝启动。
+5. `render` 生成完整低成本成片并自动提交为 `full-preview`，随后停止等待确认；`review` 可以对同一哈希做机器和 Agent 审阅。
+6. 全量预览确认后，`finalize` 建立最终交付合同并提交 `final-delivery`。分阶段模式下第一次收口停在最终文件确认，用户批准该阶段后再次 `finalize` 才完成交付验证；全自动模式仍使用同一成果与哈希边界。
+
+因此，采访内部命令不是第二套阶段状态：
+
+- draft 是内容成果。
+- 不可变 plan 是导演与制作方向成果。
+- 连续真实短片是综合样片成果。
+- 完整代理成片是全量预览成果。
+- 最终规格成片是交付成果。
 
 已有的素材导入、转写导入、转写校验、选段校验、网页校验和交付校验继续承担各自唯一职责；本入口调用或消费它们的正式输出，不复制第二套素材、转写和评审逻辑。
 
@@ -124,7 +137,7 @@ node scripts/interview-explainer.mjs <command> ...
 
 画面丰富来自信息关系变化，不强制轮换图表，也不为了“动起来”加入无关 B-roll。场景包必须能通过 `scripts/validate-editable-media.mjs`，并在真实浏览器中检查开始、主要变化和结束状态。
 
-正式默认是一段旁白对应一个已经验证的场景包，MediaFlow Pro 中统一从 `source_in=0` 渲染。只有当前消费者的多场景任意定位已经被真实验证，才能使用一个多场景包的非零入点。这个选择属于工具适配，不复制第二套时间线。
+正式默认是一段旁白对应一个已经验证的场景包，MediaFlow Pro 中统一从 `source_in=0` 渲染。只有当前消费者的多场景任意定位已经被真实验证，才能使用一个多场景包的非零入点。这个选择属于工具适配，不复制第二套时间线。片段生成后还要进入稳定的最终装配工程：每个构建单元占据真实连续区间，画面按单元缓存，整条音频作为连续母版缓存；烧录字幕先按单元处理，避免改一句字幕后重编码整片。
 
 ## 七、计划与确认
 
@@ -145,11 +158,13 @@ node scripts/interview-explainer.mjs <command> ...
 
 ## 八、渲染
 
-渲染开始前先调用 MediaFlow Pro 的 `describe`，确认 `product` 精确等于 `MediaFlow Pro`，读取它声明的 `default_project_root`，并确认当前版本真实提供 `project.create`、`project.inspect`、`web.import`、`timeline.track.add`、`timeline.clip.add` 和 `web.clip.export`。缺少产品身份、默认工程根目录或任一能力时停止，不暗中切换 HyperFrames 或另一套绘图脚本。
+渲染开始前先调用 MediaFlow Pro 的 `describe`，确认 `product` 精确等于 `MediaFlow Pro`，读取它声明的 `default_project_root`，并确认当前版本真实提供 `project.create`、`project.inspect`、`asset.import`、`web.import`、`timeline.track.add`、`timeline.clip.add/delete/source.replace`、`web.clip.export` 和 `export.sequence.build`。缺少产品身份、默认工程根目录或任一能力时停止，不暗中切换 HyperFrames 或另一套绘图脚本。
 
-每份不可变计划调用一次 `project.create`，提交计划专属目录名、显示名称和与计划完全一致的尺寸、帧率、色彩、位深、采样率与声道 `profile`，但不提交 `project` 路径。MediaFlow Pro 必须直接在 `default_project_root` 下创建独立工程并返回真实绝对路径；重新读取的主序列 profile 必须逐项一致，后续请求只使用这个返回值。调用端不得把工程创建在当前媒体项目内，也不得使用短盘符、目录映射、临时副本或渲染后同步。计划专属轨道不能继承上一份计划的时间线状态。每段解释画面由 `web.import` 的真实返回 asset id 绑定当前场景包，并在 `project.inspect.web_assets` 中取得 MediaFlow Pro 登记的 `source_hash`；消费者不能用不存在的源路径字段、素材名称或历史轨道猜资产身份。随后由 MediaFlow Pro 从已确认场景包逐帧导出，再与对应真实旁白合成到计划帧数。原声证据画面由 FFmpeg 从原片精确取段、按当前项目样式构图并保留同期声。所有片段统一到计划声明的尺寸、帧率、采样率和声道数。
+每份不可变计划调用一次 `project.create`，提交计划专属目录名、显示名称和与计划完全一致的尺寸、帧率、色彩、位深、采样率与声道 `profile`，但不提交 `project` 路径。MediaFlow Pro 必须直接在 `default_project_root` 下创建独立工程并返回真实绝对路径；重新读取的主序列 profile 必须逐项一致，后续请求只使用这个返回值。调用端不得把工程创建在当前媒体项目内，也不得使用短盘符、目录映射、临时副本或渲染后同步。每段解释画面由 `web.import` 的真实返回 asset id 绑定当前场景包，并在 `project.inspect.web_assets` 中取得 MediaFlow Pro 登记的 `source_hash`；随后由 MediaFlow Pro 从已确认场景包逐帧导出，再与对应真实旁白合成到计划帧数。原声证据画面由 FFmpeg 从原片精确取段、按当前项目样式构图并保留同期声。
 
-浏览器渲染很慢时可以设置采样除数，但它默认是 1。只有运动允许、抽样预览与全帧渲染没有可观察差异，并且恢复后的时长与帧数精确一致时才提高。片段缓存只由当前片段真实采用的原片或音频、场景包、片段合同、输出规格、样式和渲染模块哈希共同命中；评审文字、交付脚本、最终文件名或同一结果的新计划确认不能无故让片段缓存失效。最终节目仍绑定完整计划 SHA-256。文件存在或非零不能构成缓存命中。
+最终装配工程按 `project_id` 稳定复用，不按每次计划哈希新建。它只保存已经生成的构建单元：相同区间优先保留片段，素材变化时替换 source，边界变化时删除失效片段并加入新片段，然后把通用构建计划的区间原样交给 `export.sequence.build`。MediaFlow Pro 返回的画面单元、连续音频母版和装配缓存状态写入 v2 构建报告。完全未变化且最终文件与报告哈希一致时，必须在能力探测、工程读取、浏览器或 FFmpeg 启动之前直接返回；旧全量预览在新版本完成后移入项目归档，不覆盖删除。
+
+浏览器渲染很慢时可以设置采样除数，但它默认是 1。只有运动允许、抽样预览与全帧渲染没有可观察差异，并且恢复后的时长与帧数精确一致时才提高。Profile 计划先投影为通用 `media-build-plan.json`，原声段成为 `source-range`，解释段成为 `editable-scene`。单元缓存只由当前单元真实采用的原片或音频、场景包、片段合同、输出规格、样式和渲染模块哈希共同命中；整份 profile 计划的全局哈希不能塞进每个单元键，避免修改一段导致全片失效。评审文字、交付脚本、最终文件名或同一结果的新计划确认也不能无故让缓存失效。文件存在或非零不能构成命中；v2 构建报告必须记录每段 `rendered/reused` 和最终装配键。
 
 最终节目按整数帧顺序拼接，先输出临时文件，完整探测、解码和帧数验证通过后再发布正式文件。正式入口不自动移动、覆盖或归档旧成片；目标已存在且内容不同时停止，由当前任务明确决定新文件名或处置方式。
 
@@ -165,7 +180,7 @@ node scripts/interview-explainer.mjs <command> ...
 
 报告必须记录 `visible_in_standalone_output`。存在“视频要有中文字幕”的要求而没有进一步说明时，该类型默认使用 `burned-in`。
 
-烧录时同时生成交付 SRT 和实际渲染 ASS。ASS 明确写入目标画布的 `PlayResX/PlayResY`，字号、描边和安全边距使用该画布坐标；中文长句按照可用宽度确定性换行，不能依赖 SRT 在 libass 默认 384×288 坐标系中的临时样式。构建报告分别保存 SRT 与实际 ASS 的文件和 SHA-256，评审器必须同时核对。
+烧录时同时生成交付 SRT 和实际渲染 ASS。ASS 明确写入目标画布的 `PlayResX/PlayResY`，字号、描边和安全边距使用该画布坐标；中文长句按照可用宽度确定性换行，不能依赖 SRT 在 libass 默认 384×288 坐标系中的临时样式。通用 v2 构建报告的 captions 区分别保存 SRT 与实际 ASS 的文件和 SHA-256，评审器必须同时核对。
 
 ## 十、审阅与收口
 

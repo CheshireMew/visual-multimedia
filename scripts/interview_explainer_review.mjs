@@ -20,6 +20,11 @@ import {
   validateMediaReview,
 } from "./validate-media-review.mjs";
 import {assertJsonSchema} from "./json_schema_contract.mjs";
+import {
+  assertStageApproved,
+  submitStage,
+  validateProjectState,
+} from "./media_project_state.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SCHEMA_DIR = path.resolve(SCRIPT_DIR, "..", "schemas");
@@ -527,10 +532,6 @@ export function reviewInterviewExplainer(options) {
   };
 }
 
-function replaceArtifact(artifacts, artifact) {
-  return [...(artifacts || []).filter((item) => item.id !== artifact.id), artifact];
-}
-
 function replaceDecision(decisions, decision) {
   return [...(decisions || []).filter((item) => item.id !== decision.id), decision];
 }
@@ -612,33 +613,17 @@ export function finalizeInterviewExplainer(options) {
     options.delivery || "media-delivery.json",
     "media delivery",
   );
-  const stateExists = fs.existsSync(statePath);
-  const state = stateExists
-    ? readJson(statePath)
-    : {
-      protocol: "visual-multimedia-media-project-state",
-      version: 2,
-      project_id: plan.project_id,
-      status: "in-progress",
-      current_checkpoint: "brief",
-      contracts: {},
-      creative_approvals: [],
-      production_decisions: [],
-      artifacts: [],
-      blockers: [],
-      next_action: "",
-      updated_at: nowIso(),
-    };
-  if (stateExists) {
-    assertJsonSchema(
-      state,
-      path.join(SCHEMA_DIR, "media-project-state.v2.schema.json"),
-      "媒体项目状态",
-    );
+  if (!fs.existsSync(statePath)) {
+    throw new Error("采访项目缺少通用 media-project-state.json v3");
   }
+  const stateValidation = validateProjectState(statePath);
+  if (!stateValidation.ok) {
+    throw new Error(`媒体项目状态未通过：\n- ${stateValidation.errors.join("\n- ")}`);
+  }
+  const state = readJson(statePath);
   state.project_id = plan.project_id;
-  state.status = "complete";
-  state.current_checkpoint = "delivery";
+  state.media_kind = "mixed-video";
+  state.profile = "interview-explainer";
   state.contracts = {
     media_sources: relativeProjectPath(projectRoot, mediaSourcesPath),
     resource_adoptions: fs.existsSync(path.join(projectRoot, "media-resource-adoptions.json"))
@@ -659,28 +644,10 @@ export function finalizeInterviewExplainer(options) {
     review: relativeProjectPath(projectRoot, reviewPath),
     delivery: relativeProjectPath(projectRoot, deliveryPath),
   };
-  state.creative_approvals = [
-    {
-      scope: "script",
-      status: "approved",
-      artifact: relativeProjectPath(projectRoot, planPath),
-      artifact_sha256: sha256File(planPath),
-      recorded_at: confirmation.confirmed_at,
-      notes: confirmation.evidence,
-    },
-  ];
-  state.artifacts = replaceArtifact(state.artifacts, {
-    id: "interview-explainer-plan",
-    kind: "timeline",
-    file: relativeProjectPath(projectRoot, planPath),
-    sha256: sha256File(planPath),
-  });
-  state.artifacts = replaceArtifact(state.artifacts, {
-    id: "final-video",
-    kind: "final",
-    file: relativeProjectPath(projectRoot, outputPath),
-    sha256: build.output.sha256,
-  });
+  state.blockers = [];
+  for (const stageId of ["content", "direction", "integrated-sample", "full-preview"]) {
+    assertStageApproved(state, stageId);
+  }
   state.production_decisions = replaceDecision(state.production_decisions, {
     id: "interview-explainer-output-profile",
     category: "delivery",
@@ -707,18 +674,6 @@ export function finalizeInterviewExplainer(options) {
     decided_at: confirmation.confirmed_at,
     superseded_by: null,
   });
-  state.blockers = [];
-  state.next_action = review.user_confirmation.required
-    ? "用户已经确认当前成片；可以按另行授权进行发布。"
-    : "当前成片已通过机器与 Agent 审阅；发布仍需单独授权。";
-  state.updated_at = nowIso();
-  assertJsonSchema(
-    state,
-    path.join(SCHEMA_DIR, "media-project-state.v2.schema.json"),
-    "已收口媒体项目状态",
-  );
-  writeJson(statePath, state);
-
   review.project_state = relativeProjectPath(projectRoot, statePath);
   assertJsonSchema(
     review,
@@ -798,6 +753,50 @@ export function finalizeInterviewExplainer(options) {
     report: `reports/media-delivery-report.${build.output.sha256.slice(0, 12)}.json`,
   };
   writeJson(deliveryPath, delivery);
+  let finalStage = state.stages.find((stage) => stage.id === "final-delivery");
+  if (!finalStage) throw new Error("通用阶段模板缺少 final-delivery");
+  if (finalStage.status !== "approved") {
+    if (finalStage.status !== "waiting-approval") {
+      submitStage(state, projectRoot, "final-delivery", [{
+        id: "final-video",
+        role: "final-delivery",
+        kind: "video",
+        file: relativeProjectPath(projectRoot, outputPath),
+      }]);
+      finalStage = state.stages.find((stage) => stage.id === "final-delivery");
+    }
+    writeJson(statePath, state);
+    const pendingStateValidation = validateProjectState(statePath);
+    if (!pendingStateValidation.ok) {
+      throw new Error(
+        `待确认的最终阶段状态未通过：\n- ${pendingStateValidation.errors.join("\n- ")}`,
+      );
+    }
+    if (finalStage.status !== "approved") {
+      return {
+        status: "waiting-approval",
+        output: outputPath,
+        output_sha256: build.output.sha256,
+        state: statePath,
+        review: reviewPath,
+        delivery: deliveryPath,
+        next_action: pendingStateValidation.next_action,
+      };
+    }
+  }
+  const finalArtifact = state.artifacts.find(
+    (artifact) => artifact.stage_id === "final-delivery" && artifact.role === "final-delivery",
+  );
+  if (!finalArtifact || finalArtifact.sha256 !== build.output.sha256) {
+    throw new Error("最终阶段批准的成果不是当前构建报告绑定的成片");
+  }
+  writeJson(statePath, state);
+  const finalizedStateValidation = validateProjectState(statePath);
+  if (!finalizedStateValidation.ok) {
+    throw new Error(
+      `已收口媒体项目状态未通过：\n- ${finalizedStateValidation.errors.join("\n- ")}`,
+    );
+  }
   const finalizedReviewValidation = validateMediaReview(reviewPath, {ffprobe});
   if (!finalizedReviewValidation.ok) {
     throw new Error(
