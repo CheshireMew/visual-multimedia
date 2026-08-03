@@ -245,7 +245,7 @@
       text-transform: uppercase;
     }
 
-    .creator {
+    .curator {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -253,7 +253,7 @@
       text-transform: none;
     }
 
-    .creator-avatar {
+    .curator-avatar {
       width: 58px;
       height: 58px;
       flex: 0 0 auto;
@@ -266,13 +266,13 @@
         0 5px 14px rgb(73 56 24 / 12%);
     }
 
-    .creator-copy {
+    .curator-copy {
       display: grid;
       gap: 5px;
       min-width: 0;
     }
 
-    .creator-label {
+    .curator-label {
       color: #766952;
       font-family: var(--font-mono);
       font-size: 13px;
@@ -282,7 +282,7 @@
       text-transform: uppercase;
     }
 
-    .creator-name {
+    .curator-name {
       color: var(--ink);
       font-family: var(--font-sans);
       font-size: 24px;
@@ -503,18 +503,18 @@
           <section class="list-panel" data-editable-id="list-panel">
             <div class="panel-meta">
               <span data-editable-data="index_label"></span>
-              <div class="creator" aria-label="图片作者">
+              <div class="curator" aria-label="内容整理者">
                 <img
-                  class="creator-avatar"
-                  data-editable-image="creator_avatar"
-                  data-editable-id="creator-avatar"
+                  class="curator-avatar"
+                  data-editable-image="curator_avatar"
+                  data-editable-id="curator-avatar"
                   src=""
-                  alt="柴郡的社交媒体头像"
+                  alt="内容整理者柴郡的头像"
                   draggable="false"
                 >
-                <span class="creator-copy">
-                  <span class="creator-label" data-editable-data="creator_label"></span>
-                  <span class="creator-name" data-editable-data="creator_name" data-editable-id="creator-name"></span>
+                <span class="curator-copy">
+                  <span class="curator-label" data-editable-data="curator_label"></span>
+                  <span class="curator-name" data-editable-data="curator_name" data-editable-id="curator-name"></span>
                 </span>
               </div>
             </div>

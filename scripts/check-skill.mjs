@@ -470,6 +470,43 @@ if (!mediaStarterState.ok) {
   );
 }
 
+const creatorIdentity = readJson(
+  ensurePath("assets/creator-identity/identity.json")
+);
+if (
+  creatorIdentity?.credit_roles?.original?.avatar !== true
+  || creatorIdentity?.credit_roles?.original?.label !== "柴郡@0xCheshire"
+  || creatorIdentity?.credit_roles?.curated?.avatar !== true
+  || creatorIdentity?.credit_roles?.curated?.label !== "整理：柴郡@0xCheshire"
+  || creatorIdentity?.credit_roles?.production_watermark?.avatar !== false
+  || creatorIdentity?.credit_roles?.production_watermark?.label !== "𝕏@0xCheshire"
+  || !(Number(creatorIdentity?.credit_roles?.production_watermark?.opacity) > 0)
+  || !(Number(creatorIdentity?.credit_roles?.production_watermark?.opacity) < 0.5)
+) {
+  fail("创作者身份档案没有分开原创署名、整理说明和低干扰制作水印");
+}
+if (Object.hasOwn(creatorIdentity || {}, "use")) {
+  fail("创作者身份档案仍保留含混的默认作者 use 字段");
+}
+const textCardReferencePath = ensurePath("references/text-card-production.md");
+if (!skillText.includes("references/text-card-production.md")) {
+  fail("SKILL.md 缺少纯文字卡正式路由：references/text-card-production.md");
+}
+const textCardReferenceText = fs.readFileSync(textCardReferencePath, "utf8");
+for (const token of [
+  "单句观点卡",
+  "段落文字卡",
+  "并列清单卡",
+  "名词解释卡",
+  "引文摘录卡",
+  "文字对照卡",
+  "production_watermark",
+]) {
+  if (!textCardReferenceText.includes(token)) {
+    fail(`纯文字卡制作说明缺少正式分型或身份语义：${token}`);
+  }
+}
+
 const catalogPath = ensurePath("assets/web-card-cases/catalog.json");
 const catalog = readJson(catalogPath);
 const browserProjects = [path.dirname(starterManifest)];
@@ -505,6 +542,57 @@ for (const item of catalog?.cases || []) {
       if (!styleProfile?.applicability?.[layer]?.includes(output)) {
         fail(`编辑证据案例的 ${layer} 没有声明 ${output}`);
       }
+    }
+    const sourceManifest = readJson(
+      path.resolve(caseRoot, item.files?.sources || "media-sources.json")
+    );
+    const creatorAvatar = (sourceManifest?.sources || []).find(
+      (source) => source.id === "creator-avatar"
+    );
+    if (
+      !String(creatorAvatar?.notes || "").includes("确认为原创")
+      || creatorAvatar?.usage !== "creator signature"
+    ) {
+      fail("编辑证据案例没有把头像限定为已确认原创的正式作者署名");
+    }
+  }
+  if (item.id === "warm-paper-project-list") {
+    const caseManifest = readJson(manifestPath);
+    const fields = new Map(
+      (caseManifest?.data_fields || []).map((field) => [field.id, field])
+    );
+    const sourceManifest = readJson(
+      path.resolve(caseRoot, item.files?.sources || "media-sources.json")
+    );
+    if (
+      fields.get("curator_label")?.default !== "整理"
+      || fields.has("creator_name")
+      || fields.has("creator_avatar")
+      || !(sourceManifest?.sources || []).some(
+        (source) => source.id === "curator-avatar" && source.usage === "curator credit"
+      )
+    ) {
+      fail("GitHub 清单案例没有使用明确的整理贡献说明，或仍保留默认作者字段");
+    }
+  }
+  if (item.id === "text-card-glossary") {
+    const caseManifest = readJson(manifestPath);
+    const fields = new Map(
+      (caseManifest?.data_fields || []).map((field) => [field.id, field])
+    );
+    const sourceManifest = readJson(
+      path.resolve(caseRoot, item.files?.sources || "media-sources.json")
+    );
+    const serialized = JSON.stringify(caseManifest);
+    if (
+      fields.get("production_watermark")?.default !== "𝕏@0xCheshire"
+      || !caseManifest?.layers?.some((layer) => layer.id === "production-watermark")
+      || (sourceManifest?.sources || []).length !== 0
+      || serialized.includes("creator_avatar")
+      || serialized.includes("creator-name")
+      || caseManifest?.component?.id !== "ai-glossary-text-card"
+    ) {
+      fail("名词解释纯文字卡没有使用无头像的制作水印唯一语义");
     }
   }
   const caseRuntime = path.join(caseRoot, "editable-media-runtime.js");

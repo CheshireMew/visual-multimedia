@@ -3,7 +3,7 @@
   "version": 4,
   "sources": [
     {
-      "id": "creator-avatar",
+      "id": "curator-avatar",
       "media_type": "photo",
       "file": "assets/creator-avatar.png",
       "binding": {
@@ -26,7 +26,7 @@
         "attribution": "柴郡@0xCheshire",
         "terms_url": ""
       },
-      "usage": "creator signature",
+      "usage": "curator credit",
       "integrity": {
         "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
         "bytes": 902095,
@@ -51,7 +51,7 @@
           "object_position": "50% 50%"
         }
       },
-      "notes": "当前 Skill 的默认作者身份资源；用户提供其它身份时替换。"
+      "notes": "本案例已经确认由柴郡筛选和整理，头像只用于明确的整理贡献说明，不表示列表中的项目或原始内容由其创作。"
     }
   ]
 }

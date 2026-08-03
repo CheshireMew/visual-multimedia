@@ -21,7 +21,7 @@
     },
     "material": "Subtle CSS paper grain with warm-neutral hairlines and no floating glass or heavy container shadows",
     "shape_and_line": "One flat ledger organized by shared columns, fine rules and a single inline vector star",
-    "image_treatment": "No external evidence image; the background is CSS paper and the creator avatar remains a local project-owned identity asset",
+    "image_treatment": "No external evidence image; the background is CSS paper and the local avatar belongs only to the explicit curator credit",
     "hierarchy_and_rhythm": "Large Chinese title, oversized outlined issue number, one metadata band and evenly spaced repository rows"
   },
   "realizations": {
@@ -32,7 +32,7 @@
         "title": "76px",
         "summary": "29px",
         "list_meta": "21px",
-        "creator_name": "24px",
+        "curator_name": "24px",
         "item_name": "33px",
         "item_description": "24px",
         "url": "17px",

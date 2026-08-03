@@ -1,0 +1,43 @@
+{
+  "profile_id": "text-card-glossary",
+  "source": "custom",
+  "applicability": {
+    "shared_visual_core": ["static-card"],
+    "static_composition": ["static-card"],
+    "time_motion": [],
+    "interaction": []
+  },
+  "shared_visual_core": {
+    "typography": {
+      "primary": "Noto Sans SC / Microsoft YaHei UI / system sans",
+      "title_weight": 800,
+      "term_weight": 700,
+      "definition_weight": 400
+    },
+    "color": {
+      "surface": "Neutral warm white",
+      "ink": "Near-black",
+      "secondary": "Medium neutral gray"
+    },
+    "material": "Flat solid background",
+    "shape_and_line": "One title rule and thin dividers between rows",
+    "image_treatment": "No images or author avatar; the low-opacity 𝕏@0xCheshire mark is a production watermark, not authorship",
+    "hierarchy_and_rhythm": "Title followed by fourteen evenly spaced term-definition rows and a quiet production watermark in the lower safe area"
+  },
+  "realizations": {
+    "static_composition": {
+      "canvas": "Fixed 1500 × 2000 portrait card",
+      "capacity": "Fourteen single-line glossary entries",
+      "role_sizes_1500px": {
+        "title": "92px",
+        "term": "36px",
+        "definition": "34px"
+      },
+      "reading_order": "Top to bottom in one column",
+      "preview": "Fit the complete card in a browser and inspect a 360px-wide thumbnail",
+      "delivery": "Capture as a 1500 × 2000 PNG"
+    },
+    "time_motion": null,
+    "interaction": null
+  }
+}

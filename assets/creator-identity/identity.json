@@ -1,6 +1,25 @@
 {
+  "identity_id": "cheshire",
   "display_name": "柴郡@0xCheshire",
   "avatar": "cheshire-avatar.png",
-  "use": "网页卡片的默认作者署名",
-  "placement": "放在不遮挡主内容的位置，并随当前卡片的字体、边框和底色融入画面"
+  "credit_roles": {
+    "original": {
+      "label": "柴郡@0xCheshire",
+      "avatar": true,
+      "meaning": "确认内容原创时使用的作者署名"
+    },
+    "curated": {
+      "label": "整理：柴郡@0xCheshire",
+      "avatar": true,
+      "meaning": "内容由本人筛选、核对或整理时使用的贡献说明"
+    },
+    "production_watermark": {
+      "label": "𝕏@0xCheshire",
+      "avatar": false,
+      "opacity": 0.22,
+      "meaning": "普通非原创或来源不明卡片的制作水印，不表示作者或来源"
+    }
+  },
+  "selection": "先确认内容归属，再选择且只选择一个角色；没有可靠原创或整理依据时使用 production_watermark。用户明确指定其它署名、归因或不加标记时服从本次要求。",
+  "placement": "放在不遮挡主内容和来源信息的安全位置，并随当前卡片的字体、边框和底色融入画面"
 }

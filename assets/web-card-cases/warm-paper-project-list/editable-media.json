@@ -56,19 +56,19 @@
       "constraints": {}
     },
     {
-      "id": "creator-avatar",
-      "name": "Creator avatar",
+      "id": "curator-avatar",
+      "name": "Curator avatar",
       "kind": "image",
-      "selector": "[data-editable-id='creator-avatar']",
+      "selector": "[data-editable-id='curator-avatar']",
       "default_bounds": {"x": 1250, "y": 433, "width": 58, "height": 58, "rotation": 0},
       "editable": ["image", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
       "constraints": {}
     },
     {
-      "id": "creator-name",
-      "name": "Creator name",
+      "id": "curator-name",
+      "name": "Curator name",
       "kind": "text",
-      "selector": "[data-editable-id='creator-name']",
+      "selector": "[data-editable-id='curator-name']",
       "default_bounds": {"x": 1320, "y": 457, "width": 198, "height": 30, "rotation": 0},
       "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
       "constraints": {"font_size": {"minimum": 12, "maximum": 36, "step": 1}}
@@ -186,7 +186,7 @@
       "parameters": {},
       "data": {},
       "asset_slots": {
-        "creator-avatar": {"data_field": "creator_avatar"}
+        "curator-avatar": {"data_field": "curator_avatar"}
       }
     }
   ],
@@ -201,15 +201,16 @@
         "title",
         "summary",
         "items",
-        "creator_name",
-        "creator_avatar"
+        "curator_label",
+        "curator_name",
+        "curator_avatar"
       ],
       "required_layer_ids": [
         "kicker",
         "title",
         "summary",
-        "creator-avatar",
-        "creator-name",
+        "curator-avatar",
+        "curator-name",
         "list-panel"
       ],
       "title_layer_ids": ["title"],
@@ -217,7 +218,7 @@
       "capacity": {"maximum_primary_blocks": 7},
       "asset_slots": [
         {
-          "id": "creator-avatar",
+          "id": "curator-avatar",
           "required": true,
           "ratio": "1:1",
           "fit": "cover",
@@ -245,9 +246,9 @@
     {"id": "title", "name": "Title", "kind": "string", "default": "盘点 7 个去 AI 味的\nGitHub 项目"},
     {"id": "summary", "name": "Summary", "kind": "string", "default": "中文改稿、英文改稿、技术写作和完整写作流程，都有对应选择。"},
     {"id": "issue_number", "name": "Issue number", "kind": "string", "default": "07"},
-    {"id": "creator_name", "name": "Creator name", "kind": "string", "default": "柴郡@0xCheshire"},
-    {"id": "creator_avatar", "name": "Creator avatar", "kind": "media-source", "default": "creator-avatar"},
-    {"id": "creator_label", "name": "Creator label", "kind": "string", "default": "CREATED BY"},
+    {"id": "curator_name", "name": "Curator name", "kind": "string", "default": "柴郡@0xCheshire"},
+    {"id": "curator_avatar", "name": "Curator avatar", "kind": "media-source", "default": "curator-avatar"},
+    {"id": "curator_label", "name": "Curator label", "kind": "string", "default": "整理"},
     {"id": "index_label", "name": "Index label", "kind": "string", "default": "OPEN-SOURCE INDEX / 01—07"},
     {"id": "legend_items", "name": "Legend items", "kind": "list", "default": ["中文改稿", "English", "技术写作", "完整流程"]},
     {
@@ -274,13 +275,13 @@
   "quality": {
     "canvas_selector": "#mediaCanvas",
     "roundtrip": {"data_field": "title", "layer_id": "title"},
-    "required_layer_ids": ["kicker", "title", "summary", "creator-avatar", "creator-name", "list-panel"],
+    "required_layer_ids": ["kicker", "title", "summary", "curator-avatar", "curator-name", "list-panel"],
     "bounds_tolerance_px": 1,
     "minimum_font_px": {
       "kicker": 12,
       "title": 44,
       "summary": 18,
-      "creator-name": 12
+      "curator-name": 12
     },
     "minimum_gaps": [
       {"above": "title", "below": "summary", "min_px": 24}
