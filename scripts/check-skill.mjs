@@ -349,7 +349,8 @@ for (const filePath of [
 ]) {
   const lines = fs.readFileSync(filePath, "utf8").split(/\r?\n/);
   for (let index = 0; index < lines.length; index += 1) {
-    if (/\bMediaFlow\b(?! Pro)/u.test(lines[index])) {
+    const prose = lines[index].replace(/https?:\/\/[^\s)>]+/gu, "");
+    if (/\bMediaFlow\b(?! Pro)/u.test(prose)) {
       fail(
         `产品名称必须完整写作 MediaFlow Pro：${filePath}:${index + 1}`,
       );

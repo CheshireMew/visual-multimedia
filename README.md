@@ -6,6 +6,8 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 
 它不会替用户研究主题、筛选长材料中的分享重点或编造事实，也不会默认安装工具、购买素材、上传或发布成品。
 
+如果目标是视频文件，还需要搭配实际的渲染或编辑工具：纯 HTML 动画优先交给 [HyperFrames](https://github.com/heygen-com/hyperframes) 确定性渲染为 MP4；需要原片、多轨时间线、字幕、混音、反复修改或最终质检时，交给 [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) 完成工程化制作。
+
 ## 快速开始
 
 在 Codex 中加载本仓库的 Skill 后，直接点名 `$visual-multimedia`，并提供已经确认的内容或素材、受众和希望得到的结果。例如：
@@ -33,6 +35,23 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 - 想要文案、样稿还是完整成品，以及尺寸、时长或格式要求；
 - 哪些图片、录音、视频、品牌资料或参考样本可以使用；
 - 是否允许调用外部模型、安装工具、下载素材或执行导出。
+
+## 制作视频时怎样搭配
+
+Visual Multimedia 负责把已经确认的内容和素材组织成可编辑的网页包、时间线方案、字幕、声音设计与交付要求，但它不把某个视频工具写进通用媒体合同。根据成品链选择执行工具：
+
+| 你要完成的结果 | 建议搭配 | 交付方式 |
+| --- | --- | --- |
+| 把 HTML、CSS、JavaScript 动画直接变成确定性的 MP4 | [HyperFrames](https://github.com/heygen-com/hyperframes) | 让 Visual Multimedia 先完成可定位时间的 HTML 动画，再由 HyperFrames 逐帧渲染 |
+| 把原片、网页动画、图片、音频和字幕放进同一个可继续修改的工程 | [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) | 让 Visual Multimedia 交付 `editable-media` 网页包或制作计划，再由 MediaFlow Pro 导入、剪辑、混音、质检和导出 |
+| 只需要静态卡片、封面、图表或可交互网页 | 不需要视频工具 | 直接交付网页真源和 PNG、SVG、GIF 等目标文件 |
+
+如果还没有决定工具，可以在请求中写明最终用途和素材类型，让 Skill 先推荐路径。例如：
+
+```text
+使用 $visual-multimedia，把这份已经确认的产品介绍做成 45 秒视频。
+如果全程用 HTML 动画更合适，就交付给 HyperFrames；如果需要加入实拍和配音时间线，就按 MediaFlow Pro 工程准备。
+```
 
 ## 可以完成什么
 
@@ -111,3 +130,11 @@ node scripts/check-skill.mjs --full
 
 - [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft)：`assets/shot-recipe-library/recipes/` 中 104 张镜头卡与 161 个风格变体的语义资料由原仓库改写而来，采用 Apache-2.0，Copyright 2026 Wei Yihao。本仓库没有复制上游 Remotion TSX、产品截图、音频、动态预览 MP4 或 Gallery 实现；准确范围、修改说明与完整许可证见 [shot recipe notices](assets/shot-recipe-library/THIRD_PARTY_NOTICES.md)。
 - `sakura-animate-text`：`assets/text-motion-library/text-motion-runtime.js` 的文字动效家族基于该项目确定性重写，采用 MIT License，Copyright 2026 Sakura；没有复制上游 WAAPI 播放循环、随机延迟、CDN 加载器、框架适配、示例文案、字体或站点视觉。完整声明见 [text motion notices](assets/text-motion-library/THIRD_PARTY_NOTICES.md)。
+
+## Star History
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history.svg">
+  <img alt="Visual Multimedia GitHub Star History" src="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history.svg">
+</picture>
