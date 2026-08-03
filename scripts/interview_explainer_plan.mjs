@@ -119,9 +119,9 @@ function validateDraft(draft) {
   );
   if (
     draft.protocol !== "visual-multimedia-interview-explainer-draft"
-    || draft.version !== 1
+    || draft.version !== 2
   ) {
-    throw new Error("draft 必须使用 interview-explainer v1");
+    throw new Error("draft 必须使用 interview-explainer v2");
   }
   if (!/^[a-z0-9][a-z0-9._-]*$/.test(draft.project_id || "")) {
     throw new Error("draft.project_id 不是稳定 id");
@@ -149,6 +149,19 @@ function validateDraft(draft) {
   if (draft.style?.source_card?.show_source_timecode !== true) {
     throw new Error("该类型的原声证据画面必须显示来源时间码");
   }
+  const footageBox = draft.style?.source_card?.footage_box || {};
+  if (
+    ![footageBox.x, footageBox.y, footageBox.width, footageBox.height]
+      .every((value) => Number.isFinite(Number(value)))
+    || Number(footageBox.x) < 0
+    || Number(footageBox.y) < 0
+    || Number(footageBox.width) <= 0
+    || Number(footageBox.height) <= 0
+    || Number(footageBox.x) + Number(footageBox.width) > 1.000001
+    || Number(footageBox.y) + Number(footageBox.height) > 1.000001
+  ) {
+    throw new Error("draft.style.source_card.footage_box 必须完整位于输出画布内");
+  }
   if (!Array.isArray(draft.sequence) || draft.sequence.length < 3) {
     throw new Error("draft.sequence 至少需要背景、原声证据和解释/总结");
   }
@@ -163,6 +176,9 @@ function validateDraft(draft) {
       throw new Error(`draft.sequence[${index}].kind 无效`);
     }
     if (segment.kind === "source-clip") {
+      if (!String(segment.viewer_title || "").trim()) {
+        throw new Error(`原声片段 ${segment.id} 必须提供直接显示给观众的 viewer_title`);
+      }
       if (!Array.isArray(segment.subtitle_cues) || !segment.subtitle_cues.length) {
         throw new Error(`原声片段 ${segment.id} 必须提供复核过的分段字幕时间码`);
       }
@@ -185,8 +201,8 @@ function validateDraft(draft) {
   }
   const sourceHookOpening = draft.sequence[0].kind === "source-clip";
   if (sourceHookOpening) {
-    if (draft.profile.version !== "1.3.0") {
-      throw new Error("原声钩子开场需要 interview-explainer 1.3.0");
+    if (draft.profile.version !== "1.4.0") {
+      throw new Error("原声钩子开场需要 interview-explainer 1.4.0");
     }
     const contextBridge = draft.sequence[1];
     const answerEvidence = draft.sequence[2];
@@ -203,7 +219,7 @@ function validateDraft(draft) {
     draft.sequence[0].kind !== "narration"
     || draft.sequence[0].role !== "context"
   ) {
-    throw new Error("该类型必须从必要背景旁白开始，或使用 1.3.0 的原声钩子开场");
+    throw new Error("该类型必须从必要背景旁白开始，或使用 1.4.0 的原声钩子开场");
   }
   if (!draft.sequence.some((segment) => segment.kind === "source-clip")) {
     throw new Error("该类型至少需要一个真实原声证据片段");
@@ -342,7 +358,7 @@ export function createInterviewExplainerPlan(options) {
   const draft = readJson(draftPath);
   assertJsonSchema(
     draft,
-    path.join(SCHEMA_DIR, "interview-explainer-draft.v1.schema.json"),
+    path.join(SCHEMA_DIR, "interview-explainer-draft.v2.schema.json"),
     "访谈解析 draft",
   );
   validateDraft(draft);
@@ -456,6 +472,7 @@ export function createInterviewExplainerPlan(options) {
       const duration = Number(clip.end_seconds) - Number(clip.start_seconds);
       frames = durationFrames(duration, draft.output.fps);
       content = {
+        viewer_title: segment.viewer_title,
         source_id: source.id,
         clip_id: clip.id,
         start_seconds: Number(clip.start_seconds),
@@ -522,6 +539,7 @@ export function createInterviewExplainerPlan(options) {
       const packageIntegrity = hashPath(packageRoot);
       frames = durationFrames(narration.actualDuration, draft.output.fps);
       content = {
+        viewer_title: null,
         source_id: null,
         clip_id: null,
         start_seconds: null,
@@ -554,7 +572,6 @@ export function createInterviewExplainerPlan(options) {
       id: segment.id,
       kind: segment.kind,
       role: segment.role,
-      title: segment.title,
       timeline_start_frame: timelineStart,
       duration_frames: frames,
       duration_seconds: Number((frames / draft.output.fps).toFixed(6)),
@@ -565,7 +582,7 @@ export function createInterviewExplainerPlan(options) {
 
   const plan = {
     protocol: "visual-multimedia-interview-explainer-plan",
-    version: 1,
+    version: 2,
     project_id: draft.project_id,
     profile: {
       id: profile.profile.id,
@@ -592,7 +609,7 @@ export function createInterviewExplainerPlan(options) {
   };
   assertJsonSchema(
     plan,
-    path.join(SCHEMA_DIR, "interview-explainer-plan.v1.schema.json"),
+    path.join(SCHEMA_DIR, "interview-explainer-plan.v2.schema.json"),
     "不可变访谈解析计划",
   );
   const outputPath = projectPath(
@@ -638,14 +655,14 @@ export function confirmInterviewExplainerPlan(options) {
   const plan = readJson(planPath);
   assertJsonSchema(
     plan,
-    path.join(SCHEMA_DIR, "interview-explainer-plan.v1.schema.json"),
+    path.join(SCHEMA_DIR, "interview-explainer-plan.v2.schema.json"),
     "待确认计划",
   );
   if (
     plan.protocol !== "visual-multimedia-interview-explainer-plan"
-    || plan.version !== 1
+    || plan.version !== 2
   ) {
-    throw new Error("只能确认 interview-explainer v1 计划");
+    throw new Error("只能确认 interview-explainer v2 计划");
   }
   const confirmedBy = options.confirmedBy;
   if (!["user", "agent"].includes(confirmedBy)) {
@@ -698,7 +715,7 @@ export function assertPlanAndConfirmation(projectRoot, planRelative, confirmatio
   const confirmation = readJson(confirmationPath);
   assertJsonSchema(
     plan,
-    path.join(SCHEMA_DIR, "interview-explainer-plan.v1.schema.json"),
+    path.join(SCHEMA_DIR, "interview-explainer-plan.v2.schema.json"),
     "渲染计划",
   );
   assertJsonSchema(

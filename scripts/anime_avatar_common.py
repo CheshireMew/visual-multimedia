@@ -237,6 +237,29 @@ def resolve_under(root: Path, relative: str, field: str) -> Path:
     return candidate
 
 
+def resolve_project_path(
+    root: Path,
+    value: str | Path | None,
+    field: str,
+    *,
+    default: str | Path | None = None,
+) -> Path:
+    """Resolve a project-owned path and reject cwd-relative or external output."""
+    selected = value if value is not None else default
+    if selected is None or not str(selected).strip():
+        raise ValueError(f"{field} 必须是非空项目路径")
+    base = root.expanduser().resolve()
+    candidate = Path(selected).expanduser()
+    if not candidate.is_absolute():
+        candidate = base / candidate
+    candidate = candidate.resolve()
+    try:
+        candidate.relative_to(base)
+    except ValueError as error:
+        raise ValueError(f"{field} 必须位于项目目录内：{candidate}") from error
+    return candidate
+
+
 def load_avatar_library_catalog() -> dict[str, Any]:
     catalog = read_json(AVATAR_LIBRARY_CATALOG)
     errors: list[str] = []

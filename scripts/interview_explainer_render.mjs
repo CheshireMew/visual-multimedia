@@ -54,25 +54,28 @@ function hexToAss(value, fallback) {
   return `&H00${rgb.slice(4, 6)}${rgb.slice(2, 4)}${rgb.slice(0, 2).toUpperCase()}&`;
 }
 
+function ffmpegColor(value, fallback = "101114") {
+  const match = String(value || "").match(/^#([0-9a-f]{6})$/i);
+  return `0x${match ? match[1] : fallback}`;
+}
+
 function writeSourceAss(projectRoot, plan, segment, target) {
   const {width, height} = plan.output;
-  const landscapeInset = width > height;
-  const footageWidth = landscapeInset
-    ? Math.round(width * (5 / 6))
-    : width;
-  const footageHeight = landscapeInset
-    ? Math.round(footageWidth * (9 / 16))
-    : Math.round(height * Number(plan.style.source_card.footage_height_ratio));
-  const footageLeft = landscapeInset ? Math.round((width - footageWidth) / 2) : 0;
-  const labelTop = Math.round(height * (landscapeInset ? 0.025 : 0.05));
-  const titleTop = Math.round(height * (landscapeInset ? 0.062 : 0.095));
-  const footageTop = landscapeInset ? Math.round(height * 0.152) : Math.round(height * 0.18);
+  const landscape = width > height;
+  const sourceCard = plan.style.source_card;
+  const box = sourceCard.footage_box;
+  const footageWidth = Math.round(width * Number(box.width));
+  const footageHeight = Math.round(height * Number(box.height));
+  const footageLeft = Math.round(width * Number(box.x));
+  const footageTop = Math.round(height * Number(box.y));
+  const labelTop = Math.max(18, Math.round(footageTop * 0.18));
+  const titleTop = Math.max(labelTop + 28, Math.round(footageTop * 0.48));
   const originalTop = footageTop + footageHeight + Math.round(height * 0.035);
-  const marginLeft = Math.max(36, Math.round(width * (landscapeInset ? 0.033 : 0.06)));
+  const marginLeft = Math.max(36, Math.round(width * (landscape ? 0.033 : 0.06)));
   const marginRight = marginLeft;
-  const titleSize = Math.max(30, Math.round(landscapeInset ? height * 0.043 : width * 0.052));
-  const originalSize = Math.max(21, Math.round(landscapeInset ? height * 0.032 : width * 0.032));
-  const labelSize = Math.max(18, Math.round(landscapeInset ? height * 0.023 : width * 0.026));
+  const titleSize = Math.max(30, Math.round(landscape ? height * 0.043 : width * 0.052));
+  const originalSize = Math.max(21, Math.round(landscape ? height * 0.032 : width * 0.032));
+  const labelSize = Math.max(18, Math.round(landscape ? height * 0.023 : width * 0.026));
   const foreground = hexToAss(plan.style.foreground, "&H00F4F1E8&");
   const muted = hexToAss(plan.style.muted, "&H00A5A8B0&");
   const accent = hexToAss(plan.style.accent, "&H005CB8E7&");
@@ -95,7 +98,7 @@ function writeSourceAss(projectRoot, plan, segment, target) {
       + `{\\pos(${marginLeft},${labelTop})}`
       + `${escapeAssText(segment.content.source_label)}  /  ${sourceTime}`,
     `Dialogue: 0,${formatAssTime(0)},${formatAssTime(duration)},Title,,0,0,0,,`
-      + `{\\pos(${marginLeft},${titleTop})}${escapeAssText(segment.title)}`,
+      + `{\\pos(${marginLeft},${titleTop})}${escapeAssText(segment.content.viewer_title)}`,
   ];
   if (plan.style.source_card.show_original_text && segment.content.original_text) {
     events.push(
@@ -130,8 +133,10 @@ function writeSourceAss(projectRoot, plan, segment, target) {
     footageHeight,
     footageLeft,
     footageTop,
-    landscapeInset,
-    headerHeight: Math.round(height * 0.142),
+    fit: sourceCard.fit,
+    focusX: Number(sourceCard.focus.x),
+    focusY: Number(sourceCard.focus.y),
+    headerHeight: Math.max(0, footageTop - 2),
   };
 }
 
@@ -209,29 +214,25 @@ function renderSourceSegment(context, segment, outputPath, cachePath, cacheKey) 
   fs.mkdirSync(path.dirname(outputPath), {recursive: true});
   const duration = segment.duration_frames / plan.output.fps;
   const assPath = ffmpegFilterPath(workingAss);
-  const compositionFilters = layout.landscapeInset
-    ? [
-      `color=c=0x080908:s=${plan.output.width}x${plan.output.height}:r=${plan.output.fps}[bg]`,
-      `[0:v]fps=${plan.output.fps},scale=${layout.footageWidth}:${layout.footageHeight}:`
-        + "force_original_aspect_ratio=decrease,"
-        + `pad=${layout.footageWidth}:${layout.footageHeight}:(ow-iw)/2:(oh-ih)/2:color=black[fg]`,
+  const background = ffmpegColor(plan.style.background, "080908");
+  const surface = ffmpegColor(plan.style.surface, "000000");
+  const footageFilter = layout.fit === "cover"
+    ? `[0:v]fps=${plan.output.fps},scale=${layout.footageWidth}:${layout.footageHeight}:`
+      + "force_original_aspect_ratio=increase,"
+      + `crop=${layout.footageWidth}:${layout.footageHeight}:`
+      + `(iw-ow)*${layout.focusX.toFixed(6)}:(ih-oh)*${layout.focusY.toFixed(6)}[fg]`
+    : `[0:v]fps=${plan.output.fps},scale=${layout.footageWidth}:${layout.footageHeight}:`
+      + "force_original_aspect_ratio=decrease,"
+      + `pad=${layout.footageWidth}:${layout.footageHeight}:(ow-iw)/2:(oh-ih)/2:color=${surface}[fg]`;
+  const compositionFilters = [
+      `color=c=${background}:s=${plan.output.width}x${plan.output.height}:r=${plan.output.fps}[bg]`,
+      footageFilter,
       `[bg][fg]overlay=${layout.footageLeft}:${layout.footageTop}[placed]`,
       `[placed]drawbox=x=0:y=${layout.headerHeight}:w=iw:h=2:`
         + "color=0xF4BE3E@0.70:t=fill,"
         + `drawbox=x=${layout.footageLeft - 1}:y=${layout.footageTop - 1}:`
         + `w=${layout.footageWidth + 2}:h=${layout.footageHeight + 2}:`
         + "color=0xF4BE3E@0.55:t=2[composed]",
-    ]
-    : [
-      `[0:v]fps=${plan.output.fps},split=2[bg0][fg0]`,
-      `[bg0]scale=${plan.output.width}:${plan.output.height}:`
-        + "force_original_aspect_ratio=increase,"
-        + `crop=${plan.output.width}:${plan.output.height},`
-        + "gblur=sigma=26,eq=brightness=-0.34:saturation=0.82[bg]",
-      `[fg0]scale=${plan.output.width}:${layout.footageHeight}:`
-        + "force_original_aspect_ratio=decrease,"
-        + `pad=${plan.output.width}:${layout.footageHeight}:(ow-iw)/2:(oh-ih)/2:color=black[fg]`,
-      `[bg][fg]overlay=0:${layout.footageTop}[composed]`,
     ];
   const videoFilter = [
     ...compositionFilters,
@@ -347,14 +348,25 @@ function assertMediaFlowProCapabilities(environment) {
   return describe;
 }
 
-function ensureMediaFlowProProject(environment, contract, planSha, projectId) {
+function ensureMediaFlowProProject(environment, contract, planSha, plan) {
+  const requestedProfile = {
+    width: plan.output.width,
+    height: plan.output.height,
+    fps_numerator: plan.output.fps,
+    fps_denominator: 1,
+    color_mode: "sdr_bt709",
+    bit_depth: 8,
+    audio_sample_rate: plan.output.audio_sample_rate,
+    audio_channels: plan.output.audio_channels,
+  };
   const created = mediaFlowProExecute(
     environment,
     null,
     "project.create",
     {
-      name: `${projectId} · interview explainer web scenes`,
+      name: `${plan.project_id} · interview explainer web scenes`,
       directory_name: `interview-explainer-${planSha}`,
+      profile: requestedProfile,
     },
     `interview-explainer-project-${planSha}`,
   );
@@ -387,6 +399,17 @@ function ensureMediaFlowProProject(environment, contract, planSha, projectId) {
   );
   if (path.resolve(inspected.path || "") !== editorProject) {
     throw new Error("MediaFlow Pro 创建结果与重新读取的工程路径不一致");
+  }
+  const mainSequence = (inspected.sequences || []).find(
+    (item) => item.id === inspected.project?.main_sequence_id,
+  );
+  const actualProfile = mainSequence?.profile || {};
+  for (const [field, expected] of Object.entries(requestedProfile)) {
+    if (actualProfile[field] !== expected) {
+      throw new Error(
+        `MediaFlow Pro 工程 profile.${field}=${actualProfile[field]}，预期 ${expected}`,
+      );
+    }
   }
   return {editorProject, inspected};
 }
@@ -857,7 +880,7 @@ export function renderInterviewExplainer(options) {
     mediaflowEnvironment,
     mediaFlowProContract,
     planSha,
-    plan.project_id,
+    plan,
   );
   const sources = sourceMap(projectRoot, plan);
   const context = {

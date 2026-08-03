@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.interview-explainer-plan.v2",
+  "title": "Immutable Interview Explainer Plan v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "project_id",
+    "profile",
+    "created_at",
+    "producer",
+    "inputs",
+    "output",
+    "style",
+    "sequence",
+    "total_frames",
+    "duration_seconds"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-interview-explainer-plan"},
+    "version": {"const": 2},
+    "project_id": {"$ref": "#/$defs/id"},
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "package", "package_sha256"],
+      "properties": {
+        "id": {"const": "interview-explainer"},
+        "version": {"const": "1.4.0"},
+        "package": {"$ref": "#/$defs/localPath"},
+        "package_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry", "sha256", "runtime", "modules"],
+      "properties": {
+        "entry": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "runtime": {"type": "string", "minLength": 1},
+        "modules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["file", "sha256"],
+            "properties": {
+              "file": {"$ref": "#/$defs/localPath"},
+              "sha256": {"$ref": "#/$defs/sha256"}
+            }
+          }
+        }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "file", "sha256", "bytes"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "file": {"$ref": "#/$defs/localPath"},
+          "sha256": {"$ref": "#/$defs/sha256"},
+          "bytes": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "output": {"$ref": "interview-explainer-draft.v2.schema.json#/properties/output"},
+    "style": {"$ref": "interview-explainer-draft.v2.schema.json#/properties/style"},
+    "sequence": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "order",
+          "id",
+          "kind",
+          "role",
+          "timeline_start_frame",
+          "duration_frames",
+          "duration_seconds",
+          "content"
+        ],
+        "properties": {
+          "order": {"type": "integer", "minimum": 1},
+          "id": {"$ref": "#/$defs/id"},
+          "kind": {"enum": ["source-clip", "narration"]},
+          "role": {"enum": ["context", "source-evidence", "explanation", "summary"]},
+          "timeline_start_frame": {"type": "integer", "minimum": 0},
+          "duration_frames": {"type": "integer", "minimum": 1},
+          "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+          "content": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "viewer_title",
+              "source_id",
+              "clip_id",
+              "start_seconds",
+              "end_seconds",
+              "source_label",
+              "translation",
+              "original_text",
+              "subtitle_cues",
+              "audio_source_id",
+              "audio_sha256",
+              "timing_file",
+              "timing_sha256",
+              "scene_package",
+              "scene_package_sha256",
+              "scene_id"
+            ],
+            "properties": {
+              "viewer_title": {"type": ["string", "null"], "minLength": 1},
+              "source_id": {"type": ["string", "null"]},
+              "clip_id": {"type": ["string", "null"]},
+              "start_seconds": {"type": ["number", "null"], "minimum": 0},
+              "end_seconds": {"type": ["number", "null"], "exclusiveMinimum": 0},
+              "source_label": {"type": ["string", "null"]},
+              "translation": {"type": ["string", "null"]},
+              "original_text": {"type": ["string", "null"]},
+              "subtitle_cues": {
+                "oneOf": [
+                  {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["source_start_seconds", "source_end_seconds", "text"],
+                      "properties": {
+                        "source_start_seconds": {"type": "number", "minimum": 0},
+                        "source_end_seconds": {"type": "number", "exclusiveMinimum": 0},
+                        "text": {"type": "string", "minLength": 1}
+                      }
+                    }
+                  },
+                  {"type": "null"}
+                ]
+              },
+              "audio_source_id": {"type": ["string", "null"]},
+              "audio_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+              "timing_file": {"type": ["string", "null"]},
+              "timing_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+              "scene_package": {"type": ["string", "null"]},
+              "scene_package_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+              "scene_id": {"type": ["string", "null"]}
+            }
+          }
+        }
+      }
+    },
+    "total_frames": {"type": "integer", "minimum": 1},
+    "duration_seconds": {"type": "number", "exclusiveMinimum": 0}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  }
+}

@@ -1,10 +1,10 @@
 {
   "protocol": "visual-multimedia-interview-explainer-draft",
-  "version": 1,
+  "version": 2,
   "project_id": "replace-with-project-id",
   "profile": {
     "id": "interview-explainer",
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "contracts": {
     "media_sources": "media-sources.json",
@@ -14,8 +14,8 @@
   },
   "output": {
     "file": "renders/final/interview-explainer.mp4",
-    "width": 1080,
-    "height": 1920,
+    "width": 1920,
+    "height": 1080,
     "fps": 30,
     "audio_sample_rate": 48000,
     "audio_channels": 2,
@@ -35,7 +35,17 @@
     "accent": "#e7b85c",
     "font_family": "Microsoft YaHei UI",
     "source_card": {
-      "footage_height_ratio": 0.46,
+      "footage_box": {
+        "x": 0.08,
+        "y": 0.15,
+        "width": 0.84,
+        "height": 0.70
+      },
+      "fit": "cover",
+      "focus": {
+        "x": 0.5,
+        "y": 0.5
+      },
       "show_original_text": true,
       "show_source_timecode": true
     }
@@ -45,7 +55,6 @@
       "id": "context",
       "kind": "narration",
       "role": "context",
-      "title": "先交代背景",
       "narration_id": "context",
       "scene_package": "editable-media/context",
       "scene_id": "opening"
@@ -54,7 +63,7 @@
       "id": "source-01",
       "kind": "source-clip",
       "role": "source-evidence",
-      "title": "原声证据",
+      "viewer_title": "填写观众需要看到的原声标题",
       "clip_id": "source-01",
       "source_label": "SOURCE",
       "translation": "填写经过核对的自然译文。",
@@ -71,7 +80,6 @@
       "id": "explanation-01",
       "kind": "narration",
       "role": "explanation",
-      "title": "紧接解释",
       "narration_id": "explanation-01",
       "scene_package": "editable-media/explanation-01",
       "scene_id": "opening"
@@ -80,7 +88,6 @@
       "id": "summary",
       "kind": "narration",
       "role": "summary",
-      "title": "最后收束",
       "narration_id": "summary",
       "scene_package": "editable-media/summary",
       "scene_id": "opening"

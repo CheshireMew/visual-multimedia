@@ -1,6 +1,11 @@
 # Local production and validation outputs
 /artifacts/
 /口播私人库/
+/plans/
+/working/
+/renders/
+/reports/
+/avatar-insets/
 
 # Python
 **/__pycache__/

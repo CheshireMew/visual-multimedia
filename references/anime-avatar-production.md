@@ -275,15 +275,15 @@ python scripts/render-anime-avatar.py plan `
   --project <项目目录> `
   --timeline <speech-timeline.json> `
   --duration-seconds <最终底片时长> `
-  --plan-id <计划 id> `
-  --render-plan <项目目录>/plans/anime-avatar/<计划 id>/render-plan.json
+  --plan-id <计划 id>
 ```
 
 计划完成后先检查其中每一条 `joins`：原片连续、严格光流、微过渡或拒绝，以及 `deterministic_seam_plan` 的汇总。没有拒绝项且结果可接受时再确认：
 
 ```powershell
 python scripts/render-anime-avatar.py confirm-plan `
-  --render-plan <项目目录>/plans/anime-avatar/<计划 id>/render-plan.json
+  --project <项目目录> `
+  --plan-id <计划 id>
 ```
 
 最后编码：
@@ -291,7 +291,7 @@ python scripts/render-anime-avatar.py confirm-plan `
 ```powershell
 python scripts/render-anime-avatar.py render `
   --project <项目目录> `
-  --render-plan <项目目录>/plans/anime-avatar/<计划 id>/render-plan.json `
+  --plan-id <计划 id> `
   --output <输出 mp4>
 ```
 
@@ -343,7 +343,7 @@ python scripts/compose-anime-avatar-inset.py init `
   --audio-source avatar
 ```
 
-`x`、`y` 和 `size` 都以底片像素为单位；`size` 是包含边框的外圆直径或方形外边长。`avatar_crop_xywh` 必须是正方形，并在所有帧使用同一组值。纯圆形使用 `circle`；无需遮罩的方形使用 `square`。音轨使用 `avatar`、`base`、`mix` 或 `none` 明确选择，混音时再设置底片与角色音量。
+`x`、`y` 和 `size` 都以底片像素为单位；`size` 是包含边框的外圆直径或方形外边长。`avatar_crop_xywh` 必须是正方形，并在所有帧使用同一组值。纯圆形使用 `circle`；无需遮罩的方形使用 `square`。音轨使用 `avatar`、`base`、`mix` 或 `none` 明确选择。选择 `base` 时默认原样保留底片音量，选择 `avatar` 时默认原样保留角色音量；只有选择 `mix` 时才默认把底片压低并允许显式设置两轨增益。初始化后必须检查任务里解析出的实际增益，不能让一个面向混音的默认值静默压低单独采用的底片声音。
 
 任务结构以 `schemas/anime-avatar-inset.v1.schema.json` 为准。它只引用素材账本中的 source id，不另存素材路径。渲染时运行：
 
@@ -354,7 +354,7 @@ python scripts/compose-anime-avatar-inset.py render `
   --output renders/<输出文件>.mp4
 ```
 
-脚本使用一块固定遮罩、一组固定坐标和一个共同时间范围合成整条角色轨，输出完整底片时长，并在 `reports/avatar-insets/<任务 id>/` 生成联系表和合成报告。默认 `end_behavior` 是 `require-full-track`：角色窗持续到底片结束，并要求输入角色轨覆盖这段完整时间。角色轨应在 `render-anime-avatar.py plan` 阶段用 `--duration-seconds <底片时长>` 建立完整成片时间线，再确认计划并编码；有台词时走口型，无台词时播放闭嘴动态待机，因此不会为每个视频额外制造尾段，也不会冻结最后一帧。角色画面、圆底、边框和阴影使用同一个时间范围，不会留下空白圆框。只有用户明确要求在某个时间点隐藏，才使用 `--end-behavior hide`；需要角色窗只覆盖指定区间时填写 `--duration`。底片的其它内容、字幕和结构继续来自原底片。
+脚本使用一块固定遮罩、一组固定坐标和一个共同时间范围合成整条角色轨，输出完整底片时长，并在 `reports/avatar-insets/<任务 id>/` 生成联系表和合成报告。命令中的任务和输出相对路径一律相对显式 `--project` 解析，不能随当前工作目录漂移，也不能写到项目外。默认 `end_behavior` 是 `require-full-track`：角色窗持续到底片结束，并要求输入角色轨覆盖这段完整时间。角色轨应在 `render-anime-avatar.py plan` 阶段用 `--duration-seconds <底片时长>` 建立完整成片时间线，再确认计划并编码；有台词时走口型，无台词时播放闭嘴动态待机，因此不会为每个视频额外制造尾段，也不会冻结最后一帧。角色画面、圆底、边框和阴影使用同一个时间范围，不会留下空白圆框。只有用户明确要求在某个时间点隐藏，才使用 `--end-behavior hide`；需要角色窗只覆盖指定区间时填写 `--duration`。底片的其它内容、字幕和结构继续来自原底片。
 
 Agent 必须查看最终联系表并完整播放成品，确认：
 

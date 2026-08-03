@@ -24,12 +24,28 @@ from anime_avatar_media import (
     validate_media_manifest,
     write_json,
 )
+from anime_avatar_common import resolve_project_path
 
 
 PROTOCOL = "visual-multimedia-anime-avatar-inset"
 VERSION = 1
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 HEX_COLOR_PATTERN = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+
+def resolve_audio_gains(
+    source: str,
+    base_gain_db: float | None,
+    avatar_gain_db: float | None,
+) -> tuple[float, float]:
+    """Preserve the selected source; only duck the base for an actual mix."""
+    resolved_base = (
+        float(base_gain_db)
+        if base_gain_db is not None
+        else (-12.0 if source == "mix" else 0.0)
+    )
+    resolved_avatar = float(avatar_gain_db) if avatar_gain_db is not None else 0.0
+    return resolved_base, resolved_avatar
 
 
 def number(value: Any, field: str, *, minimum: float | None = None) -> float:
@@ -93,22 +109,6 @@ def project_root(value: str) -> Path:
     if not root.is_dir() or not manifest.is_file():
         raise FileNotFoundError(f"项目目录缺少 media-sources.json：{root}")
     return root
-
-
-def path_in_project(root: Path, value: str | None, default: Path) -> Path:
-    candidate = (
-        Path(value).expanduser()
-        if value
-        else default
-    )
-    if not candidate.is_absolute():
-        candidate = root / candidate
-    candidate = candidate.resolve()
-    try:
-        candidate.relative_to(root)
-    except ValueError as error:
-        raise ValueError(f"配置文件必须位于项目目录内：{candidate}") from error
-    return candidate
 
 
 def load_sources(
@@ -648,6 +648,11 @@ def init_command(args: argparse.Namespace) -> int:
     crop = [int(part.strip()) for part in args.avatar_crop.split(",")]
     if len(crop) != 4:
         raise ValueError("--avatar-crop 使用 x,y,width,height 四个整数")
+    base_gain_db, avatar_gain_db = resolve_audio_gains(
+        args.audio_source,
+        args.base_gain_db,
+        args.avatar_gain_db,
+    )
     job = {
         "protocol": PROTOCOL,
         "version": VERSION,
@@ -681,16 +686,17 @@ def init_command(args: argparse.Namespace) -> int:
         },
         "audio": {
             "source": args.audio_source,
-            "base_gain_db": args.base_gain_db,
-            "avatar_gain_db": args.avatar_gain_db,
+            "base_gain_db": base_gain_db,
+            "avatar_gain_db": avatar_gain_db,
         },
     }
     sources = load_sources(root, job, ffprobe)
     values = validate_job(job, sources)
-    destination = path_in_project(
+    destination = resolve_project_path(
         root,
         args.job,
-        root / "avatar-insets" / f"{values['job_id']}.json",
+        "角色窗任务",
+        default=Path("avatar-insets") / f"{values['job_id']}.json",
     )
     if destination.exists():
         raise FileExistsError(f"不会覆盖已有角色窗任务：{destination}")
@@ -713,7 +719,12 @@ def init_command(args: argparse.Namespace) -> int:
 def validate_command(args: argparse.Namespace) -> int:
     root = project_root(args.project)
     ffprobe = executable("ffprobe", args.ffprobe)
-    job_path = path_in_project(root, args.job, root / "avatar-insets" / "unset.json")
+    job_path = resolve_project_path(
+        root,
+        args.job,
+        "角色窗任务",
+        default=Path("avatar-insets") / "unset.json",
+    )
     job = read_json(job_path)
     sources = load_sources(root, job, ffprobe)
     values = validate_job(job, sources)
@@ -751,18 +762,16 @@ def render_command(args: argparse.Namespace) -> int:
     root = project_root(args.project)
     ffmpeg = executable("ffmpeg", args.ffmpeg)
     ffprobe = executable("ffprobe", args.ffprobe)
-    job_path = path_in_project(root, args.job, root / "avatar-insets" / "unset.json")
+    job_path = resolve_project_path(
+        root,
+        args.job,
+        "角色窗任务",
+        default=Path("avatar-insets") / "unset.json",
+    )
     job = read_json(job_path)
     sources = load_sources(root, job, ffprobe)
     values = validate_job(job, sources)
-    output = Path(args.output).expanduser()
-    if not output.is_absolute():
-        output = root / output
-    output = output.resolve()
-    try:
-        output.relative_to(root)
-    except ValueError as error:
-        raise ValueError(f"输出必须位于项目目录内：{output}") from error
+    output = resolve_project_path(root, args.output, "角色窗输出")
     if output.exists():
         raise FileExistsError(f"不会覆盖已有输出：{output}")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -914,8 +923,16 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["avatar", "base", "mix", "none"],
         default="avatar",
     )
-    init_parser.add_argument("--base-gain-db", type=float, default=-12.0)
-    init_parser.add_argument("--avatar-gain-db", type=float, default=0.0)
+    init_parser.add_argument(
+        "--base-gain-db",
+        type=float,
+        help="省略时 base/none/avatar 为 0 dB，只有 mix 默认 -12 dB",
+    )
+    init_parser.add_argument(
+        "--avatar-gain-db",
+        type=float,
+        help="省略时为 0 dB",
+    )
     init_parser.add_argument("--ffprobe", help="已有 ffprobe 可执行文件路径")
     init_parser.set_defaults(handler=init_command)
 

@@ -97,7 +97,7 @@ function copyDirectory(source, destination) {
   });
 }
 
-function configureScenePackage(packageRoot, segmentId, name) {
+function configureScenePackage(packageRoot, segmentId, name, output) {
   const manifestPath = path.join(packageRoot, "editable-media.json");
   const manifest = readJson(manifestPath);
   const opening = structuredClone(manifest.scenes[0]);
@@ -134,47 +134,11 @@ function configureScenePackage(packageRoot, segmentId, name) {
     },
   ];
   opening.motion = {
-    complexity: "complex",
-    driver: "mixed",
-    semantic_purpose: "用空间推进区分承接、解释和结论，同时保持旁白关键信息可读。",
+    complexity: "simple",
+    driver: "object",
+    semantic_purpose: "保持阅读容器稳定，只让当前旁白真正改变的对象、数值和关系进入下一状态。",
     key_state_review: "required",
-    camera: {
-      root_layer_id: "camera-stage",
-      depth_layers: [
-        {layer_id: "left-depth", depth: -0.2},
-        {layer_id: "right-depth", depth: 0.55},
-      ],
-      readability_layer_ids: ["eyebrow", "title", "summary"],
-      keyframes: [
-        {
-          step_id: "setup",
-          x: 0,
-          y: 0,
-          zoom: 1,
-          focus_depth: 0,
-          aperture: 0,
-          easing: "ease_in_out",
-        },
-        {
-          step_id: "explain",
-          x: -14,
-          y: -10,
-          zoom: 1.035,
-          focus_depth: -0.2,
-          aperture: 0.7,
-          easing: "ease_in_out",
-        },
-        {
-          step_id: "takeaway",
-          x: 12,
-          y: -16,
-          zoom: 1.06,
-          focus_depth: 0.55,
-          aperture: 0.45,
-          easing: "ease_out",
-        },
-      ],
-    },
+    camera: null,
   };
   opening.data = {
     ...opening.data,
@@ -192,7 +156,19 @@ function configureScenePackage(packageRoot, segmentId, name) {
   manifest.component.tags = ["interview", "explanation", "video"];
   manifest.playback.mode = "autoplay";
   manifest.playback.loop = "none";
-  manifest.default_variant_id = "portrait";
+  manifest.playback.fps = output.fps;
+  const outputVariant = manifest.variants.find(
+    (variant) => (
+      Number(variant.canvas?.width) === Number(output.width)
+      && Number(variant.canvas?.height) === Number(output.height)
+    ),
+  );
+  if (!outputVariant) {
+    throw new Error(
+      `网页 starter 没有 ${output.width}x${output.height} 输出变体，不能建立采访场景包`,
+    );
+  }
+  manifest.default_variant_id = outputVariant.id;
   manifest.scenes = [opening];
   manifest.production = {
     profile_id: "interview-explainer",
@@ -201,8 +177,10 @@ function configureScenePackage(packageRoot, segmentId, name) {
   const htmlPath = path.join(packageRoot, "index.html");
   let html = fs.readFileSync(htmlPath, "utf8");
   html = html
-    .replace('data-duration="6"', 'data-duration="30"')
-    .replace('data-width="1080"\n    data-height="1080"', 'data-width="1080"\n    data-height="1920"');
+    .replace(/data-duration="[^"]+"/, 'data-duration="30"')
+    .replace(/data-width="[^"]+"/, `data-width="${output.width}"`)
+    .replace(/data-height="[^"]+"/, `data-height="${output.height}"`)
+    .replace(/data-fps="[^"]+"/, `data-fps="${output.fps}"`);
   fs.writeFileSync(htmlPath, html, "utf8");
 }
 
@@ -253,7 +231,7 @@ function createProject(args) {
   ]) {
     const destination = path.join(project, "editable-media", segmentId);
     copyDirectory(webStarter, destination);
-    configureScenePackage(destination, segmentId, name);
+    configureScenePackage(destination, segmentId, name, draft.output);
   }
   fs.mkdirSync(path.join(project, "captions"), {recursive: true});
   fs.mkdirSync(path.join(project, "renders", "final"), {recursive: true});

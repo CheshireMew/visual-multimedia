@@ -17,7 +17,7 @@ node scripts/local-media-environment.mjs mediaflow describe
 
 先确认 `describe` 返回的 `product` 精确等于 `MediaFlow Pro`，再根据 `protocol`、`version`、`default_project_root`、`capabilities`、`operations` 以及每项操作的 `project_access`、`execution_mode`、`idempotency`、`required_capabilities`、`arguments_schema` 和 `result_schema` 组装请求。需要网页协作时确认当前所需的 `web.*` 操作；需要外部转写或声音克隆时分别确认 `speech.transcribe` 或 `speech.synthesize`。随后通过同一读取器提交 `runtime.inspect`，确认操作依赖的 `runtime-inspected` 能力当前为 `ready`；缺少任一必要能力时保留当前真源并说明缺口，不猜测内部字段，也不直接改 `project.mfp`。文档里的操作名只说明当前工作流，实际可用性、参数和结果仍以本次 `describe` 为准。
 
-新建工程时，`project.create` 只提交合同声明的目录名和显示名称，不传 `project` 路径。MediaFlow Pro 在 `default_project_root` 下创建工程并返回绝对 `path`；后续操作只使用这个返回值。自动化调用端不得另设工程根目录，也不得先在媒体项目、缓存或临时目录建立工程后再移动或复制。桌面端只有在用户主动选择其它目录时才偏离默认根目录，自动化不能把这种人工选择推断成自己的权限。
+新建工程时，`project.create` 提交合同声明的目录名、显示名称和完整工程 `profile`，不传 `project` 路径。`profile` 是输出尺寸、分数帧率、色彩、位深、48 kHz 音频和声道数的唯一创建边界；时间型生产者必须让它与已经确认的制作计划一致，不能创建默认工程后再把计划帧当成另一种帧率。MediaFlow Pro 在 `default_project_root` 下创建工程并返回绝对 `path`；后续操作只使用这个返回值。自动化调用端不得另设工程根目录，也不得先在媒体项目、缓存或临时目录建立工程后再移动或复制。桌面端只有在用户主动选择其它目录时才偏离默认根目录，自动化不能把这种人工选择推断成自己的权限。
 
 CLI 是一次请求一个进程的 JSON 接口。请求使用它声明的协议版本，从文件或标准输入交给 `execute --request`；响应只从标准输出读取并检查 `ok`、稳定错误码和结果。不要增加 MCP、后台守护进程或另一套任务实现。
 

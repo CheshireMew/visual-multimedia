@@ -294,9 +294,9 @@ for (const schema of [
   "schemas/video-direction-plan.v1.schema.json",
   "schemas/generation-jobs.v1.schema.json",
   "schemas/video-production-profile-catalog.v1.schema.json",
-  "schemas/interview-explainer-draft.v1.schema.json",
+  "schemas/interview-explainer-draft.v2.schema.json",
   "schemas/narration-bundle.v1.schema.json",
-  "schemas/interview-explainer-plan.v1.schema.json",
+  "schemas/interview-explainer-plan.v2.schema.json",
   "schemas/interview-explainer-plan-confirmation.v1.schema.json",
   "schemas/media-build-report.v1.schema.json",
 ]) {
@@ -336,10 +336,7 @@ for (const voiceoverReferenceResource of [
 for (const interviewResource of [
   "references/interview-explainer-production.md",
   "assets/video-production-profiles/catalog.json",
-  "assets/video-production-profiles/interview-explainer/1.0.0/profile.json",
-  "assets/video-production-profiles/interview-explainer/1.1.0/profile.json",
-  "assets/video-production-profiles/interview-explainer/1.2.0/profile.json",
-  "assets/video-production-profiles/interview-explainer/1.3.0/profile.json",
+  "assets/video-production-profiles/interview-explainer/1.4.0/profile.json",
   "assets/interview-explainer-starter/interview-explainer-draft.json",
   "assets/interview-explainer-starter/narration-bundle.json",
   "scripts/json_schema_contract.mjs",
@@ -348,6 +345,7 @@ for (const interviewResource of [
   "scripts/interview_explainer_plan.mjs",
   "scripts/interview_explainer_render.mjs",
   "scripts/interview_explainer_review.mjs",
+  "scripts/self-test-interview-explainer-v2.mjs",
 ]) {
   ensurePath(interviewResource);
 }
@@ -753,6 +751,7 @@ if (failures.length === 0) {
     "scripts/anime-avatar-project.py",
     "scripts/render-anime-avatar.py",
     "scripts/compose-anime-avatar-inset.py",
+    "scripts/self-test-anime-avatar-inset.py",
     "assets/anime-avatar-libraries/",
     "plan → confirm-plan → render",
     "夜希数字人",
@@ -805,6 +804,23 @@ if (failures.length === 0) {
     [path.join(scriptDir, "anime-avatar-project.py"), "list-libraries"],
     "二次元口播公开角色目录检查"
   );
+  runChecked(
+    avatarPython,
+    [path.join(scriptDir, "self-test-anime-avatar-inset.py")],
+    "素材导入—固定角色窗—音轨默认—项目相对输出—真实成片检查"
+  );
+
+  const avatarRenderHelp = runChecked(
+    avatarPython,
+    [path.join(scriptDir, "render-anime-avatar.py"), "render", "--help"],
+    "二次元口播渲染公开参数检查"
+  );
+  if (
+    avatarRenderHelp.stdout.includes("--render-plan")
+    || !avatarRenderHelp.stdout.includes("--plan-id")
+  ) {
+    fail("二次元口播渲染仍暴露外部计划路径，或没有通过 project + plan-id 唯一解析计划");
+  }
 
   const requiredInterviewTokens = [
     "references/interview-explainer-production.md",
@@ -827,9 +843,9 @@ if (failures.length === 0) {
   );
   if (
     activeInterviewProfiles.length !== 1
-    || activeInterviewProfiles[0]?.version !== "1.3.0"
+    || activeInterviewProfiles[0]?.version !== "1.4.0"
   ) {
-    fail("采访原声讲解型必须只启用支持原声钩子且承接 MediaFlow Pro 工程根目录合同的 1.3.0 profile");
+    fail("采访原声讲解型必须只启用 v2 draft/plan 与可配置原片构图的 1.4.0 profile");
   }
   const activeInterviewProfile = readJson(
     path.resolve(
@@ -844,8 +860,19 @@ if (failures.length === 0) {
       !== "one-project-per-plan-sha256"
     || activeInterviewProfile?.algorithm_defaults?.mediaflow_pro_project_location
       !== "consumer-default-root"
+    || activeInterviewProfile?.schemas?.draft
+      !== "schemas/interview-explainer-draft.v2.schema.json"
+    || activeInterviewProfile?.schemas?.plan
+      !== "schemas/interview-explainer-plan.v2.schema.json"
+    || !activeInterviewProfile?.project_configurable?.includes("source_card_footage_box")
+    || !activeInterviewProfile?.project_configurable?.includes("source_card_fit")
+    || !activeInterviewProfile?.project_configurable?.includes("source_card_focus")
   ) {
-    fail("采访原声讲解型活动 profile 没有绑定 MediaFlow Pro 默认工程根目录");
+    fail("采访原声讲解型活动 profile 没有绑定 v2 合同、MediaFlow Pro 工程根目录和原片构图配置");
+  }
+
+  if (fs.existsSync(path.join(skillRoot, "plans"))) {
+    fail("Skill 源码根目录仍含项目运行计划；采访和角色计划必须只存在于 Skill 外部项目");
   }
 
   for (const script of [
@@ -866,6 +893,11 @@ if (failures.length === 0) {
     process.execPath,
     [path.join(scriptDir, "interview-explainer.mjs"), "list-profiles"],
     "采访原声讲解型公开 profile 目录检查"
+  );
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-interview-explainer-v2.mjs")],
+    "正式素材导入—听音转写—选段—网页场景—采访 v2 计划消费者检查"
   );
 
   const coldStartRoot = fs.mkdtempSync(

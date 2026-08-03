@@ -36,6 +36,7 @@ from anime_avatar_common import (
     probe_video,
     read_json,
     resolve_avatar_library,
+    resolve_project_path,
     resolve_source,
     validate_library_payload,
     validate_media_manifest,
@@ -951,7 +952,13 @@ def validate_render_plan_payload(
 
 
 def confirm_render_plan(args: argparse.Namespace) -> dict[str, Any]:
-    plan_path = Path(args.render_plan).expanduser().resolve()
+    _, paths = load_project(Path(args.project))
+    plan_id = validate_task_id(args.plan_id)
+    plan_path = resolve_project_path(
+        paths["root"],
+        Path("plans") / "anime-avatar" / plan_id / "render-plan.json",
+        "角色计划",
+    )
     payload = read_json(plan_path)
     validate_render_plan_payload(payload, require_confirmed=False)
     if payload["status"] != "ready":
@@ -1715,24 +1722,29 @@ def save_render_review_from_video(
 def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
     planning = args.command == "plan"
     approved_plan: dict[str, Any] | None = None
-    render_plan_path = Path(args.render_plan).expanduser().resolve()
+    project_argument = Path(args.project)
+    project, paths = load_project(project_argument)
+    plan_id = validate_task_id(args.plan_id)
+    render_plan_path = resolve_project_path(
+        paths["root"],
+        Path("plans") / "anime-avatar" / plan_id / "render-plan.json",
+        "角色计划",
+    )
     if planning:
         if render_plan_path.exists():
             raise FileExistsError(
                 f"不会覆盖已有 render-plan.json：{render_plan_path}"
             )
-        project_argument = Path(args.project)
-        plan_id = validate_task_id(args.plan_id or render_plan_path.parent.name)
         task_id = plan_id
     else:
         approved_plan = read_json(render_plan_path)
         validate_render_plan_payload(approved_plan, require_confirmed=True)
-        project_argument = Path(args.project)
+        if approved_plan.get("plan_id") != plan_id:
+            raise ValueError("--plan-id 与 render-plan.json 的 plan_id 不一致")
         task_id = validate_task_id(
             args.task_id or str(approved_plan["plan_id"])
         )
 
-    project, paths = load_project(project_argument)
     if planning:
         timeline_path = Path(args.timeline).expanduser()
         if not timeline_path.is_absolute():
@@ -1768,7 +1780,7 @@ def run_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         report_dir = (
             paths["root"] / "reports" / "avatar-renders" / task_id
         )
-        output = Path(args.output).expanduser().resolve()
+        output = resolve_project_path(paths["root"], args.output, "角色轨输出")
         if output.exists():
             raise FileExistsError(f"不会覆盖已有输出：{output}")
         immutable_directories = (
@@ -2970,7 +2982,6 @@ def parse_args() -> argparse.Namespace:
     )
     plan_parser.add_argument("--project", required=True)
     plan_parser.add_argument("--timeline", required=True)
-    plan_parser.add_argument("--render-plan", required=True)
     plan_parser.add_argument("--plan-id", required=True)
     plan_parser.add_argument(
         "--duration-seconds",
@@ -2986,14 +2997,15 @@ def parse_args() -> argparse.Namespace:
         "confirm-plan",
         help="确认已经检查过且没有拒绝接缝的 render-plan.json",
     )
-    confirm_parser.add_argument("--render-plan", required=True)
+    confirm_parser.add_argument("--project", required=True)
+    confirm_parser.add_argument("--plan-id", required=True)
 
     render_parser = subparsers.add_parser(
         "render",
         help="只消费已确认且输入哈希仍有效的 render-plan.json 进行编码",
     )
     render_parser.add_argument("--project", required=True)
-    render_parser.add_argument("--render-plan", required=True)
+    render_parser.add_argument("--plan-id", required=True)
     render_parser.add_argument("--output", required=True)
     render_parser.add_argument("--task-id")
     render_parser.add_argument("--ffmpeg")
