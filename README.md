@@ -4,6 +4,10 @@
 
 Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静态卡片、代码动画、视频、音频还是播客，再完成对应的标题、口播、字幕、节目结构和媒体配套文字；进入制作后，它会保留唯一的活动真源，并沿真实的预览、渲染或导出链检查最终结果。
 
+![Visual Multimedia 把抽象机制制作成可读图解的真实案例](assets/web-card-cases/editorial-technology-diagram-cover/preview.png)
+
+<p align="center"><sub>真实网页案例：内容、构图与可编辑结构来自同一份活动真源，并由浏览器导出预览。</sub></p>
+
 它不会替用户研究主题、筛选长材料中的分享重点或编造事实，也不会默认安装工具、购买素材、上传或发布成品。
 
 如果目标是视频文件，还需要搭配实际的渲染或编辑工具：纯 HTML 动画优先交给 [HyperFrames](https://github.com/heygen-com/hyperframes) 确定性渲染为 MP4；需要原片、多轨时间线、字幕、混音、反复修改或最终质检时，交给 [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) 完成工程化制作。
@@ -68,6 +72,21 @@ Visual Multimedia 负责把已经确认的内容和素材组织成可编辑的�
 | 媒体文案与口播参考库 | 已确认主张、作者声音，或明确的参考库维护请求 | 可直接制作的活动文案，或 Skill 外部的可定位参考库 |
 
 具体任务只加载需要的制作方法。入口、适用条件和停止位置以 [SKILL.md](SKILL.md) 为准。
+
+### 真实输出示例
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/web-card-cases/warm-paper-project-list/preview.png" alt="暖纸风格项目列表社交卡">
+      <br><sub>社交卡：适合纵向阅读的暖纸风格项目列表。</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/web-card-cases/social-evidence-variants/preview-landscape-21x9.png" alt="同一内容的宽屏社交证据卡变体">
+      <br><sub>多比例变体：同一结构化内容可以重排为宽屏画面。</sub>
+    </td>
+  </tr>
+</table>
 
 ## 制作原则
 
