@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "2b90d2e64dea7b4f82857a12a3f3d7c7f2eb0a085492d073cc3ab88678a6f32c",
+  "category": "effects",
+  "id": "line-boil",
+  "intent": {
+    "duration": "寄生型——沸腾段随宿主 hold 长度，无自身时长",
+    "energy": "低（底噪级）",
+    "purpose": "库内 R 系判例要求落定后\"真静止\"，但长字卡（3s+ 的黑场字卡、片尾） 完全冻结会读作\"片子卡了\"。本卡给第三种状态：**活着的静止**——轮廓 每 3 帧被\"重描\"一次，位置内容全然不动，只有线条边缘在极轻微地呼吸， 手绘动画 hold 帧的百年惯例。与 noise-drift（被否决）的区别正是可感性： 漂移是整体 1–3px 位移（肉眼读不出），沸腾是轮廓形变+阶梯跳变（每次 换 seed 都是一次可见的\"重描\"）。纸墨审美里这是\"手工感\"的直接来源。",
+    "semantic_tags": [
+      "effects",
+      "typography"
+    ],
+    "use": "标题字卡/描边元素的长 hold 段（黑场字卡升级首选）；质感层手法，寄生在别的镜头上"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "全片同时沸腾的元素 ≤1 组——标题在沸腾、卡片框也在沸腾，观众 找不到该看哪（P4）",
+    "与 speed-lines/集中线的\"沸腾\"（impact-feedback C 式每 2 帧换形态） 同族不同职：那是冲击帧的高能沸腾，这是 hold 帧的底噪沸腾，能量 档位差两级，别互换参数",
+    "SVG filter 对大面积层有渲染开销；1920 全幅文字层可接受，整页 截图套 boil 渲染时间翻倍且语义不对（页面不是手绘物）",
+    "paper-title-card/黑场字卡（shot-transitions D 式）是本卡首选宿主， 组合时字卡的打字机/压印入场完成后再起沸腾"
+  ],
+  "name": "line-boil",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/line-boil.md",
+    "upstream_demo": "demos/effects/line-boil/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "线条沸腾——hold 期间文字/描边轮廓每 3 帧轻微扭动一次，像手绘逐帧重描，静止画面保持\"活着\"的呼吸感",
+      "id": "line-boil",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "line-boil",
+      "status": "reference-only",
+      "use": "标题字卡/描边元素的长 hold 段（黑场字卡升级首选）；质感层手法，寄生在别的镜头上"
+    }
+  ],
+  "version": 1
+}

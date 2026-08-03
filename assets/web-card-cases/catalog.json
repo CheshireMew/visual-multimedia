@@ -44,6 +44,21 @@
       "reuse": "共享字体、色彩、纸张、线条和证据表面；静态场景提供三输出变体与比例专用标题，动画场景另外提供分散—对齐—结果保持的语义运动",
       "adapt": "当前内容决定逐页职责、文案、证据类型、布局、比例和运动载体；静态坐标和示例时间点不跨项目继承",
       "verify": "对每个输出变体 × 场景运行 validate-editable-media.mjs；静态场景检查 360px 缩略图，动画场景查看真实开始、变化、结果状态并完整播放"
+    },
+    {
+      "id": "editorial-technology-diagram-cover",
+      "path": "editorial-technology-diagram-cover",
+      "files": {
+        "preview": "preview.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json"
+      },
+      "use_when": "没有参考图的技术、研究、模型或方法主题需要制作左侧准确标题、右侧原创图解的宽幅编辑封面",
+      "reuse": "暖白纸面、炭黑图解、克制珊瑚点色、连续标题留白，以及准确文字和原创图解分层编辑的职责",
+      "adapt": "当前主题决定图解命题、标题、标签、网格密度和各比例构图；5:2 是本案例画布，不是其它封面的固定输出",
+      "verify": "在真实浏览器检查网页编辑回写、1500×600 完整画布、360px 标题缩略图和图解标签可读性；生成图变体另核对无文字素材与网页文字边界"
     }
   ]
 }

@@ -1,0 +1,45 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "d6541fae29faf717c815689dd739ef97d5f8d2bdbbdf0ac3acbf3c75ffd99182",
+  "category": "transition",
+  "id": "card-flock-tumble",
+  "intent": {
+    "duration": "翻飞 ~1.5s + 慢转展示 ~0.3s + 收束 0.3s + 烟环+巨字 ~2s；全段 4.5s",
+    "energy": "极高（全片能量顶点用）",
+    "purpose": "三张页卡像被甩出的扑克在 3D 空间翻飞列队，站定亮相后被瞬间 吸入中心，炸出一圈烟雾环，品牌巨字穿环而出——\"能力展示→能量 坍缩→口号爆发\"一气呵成。命门有三：**丝滑**（侧棱→翻飞→站定 一条 Catmull-Rom 样条导数连续，分段插值的顿挫会被读出来）、 **不许停**（站定后保持低角速度慢转到收束，静止段被裁\"不要停住， 保持旋转\"——高潮段没有静帧）、**全程清晰**（motion blur/景深糊 全删，被裁\"不要加模糊效果\"）。",
+    "semantic_tags": [
+      "transition"
+    ],
+    "use": "能量高潮段（功能页群→品牌口号的爆点转场）；霓虹暗场调性；\"多页面能力\"收束成一句话的段落"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "烟雾环质感判例：干净图形环（描边圆/同心波）三轮被裁，最终版 feTurbulence 湍流絮边对照原片密帧逐格校——\"要一样\"；残余差距 是噪声场静态（整体旋转+长大），无逐帧湍流滚动，极近看流动感弱",
+    "与 particle-celebrate-hits 分工：那张是粒子礼花打击点；本卡 烟雾环是能量坍缩的余波，禁加粒子",
+    "与 bubble-swarm-takeover 分工：那张是群体涌入接管；本卡是 三卡精确列队+坍缩，数量意义相反"
+  ],
+  "name": "card-flock-tumble",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/card-flock-tumble.md",
+    "upstream_demo": "demos/transition/card-flock-tumble/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "三张 UI 页卡从侧棱薄边 3D 翻飞成阶梯站定（全程清晰、样条连续丝滑），站定后保持慢转不停，快速收束吸入中心，炸出单个湍流烟雾环扩散，巨字横贯收场",
+      "id": "card-flock-tumble",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "card-flock-tumble",
+      "status": "reference-only",
+      "use": "能量高潮段（功能页群→品牌口号的爆点转场）；霓虹暗场调性；\"多页面能力\"收束成一句话的段落"
+    }
+  ],
+  "version": 1
+}

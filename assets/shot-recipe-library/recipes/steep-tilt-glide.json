@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "003ed993767a67ba0d89dd4eede06da2d207d3155e113bf186a4692891e54797",
+  "category": "camera",
+  "id": "steep-tilt-glide",
+  "intent": {
+    "duration": "4s（120f）单镜；页面越宽越可拉长",
+    "energy": "中高（透视炫技+持续运动，但节奏是匀的）",
+    "purpose": "把页面立成一堵斜墙：镜头钉死不动，60° 强透视让右缘贴脸、左缘 消失在灭点，页面自己沿自身平面横向滑移——内容像列车车厢一样 依次掠过。命门是**物动镜不动**：perspective/origin/rotY 全程常数， 唯一动的量是页面局部 translateX——镜头一动语义就变成运镜炫技， 这里的戏是\"页面在自我展示\"。角度经三轮收敛为精确 60° （-45°\"不对\"→-53°\"再大一点\"→-60°选中）。",
+    "semantic_tags": [
+      "camera",
+      "ui-entrance"
+    ],
+    "use": "长页面/多区块 UI 的炫技巡览（内容依次滑过固定机位）；暗场霓虹调性；与贴面运镜卡互补的\"侧掠\"机位"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "角度判例：透视角是本卡身份，实战微调范围建议 55–65°，出这个 区间等于换手法",
+    "与 graze-face-tour 分工：那张镜头动（贴面游走）、页面静；本卡 镜头静、页面动。同段落二选一",
+    "与 runway-ground-skim 分工：那张是俯角平躺+垂直贴落+立起； 本卡是侧立+横向滑移，轴向正交",
+    "超宽页面手绘成本高；实战可用真实长截图代替（滑移逻辑不变）"
+  ],
+  "name": "steep-tilt-glide",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/camera/steep-tilt-glide.md",
+    "upstream_demo": "demos/camera/steep-tilt-glide/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "固定镜头下直立页面以 60° 强透视侧立（右近左远），页面自身沿其 3D 横面方向滑移掠过镜头（物动镜不动），滑移带速度重影、文字组件悬空贴落、由暗揭亮",
+      "id": "steep-tilt-glide",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "steep-tilt-glide",
+      "status": "reference-only",
+      "use": "长页面/多区块 UI 的炫技巡览（内容依次滑过固定机位）；暗场霓虹调性；与贴面运镜卡互补的\"侧掠\"机位"
+    }
+  ],
+  "version": 1
+}

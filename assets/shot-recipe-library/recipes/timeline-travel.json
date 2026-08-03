@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "4b68f6759c3165ee6daa778ea53f92a95ce5fc89cd601398084987b51d56865f",
+  "category": "data",
+  "id": "timeline-travel",
+  "intent": {
+    "duration": "4–5s",
+    "energy": "中高（加速→急刹的节奏型镜头）",
+    "purpose": "把产品的版本史拍成一次沿时间轴的旅行（《反恐王国》片头判例）： 镜头缓起→冲刺→急刹三段变速横移，v1.0/v2.0/v3.0 刻度依次掠过， 每过一格对应卡片从刻度线上 spring 弹立——历史在窗外闪过， 急停在\"今天\"并推近。速度本身讲\"发展快\"，急停讲\"现在最重要\"。",
+    "semantic_tags": [
+      "data",
+      "camera"
+    ],
+    "use": "changelog/里程碑/发展史段落（\"我们一直在发货\"的另一种拍法）；与 scroll-brake-moves 分工：那卡是纵向列表急刹，本卡是横向时间旅行"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "中段冲刺快到卡片糊时可叠 CameraMotionBlur（只包快速段，轮 #8 判例）",
+    "急停后静止预算前置：demo 首版静止只有 25f 不达标，急停帧前移才够 ——排时间线时先给末段留 ≥30f 再倒推行程",
+    "每张弹立卡片是信息位：实战放真实版本亮点截图/一句话， 掠过速度要保证至少末两张能读（Q6 同源）",
+    "声音：每次弹立一声轻打点，急停一声 impact（S2 同源）"
+  ],
+  "name": "timeline-travel",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/data/timeline-travel.md",
+    "upstream_demo": "demos/data/timeline-travel/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "时间轴横移——镜头沿水平刻度轴加速掠过版本刻度，每过一格卡片弹立短停，末刻度急停推近",
+      "id": "timeline-travel",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "timeline-travel",
+      "status": "reference-only",
+      "use": "changelog/里程碑/发展史段落（\"我们一直在发货\"的另一种拍法）；与 scroll-brake-moves 分工：那卡是纵向列表急刹，本卡是横向时间旅行"
+    }
+  ],
+  "version": 1
+}

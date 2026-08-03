@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "6f6962415625e041d70c55b3bcacf24af45af86015f596fceeefd9b6c914aecc",
+  "category": "rhythm",
+  "id": "spectrum-morph-ui",
+  "intent": {
+    "duration": "~4.7s（裂开 8f + 跳动 64f + 收拢 12f + 静止 39f）",
+    "energy": "中",
+    "purpose": "声画同步库内已有 type-rhythm-sync A（字重脉冲）——那是\"文字自己动\"； 本卡是\"UI 构件变成均衡器\"：下划线这个最不起眼的构件被音乐借用两小节， 裂成 28 根竖条跳出频谱，然后**收拢还原、完璧归赵**。借用-归还结构是 全部优雅所在——观众先认出\"这是下划线\"，再看它变成别的东西，最后 看它变回来；若一开始就是频谱条，只是又一个音乐可视化。跳完必须还原 成那条 8px 直线，一像素不差。",
+    "semantic_tags": [
+      "rhythm",
+      "typography"
+    ],
+    "use": "有音轨片子的声画同步高光段（BGM 副歌起/鼓点密集段）；标题字卡、章节页的下划线/分隔线构件"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "**声音强依赖**：跳动段必须真的踩在音乐上——无音轨的频谱跳动读作 UI 故障；实战必须 visualizeAudio() 对齐 BGM，伪 FFT 不许上片",
+    "全片 ≤1 次，且只借用一个构件——标题下划线在跳、卡片分隔线也在跳， 均衡器就成了壁纸（P4）",
+    "与 type-rhythm-sync 同为声画同步族，同一段落二选一——文字在脉冲、 下划线在跳频谱，两个声画主角互相拆台",
+    "收拢帧后的静止段是\"归还仪式\"的一部分，从重给（≥35f），别急着切"
+  ],
+  "name": "spectrum-morph-ui",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/rhythm/spectrum-morph-ui.md",
+    "upstream_demo": "demos/rhythm/spectrum-morph-ui/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "频谱化 UI——标题下划线裂成一排竖条按频谱跳动两小节，再收拢还原成直线；音乐可视化长在 UI 上",
+      "id": "spectrum-morph-ui",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "spectrum-morph-ui",
+      "status": "reference-only",
+      "use": "有音轨片子的声画同步高光段（BGM 副歌起/鼓点密集段）；标题字卡、章节页的下划线/分隔线构件"
+    }
+  ],
+  "version": 1
+}

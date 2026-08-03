@@ -1,0 +1,55 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "59394addbe8d8f0468c044fac2d1a032b28d235b75102ca9f4c8e2aa8958ac1d",
+  "category": "rhythm",
+  "id": "speed-ramp-freeze",
+  "intent": {
+    "duration": "变速全程 4–5s（慢速窗 ≥40f）；定格标注全程 4–5s（定格段 ≥45f）",
+    "energy": "中高（速度反差本身即energy beat）",
+    "purpose": "匀速流读作 PPT（R2），全程快流观众抓不住重点（R3）。变速在一条 运动里制造\"冲刺-凝视-冲刺\"；定格标注更进一步——干脆停下来， 马克笔圈出重点再走。两款同一技术根（帧号 remap），语义不同： 变速是\"路过时多看一眼\"，定格是\"停课划重点\"。",
+    "semantic_tags": [
+      "rhythm"
+    ],
+    "use": "卡片流/长横移中把一个重点\"放慢/停下给人看\"；教学解说语境用定格标注"
+  },
+  "known_pitfalls": [
+    "变速段 SFX 钉帧跟**输出帧**不跟源帧（画面动作在输出时间轴上发生）； 拟音槽位：定格款配马克笔沙沙声（S4），本卡转正时未配、实战补",
+    "定格标注一支 30s 片 ≤2 次（同 D 式克制原则）",
+    "参数经占位素材调校转正，非实战定稿，首次实战后回验"
+  ],
+  "name": "speed-ramp-freeze",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/rhythm/speed-ramp-freeze.md",
+    "upstream_demo": "demos/rhythm/speed-ramp-freeze/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "帧号非线性 remap 变速——高速掠过突降 0.2x 凝视重点，再加速离开",
+      "id": "speed-ramp",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "speed-ramp",
+      "status": "reference-only",
+      "use": "卡片流/长横移中把一个重点\"放慢/停下给人看\"；教学解说语境用定格标注"
+    },
+    {
+      "description": "卡片流中途全画面定格，圈注标记弹出点名重点，随后解冻继续流动",
+      "id": "freeze-annotate",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "freeze-annotate",
+      "status": "reference-only",
+      "use": "卡片流/长横移中把一个重点\"放慢/停下给人看\"；教学解说语境用定格标注"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.music-beat-analysis.v1",
+  "title": "Visual Multimedia Music Beat Analysis v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "created_at", "source", "method", "grid", "review"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-music-beat-analysis"},
+    "version": {"const": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["file", "sha256", "duration_seconds", "sample_rate"],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha"},
+        "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "sample_rate": {"type": "integer", "minimum": 8000}
+      }
+    },
+    "method": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decoder", "algorithm", "minimum_bpm", "maximum_bpm"],
+      "properties": {
+        "decoder": {"const": "ffmpeg-f32le-mono"},
+        "algorithm": {"const": "onset-envelope-grid-fit-v1"},
+        "minimum_bpm": {"type": "number", "minimum": 30},
+        "maximum_bpm": {"type": "number", "maximum": 300}
+      }
+    },
+    "grid": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bpm", "beat_interval_seconds", "phase_seconds", "confidence", "fit_residual_seconds", "beats_seconds"],
+      "properties": {
+        "bpm": {"type": "number", "exclusiveMinimum": 0},
+        "beat_interval_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "phase_seconds": {"type": "number", "minimum": 0},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "fit_residual_seconds": {"type": "number", "minimum": 0},
+        "beats_seconds": {"type": "array", "minItems": 2, "items": {"type": "number", "minimum": 0}}
+      }
+    },
+    "review": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "method", "reviewed_by", "reviewed_at", "notes"],
+      "properties": {
+        "status": {"enum": ["usable", "manual-review"]},
+        "method": {"enum": ["automatic", "manual"]},
+        "reviewed_by": {"type": ["string", "null"], "enum": ["user", "agent", null]},
+        "reviewed_at": {"type": ["string", "null"], "format": "date-time"},
+        "notes": {"type": "string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"method": {"const": "manual"}}},
+          "then": {"properties": {"status": {"const": "usable"}, "reviewed_by": {"enum": ["user", "agent"]}, "reviewed_at": {"type": "string", "format": "date-time"}}}
+        },
+        {
+          "if": {"properties": {"method": {"const": "automatic"}}},
+          "then": {"properties": {"reviewed_by": {"const": null}, "reviewed_at": {"const": null}}}
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"}
+  }
+}

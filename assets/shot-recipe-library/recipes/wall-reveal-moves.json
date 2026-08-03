@@ -1,0 +1,69 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "48586152d14bf5fe13c57a3894fa6b1784aab99ce26f0108b6b26ee695a70caf",
+  "category": "ui-entrance",
+  "id": "wall-reveal-moves",
+  "intent": {
+    "duration": "单式约 4.3–5s（A 150f / B 130f / C 150f @30fps，含建立 hold 与静止收尾）",
+    "energy": "中",
+    "purpose": "\"一墙内容怎么出场\"库内此前只有 deck-deal-flyin 一个答案——高能量、位移型、 \"东西涌进来\"。但不是每面墙都该涌：品牌段要庄重、功能墙要轻快、 \"从设计到实物\"要讲工序。这三式共同点是**非位移批量入场**——元素原地显形， 版式从第一帧就成立，观众看的是\"状态变化的波前扫过一面墙\"而不是\"物体飞行\"。 选型先问一句：这面墙该\"涌进来\"还是\"亮起来\"？前者去 deck-deal-flyin，后者进本卡。",
+    "semantic_tags": [
+      "ui-entrance"
+    ],
+    "use": "功能墙/卡片墙/整页界面的整体亮相；内容已在原位、要\"显形\"而非\"涌入\"的段落"
+  },
+  "known_pitfalls": [
+    "**demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验**",
+    "A/C 的强调色描边/扫描线属\"单点高质量光效\"范畴（Q4 三约束内合规），但一支片 整墙点亮 ≤1 次（P4 手法去重）——A 和 C 同片共用即算两次整墙光效，选一",
+    "B 式翻面后的正面实战要接真实截图：backface 侧预留高清纹理（Q2），翻转中 正面会以斜角被看，低倍截图先按审美准则 Q2 的高分辨率栅格化技法处理再上",
+    "C 式线框几何必须与实体层布局逐像素对位（demo 里按 FakeDashboard A 手排）， 换素材要重排线框——对不齐则扫描线扫过瞬间元素跳位，一眼穿帮",
+    "三式都是\"原位显形\"，别混入位移入场（如 B 翻面时再加 translateY 飞入）—— 位移需求去 deck-deal-flyin，杂交会两头不像",
+    "A 式暗态 opacity 0.18 依赖暗底（#2a2a28）成立，亮底下压暗读作褪色故障"
+  ],
+  "name": "wall-reveal-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/wall-reveal-moves.md",
+    "upstream_demo": "demos/ui-entrance/wall-reveal-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "暗场 3×2 bento 墙压暗待命，琥珀流光逐格描边一圈、内容随即提亮上浮，全亮后镜头缓推收住",
+      "id": "bento-light-up",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "bento-light-up 逐格点亮",
+      "status": "reference-only",
+      "use": "内容庄重/暗场品牌段；节奏沉稳的功能总览"
+    },
+    {
+      "description": "3×3 灰背卡墙沿对角线波前依次 rotateX 原位翻转 180°，翻出正面内容，尾张过冲回弹",
+      "id": "grid-wave-flip",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "grid-wave-flip 波浪翻面",
+      "status": "reference-only",
+      "use": "轻快功能墙；一秒扫完全屏的快节奏段"
+    },
+    {
+      "description": "界面先以 SVG 细线蓝图分组描画，再一条琥珀发光竖线左→右扫过，扫过处线框实体化成真实界面",
+      "id": "wireframe-draw-on",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "wireframe-draw-on 蓝图描线成形",
+      "status": "reference-only",
+      "use": "\"从设计到实物/从想法到产品\"叙事；产品首次整体亮相"
+    }
+  ],
+  "version": 1
+}

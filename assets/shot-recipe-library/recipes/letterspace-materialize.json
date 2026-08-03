@@ -1,0 +1,48 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "e02495b025da9243250f49151b7ec02c1e377f5221a71fc7b10062871726fa70",
+  "category": "opening",
+  "id": "letterspace-materialize",
+  "intent": {
+    "duration": "静置 ~15f + 描画 ~50f + 终态静置 ≥30f；全段 3–4s",
+    "energy": "低（静谧仪式感，一次呼吸完成）",
+    "purpose": "字标不是淡入也不是打字机，而是\"结晶\"：全部字母的笔画同时 开始连续生长，像一只看不见的手同时写所有字母，同一瞬间齐收 成词。两个命门：**连续**（笔画必须是连续画出的过程，不许遮罩 分段——先半截再另半截会被读穿；任何中间帧都该像\"写到一半\"）； **同步**（所有字母同帧起笔、同帧完成——逐字错峰是打字机语义， 这里是整词一体的仪式感）。",
+    "semantic_tags": [
+      "opening",
+      "typography",
+      "outro"
+    ],
+    "use": "片尾/片头品牌字标登场（SUPERHUMAN 式大字距全大写）；章节题字；needs 静谧/高级感的收束帧"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 draw-svg-trace 分工：那张是通用描画（图标/插画/单元素）； 本卡命门是**全字符同步**的整词结晶仪式，且限品牌字标语境",
+    "与 type-assembly-moves 分工：那张是字块组装（位移拼合）； 本卡笔画从无到有生长，字符不位移",
+    "骨架字形需手绘 path（现成字体轮廓是双线勾边，描画观感不同）； 9 字形工作量 ≈1h，实战优先复用 demo 里的字形库",
+    "原片（superhuman-promo）底景是实拍暮色山景+水面倒影；demo 为 渐变近似，实战建议用实拍/AI 生成空镜"
+  ],
+  "name": "letterspace-materialize",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/opening/letterspace-materialize.md",
+    "upstream_demo": "demos/opening/letterspace-materialize/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "大字距字标全字符并行连续描画结晶——所有字母同帧起笔、笔画像手写一样连续生长、同帧齐收成词；氛围底景上的品牌字标显影",
+      "id": "letterspace-materialize",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "letterspace-materialize",
+      "status": "reference-only",
+      "use": "片尾/片头品牌字标登场（SUPERHUMAN 式大字距全大写）；章节题字；needs 静谧/高级感的收束帧"
+    }
+  ],
+  "version": 1
+}

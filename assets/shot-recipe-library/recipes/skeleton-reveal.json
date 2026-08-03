@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "ccb8e3018c275a1c0550cee4e21ae1580fba1c7f50391e7a6c53ad9a01b2e976",
+  "category": "ui-entrance",
+  "id": "skeleton-reveal",
+  "intent": {
+    "duration": "~5.7s（172f：涂鸦 1s + 换真 0.3s + 骨架滚入 1.2s + 推近显影 3s）",
+    "energy": "中（叙事型登场，重点是\"变成真的\"那两次跃迁）",
+    "purpose": "UI 登场库全是\"整页一次到位\"（飞入/落位/擦出）。本卡把登场拆成 **三级保真度跃迁**：手绘涂鸦（想法）→ 灰条骨架（结构）→ 真实内容 （产品），每次跃迁都是一拍\"变成真的\"的爽点，观众跟着走完\"从草图 到产品\"的叙事弧。骨架→内容的显影借的是加载态语法——用户天天见 skeleton screen，看到灰条就知道\"内容要来了\"，预期免费。与 document-typewriter-reveal 分工：那是**一份文档**被逐块写出来（内容是 主角、要读字）；本卡是**一个界面**逐级变真（结构是主角、字是最后 一级质感）。与 ai-stream-response 分工：那是证据行逐条\"汇入\"（列表 在生长），本卡是已就位的占位\"显影\"（布局早定，保真度在升级）。",
+    "semantic_tags": [
+      "ui-entrance"
+    ],
+    "use": "产品 UI 的\"从无到有\"登场叙事；开场后第一次亮产品界面的段落"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "三级布局必须严格同构：涂鸦的窗口/侧栏/消息行位置要和骨架、骨架要和真内容对得上——错位后\"显影\"变成\"换了个页面\"，叙事断",
+    "实战真内容层贴产品真实截图/排版时，骨架灰条的行高与槽位要按截图量（document-typewriter-reveal 卡\"烤入纹理对齐\"同族教训）",
+    "涂鸦线稿别画细节：粗圆头 blob + 波浪线足够，画得太像 UI 第一级和第二级就没差了",
+    "mock 文案合规：不出现客户/成员真名（Q1 通例）",
+    "声音：换真一拍钉一声 pop/whoosh，逐行显影各一声极轻 tick，末词晚半拍处配一声轻 chime 收束"
+  ],
+  "name": "skeleton-reveal",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/skeleton-reveal.md",
+    "upstream_demo": "demos/ui-entrance/skeleton-reveal/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "草稿→骨架→内容三级显影——手绘涂鸦占位（煮沸抖动）一拍被灰条骨架窗口替换，骨架列表滚入后镜头推近、灰条逐行显影成头像+逐词文字，末词晚半拍落地",
+      "id": "skeleton-reveal",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "skeleton-reveal",
+      "status": "reference-only",
+      "use": "产品 UI 的\"从无到有\"登场叙事；开场后第一次亮产品界面的段落"
+    }
+  ],
+  "version": 1
+}

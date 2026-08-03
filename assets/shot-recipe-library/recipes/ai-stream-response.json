@@ -1,0 +1,45 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "eaade14b5021ad20531789663b75851cddf256922e58304cdd7c197afffd3cb3",
+  "category": "interaction",
+  "id": "ai-stream-response",
+  "intent": {
+    "duration": "约 4–5s（120–150f，含 ≥15f 完成态静止）",
+    "energy": "中高（信息持续增加，但阅读优先于速度炫技）",
+    "purpose": "把“AI 正在工作”拍成可读的因果链，而不是日志刷屏：观众先看懂答案摘要， 再看到证据/子任务逐条补齐，最后由完成态确认这轮工作结束。",
+    "semantic_tags": [
+      "interaction"
+    ],
+    "use": "AI 助手/agent/search/copilot 的结果生成镜头；强调“结论先到、证据随后、任务完成”"
+  },
+  "known_pitfalls": [
+    "逐字符流式打字会把视线困在字符层；宣传片时长里优先按“语义块”揭示摘要， 真正展示输入操作时另用 `type-and-filter`",
+    "行体和状态图标若同帧落定，会像静态列表整体切换；保留 2–4f 拖拽层级",
+    "行终点必须是截图里真实列表槽位，不在面板上方悬浮；动态内容也必须用虚构数据",
+    "此卡借鉴 Linear Agent 发布片 t≈13–17s（进化轮 #3 breakdown #6），非用户判例； 参数未经本库实战项目验证，首次使用必须按 P1 在正常速度下看片，不以逐帧 diff 代替体感"
+  ],
+  "name": "ai-stream-response",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/ai-stream-response.md",
+    "upstream_demo": "demos/interaction/ai-stream-response/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "AI 响应面板先落一句可读摘要，再让带状态图标的证据行逐条汇入，最后统一收束成完成态",
+      "id": "ai-stream-response",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "ai-stream-response",
+      "status": "reference-only",
+      "use": "AI 助手/agent/search/copilot 的结果生成镜头；强调“结论先到、证据随后、任务完成”"
+    }
+  ],
+  "version": 1
+}

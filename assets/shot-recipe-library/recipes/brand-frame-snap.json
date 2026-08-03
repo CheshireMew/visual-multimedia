@@ -1,0 +1,48 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "f3d1582e43ed1c43af45c66d5007f02a67a46cb696bf3a9076923d01c7394a88",
+  "category": "effects",
+  "id": "brand-frame-snap",
+  "intent": {
+    "duration": "单次翻色 ~4.3s（130f）；画框本身可全片驻场",
+    "energy": "中（翻色瞬间高，其余时间是安静的包装层）",
+    "purpose": "真实录屏直接铺满屏没有品牌存在感，加 logo 水印又廉价。本卡用一圈 粗品牌色画框把录屏\"装裱\"起来：画框**先于内容出现**（先立画框再放 画，仪式感），之后画框颜色成为全片的语义编码——蓝=Design、绿=Dev Mode。章节切换时整圈画框一帧内硬翻色，无渐变，颜色硬切就是\"换挡\" 声效的视觉等价物；窗内布局同帧 A→B、角标与徽标同步换字，三处同帧 共振把\"模式切换\"砸实。与 theme-switch-moves 分工：那换的是 UI 本体 肤色（有扫过边界），本卡换的是\"画框\"这个包装层（同帧无边界）， 语义是模式/章节切换不是主题切换。",
+    "semantic_tags": [
+      "effects",
+      "transition"
+    ],
+    "use": "双模式/双章节产品片的全片包装层（蓝=模式A、绿=模式B 颜色编码）；真实录屏素材的品牌化包裹"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "翻色必须真同帧：画框、窗内布局、角标文字三者错开哪怕 2f，\"换挡\"就散成三个小动画",
+    "颜色编码要全片守约：蓝框段落里不许出现绿色主 UI 元素，编码被稀释后翻色就只是换色",
+    "画框是包装层不是主角：全片翻色 ≤2 次，翻多了读作霓虹灯（P4 克制原则）",
+    "两个模式的品牌色对比度要够（demo 蓝 #3E7BFA / 绿 #1BC47D）；同明度邻近色翻了等于没翻",
+    "声音：翻色帧钉一声干脆的机械 click/换挡声，白闪与声同帧；画框生长段可静"
+  ],
+  "name": "brand-frame-snap",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/brand-frame-snap.md",
+    "upstream_demo": "demos/effects/brand-frame-snap/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "品牌色画框语法——一圈粗纯色画框先于内容长出包住全屏，录屏窗口落进框内；模式切换时整圈画框同帧硬翻色+窗内布局同帧换，一个 borderColor 干完章节导航/状态提示/品牌露出三件事",
+      "id": "brand-frame-snap",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "brand-frame-snap",
+      "status": "reference-only",
+      "use": "双模式/双章节产品片的全片包装层（蓝=模式A、绿=模式B 颜色编码）；真实录屏素材的品牌化包裹"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,48 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "1d35a9c206c7f714a16cc38776c6ae1b9694da7f7fc01f3c7a65527f36587dd1",
+  "category": "opening",
+  "id": "icon-field-colorize",
+  "intent": {
+    "duration": "浮现 ~45f 错峰 + 静置 ~10f + 翻色 12–45f + 终态静置；全段 3–4s",
+    "energy": "中（浮现是铺垫，翻色瞬间是唯一爆点）",
+    "purpose": "先用灰阶把\"多\"摆足——上百个小图标错峰浮进来铺满画面，灰阶保证 读作背景纹理不抢戏；停一拍让观众意识到\"摆满了\"，然后品牌色以 横带波纹形式极快扫过全场，灰世界一瞬间被点亮。命门在**翻色不是 同帧硬翻**：原片实测是 ~0.5s 内多道色波依次向下快扫（蓝先覆盖全场， 橙/绿/红依次覆盖更低行带），终态呈四色横带分层——波纹感让\"点亮\" 有方向和速度，硬翻只读作换了张图。",
+    "semantic_tags": [
+      "opening",
+      "ui-entrance",
+      "outro"
+    ],
+    "use": "开场铺陈产品能力面（图标=功能宇宙）再一举打上品牌色；功能集合页、生态/集成规模展示、片头 logo 前垫场"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "**翻色不许同帧硬翻**——原片密帧核实为多道波纹快扫（bear-app 25fps 密帧：蓝→橙/绿/红约 0.5s 内完成），硬翻读作换图无\"点亮\"感",
+    "图标需可辨认的实心简笔形（心/星/闪电/对勾…）；抽象色块读不出 \"功能宇宙\"语义",
+    "与 bubble-swarm-takeover 分工：那张是气泡群涌入接管 画面的运动戏；本卡运动极克制，戏眼在灰→彩的瞬间翻色",
+    "与 theme-switch-moves 分工：那张是 UI 界面明暗主题切换；本卡 是装饰性图标场的品牌色点亮，不承载界面语义"
+  ],
+  "name": "icon-field-colorize",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/opening/icon-field-colorize.md",
+    "upstream_demo": "demos/opening/icon-field-colorize/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "灰阶小图标点阵错峰浮现铺满全屏，停一拍后多道品牌色横带波纹极快向下扫翻全场——\"功能全景先摆满，品牌一瞬间点亮\"的开场/收束卡",
+      "id": "icon-field-colorize",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "icon-field-colorize",
+      "status": "reference-only",
+      "use": "开场铺陈产品能力面（图标=功能宇宙）再一举打上品牌色；功能集合页、生态/集成规模展示、片头 logo 前垫场"
+    }
+  ],
+  "version": 1
+}

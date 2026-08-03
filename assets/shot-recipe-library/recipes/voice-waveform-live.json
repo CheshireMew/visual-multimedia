@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "0dd25122bd53af9e51650fbbf834f1d6e3ec404f496550def664e142c0e510ac",
+  "category": "interaction",
+  "id": "voice-waveform-live",
+  "intent": {
+    "duration": "~5s（150f：入场 12f + 说 1.4s + 停 0.8s + 说 1.4s + 提交塌缩 0.8s）",
+    "energy": "中（功能性活性，不是炫技）",
+    "purpose": "库里唯一的波形是 spectrum-morph-ui——那是标题下划线裂成频谱条的 **装饰性**音乐可视化。本卡是**功能性**声纹：\"正在听你说\"的实时 回执。区别在因果：spectrum 跟 BGM 跳、是包装；本卡跟\"用户说话\" 跳、是产品功能本身。说话时波形高耸、停顿时缩成一排点线、历史向左 滚出——观众从波形的起伏读出\"它真的在听\"，一段 6s+ 的画面全靠这份 活性撑住，不需要任何别的内容。与 gauge-readout-moves 分工：仪表是 \"报一个数值\"的机械仪式，本卡是\"持续监听\"的生命体征，没有终值。",
+    "semantic_tags": [
+      "interaction"
+    ],
+    "use": "语音输入/AI 助手\"正在听你说\"的功能镜头；无 UI 内容可展示但需要持续活性撑画面的段落"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "**有音轨时波形必须跟人声走**：片子若配了真旁白/人声，包络的说停段要对齐音轨的说停，错位一秒就穿帮；无人声配乐片才可用纯合成包络",
+    "与 spectrum-morph-ui 同片可共存（一个是功能一个是装饰），但别用同一种条形视觉——高度/颜色/圆角至少差一档，否则观众读作同一个东西乱入",
+    "demo 的玻璃拟态胶囊（backdropFilter blur 24px）是 raycast 暗场风格，亮色片子换成实底胶囊即可，声纹参数不变",
+    "麦克风用的 emoji 加 grayscale 滤镜是占位——实战换 SVG 图标",
+    "声音：本卡画面就是\"声音的形状\"，配人声最顺；提交钮一声轻 pop + 塌缩配短促下滑音"
+  ],
+  "name": "voice-waveform-live",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/voice-waveform-live.md",
+    "upstream_demo": "demos/interaction/voice-waveform-live/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "录音胶囊实时声纹——64 根细竖条随\"说话\"起伏，说话时中部高耸、停顿缩成点线，波形从右往左滚动；说→停→说→提交塌缩的完整表演",
+      "id": "voice-waveform-live",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "voice-waveform-live",
+      "status": "reference-only",
+      "use": "语音输入/AI 助手\"正在听你说\"的功能镜头；无 UI 内容可展示但需要持续活性撑画面的段落"
+    }
+  ],
+  "version": 1
+}

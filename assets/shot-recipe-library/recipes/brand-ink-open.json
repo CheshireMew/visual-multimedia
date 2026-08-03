@@ -1,0 +1,44 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "a029aec1132adebea989c5357a965613fe8dc06a19248191da1d73ec6b37c212",
+  "category": "opening",
+  "id": "brand-ink-open",
+  "intent": {
+    "duration": "约 2.8s（83f）",
+    "energy": "低（起步位，为后续镜头留爬升空间）",
+    "purpose": "第一拍先给品牌记忆点：观众在任何产品画面出现之前，先看清并记住名字。安静、纸墨质感、有一个完整的静止时刻。",
+    "semantic_tags": [
+      "opening",
+      "typography"
+    ],
+    "use": "品牌开场；任何\"先立名号再进产品\"的片头"
+  },
+  "known_pitfalls": [
+    "hold 要给的是 wordmark 落定时刻，不是普通字卡/内容卡（R1）——曾把 hold 错加给普通内容卡后很快回滚；指代含糊的\"停留\"反馈先确认对象再动手（P3）",
+    "开场能量必须低起步：全片能量曲线低开→中段推进→outro 峰值，开场炫技会压死后面的爬升（对照 Q8 的能量曲线要求）"
+  ],
+  "name": "brand-ink-open",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/opening/brand-ink-open.md",
+    "upstream_demo": "template/src/aifl/live/SceneOpen.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "墨线十字准星描画→字标逐字压印→打字机副标→满一秒静止再上浮消散",
+      "id": "brand-ink-open",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "brand-ink-open",
+      "status": "reference-only",
+      "use": "品牌开场；任何\"先立名号再进产品\"的片头"
+    }
+  ],
+  "version": 1
+}

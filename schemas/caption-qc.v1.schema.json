@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.caption-qc.v1",
+  "title": "Visual Multimedia Caption QC v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "captions", "captions_sha256", "status", "thresholds", "metrics", "issues"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-caption-qc"},
+    "version": {"const": 1},
+    "captions": {"type": "string", "minLength": 1},
+    "captions_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "status": {"enum": ["passed", "failed"]},
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum_duration_seconds", "minimum_reading_units", "warning_reading_units_per_second", "maximum_reading_units_per_second", "minimum_time_coverage"],
+      "properties": {
+        "minimum_duration_seconds": {"type": "number", "minimum": 0},
+        "minimum_reading_units": {"type": "integer", "minimum": 1},
+        "warning_reading_units_per_second": {"type": "number", "minimum": 0},
+        "maximum_reading_units_per_second": {"type": "number", "exclusiveMinimum": 0},
+        "minimum_time_coverage": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cue_count", "duration_seconds", "time_coverage", "maximum_reading_units_per_second", "warning_count", "error_count"],
+      "properties": {
+        "cue_count": {"type": "integer", "minimum": 0},
+        "duration_seconds": {"type": "number", "minimum": 0},
+        "time_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximum_reading_units_per_second": {"type": "number", "minimum": 0},
+        "warning_count": {"type": "integer", "minimum": 0},
+        "error_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "code", "cue_ids", "message"],
+        "properties": {
+          "severity": {"enum": ["warning", "error"]},
+          "code": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "cue_ids": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "message": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

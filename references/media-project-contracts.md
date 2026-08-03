@@ -23,6 +23,8 @@
 
 具体视频类型可以在这些基础合同之上增加自己的 draft、不可变计划和确认，但不能再定义一份专用构建报告。例如采访原声讲解型使用 `interview-explainer-draft.json`、`narration-bundle.json`、`interview-explainer-plan.json` 和独立确认：draft 负责当前内容、样式及与事实转写边界一致的原声分段译文字幕，旁白包绑定真实音频，计划冻结 profile 输入；随后投影为通用 `media-build-plan.json`，统一的 v2 构建报告证明每个单元实际生成或复用了什么、连续音频如何处理、最终如何装配。最终审阅、项目状态和交付仍回到上述通用合同，并绑定同一个成片 SHA-256。
 
+产品功能宣传片同样只增加 `product-promo-brief.json`、页面采集报告、镜头配方选择、`product-promo-plan.json` 与独立确认。brief 冻结主张、必选功能、真实 source id、声音和输出；采集报告把真实浏览器截图送入通用素材账本；镜头选择绑定目标原生网页包；计划冻结功能覆盖、场景、语义状态和连续帧范围。确认后由 `scripts/product-promo.mjs build-plan` 投影为同一个通用 `media-build-plan.json`，渲染、构建报告、审阅、项目状态和交付不增加产品宣传片专用替代合同。具体方法读取 `product-promo-production.md`。
+
 ## 二、素材、原片与代理
 
 `media-sources.json` 固定使用 v3。每项素材除稳定 id、媒体类型、文件、用途、取得、权利、完整性、生成、声音身份和来源运行记录外，必须声明 `representation`：

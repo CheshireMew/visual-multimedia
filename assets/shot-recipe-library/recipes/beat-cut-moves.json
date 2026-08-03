@@ -1,0 +1,59 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "5bcc05c7e77e1e91e2e820b83d3830b91997750cc08be21078dd9aeb436d63db",
+  "category": "rhythm",
+  "id": "beat-cut-moves",
+  "intent": {
+    "duration": "A 全程 ~4.3s（建立 49f + 五连切 + 定格 hold 35f）；B 全程 ~4.3s（活素材 30f + 三闪 + hold 60f）",
+    "energy": "高",
+    "purpose": "库内节奏词汇一直只管\"一条运动内\"的速率（speed-ramp 是同一条 take 里变速）和\"落定后停多久\"（R 系呼吸判例），没有词管**多镜之间切点 怎么排**。本卡补这一块：硬切不做任何过渡，切点间隔本身就是乐谱—— 间隔递减读作加速逼近（A），等距三闪读作快门连拍（B）。与 R 系不 冲突：R 管落定后的停，本卡管切点排布，切串结束必须接足量 hold 把 呼吸还回去。注意这是刻意的例外——节奏偏好判例是单向\"放慢\"，硬切 串切得越狠，切完的 hold 要比平常更长。",
+    "semantic_tags": [
+      "rhythm",
+      "transition"
+    ],
+    "use": "高光/冲刺段落把\"切\"本身打成鼓点；A 式预告片式加速逼近，B 式颁奖连拍仪式感"
+  },
+  "known_pitfalls": [
+    "**demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验**",
+    "两式都是**声音强依赖**手法：切点必须钉在音轨拍点上，每切一声 tick（A）/ 快门咔嚓（B），无声版只剩画面乱跳；钉帧走 sound-design.md §4.5 相对 shot 起点，不钉绝对帧",
+    "A 式六视图要\"同一产品的不同构图\"而非六个无关画面——观众要在加速 中始终认得这是谁；跨产品/跨场景的素材别用这式",
+    "切串全片 ≤1 次（P4 克制原则）：这是全片最响的一记，第二次出现 第一次就白打了",
+    "节奏偏好判例是单向\"放慢\"，本卡是刻意例外——切完的 hold（A 35f / B 60f）是底线不是建议，宁多勿少",
+    "真硬切 = frame 落区间渲染对应视图，无任何过渡帧；手滑加 2f 交叉 淡化就不是硬切了，节拍感立即糊掉"
+  ],
+  "name": "beat-cut-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/rhythm/beat-cut-moves.md",
+    "upstream_demo": "demos/rhythm/beat-cut-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "六视图按 16→12→8→6→4f 间隔减半全屏硬切，加速逼近，末刀戛然定格回主画面轻推收住",
+      "id": "beat-cut-accelerando",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "beat-cut-accelerando 递进硬切串",
+      "status": "reference-only",
+      "use": "冲刺逼近感：预告片式蓄力、功能连打冲向结论"
+    },
+    {
+      "description": "三次白闪各硬切同素材不同裁切（全景→卡片特写→数字特写），快门余韵沉降，第三闪停在数字收束",
+      "id": "paparazzi-flash",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "paparazzi-flash 连闪定格",
+      "status": "reference-only",
+      "use": "高光时刻仪式感：颁奖连拍、关键数字的加冕"
+    }
+  ],
+  "version": 1
+}

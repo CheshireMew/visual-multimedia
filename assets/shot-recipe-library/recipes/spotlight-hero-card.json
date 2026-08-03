@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "cbb568cadef3d7d586f5647fa539bc8e86ca73d043612fcec533dbaa24a9365c",
+  "category": "opening",
+  "id": "spotlight-hero-card",
+  "intent": {
+    "duration": "约 4.6s（82–220f）",
+    "energy": "中（质感最高的一镜，节奏慢而稳）",
+    "purpose": "开场只讲一件事：这一张卡就是产品的原子单位。聚光灯替观众做视线引导，弹起悬浮给它体积和重量，轮廓光束是\"扫描/检视\"的隐喻，最后贴回原位表示它属于这个页面。",
+    "semantic_tags": [
+      "opening",
+      "effects",
+      "camera"
+    ],
+    "use": "\"单一主角\"式产品开场；把一个核心对象（卡片/条目/模块）立成全片主角"
+  },
+  "known_pitfalls": [
+    "开场多卡群舞撑不起第一印象（Q5）——开场曾反复推倒多次才收敛到单卡；直接从单主角+完整动作弧起稿",
+    "推进特写下卡上文字会糊，根因是纹理栅格化分辨率不是 DoF——配套技法展开见审美准则 Q2",
+    "逐卡 glint 闪烁被两次否决（\"不需要每个卡片都闪烁一下\"，Q4），光效严格只给主角"
+  ],
+  "name": "spotlight-hero-card",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/opening/spotlight-hero-card.md",
+    "upstream_demo": "template/src/aifl/live/SceneOpen.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "聚光灯扫过页面锁定一张卡，斜 45° 推进后卡片弹起悬浮、光束沿轮廓两圈、贴回原位",
+      "id": "spotlight-hero-card",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "spotlight-hero-card",
+      "status": "reference-only",
+      "use": "\"单一主角\"式产品开场；把一个核心对象（卡片/条目/模块）立成全片主角"
+    }
+  ],
+  "version": 1
+}

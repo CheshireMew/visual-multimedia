@@ -20,10 +20,39 @@ import { validateMediaTranscript } from "./validate-media-transcript.mjs";
 import { validateMediaProjectState } from "./validate-media-project-state.mjs";
 import { validateMediaReview } from "./validate-media-review.mjs";
 import { validateTextMotionLibrary } from "./text-motion-library.mjs";
+import { validateShotRecipeLibrary } from "./shot-recipe-library.mjs";
+import { validateVideoProductionProfileCatalog } from "./video-production-profile-catalog.mjs";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const skillRoot = path.dirname(scriptDir);
 const failures = [];
+
+function parseCheckMode(args) {
+  const supported = new Set(["--fast", "--browser", "--full"]);
+  if (args.includes("--help") || args.includes("-h")) {
+    console.log([
+      "Usage: node scripts/check-skill.mjs [--fast|--browser|--full]",
+      "  --fast     静态合同、schema、资源索引、许可证与脚本语法（默认）",
+      "  --browser  fast + Playwright 网页、确定性时间与产品宣传片链路",
+      "  --full     browser + 全部 Node/Python 生产、消费与交付回归",
+    ].join("\n"));
+    process.exit(0);
+  }
+  const unknown = args.filter((arg) => !supported.has(arg));
+  const selected = args.filter((arg) => supported.has(arg));
+  if (unknown.length > 0 || selected.length > 1) {
+    console.error(
+      `参数无效：${[...unknown, ...selected.slice(1)].join(", ")}`
+        + "；使用 --help 查看验证档位。",
+    );
+    process.exit(2);
+  }
+  return (selected[0] || "--fast").slice(2);
+}
+
+const checkMode = parseCheckMode(process.argv.slice(2));
+const runBrowserChecks = checkMode === "browser" || checkMode === "full";
+const runFullChecks = checkMode === "full";
 
 function fail(message) {
   failures.push(message);
@@ -287,10 +316,30 @@ function runChecked(command, args, label, cwd = skillRoot) {
 
 const skillPath = ensurePath("SKILL.md");
 const skillText = fs.readFileSync(skillPath, "utf8");
+const readmePath = ensurePath("README.md");
+const readmeText = fs.readFileSync(readmePath, "utf8");
+const agentsText = fs.readFileSync(ensurePath("AGENTS.md"), "utf8");
+
+for (const [label, text, markers] of [
+  [
+    "README 验证档位",
+    readmeText,
+    ["--fast", "--browser", "--full"],
+  ],
+  [
+    "AGENTS 验证分级",
+    agentsText,
+    ["## 验证分级", "node scripts/check-skill.mjs --full"],
+  ],
+]) {
+  for (const marker of markers) {
+    if (!text.includes(marker)) fail(`${label}缺少：${marker}`);
+  }
+}
 
 for (const filePath of [
   skillPath,
-  ensurePath("README.md"),
+  readmePath,
   ...fs.readdirSync(path.join(skillRoot, "references"), {withFileTypes: true})
     .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
     .map((entry) => path.join(skillRoot, "references", entry.name)),
@@ -324,6 +373,8 @@ for (const schema of [
   "schemas/resource-promotion-candidates.v1.schema.json",
   "schemas/sound-production-profile.v1.schema.json",
   "schemas/media-transcript.v1.schema.json",
+  "schemas/production-captions.v1.schema.json",
+  "schemas/caption-qc.v1.schema.json",
   "schemas/clip-selections.v2.schema.json",
   "schemas/media-stage-template.v1.schema.json",
   "schemas/media-project-state.v3.schema.json",
@@ -338,8 +389,24 @@ for (const schema of [
   "schemas/interview-explainer-plan-confirmation.v1.schema.json",
   "schemas/media-build-plan.v1.schema.json",
   "schemas/media-build-report.v2.schema.json",
+  "schemas/shot-recipe.v1.schema.json",
+  "schemas/product-promo.v1.schema.json",
+  "schemas/product-ui-capture.v1.schema.json",
+  "schemas/music-beat-analysis.v1.schema.json",
 ]) {
   readJson(ensurePath(schema));
+}
+for (const captionResource of [
+  "references/subtitle-production.md",
+  "scripts/production-captions.mjs",
+  "scripts/self-test-production-captions.mjs",
+  "assets/production-caption-case/source.srt",
+  "assets/production-caption-case/captions.json",
+  "assets/production-caption-case/captions.srt",
+  "assets/production-caption-case/captions.vtt",
+  "assets/production-caption-case/caption-qc.json",
+]) {
+  ensurePath(captionResource);
 }
 for (const textMotionResource of [
   "references/text-motion-production.md",
@@ -411,6 +478,56 @@ for (const interviewResource of [
   "scripts/self-test-interview-explainer-v2.mjs",
 ]) {
   ensurePath(interviewResource);
+}
+for (const productPromoResource of [
+  "references/product-promo-production.md",
+  "assets/video-production-profiles/product-promo/1.0.0/profile.json",
+  "assets/shot-recipe-library/library.json",
+  "assets/shot-recipe-library/catalog.json",
+  "assets/shot-recipe-library/index.html",
+  "assets/shot-recipe-library/THIRD_PARTY_NOTICES.md",
+  "assets/shot-recipe-library/LICENSE.video-shotcraft.txt",
+  "assets/shot-recipe-library/recipes/feature-focus-tour.json",
+  "scripts/video-production-profile-catalog.mjs",
+  "scripts/shot-recipe-library.mjs",
+  "scripts/migrate-video-shotcraft-recipes.mjs",
+  "scripts/product-promo.mjs",
+  "scripts/capture-product-ui.mjs",
+  "scripts/analyze-music-beats.mjs",
+  "scripts/self-test-product-promo.mjs",
+  "scripts/browser-safe-server.mjs",
+]) {
+  ensurePath(productPromoResource);
+}
+const shotRecipeNoticeText = fs.readFileSync(
+  ensurePath("assets/shot-recipe-library/THIRD_PARTY_NOTICES.md"),
+  "utf8",
+);
+for (const [label, text, markers] of [
+  [
+    "README 第三方资源与致谢",
+    readmeText,
+    [
+      "## 第三方资源与致谢",
+      "https://github.com/Vincentwei1021/video-shotcraft",
+      "assets/shot-recipe-library/THIRD_PARTY_NOTICES.md",
+      "assets/text-motion-library/THIRD_PARTY_NOTICES.md",
+    ],
+  ],
+  [
+    "video-shotcraft 第三方声明",
+    shotRecipeNoticeText,
+    [
+      "https://github.com/Vincentwei1021/video-shotcraft",
+      "Copyright 2026 Wei Yihao",
+      "LICENSE.video-shotcraft.txt",
+      "没有采用该 fork 的独有改动",
+    ],
+  ],
+]) {
+  for (const marker of markers) {
+    if (!text.includes(marker)) fail(`${label}缺少：${marker}`);
+  }
 }
 for (const directionResource of [
   "references/video-direction-contracts.md",
@@ -620,14 +737,47 @@ if (!textMotionValidation.ok) {
   browserProjects.push(textMotionRoot);
 }
 
-if (failures.length === 0) {
+const shotRecipeValidation = validateShotRecipeLibrary();
+if (!shotRecipeValidation.ok) {
+  shotRecipeValidation.errors.forEach((message) => fail(`镜头配方库：${message}`));
+} else if (
+  shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").length !== 104
+  || shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").flatMap((item) => item.document.styles).length !== 161
+  || shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").flatMap((item) => item.document.styles).some((style) => style.status !== "reference-only")
+  || shotRecipeValidation.catalog.active_style_count < 1
+) {
+  fail("镜头配方目录没有保持 104 张来源配方、161 个仅参考变体和至少一个目标原生实现的证据边界");
+}
+
+const videoProfileValidation = validateVideoProductionProfileCatalog();
+if (!videoProfileValidation.ok) {
+  videoProfileValidation.errors.forEach((message) => fail(`视频生产 profile：${message}`));
+}
+
+if (runBrowserChecks && failures.length === 0) {
   const validator = path.join(scriptDir, "validate-editable-media.mjs");
   for (const project of browserProjects) {
     runChecked(process.execPath, [validator, project], `浏览器验证：${project}`);
   }
 }
 
-if (failures.length === 0) {
+if (runFullChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-production-captions.mjs")],
+    "真实转写—生产字幕—便携字幕—短语质检检查",
+  );
+}
+
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-product-promo.mjs")],
+    "镜头配方—真实页面采集—产品计划—通用构建—浏览器—节拍真实链路检查",
+  );
+}
+
+if (runBrowserChecks && failures.length === 0) {
   runChecked(
     process.execPath,
     [path.join(scriptDir, "self-test-text-motion-library.mjs")],
@@ -635,7 +785,7 @@ if (failures.length === 0) {
   );
 }
 
-if (failures.length === 0) {
+if (runFullChecks && failures.length === 0) {
   runChecked(
     process.execPath,
     [path.join(scriptDir, "self-test-reusable-production-resources.mjs")],
@@ -654,7 +804,7 @@ for (const token of [
   }
 }
 
-if (failures.length === 0) {
+if (runFullChecks && failures.length === 0) {
   const mediaCaseSource = ensurePath("assets/media-delivery-case");
   const mediaCase = fs.mkdtempSync(
     path.join(os.tmpdir(), "visual-multimedia-media-delivery-case-")
@@ -925,11 +1075,13 @@ if (failures.length === 0) {
   }
   const voiceoverPython = process.env.VISUAL_MULTIMEDIA_PYTHON
     || (process.platform === "win32" ? "python.exe" : "python3");
-  runChecked(
-    voiceoverPython,
-    [path.join(scriptDir, "self-test-voiceover-reference-library.py")],
-    "口播私人库 v2 协议、声音资格、引用、索引与去重检查"
-  );
+  if (runFullChecks && failures.length === 0) {
+    runChecked(
+      voiceoverPython,
+      [path.join(scriptDir, "self-test-voiceover-reference-library.py")],
+      "口播私人库 v2 协议、声音资格、引用、索引与去重检查"
+    );
+  }
 }
 
 {
@@ -996,42 +1148,46 @@ if (failures.length === 0) {
   }
   const avatarPython = process.env.VISUAL_MULTIMEDIA_PYTHON
     || (process.platform === "win32" ? "python.exe" : "python3");
-  runChecked(
-    avatarPython,
-    [path.join(scriptDir, "anime_avatar_motion.py"), "--self-test"],
-    "二次元口播连续动作规划回归检查"
-  );
-  runChecked(
-    avatarPython,
-    [path.join(scriptDir, "self-test-anime-avatar-segmentation.py")],
-    "二次元口播真实静音分段与连续发音保护回归检查"
-  );
-  runChecked(
-    avatarPython,
-    [path.join(scriptDir, "check-anime-avatar-resources.py"), "--deep"],
-    "二次元口播注册资源与视觉素材库真实文件检查"
-  );
-  runChecked(
-    avatarPython,
-    [path.join(scriptDir, "anime-avatar-project.py"), "list-libraries"],
-    "二次元口播公开角色目录检查"
-  );
-  runChecked(
-    avatarPython,
-    [path.join(scriptDir, "self-test-anime-avatar-inset.py")],
-    "素材导入—固定角色窗—音轨默认—项目相对输出—真实成片检查"
-  );
+  if (runFullChecks && failures.length === 0) {
+    runChecked(
+      avatarPython,
+      [path.join(scriptDir, "anime_avatar_motion.py"), "--self-test"],
+      "二次元口播连续动作规划回归检查"
+    );
+    runChecked(
+      avatarPython,
+      [path.join(scriptDir, "self-test-anime-avatar-segmentation.py")],
+      "二次元口播真实静音分段与连续发音保护回归检查"
+    );
+    runChecked(
+      avatarPython,
+      [path.join(scriptDir, "check-anime-avatar-resources.py"), "--deep"],
+      "二次元口播注册资源与视觉素材库真实文件检查"
+    );
+    runChecked(
+      avatarPython,
+      [path.join(scriptDir, "anime-avatar-project.py"), "list-libraries"],
+      "二次元口播公开角色目录检查"
+    );
+    runChecked(
+      avatarPython,
+      [path.join(scriptDir, "self-test-anime-avatar-inset.py")],
+      "素材导入—固定角色窗—音轨默认—项目相对输出—真实成片检查"
+    );
+  }
 
-  const avatarRenderHelp = runChecked(
-    avatarPython,
-    [path.join(scriptDir, "render-anime-avatar.py"), "render", "--help"],
-    "二次元口播渲染公开参数检查"
-  );
-  if (
-    avatarRenderHelp.stdout.includes("--render-plan")
-    || !avatarRenderHelp.stdout.includes("--plan-id")
-  ) {
-    fail("二次元口播渲染仍暴露外部计划路径，或没有通过 project + plan-id 唯一解析计划");
+  if (runFullChecks && failures.length === 0) {
+    const avatarRenderHelp = runChecked(
+      avatarPython,
+      [path.join(scriptDir, "render-anime-avatar.py"), "render", "--help"],
+      "二次元口播渲染公开参数检查"
+    );
+    if (
+      avatarRenderHelp.stdout.includes("--render-plan")
+      || !avatarRenderHelp.stdout.includes("--plan-id")
+    ) {
+      fail("二次元口播渲染仍暴露外部计划路径，或没有通过 project + plan-id 唯一解析计划");
+    }
   }
   const avatarRenderSource = fs.readFileSync(
     path.join(scriptDir, "render-anime-avatar.py"),
@@ -1068,6 +1224,13 @@ if (failures.length === 0) {
     }
   }
 
+  for (const token of [
+    "references/product-promo-production.md",
+    "产品功能宣传片",
+  ]) {
+    if (!skillText.includes(token)) fail(`SKILL.md 缺少产品宣传片正式路由：${token}`);
+  }
+
   const videoProfileCatalog = readJson(
     path.join(skillRoot, "assets", "video-production-profiles", "catalog.json")
   );
@@ -1079,6 +1242,16 @@ if (failures.length === 0) {
     || activeInterviewProfiles[0]?.version !== "1.4.0"
   ) {
     fail("采访原声讲解型必须只启用 v2 draft/plan 与可配置原片构图的 1.4.0 profile");
+  }
+  const activeProductProfiles = (videoProfileCatalog?.profiles || []).filter(
+    (item) => item.id === "product-promo" && item.status === "active"
+  );
+  if (
+    activeProductProfiles.length !== 1
+    || activeProductProfiles[0]?.version !== "1.0.0"
+    || activeProductProfiles[0]?.public_entry !== "scripts/product-promo.mjs"
+  ) {
+    fail("产品宣传片必须只启用通过正式项目入口消费的 1.0.0 profile");
   }
   const activeInterviewProfile = readJson(
     path.resolve(
@@ -1115,6 +1288,13 @@ if (failures.length === 0) {
     "interview_explainer_plan.mjs",
     "interview_explainer_render.mjs",
     "interview_explainer_review.mjs",
+    "video-production-profile-catalog.mjs",
+    "shot-recipe-library.mjs",
+    "migrate-video-shotcraft-recipes.mjs",
+    "product-promo.mjs",
+    "capture-product-ui.mjs",
+    "analyze-music-beats.mjs",
+    "self-test-product-promo.mjs",
   ]) {
     runChecked(
       process.execPath,
@@ -1127,31 +1307,33 @@ if (failures.length === 0) {
     [path.join(scriptDir, "interview-explainer.mjs"), "list-profiles"],
     "采访原声讲解型公开 profile 目录检查"
   );
-  runChecked(
-    process.execPath,
-    [path.join(scriptDir, "self-test-interview-explainer-v2.mjs")],
-    "正式素材导入—听音转写—选段—网页场景—采访 v2 计划消费者检查"
-  );
-
-  const coldStartRoot = fs.mkdtempSync(
-    path.join(os.tmpdir(), "visual-multimedia-interview-starter-")
-  );
-  runChecked(
-    process.execPath,
-    [
-      path.join(scriptDir, "interview-explainer.mjs"),
-      "create-project",
-      "--project",
-      coldStartRoot,
-      "--project-id",
-      "interview-starter-contract-check",
-    ],
-    "Skill 外部采访原声讲解型项目生产入口检查"
-  );
-  for (const packageId of ["context", "explanation-01", "summary"]) {
-    checkManifest(
-      path.join(coldStartRoot, "editable-media", packageId, "editable-media.json")
+  if (runFullChecks && failures.length === 0) {
+    runChecked(
+      process.execPath,
+      [path.join(scriptDir, "self-test-interview-explainer-v2.mjs")],
+      "正式素材导入—听音转写—选段—网页场景—采访 v2 计划消费者检查"
     );
+
+    const coldStartRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), "visual-multimedia-interview-starter-")
+    );
+    runChecked(
+      process.execPath,
+      [
+        path.join(scriptDir, "interview-explainer.mjs"),
+        "create-project",
+        "--project",
+        coldStartRoot,
+        "--project-id",
+        "interview-starter-contract-check",
+      ],
+      "Skill 外部采访原声讲解型项目生产入口检查"
+    );
+    for (const packageId of ["context", "explanation-01", "summary"]) {
+      checkManifest(
+        path.join(coldStartRoot, "editable-media", packageId, "editable-media.json")
+      );
+    }
   }
 }
 
@@ -1161,9 +1343,9 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(
-  `visual-multimedia 通过：网页 starter、${catalog?.cases?.length || 0} 个网页案例`
-    + `、${textMotionValidation.effects?.length || 0} 个确定性文字动效`
-    + "、1 个最终媒体案例、口播私人库协议、注册资源与声音档案链路、真实代理链路、"
-    + "视频导演链路与采访原声讲解型正式入口均通过验证"
-);
+const successMessages = {
+  fast: `visual-multimedia fast 通过：静态合同、schema、资源索引、许可证、${catalog?.cases?.length || 0} 个网页案例与脚本入口均通过验证`,
+  browser: `visual-multimedia browser 通过：fast 档位、${browserProjects.length} 个真实网页包、确定性时间、文字动效与产品功能宣传片浏览器链路均通过验证`,
+  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片与采访原声讲解型完整链路均通过验证`,
+};
+console.log(successMessages[checkMode]);

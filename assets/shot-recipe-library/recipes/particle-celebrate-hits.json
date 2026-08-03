@@ -1,0 +1,57 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "235b4e104e83e55a8eb0bc46516df1b7652f6ddc3284874e7a4a5a22027580b2",
+  "category": "data",
+  "id": "particle-celebrate-hits",
+  "intent": {
+    "duration": "A 3–4s / B 4–5s",
+    "energy": "高潮点缀型（爆发后必须落回纯净静止）",
+    "purpose": "给\"数字揭晓\"配可听感的视觉打点：A 是揭晓瞬间的句号——画面左下右下 两门炮同帧开火，上百颗翻转彩屑抛物线交叉飞过全屏再落出画外，纯庆祝 语义；B 是过程中的逗号——计数器每跳过一个整千，数字顶部\"叮\"地溅一撮 小火星坠落熄灭，终值那跳翻倍爆一大撮+数字弹 1.1x。两式都是闭式弹道 （初速+重力+衰减逐帧公式），免物理引擎、帧确定。",
+    "semantic_tags": [
+      "data",
+      "effects"
+    ],
+    "use": "里程碑数字/KPI 揭晓/成就段落；A 一次性大庆祝，B 持续小打点"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "同批组合款 ring-confetti-blowout（合环×礼炮）、lights-out-tick-burst （灭灯×溅火）双双淘汰——**爆发×爆发同质叠加读作过载**； 本卡两式与其他爆发型手法（slam/impact 系）同帧叠用需谨慎",
+    "A 只配\"值得开炮\"的时刻，一片一次；连开读作廉价",
+    "声音：A 双炮\"砰砰\"错开 1–2f 更有层次；B 每 tick 一声细\"叮\""
+  ],
+  "name": "particle-celebrate-hits",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/data/particle-celebrate-hits.md",
+    "upstream_demo": "demos/data/particle-celebrate-hits/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "双炮各 50 颗矩形彩屑：初速 90-150px/f（decay 0.9 下总程 ~900-1500px 才能交叉过中线）、spread 55°、每帧翻转 8-15°；~90f 全部落出画外后条件卸载",
+      "id": "confetti-crossfire",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "confetti-crossfire",
+      "status": "reference-only",
+      "use": "终值揭晓/发布宣言的一次性高潮"
+    },
+    {
+      "description": "tick 帧由计数器同一 interpolate 派生；每 tick 6-10 颗 2px 火星（初速向上 4-6px/f、重力 12-18f 坠灭），终值跳翻倍 20 颗+数字弹 1.1x",
+      "id": "counter-tick-sparks",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "counter-tick-sparks",
+      "status": "reference-only",
+      "use": "计数爬升过程的节奏打点"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "d97b0fc4b331b987b3033b123aafe58f972dac6f2b1f4df8cf7cd379add8e5fa",
+  "category": "ui-entrance",
+  "id": "neon-frame-orbit-drop",
+  "intent": {
+    "duration": "描框 ~0.5s + 旋转&同时贴落 ~2.5s + 落定 ~1s；全段 4–4.5s",
+    "energy": "中高（一次性的大动作，落定即静）",
+    "purpose": "neon-frame-forerun 的孪生变体：同样框先行、内容后落，但镜头 不是固定的——从页面左侧视角连续弧线旋转到右侧视角，旋转进行 的同时全部组件从空中贴落。命门是**同时贴合**：所有组件和文字 同帧起落、同帧贴合、软影同步消失——这是\"整体登场\"的语法 （判例：错峰版被裁\"应该是所有组件和文字同时从空中往下贴合\"）。 错峰贴落属于巡礼镜（graze-face-tour/runway），一页一次性亮相 必须齐落，节奏语义不能混用。",
+    "semantic_tags": [
+      "ui-entrance",
+      "effects",
+      "camera"
+    ],
+    "use": "单页 UI 的一次性隆重登场（与巡礼/逐区亮相相对）；暗场霓虹调性段落的主视觉揭幕；neon-frame-forerun 的姊妹镜"
+  },
+  "known_pitfalls": [
+    "参数经占位素材两轮调校通过，非实战定稿，首次实战须以真实素材回验",
+    "**贴落节奏语义判例**（本卡与 graze-face-tour 互为反例）： 巡礼镜=错开起点+重叠并行下落；整体登场镜=全体同帧。选错语法 两边都会被裁",
+    "与 neon-frame-forerun 分工：那张镜头固定、错峰贴落+页面点亮 三层咬合；本卡镜头旋转+同帧齐落。同段落二选一，别连用（同框 语言重复）",
+    "弧线旋转是透视原点近似而非真实 3D 相机环绕，极端角度下框辉光 形变略平——实战若需大角度环绕考虑真 3D 场景"
+  ],
+  "name": "neon-frame-orbit-drop",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/neon-frame-orbit-drop.md",
+    "upstream_demo": "demos/ui-entrance/neon-frame-orbit-drop/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "霓虹框先行描框后，镜头绕页面左→右弧线旋转，页面全部组件/文字**同帧**从空中往下贴合（同形软影同步收敛）——整体登场式的框内安放",
+      "id": "neon-frame-orbit-drop",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "neon-frame-orbit-drop",
+      "status": "reference-only",
+      "use": "单页 UI 的一次性隆重登场（与巡礼/逐区亮相相对）；暗场霓虹调性段落的主视觉揭幕；neon-frame-forerun 的姊妹镜"
+    }
+  ],
+  "version": 1
+}

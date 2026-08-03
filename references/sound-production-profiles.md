@@ -55,6 +55,19 @@ node scripts/sound-production-profile.mjs set-ducking `
 
 语义同步使用 `link-motion`。`semantic-event` 写可读事件名，例如“证据出现”或“结论落定”；最终网页步骤或视频时间线消费档案时再把事件解析到活动时间边界，档案不保存一份易漂移的绝对毫秒表。
 
+### 强节拍音乐的条件分支
+
+只有当前视频已经确认由音乐强驱动剪辑时，才为真实入账音乐生成 `music-beat-analysis.v1` 派生记录：
+
+```powershell
+node scripts/analyze-music-beats.mjs `
+  --project <项目目录> `
+  --input <项目内音乐文件> `
+  --output reports/music-beats.json
+```
+
+记录绑定音频哈希、实际解码方法、BPM、相位、置信度、拟合残差和节拍点。低置信度或高残差进入人工听音复核，并用同一脚本的 `--confirm --analysis <报告> --reviewed-by user --notes <依据>` 把听音主体、时间和结论写回当前分析；普通氛围音乐、语音优先内容和不需要卡点的项目不建立该记录。节拍点只为当前剪辑提供派生证据，不能覆盖声音档案中的采用条件，也不能成为网页、播放器或渲染器的第二套时间真源。把确认的切点换算为当前时间线整数帧后，仍须回放检查语义落点和真实听感。
+
 ## 三、继承、修改与晋升
 
 当前项目已有声音档案时先继承，再检查新的内容、说话人、平台响度和素材权利是否仍适用。新的 cue、混音规则或同步规则只在当前项目真实使用并完成听音后，才通过 `resource-promotion-candidates.json` 提升为系列档案；原始试听、未采用版本和修改聊天不进入系列配置。

@@ -1,0 +1,45 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "17d16d8da33e357394a41226f77135ce0d1f917806c7f36658cb1a749343006c",
+  "category": "ui-entrance",
+  "id": "cloner-depth-echo",
+  "intent": {
+    "duration": "4–5s",
+    "energy": "中（陈列-收束型）",
+    "purpose": "Spline/C4D Cloner 语汇的 UI 翻译：一张主卡\"啪\"地复印出 7 个克隆体 沿 Z 轴向后等距排开（间隔 120px、透明度 100%→20% 递减），错峰弹出 成纵队；停 ~25f 让观众数得清\"有很多个\"；然后全体 ease-in 加速吸回 本体合一，合体瞬间本体弹 1.08x 收束。与 depth-layer-moves 视差 （不同内容分层）分工：这是**同一内容**的等距重影阵列，语义是规模 不是空间。",
+    "semantic_tags": [
+      "ui-entrance"
+    ],
+    "use": "\"多副本/多租户/规模感/批量处理\"卖点；一镜讲完\"一个=很多\""
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "克隆体必须从后往前渲染保证遮挡正确；透明度 ≤0.005 条件卸载",
+    "同批 3D 渠道另两条（厚板转台淘汰、走廊改改再看）——纯陈列型 3D 运镜相性存疑，本卡过墙靠的是\"排开-吸回\"的叙事动作， 实战别退化成静态纵队陈列",
+    "声音：排开一串细\"啪\"错峰，吸回一声上扬 whoosh，合体一声实\"咚\""
+  ],
+  "name": "cloner-depth-echo",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/cloner-depth-echo.md",
+    "upstream_demo": "demos/ui-entrance/cloner-depth-echo/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "克隆纵队——主卡瞬间\"复印\"出 7 个半透明分身沿斜向纵深排开成队，停一拍后全体加速吸回本体合一+弹跳",
+      "id": "cloner-depth-echo",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "cloner-depth-echo",
+      "status": "reference-only",
+      "use": "\"多副本/多租户/规模感/批量处理\"卖点；一镜讲完\"一个=很多\""
+    }
+  ],
+  "version": 1
+}

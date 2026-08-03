@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "d611157c1f4a0b1267fc21efcf1d80c8333b3210634b8c560abe4e4e4f319458",
+  "category": "transition",
+  "id": "line-carry-transition",
+  "intent": {
+    "duration": "~5.3s（进度条走满 + 横移 60f + 围框 + 内容淡入 + 静止 36f）",
+    "energy": "中",
+    "purpose": "转场库三大族（穿越/藏切/体块）都在回答\"场景怎么换\"；本卡的回答是 **根本不换——一条线牵着你走过去**。进度条走满后末端延伸成长线冲出 卡缘，镜头跟着线横移 1920px 进入新世界，线在移动中拐直角围出 B 场景 的卡框，框闭合、内容淡入，从头到尾观众的眼睛没离开过这条线。图形 连续性本身就是转场。与 match-cut 的区别：那是切点两侧形状对位—— 终究还是切；这是连续绘制——**没有切**。线的身份要有叙事逻辑（进度条 \"走完了\"所以延伸出去），无来由的线只是装饰。",
+    "semantic_tags": [
+      "transition",
+      "camera"
+    ],
+    "use": "两个有图形亲缘的场景之间（进度条→卡框、下划线→图表轴）；一支片子的招牌转场位，Catch Me If You Can 片头的图形接力"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 draw-svg-trace 的关系：那是元素级描边点名（线属于元素），这是 场景级线条接力（线属于镜头）——同片可共存，但线的语义要一致： 同为 ink 6px 手绘感，或同为几何硬线，混用读作两套美术",
+    "全片 ≤1 次——这是招牌转场不是常规转场，第二次出现魔法就穿帮",
+    "起点必须是已有图形构件的自然延伸（进度条走满、下划线画完）， 凭空起线读作屏保",
+    "声音：线生长一声持续笔擦、框闭合一声轻叩（sound-design §4.5）"
+  ],
+  "name": "line-carry-transition",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/line-carry-transition.md",
+    "upstream_demo": "demos/transition/line-carry-transition/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "线条接力横移转场——场景 A 的进度条延伸出画，镜头跟线横移，线在移动中拐角围出场景 B 的卡框，全程无剪切",
+      "id": "line-carry-transition",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "line-carry-transition",
+      "status": "reference-only",
+      "use": "两个有图形亲缘的场景之间（进度条→卡框、下划线→图表轴）；一支片子的招牌转场位，Catch Me If You Can 片头的图形接力"
+    }
+  ],
+  "version": 1
+}

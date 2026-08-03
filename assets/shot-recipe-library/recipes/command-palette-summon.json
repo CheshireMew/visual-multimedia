@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "d5159acbeebf36cbe183ce3b78def57ec9d61fcf3672ca8676ad8a7ce6a51d87",
+  "category": "interaction",
+  "id": "command-palette-summon",
+  "intent": {
+    "duration": "4–5s",
+    "energy": "中（仪式感型，弹落帧与收窄是两个小打击点）",
+    "purpose": "Raycast/Linear 发布片的标志性仪式：一声轻响，整个 UI 世界压暗 让路，⌘K 面板从中心上方弹落，候选列表错峰浮现；敲两个字母， 列表实时收窄——\"你要的一切都在这个输入框里\"。模拟交互按真人 操作速度走（R3），收窄的\"挤压感\"来自行高塌缩而非淡出。",
+    "semantic_tags": [
+      "interaction",
+      "ui-entrance"
+    ],
+    "use": "效率型产品的\"全产品在一个输入框里\"叙事；命令面板/搜索/快捷键功能的标志性登场"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "输入节奏按真人打字速度（R3 判例），两键间隔 ≥12f",
+    "组合款见 theme-switch-moves B 式（面板收缩成点引发主题涟漪）",
+    "实战候选行放真实功能名——这是功能清单的天然展位（P4 映射）",
+    "声音：唤出一声轻响（非游戏音），按键 2 声键帽拟音， 高亮一声轻 pop（S1/S4 同源）"
+  ],
+  "name": "command-palette-summon",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/command-palette-summon.md",
+    "upstream_demo": "demos/interaction/command-palette-summon/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "命令面板降临——整屏压暗加模糊，⌘K 面板带过冲弹落，候选行错峰浮现，敲字列表实时收窄",
+      "id": "command-palette-summon",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "command-palette-summon",
+      "status": "reference-only",
+      "use": "效率型产品的\"全产品在一个输入框里\"叙事；命令面板/搜索/快捷键功能的标志性登场"
+    }
+  ],
+  "version": 1
+}

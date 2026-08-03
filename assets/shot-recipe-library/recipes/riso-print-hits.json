@@ -1,0 +1,60 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "be8cccb47dc86b02ef66e751e9f777ae23a08c09f47aaa6bec4898b1d981cda0",
+  "category": "effects",
+  "id": "riso-print-hits",
+  "intent": {
+    "duration": "A 4s（单发）；B 4.7s（四拍）",
+    "energy": "高",
+    "purpose": "RGB 色散故障闪（impact-feedback C 式的一部分）是荧光屏语言，与纸墨 调性相克。这两式给出印刷版平替：元素裂成浅灰/深墨两份单色印版 （multiply 油墨感而非 screen 荧光感），像 risograph 没对准版，抖几下 \"啪\"地套准——同样的冲击力，介质想象完全换成纸上油墨。A 是单发： 撞停瞬间裂版、震荡衰减、硬切套准，给一次命中盖章；B 是它的节奏化： 每个鼓点整画面跳大 8% + 标题裂版，错位逐拍加码，越打越狠—— 卡点段的视觉低音鼓。同技术根（衰减震荡的双版错位），单发/连打二选一。",
+    "semantic_tags": [
+      "effects",
+      "typography",
+      "rhythm"
+    ],
+    "use": "标题/卡片的命中强调，纸墨审美版的\"故障闪\"；A 单发高潮、B 节奏段连打"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "**错位幅度可感性判例（本批实渲）**：词汇表原案 ±5px 在 1920 宽画面 正常速度下肉眼几乎不可见——单版 16px/总分离 32px 起步才可感； 幅度存疑时做极端版给用户看（可感性优先）",
+    "两式与 impact-feedback C（负片冲击帧）语义重叠——纸墨调性片子用本卡、 游戏/动漫调性用 C 式，同片不并用（P4）",
+    "B 式是声音强依赖：命中帧必须钉鼓点（sound-design §4.5）；无音轨 段落读作画面抽搐",
+    "A 式错位方向一横一纵混合（x 为主 y 少量）更像没对准版；纯横向读作 左右晃动",
+    "B 式四拍后必须接足量 hold（≥24f）——连打完不还呼吸，观众的耳朵还 在等第五拍"
+  ],
+  "name": "riso-print-hits",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/riso-print-hits.md",
+    "upstream_demo": "demos/effects/riso-print-hits/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "标题 8f 撞入撞停，裂两版反向错 ~32px，44f 衰减震荡后硬切套准 + scale 脉冲",
+      "id": "misregistration-hit",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "misregistration-hit 单发",
+      "status": "reference-only",
+      "use": "全片 1-2 次的命中盖章；标题/大字的到位一瞬"
+    },
+    {
+      "description": "每 24f 一拍：整画面瞬跳 1.08 指数回落 + 标题错版逐拍 8/14/22/32px 加码套准",
+      "id": "beat-pump",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "beat-pump 节拍泵",
+      "status": "reference-only",
+      "use": "音乐卡点段；\"越打越狠\"的蓄力连打"
+    }
+  ],
+  "version": 1
+}

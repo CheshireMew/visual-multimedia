@@ -1,0 +1,58 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "22d2eef1ccc1330d2b8cab34c6f06918c994af1e47a7663c8b199989fc27bed8",
+  "category": "interaction",
+  "id": "collab-cursor-moves",
+  "intent": {
+    "duration": "A ~4.7s（140f）/ B ~4.7s（140f）",
+    "energy": "A 中（叙事密度高）/ B 低中（氛围层，可垫任何时长）",
+    "purpose": "库内光标一直是\"操作工具\"（input-trigger-moves 的 cursor-performance 是单光标点击表演）。本卡把带身份名牌的协作光标升格成**演员**： A 式两枚具名光标在纯暗场用位移编排讲\"设计-开发交接\"——没有一个 UI 元素，观众照样看懂了剧情，光标位置关系就是台词；B 式五枚光标错峰 入场后持续漂移当氛围粒子，\"团队在场\"感全靠它，其中一枚还能停下来 打字（cameo 戏份）。SVG 光标+名牌 chip 成本极低、叙事密度极高， 是\"协作\"主题最便宜的视觉论证。",
+    "semantic_tags": [
+      "interaction"
+    ],
+    "use": "协作/多人/交接主题的叙事段；A 撑起无 UI 的纯叙事拍，B 给画布场景铺\"团队在场\"体温"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "名牌颜色=身份编码，全片必须一致（蓝=Designer 就一直蓝）；中途换色观众会以为换了人",
+    "A 式是全片一段的\"戏\"，≤1 次（P4）；B 式是可全片驻场的氛围层，两式同片可共存但 A 的两枚主角要从 B 的群演里出（同名同色），否则读作两拨人",
+    "B 式漂移光标永远不许盖住正在阅读的主内容——氛围层要让戏，漂移范围避开主体安全区",
+    "与 input-trigger-moves 分工：那是光标\"操作 UI\"（点击有 payload），本卡光标\"表演给你看\"（位移即剧情）；光标要点东西时回那张卡",
+    "声音：A 绕位配轻 whoosh、交接一声柔和 chime、放大甩出一声重 whoosh；B 入场每枚一声极轻 pop，漂移段静，打字段 keyboard 轻声"
+  ],
+  "name": "collab-cursor-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/collab-cursor-moves.md",
+    "upstream_demo": "demos/interaction/collab-cursor-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "蓝/绿两枚具名光标：贝塞尔入场→相互靠近对话（脉冲呼吸）→上下弧线绕位交换→名牌一亮一暗灯光交接→绿光标 easeIn 放大数十倍成巨箭头当转场遮挡",
+      "id": "dialogue-duet",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "dialogue-duet",
+      "status": "reference-only",
+      "use": "双角色交接叙事（设计→开发、你→AI）；需要一段无 UI 的纯叙事呼吸拍"
+    },
+    {
+      "description": "5 枚具名彩色光标错峰 spring 飞入灰阶画布→双频正弦漂移驻场→一枚在便签上打字机补全一行→结尾全员 easeInOut 聚拢围观",
+      "id": "cast-ensemble",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "cast-ensemble",
+      "status": "reference-only",
+      "use": "画布/白板类产品全片氛围层；主内容之外需要\"别人也在\"的背景活性"
+    }
+  ],
+  "version": 1
+}

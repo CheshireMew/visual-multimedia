@@ -1,0 +1,58 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "e5f7a668ca228a767824ce7fe1849b747cfb7abb61a9588f380a9e377f277504",
+  "category": "effects",
+  "id": "icon-performance-moves",
+  "intent": {
+    "duration": "A 3–4s / B 4–5s",
+    "energy": "A 高潮点缀 / B 蓄势引入",
+    "purpose": "库内图标动画品类首批入库：icon 是镜头怼着拍的表演者，不是 UI 角落的 微交互。A 是确认时刻的三连爆——大对勾先缩 0.6x 蓄力 3f、弹 1.35x 过冲 落回，同帧中心射出 10 根短线粒子+一圈描边环从边缘扩到 2.5 倍直径淡出， \"部署成功\"不是画出来的是炸出来的；B 是 macOS Dock 语汇——app 图标 原地连跳 4 次一次比一次高（0.5→1.2 倍 icon 高），每次落地压扁 （宽 1.2x 高 0.8x）+溅尘点，跳最高那下镜头向它轻推 8%（被吸引）， 落定后弹开功能面板——把\"用户注意力\"剪进叙事。",
+    "semantic_tags": [
+      "effects",
+      "interaction"
+    ],
+    "use": "半屏级 icon 特写段落；A \"完成/成功\"的标点符号，B 新功能引出"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "同批 bell-swing-alert（铃铛甩摆）淘汰无附言——挂点摆动型 icon 表演相性存疑，做新 icon 表演优先弹跳/爆发型",
+    "A 与 particle-celebrate-hits 同属爆发点缀，同一段落二选一",
+    "B 首版曾出画框（末跳最高点顶出），弹跳高度与画面上留白先算像素",
+    "声音：A 蓄力静默→爆发帧\"pop\"+粒子细响；B 每次落地一声\"duk\" 音调递升，面板弹出一声轻\"叮\""
+  ],
+  "name": "icon-performance-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/icon-performance-moves.md",
+    "upstream_demo": "demos/effects/icon-performance-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "scale 蓄力-过冲-落回 spring + N 条径向 line translate + 圆环 scale/opacity，全程 ~20f，随后标签弹出",
+      "id": "pop-burst-confirm",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "pop-burst-confirm",
+      "status": "reference-only",
+      "use": "任务完成/部署成功/打勾时刻，卡点音效"
+    },
+    {
+      "description": "translateY 弹跳缓动递增 + 落地帧 scaleX/Y 挤压 + 尘点，峰值帧镜头 scale 1.08 推近，落定触发面板卡弹出",
+      "id": "attention-bounce",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "attention-bounce",
+      "status": "reference-only",
+      "use": "新功能引出：\"看我\"→镜头看它→它开面板"
+    }
+  ],
+  "version": 1
+}

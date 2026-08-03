@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "8cbdd7a3f62ed2f52806a567410222b74fe5f7c4d1723c08f8406031ed9188eb",
+  "category": "opening",
+  "id": "crane-rise-reveal",
+  "intent": {
+    "duration": "5s（特写 hold 20f + 拉升 100f + 满幅静止 30f）",
+    "energy": "中高（持续单向运动，无冲击拍）",
+    "purpose": "开场定场库内已有 drone-dive-landing——从上帝视角砸进 hero 特写， \"全局→焦点\"。本卡是它的镜像：\"焦点→全局\"——先怼在一行真实数据上 让观众看清\"这是什么\"，再升降臂式拉升后退，一排排内容涌入画面， 最后整面产品铺满——\"你看到的这一行，只是这一面墙的一格\"。 适合以产品体量/内容丰富度为卖点的开场；两卡同片只用一个方向。",
+    "semantic_tags": [
+      "opening",
+      "camera",
+      "data"
+    ],
+    "use": "\"从细节到全局\"的开场定场；与 drone-dive-landing（全局→单点俯冲）互为反向"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "起点特写 = 一行内容被放大 3.2 倍盯着看，真实素材先过 审美准则 Q2 的高分辨率栅格化技法，低倍截图开场即糊",
+    "快速拉升段可包 CameraMotionBlur（参数见 deck-deal-flyin 运动模糊行）， 但只包前半程快速段——临顶慢速段包了会抹软文字（轮 #8 判例）",
+    "与 drone-dive-landing 同片不并用（一升一降互为镜像，观众读作同一招）； 与 crane 语义最近的 tilt-reveal 未入库，别混称"
+  ],
+  "name": "crane-rise-reveal",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/opening/crane-rise-reveal.md",
+    "upstream_demo": "demos/opening/crane-rise-reveal/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "升降臂拉升揭示——开场怼在一行数据特写，相机沿 Y 轴减速升起后拉，行行涌入直到整面 dashboard 铺满全幅",
+      "id": "crane-rise-reveal",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "crane-rise-reveal",
+      "status": "reference-only",
+      "use": "\"从细节到全局\"的开场定场；与 drone-dive-landing（全局→单点俯冲）互为反向"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,25 @@
+{
+  "protocol": "visual-multimedia-shot-recipe-library",
+  "version": 1,
+  "library_version": "1.0.0",
+  "name": "Visual Multimedia 镜头配方库",
+  "default_locale": "zh-CN",
+  "sources": [
+    {
+      "id": "visual-multimedia",
+      "name": "Visual Multimedia",
+      "license": "Repository license",
+      "copyright": "Visual Multimedia contributors",
+      "source_reference": "assets/web-media-starter/",
+      "adaptation": "目标原生配方使用 editable-media v5 完整网页包和现有唯一时间边界。"
+    },
+    {
+      "id": "video-shotcraft",
+      "name": "video-shotcraft",
+      "license": "Apache-2.0 for repository-authored recipe text; third-party media and code are excluded",
+      "copyright": "video-shotcraft contributors",
+      "source_reference": "https://github.com/vincentwei1021/video-shotcraft",
+      "adaptation": "只迁入镜头意图、用途、能量、时长、变体说明和已知坑；不复制 Remotion、截图、音频或 Gallery MP4。迁入条目在目标实现通过前保持 reference-only。"
+    }
+  ]
+}

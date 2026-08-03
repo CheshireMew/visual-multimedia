@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "59f496e491c993d5b011393c77427b00056c75d0202a6e12e1d3984fe1c46484",
+  "category": "ui-entrance",
+  "id": "list-stack-press",
+  "intent": {
+    "duration": "约 3s（18–88f）",
+    "energy": "中",
+    "purpose": "\"堆叠有重量\"：每张新卡落上来，已落定的整摞被压下再弹回——观众从物理反馈里读出\"这是实打实攒下来的东西\"。计数器同步跳格把数量感钉死。",
+    "semantic_tags": [
+      "ui-entrance"
+    ],
+    "use": "feed/雷达/收件箱类\"每天有新东西\"的镜头；强调持续积累的资产列表"
+  },
+  "known_pitfalls": [
+    "堆叠/列表信息镜头必须正视（Q6）——全片倾斜化时本镜头曾被单独回滚回正视；风格化机位逐镜头验证，不全局套用",
+    "逐卡 glint 高亮扫过被否两次（Q4），高亮用静态强调色底色条即可，动感交给压弹",
+    "与 history-list-stack（document-typewriter-reveal 卡尾段）是同一动作词汇——全片同一手法只当一次主角（P4），两处并用时一处必须降为配角",
+    "anticipation/拖拽层级参数借鉴自迪士尼 12 法则（pixel2motion skill 内置提炼版），非用户判例——是默认建议不是令；与判例冲突时判例优先",
+    "预备动作幅度必须过肉眼阈值（deck-deal 判例 2026-07-09：小幅度用户完全无感，放大 12 倍才通过）——渲染后自查\"不逐帧能否看出蓄力\""
+  ],
+  "name": "list-stack-press",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/list-stack-press.md",
+    "upstream_demo": "template/src/aifl/live/ScenePapers.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "列表卡从画面底部逐张飞上摞起，每张落地压弹整摞、计数器同步跳一格",
+      "id": "list-stack-press",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "list-stack-press",
+      "status": "reference-only",
+      "use": "feed/雷达/收件箱类\"每天有新东西\"的镜头；强调持续积累的资产列表"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "917205ccd60395df5b078ae7eb9b7532a72fb45edcfebb443303890662fd4612",
+  "category": "typography",
+  "id": "gradient-word-sweep",
+  "intent": {
+    "duration": "扫充 ~15–20f（要快）+ 稳态闪电呼吸 1–2s；全段 2.5–3.5s",
+    "energy": "高（一词爆点，前后都该让位）",
+    "purpose": "整句白字里只有关键词被\"通电\"：渐变彩光从左到右快速扫过字符， 像能量注入——扫过的瞬间最亮（波前尾迹），随后衰减到稳态； 填满后字符之间跳起勾连的细闪电，词保持泛光呼吸。三个命门： **快**（扫充 15–20f，慢了读作进度条）、**波前最亮**（刚点亮的 字符效果最强，没有这个梯度就是静态渐变裁切）、**辉光克制** （AE 式多层泛光但别糊成一团，闪电细而稀疏才是点缀）。",
+    "semantic_tags": [
+      "typography",
+      "effects"
+    ],
+    "use": "标语里给单个动词/卖点词充能（Supercharged/faster/AI…）；能量高潮段的文字戏；黑场品牌片的口号帧"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "判例三条（用户逐字意见沉淀）：①填充过程禁跟随光点；②闪电 必须紫红+细；③泛光宁弱勿强，波前梯度补足冲击力",
+    "与 type-rhythm-sync/cel-flash-stomp 分工：那些是节拍/砸字； 本卡是单词\"充能\"的能量语义，词必须是句中卖点词",
+    "关键词外的正文保持纯白静止——全句都动就没有\"只有它通电\"的戏"
+  ],
+  "name": "gradient-word-sweep",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/typography/gradient-word-sweep.md",
+    "upstream_demo": "demos/typography/gradient-word-sweep/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "黑底标语里关键词被渐变彩光从左到右快速扫过\"充能\"——波前字符辉光最强向后衰减，填满后字符间勾连细紫红闪电、整词稳态泛光呼吸",
+      "id": "gradient-word-sweep",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "gradient-word-sweep",
+      "status": "reference-only",
+      "use": "标语里给单个动词/卖点词充能（Supercharged/faster/AI…）；能量高潮段的文字戏；黑场品牌片的口号帧"
+    }
+  ],
+  "version": 1
+}

@@ -1,15 +1,24 @@
 {
-  "protocol": "visual-multimedia-video-production-profile-catalog",
-  "version": 1,
   "profiles": [
     {
       "id": "interview-explainer",
       "name": "采访原声讲解型视频",
-      "version": "1.4.0",
-      "status": "active",
       "package": "interview-explainer/1.4.0/profile.json",
-      "package_sha256": "530bc57025986da42a4bd23bd173d07afbfe50ec35c8c8de11845c386735a785",
-      "public_entry": "scripts/interview-explainer.mjs"
+      "package_sha256": "c60595f0651a9777b5f1e392989dfc6feeb3b90de762f07d29fb3097d69e9d88",
+      "public_entry": "scripts/interview-explainer.mjs",
+      "status": "active",
+      "version": "1.4.0"
+    },
+    {
+      "id": "product-promo",
+      "name": "产品功能宣传片",
+      "package": "product-promo/1.0.0/profile.json",
+      "package_sha256": "93efe1c1c6382105ae82c26e622de9946244108e1829badb2b2f83d4aee0dbb7",
+      "public_entry": "scripts/product-promo.mjs",
+      "status": "active",
+      "version": "1.0.0"
     }
-  ]
+  ],
+  "protocol": "visual-multimedia-video-production-profile-catalog",
+  "version": 1
 }

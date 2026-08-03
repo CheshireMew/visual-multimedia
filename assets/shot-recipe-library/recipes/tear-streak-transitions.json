@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "a22d31ad5a49840a802648f000f07614d1b7f1e6eed33d06ee106eef72bbb05b",
+  "category": "transition",
+  "id": "tear-streak-transitions",
+  "intent": {
+    "duration": "前态 ≥40f + 撕裂 17–24f + 收尾 ≥40f，约 4.5s（135–140f）",
+    "energy": "高",
+    "purpose": "本卡管**条带级撕裂**——页面被切成横条高速运动，但每条内容完整。 这是反复裁决划出的品味分界：碎块系转场三连否（doom-melt 竖条坠落、 pixel-dissolve 方块翻黑、facade-block 砖块翻飞全部淘汰），条带系过关。碎块读作\"页面被破坏\"，条带读作\"页面在高速 运动\"——完整性不破、能量却拉满。横向撕：条带左右错位抖动 + 明暗重影，数字故障的灰阶降维（RGB split 改明暗双重影）。 适用系统故障/瞬间跳变语义。",
+    "semantic_tags": [
+      "transition",
+      "effects"
+    ],
+    "use": "高能换页：数字故障/断裂语义；页面完整性不破、能量拉满的条带级撕裂"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "**条带不碎块**——后续同类手法一律做条带：横条各自完整， 绝不裂成方块/砖块/独立坠落物（三连否判例，见意图）",
+    "高能转场，与 whip-pan/crash 系同片注意能量预算—— 高能转场挤在一起互相稀释",
+    "硬切藏在抖动衰减中（58f 切、62f 归位）——切点暴露在静止帧上 就失去了 glitch 的掩护"
+  ],
+  "name": "tear-streak-transitions",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/tear-streak-transitions.md",
+    "upstream_demo": "demos/transition/tear-streak-transitions/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "撕裂转场——glitch-displace 噪声撕裂（16 横条错位抖动中硬切），数字故障语义的条带级撕裂",
+      "id": "glitch-displace",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "glitch-displace",
+      "status": "reference-only",
+      "use": "故障/断裂语义；高潮前的暴力换页"
+    }
+  ],
+  "version": 1
+}

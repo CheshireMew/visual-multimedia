@@ -1,0 +1,49 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "9ca0ff69aa1cc5b0a29deaf1857f7c38db6c8ef88bd0484b092c8f004b9eb58b",
+  "category": "opening",
+  "id": "dataviz-landscape-open",
+  "intent": {
+    "duration": "5–8s（开场氛围段，一支片 ≤1 次）",
+    "energy": "低开缓升（起步位，为后续爬升留空间）",
+    "purpose": "Linear Releases 发布片开场实证的品牌级开场品类：把产品背后的数据世界 拍成一片**暗场地景**——支流线束从画面深处汇入一条主干（\"无数工作流 汇成一个产品\"的隐喻），真实感来自三样东西：①虚构 issue/任务 ID 标签 浮在线上（观众认出\"这是我每天看到的那种东西\"）；②重景深——近景大虚焦 流过、中景标签清晰可读、远景渐隐，三层纵深让平面 SVG 读作空间； ③相机低速匀稳飞越——这是氛围段不是炫技段，速度感交给后面的镜头。 手搓 UI 合规依据：非复刻场景（页面上不存在此画面），按核心理念 1 修订版走质量+表达明确性门槛。",
+    "semantic_tags": [
+      "opening",
+      "data",
+      "camera"
+    ],
+    "use": "品牌级抽象开场（\"数据宇宙\"隐喻），接亮场产品段或字标；与 glow-flyline-moves 分工：那卡是段落内卡片之间的连线叙事，本卡是开场专用的全画幅地景"
+  },
+  "known_pitfalls": [
+    "借鉴来源：Linear Releases 开场（进化轮 #3 breakdown #7），单例样本 ——参数给区间不给教条，首次实战以真实素材回验",
+    "与 glow-flyline-moves 别混用在相邻段落：两卡都是\"暗场发光线\"， 背靠背出现读作全片只会一招；同片都要用时中间隔 ≥2 个亮场镜头",
+    "暗场进出成本同 glow 卡：接亮场产品段用 shot-transitions 藏切族垫， 别生切明暗",
+    "线条纯白全亮会糊成蛛网——亮度按层拉开（见参数表），中景才是主角层； 主干/支流给 1–2px 微辉光（soft glow）压出\"发光线\"氛围，全无辉光读作线框图（Q4 单点光效许可内）",
+    "标签字号在目标画幅下 ≥18px 等效，否则\"可读\"沦为装饰噪点（Q6 同源）",
+    "声音：铺 riser/低频 pad 底噪，标签浮现不逐枚打点（批量不逐个发声， S2 同源）；交棒帧一次 whoosh/impact 交给下一镜头"
+  ],
+  "name": "dataviz-landscape-open",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/opening/dataviz-landscape-open.md",
+    "upstream_demo": "demos/opening/dataviz-landscape-open/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "暗场支流线束地景开场——多条流线汇入主干、虚构 ID 标签浮在线上、相机重景深低速飞越",
+      "id": "dataviz-landscape-open",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "dataviz-landscape-open",
+      "status": "reference-only",
+      "use": "品牌级抽象开场（\"数据宇宙\"隐喻），接亮场产品段或字标；与 glow-flyline-moves 分工：那卡是段落内卡片之间的连线叙事，本卡是开场专用的全画幅地景"
+    }
+  ],
+  "version": 1
+}

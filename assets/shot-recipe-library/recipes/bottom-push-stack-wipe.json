@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "ff0c070f2a604fe6d2151105a7548036a1e3677c23500827173d20dbc9ccd6fe",
+  "category": "transition",
+  "id": "bottom-push-stack-wipe",
+  "intent": {
+    "duration": "单次推入 30f + 章内 hold ~1s；demo 三连推 140f（~4.7s）",
+    "energy": "中",
+    "purpose": "wipe-transitions 是一条边界扫过、新旧页都不动；page-turn 是立方体 翻转。本卡是第三种物性：**新章把旧章顶出去**——两屏刚性接触、同速 同向位移，像自动售货机压栈。命门是\"连底色整屏走\"：底色+窗口卡+装饰 条焊成一块整料从底边推入，观众读到\"换了个世界\"而不是\"换了张卡\"。 重 ease-out（快进慢停）给推入一个\"哐\"的落位感；上缘 40px 接缝阴影 是两屏物理接触的证据。连推三章且底色饱和度拉满，换章本身就成了全片 的节拍器——slack 原片全片就靠这一招做骨架。",
+    "semantic_tags": [
+      "transition"
+    ],
+    "use": "多章节产品片的换章骨架（每章一个卖点一种底色）；需要\"翻页节奏感\"贯穿全片的段落切换"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 wipe-transitions 分工：那卡新旧页都不动、一条几何边界扫过交接 （中性、哪儿都能用）；本卡两页都在动、刚性顶出（有物性、自带章节 节奏）——单次接缝用那卡，全片骨架用本卡",
+    "与 shot-transitions 六式同层选型：本卡能量中档、方向固定向上， 需要能量落差大的接缝（如进 outro）让位给流白/黑场",
+    "方向统一是骨架感的来源：全片所有章都从底边推，中途换成左推/顶推 节拍器就散了——要变方向就别当骨架用",
+    "推入进行中两章同屏，都是满屏层——章内动画（卡片入场等）避开推入 的 30f 窗口，不然两章都在动，视线没有锚点",
+    "实战底色用品牌色板的饱和档；底色饱和度不足时窗口卡\"钉在色底上\" 的从属关系读不出来，会退化成\"卡片各自换背景\""
+  ],
+  "name": "bottom-push-stack-wipe",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/bottom-push-stack-wipe.md",
+    "upstream_demo": "demos/transition/bottom-push-stack-wipe/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "底边上推换章——新场景连底色整屏从底边向上推入，把旧场景物理顶出画外，连推数章各配一种饱和底色，内容钉死在各自色底坐标系里随底色走",
+      "id": "bottom-push-stack-wipe",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "bottom-push-stack-wipe",
+      "status": "reference-only",
+      "use": "多章节产品片的换章骨架（每章一个卖点一种底色）；需要\"翻页节奏感\"贯穿全片的段落切换"
+    }
+  ],
+  "version": 1
+}

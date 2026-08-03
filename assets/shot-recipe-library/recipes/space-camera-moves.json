@@ -1,0 +1,56 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "ae228d5bb649001a00e5cbbfbb8df70b3ed1539e31c26f027b1fb6fcb9feb8c5",
+  "category": "camera",
+  "id": "space-camera-moves",
+  "intent": {
+    "duration": "A 5s（炸开-悬停-合体全程）；C 3–5s 单向俯冲",
+    "energy": "高",
+    "purpose": "depth-layer 卡是给平移加纵深——层在动、页面还是页面。这两式更进一步： 整页被当成一个 3D 实体，相机（或世界）绕着它做实拍级机动。两式叙事 语义各占一格：A 说\"看看它由什么组成\"（拆解展示，Apple 发布片语言）； C 说\"从全局俯瞰砸到主角\"（上帝视角一头扎进 hero 特写，全景→焦点）。",
+    "semantic_tags": [
+      "camera"
+    ],
+    "use": "把平面页面当 3D 实体拍的高光段落；两式都是\"大动作\"，一支片合计 ≤2 次"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "两式都吃真实截图分层/高清纹理：A 需页面按构件切块截图（顶栏/侧栏/ 卡各自独立成图，整页一张图炸不开）；C 终点是特写，素材先按 审美准则 Q2 的高分辨率栅格化技法处理",
+    "C 式易错：Remotion 无 Easing.quint，写 Easing.poly(5)（本批实渲踩坑）",
+    "A 式构件布局要绝对定位复刻原页面网格（demo 里 8 层复刻 FakeDashboard A），流式布局做不了 per-构件 translateZ"
+  ],
+  "name": "space-camera-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/camera/space-camera-moves.md",
+    "upstream_demo": "demos/camera/space-camera-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "整页 3D 倾斜后构件沿 Z 轴错峰炸开悬停，一拍后逆序合体震屏收口",
+      "id": "exploded-view",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "exploded-view",
+      "status": "reference-only",
+      "use": "架构/组成展示：\"这个产品里有什么\"；模块总览段"
+    },
+    {
+      "description": "近垂直俯角悬停 → 猛扎俯冲 → 气垫减速停在 hero 卡特写",
+      "id": "drone-dive-landing",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "drone-dive-landing",
+      "status": "reference-only",
+      "use": "开场定场→入题；全局地图砸进单点的章节启动"
+    }
+  ],
+  "version": 1
+}

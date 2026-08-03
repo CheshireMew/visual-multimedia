@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "6a7f0866f58f6764821ce20286f710641a90517f5fcfd040b104afaabe5b1b78",
+  "category": "typography",
+  "id": "word-relay-filmstrip",
+  "intent": {
+    "duration": "每词期 ~1.5–2s × 3–4 词；全段 5–7s",
+    "energy": "中低（编辑部气质，节奏靠切词的\"咔哒\"感）",
+    "purpose": "左边是证据（页面截图胶片），右边是论点（大词）：动词换一次， 胶片就步进一格给出新证据——文字与画面互为注脚。命门是**步进制**： 左列平时完全静止，只在切词瞬间滚动一格（滚动=换证据的机械动作）， 持续滚动会让左列沦为背景装饰、切词失去\"咔哒\"感。第二命门是 **对齐**：大词块垂直中心必须与当前页面卡中点精确对齐（像素级）， 歪了整个版式的\"编辑部严谨感\"就塌了。",
+    "semantic_tags": [
+      "typography",
+      "ui-entrance"
+    ],
+    "use": "\"一个主体 × 多种能力\"的枚举段（Computer researches/builds/codes…）；作品集/案例流展示；产品多场景巡礼"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 text-column-converge 分工：那张是左右对峙合拢的揭晓戏； 本卡是纵向证据流+原位接力，无合拢无揭晓",
+    "与 pill-slot-cycle 分工：那张是胶囊槽位轮换 UI 元素； 本卡是版式级的图文对位系统",
+    "实战素材：页面卡应使用真实截图（demo 为灰条示意，残余差距 已知）；截图亮度要人工分档保证相间可读"
+  ],
+  "name": "word-relay-filmstrip",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/typography/word-relay-filmstrip.md",
+    "upstream_demo": "demos/typography/word-relay-filmstrip/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "左列黑白相间等高页面卡步进滚动、右侧衬线大词原位接力（名词恒定+动词轮换）——切词瞬间才滚动一格，词块垂直中心与当前页面卡中点精确对齐",
+      "id": "word-relay-filmstrip",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "word-relay-filmstrip",
+      "status": "reference-only",
+      "use": "\"一个主体 × 多种能力\"的枚举段（Computer researches/builds/codes…）；作品集/案例流展示；产品多场景巡礼"
+    }
+  ],
+  "version": 1
+}

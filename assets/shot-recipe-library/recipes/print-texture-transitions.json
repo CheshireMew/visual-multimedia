@@ -1,0 +1,45 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "6921f41224b7a9d80dbd64474724b11667eb6b0cd2d9fbcb8ece2b4a9e4cd787",
+  "category": "transition",
+  "id": "print-texture-transitions",
+  "intent": {
+    "duration": "4–4.5s（洇开段 55–80f + 静止收尾 ≥30f）",
+    "energy": "中（渐进显形，无冲击拍）",
+    "purpose": "转场语言已有交棒（shot-transitions 六式）和穿越（transition-travel） ，都是空间/光学隐喻。本式开第三族：**介质隐喻**——新画面不是\"到来\" 而是\"印染\"出来的，直接调用库内纸墨审美的物理想象：像一滴墨落在 宣纸上洇开吃掉旧景，有机、书写感。天然亲和 paper/ink 调性的片子， 是 light-leak-burn（强调色漏光）之外的另一个\"介质系\"接缝选择。",
+    "semantic_tags": [
+      "transition"
+    ],
+    "use": "换景接缝的纸墨审美款；与交棒六式/穿越三式并列的第三族——\"介质显影\"型转场"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "一缝一式规矩同 shot-transitions：介质转场不与白闪/震屏叠加； 本式与 light-leak-burn 介质系同片合计 ≤2 次，多了片子读作印刷厂宣传",
+    "洇开中段旧景内容会透过噪声孔洞碎片式短暂露出——读作墨渍肌理 属可接受有机效果，但旧景若是人脸/logo 等高辨识元素会读作故障，避开",
+    "慢转场（55–80f 动作段），高节奏连打段落别用——那里去 E 式甩镜"
+  ],
+  "name": "print-texture-transitions",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/print-texture-transitions.md",
+    "upstream_demo": "demos/transition/print-texture-transitions/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "印刷质感转场——ink-bleed-reveal 墨渗揭示（须状渗边洇开吃掉旧景）",
+      "id": "ink-bleed-reveal",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "ink-bleed-reveal 墨渗揭示",
+      "status": "reference-only",
+      "use": "旧景→新景替换；书写感、叙事调性"
+    }
+  ],
+  "version": 1
+}

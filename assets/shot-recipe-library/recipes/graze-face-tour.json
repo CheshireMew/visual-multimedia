@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "dc4d912c2de380e0e45704d755b142fcdcc74fb50c4acd26b6fe8eb60d730cd1",
+  "category": "camera",
+  "id": "graze-face-tour",
+  "intent": {
+    "duration": "单段 4–5s；可多段接力延长",
+    "energy": "中高（运镜持续推进+元素连续落位，信息密度高）",
+    "purpose": "把 UI 拍成地形：大倾角特写让侧栏树、导航、列表行变成掠过的地貌， 浅景深强化\"贴面\"。戏眼是**文字空中贴落**：文字/组件不是原地淡入， 而是悬浮在界面上空（3D z 轴抬高），在空中时往界面投同形软影， 随镜头行进先后加速贴落、影子随高度收敛消失——观众看见界面在 镜头经过时\"完成自己\"。影子是可感命门：没有影子，悬浮读作 普通位移入场；有影子，空间关系瞬间成立。",
+    "semantic_tags": [
+      "camera",
+      "ui-entrance"
+    ],
+    "use": "功能区巡礼（把 UI 当地景飞掠）；配合暗场+霓虹缘光做产品\"内部世界\"段落；界面内容逐区登场"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "悬空元素别被环境压黑带吞掉（邻候选 runway 判例）：空中元素 需追光/提亮 ~1.3x，否则悬浮状态不可感等于没做",
+    "与 space-camera-moves/tension-camera-moves 分工：那两张是相机 语言本身；本卡=贴面机位 **+ 元素贴落** 的组合签名，缺一半就 改用相机卡",
+    "**贴落节奏语义判例**（与 neon-frame-orbit-drop 互为反例）： 本卡巡礼镜=错峰并行；整体登场镜必须全体同帧齐落（那张卡的 错峰版被裁）。选错语法两边都会被裁",
+    "原片（clickup-30）是一条连续上行长镜；复刻用三段接力，段落 切换藏在交叉淡化里——实战若做真单长镜，路径规划成本高得多"
+  ],
+  "name": "graze-face-tour",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/camera/graze-face-tour.md",
+    "upstream_demo": "demos/camera/graze-face-tour/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "大倾角贴面游走特写——镜头贴着 UI 表面低飞掠过（侧栏树/顶栏/列表当地形），页面文字初始悬浮在界面上空带同形软影，随镜头行进先后加速贴落回界面",
+      "id": "graze-face-tour",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "graze-face-tour",
+      "status": "reference-only",
+      "use": "功能区巡礼（把 UI 当地景飞掠）；配合暗场+霓虹缘光做产品\"内部世界\"段落；界面内容逐区登场"
+    }
+  ],
+  "version": 1
+}

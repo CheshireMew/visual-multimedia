@@ -1,0 +1,69 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "af73a3a696c51effcce68c4a26ab395599b5c8c0dad2fb025fe042d7597807d8",
+  "category": "data",
+  "id": "chart-live-moves",
+  "intent": {
+    "duration": "各 4–6s",
+    "energy": "中高（数据即剧情）",
+    "purpose": "图表不是插图是剧情。三式共同前提（实测判例）：**必须真图表语境** ——真轴标/真数据/真文案，灰阶占位条测不出数据叙事的表达力。 A 示波流线：曲线写入点钉在右端上下起伏，旧数据左流出画，中途一次 突发尖峰（振幅 2.2×、读数跳大变强调色）——\"实时\"不用说出口，还有事件； B 点阵重组：320 个点（每点≈40 customers）散布→聚三簇（浮 Free/Pro/ Enterprise 真标签）→列队成柱（真轴标）→聚成点阵大数字 \"12,847\"—— 同一批点，观众能跟着某一颗看它归队； C 轴爆表：折线正常爬升，新值顶破图表上沿冲出卡片 220px（强调色粗线 插进标题区），停半拍，y 轴\"哗\"地重标（旧刻度飞出/新刻度滑入/网格 加密/旧线压扁成地平线），新值落回+弹真值标签——用\"坐标轴装不下\"演增长。",
+    "semantic_tags": [
+      "data"
+    ],
+    "use": "数据叙事段落；分别讲\"实时性\"、\"每个数字是一个人\"、\"增长装不下\""
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "三式是三种独立手法不是套餐——同片用两式以上时各 ≤1 次且错开段落",
+    "A 的尖峰事件、C 的重标只能发生一次；重复即廉价",
+    "B 终幕数字位图字形要预先手算（点数=位点数用满才整齐）",
+    "与 dataviz-landscape-open（抽象数据地景开场）分工：那是开场氛围， 这三式是段落内的具体数据论证",
+    "声音：A 尖峰一声警示 tick；B 每幕迁徙一声 whoosh；C 冲出框 一声 riser、重标一声\"哗啦\""
+  ],
+  "name": "chart-live-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/data/chart-live-moves.md",
+    "upstream_demo": "demos/data/chart-live-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "采样窗平移 8px/f + 余弦包络尖峰 + 刹停真静止",
+      "id": "oscilloscope-stream",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "oscilloscope-stream",
+      "status": "reference-only",
+      "use": "监控/实时类产品：\"活着\"的系统"
+    },
+    {
+      "description": "三幕 spring 错峰迁徙（stiffness 150、错峰 8f），终幕点阵拼数字",
+      "id": "unit-dot-swarm-regroup",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "unit-dot-swarm-regroup",
+      "status": "reference-only",
+      "use": "用户量/构成叙事：\"每个点是一个人\""
+    },
+    {
+      "description": "冲出框 220px + 重标三联动（刻度换/网格密/旧线压扁）+ 震 8px",
+      "id": "axis-rescale-shock",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "axis-rescale-shock",
+      "status": "reference-only",
+      "use": "增长曲线高光：\"off the charts\" 字面化"
+    }
+  ],
+  "version": 1
+}

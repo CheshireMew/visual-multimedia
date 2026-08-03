@@ -1,0 +1,45 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "4e3fdf9ebce904e4a5c45ae2611dd02f40278591fa17186a733914e0665ec052",
+  "category": "typography",
+  "id": "paper-title-card",
+  "intent": {
+    "duration": "1.7–1.8s（50–55f）",
+    "energy": "低（呼吸位，隔开两段高能镜头）",
+    "purpose": "在两段产品画面之间给观众一句话的喘息：说清\"接下来看什么、它值什么\"。letterpress 压印质感让字卡与纸墨风格的产品画面同属一个世界。",
+    "semantic_tags": [
+      "typography",
+      "transition",
+      "rhythm"
+    ],
+    "use": "章节转场/价值主张字卡；重要功能出场前的引导卡；全片呼吸位"
+  },
+  "known_pitfalls": [
+    "文案要具体：带产品功能名+具体收益，抽象隐喻词被用户逐字改掉（C2——\"one board\"→\"one place to go\"、加 \"Paper Radar\"）；文案在画面锁定后按最终镜头重写一遍（C1）",
+    "重要功能出场前要有引导字卡（C2 判例：文档镜头前应加一句引导，如 \"Every project, linked to your weekly report\"）——字卡不是装饰，是章节路标"
+  ],
+  "name": "paper-title-card",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/typography/paper-title-card.md",
+    "upstream_demo": "template/src/aifl/PaperTitleCard.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "一句话逐词压印上纸、一个词标强调色斜体、短划线收束",
+      "id": "paper-title-card",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "paper-title-card",
+      "status": "reference-only",
+      "use": "章节转场/价值主张字卡；重要功能出场前的引导卡；全片呼吸位"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,43 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "7e4fc9d8b930e86cdafb44b46e1ecbb3b13505c6b34c9bf313860f680d9760e4",
+  "category": "interaction",
+  "id": "type-and-filter",
+  "intent": {
+    "duration": "约 2.5s（118–190f）",
+    "energy": "中（发牌高能段之后的从容一拍）",
+    "purpose": "让观众\"跟着做一遍\"：看清输入了什么、页面怎么响应、点了哪里。这是全片唯一模拟真人操作的镜头，节奏必须像人手，不能像脚本。",
+    "semantic_tags": [
+      "interaction"
+    ],
+    "use": "功能演示的\"操作叙事\"段；搜索/筛选/进入详情的任何交互链路"
+  },
+  "known_pitfalls": [
+    "初版打字+过滤\"太快了\"被返工（R3）——交互镜头的第一版几乎总是偏快，起稿就按 3f/字符",
+    "过滤后目标卡若不归位到真实槽位、悬浮在网格上方，读作假（Q9，曾因此近乎整文件重写）"
+  ],
+  "name": "type-and-filter",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/type-and-filter.md",
+    "upstream_demo": "template/src/aifl/live/SceneFlyIn.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "真实 UI 上打字搜索、网格自己收敛成一张卡、点击穿透进详情页",
+      "id": "type-and-filter",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "type-and-filter",
+      "status": "reference-only",
+      "use": "功能演示的\"操作叙事\"段；搜索/筛选/进入详情的任何交互链路"
+    }
+  ],
+  "version": 1
+}

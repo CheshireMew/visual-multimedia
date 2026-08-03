@@ -1,0 +1,58 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "5c98d126f1ce1d483cac046bd7539ad10c082d1d60e7d281ffb16eb44e507fe7",
+  "category": "effects",
+  "id": "fui-hud-moves",
+  "intent": {
+    "duration": "A 3–4s（含退场）/ B 2–3s",
+    "energy": "A 中 / B 中高（咬合帧是打击点）",
+    "purpose": "科幻虚构界面（Jarvis/Territory）的两个可中性化母题。A 是面板的 仪式感开关机：1px 细线极快抽出→纵向撑开成面板→内容淡入，退场反向 压线缩点熄灭（老 CRT 关机）；灰阶细线即成立，不需要科技蓝。 B 是运动中的捕获：四个 L 形角标从画外冲入、超调回弹、\"咔\"地咬合 到目标元素四角+弹标签——与 freeze-annotate 分工：那卡冻结画面标注， 本卡在流动中点名。",
+    "semantic_tags": [
+      "effects",
+      "ui-entrance"
+    ],
+    "use": "暗场/科技感段落的面板入退场用 A；任何\"看这里\"的目标点名用 B（替代箭头圈红，画面不冻结）"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "Remotion 无 `Easing.quart`——用 `Easing.poly(4)`（demo 实测报 \"easing is not a function\" 判例）",
+    "B 一支片 ≤2 次：连用读作军事模板；两次锁定目标必须不同",
+    "A 与 glow-flyline 同属暗场词汇，相邻段落别背靠背堆光效（Q4 同源）",
+    "声音：A 抽线一声短 whoosh、撑开一声轻 pop；B 咬合帧一声\"咔\" （机械 click 而非游戏 UI 音，S1 边界内）"
+  ],
+  "name": "fui-hud-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/fui-hud-moves.md",
+    "upstream_demo": "demos/effects/fui-hud-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "scaleX 0→1（out poly4 急抽 5f）接 scaleY 3px→满高（out cubic 9f），内容提前一拍淡入；退场镜像反序",
+      "id": "line-unfold-panel",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "line-unfold-panel",
+      "status": "reference-only",
+      "use": "暗场面板入退场；开关机仪式感"
+    },
+    {
+      "description": "四 L 角=同一对矩形四份镜像，飞入（10f out cubic）与收缩（2.2×→0.94×→1 超调回弹）解耦；咬合帧目标微亮+标签 back 弹出",
+      "id": "reticle-lock-on",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "reticle-lock-on",
+      "status": "reference-only",
+      "use": "目标点名；踩音效重拍"
+    }
+  ],
+  "version": 1
+}

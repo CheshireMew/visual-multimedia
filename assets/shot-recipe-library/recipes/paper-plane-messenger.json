@@ -1,0 +1,48 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "e6591308c562377f73f4b2a986d61413f922e9df34a199b9de9471edecf93297",
+  "category": "transition",
+  "id": "paper-plane-messenger",
+  "intent": {
+    "duration": "~5s（150f：点击 12f → 拉远 16–42f → 飞行 34–104f → B 接管 112–146f）",
+    "energy": "中",
+    "purpose": "transition-travel 是镜头钻进画面里的既有元素换景；本卡反过来——从 动作里**放出一个语义信使**，让镜头跟着它飞去下一个场景。\"发送\"这个 抽象动作被实体化成折纸飞机，A/B 两窗的空间关系被飞行轨迹真实丈量 过，观众对\"消息去了哪\"有了身体感。命门是 2.5D 相机管线：所有元素 挂在同一世界坐标系上，镜头中心 A→跟飞机→B、变焦拉远再推近，视差 道具按 depth 乘相机位移——重 3D 原片降级成一台\"假三维\"，成本掉一个 量级而纵深感保留。飞机俯仰角跟随弧线切线是\"它在飞\"而非\"它在平移\" 的全部区别。",
+    "semantic_tags": [
+      "transition",
+      "camera"
+    ],
+    "use": "\"发送/邀请/分享\"动作连接两个人物/场景视角的叙事转场；抽象动作需要一个隐喻实体当转场载具时"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 transition-travel 分工：那卡钻进**画面里既有的**元素/容器完成 换景（空间早已在构图里）；本卡**放出一个新实体**连接画外的第二场景 ——A/B 无既有空间关系时才轮到本卡",
+    "与 glow-flyline-moves B（flyline-arc）分工：飞线是暗场数据流向的 抽象示意（线是主角），本卡是明场叙事旅程（信使是主角、镜头伴飞） ——讲数据用飞线，讲人与人用信使",
+    "信使实体必须来自动作语义（发送→纸飞机、上传→气球、部署→火箭）， 随便找个吉祥物飞一趟读不出因果",
+    "相机三段（拉远/伴飞/接管）的切换帧上中心与变焦都要连续——demo 里 zBase/zTake 在 TAKEOVER[0] 处相等（0.62）才不跳帧，改时间轴先查这点",
+    "2.5D 的极限：道具只能是剪影级形状，写实道具会暴露\"没有真透视\"； 要重 3D 质感请回原片路线（成本高一档）"
+  ],
+  "name": "paper-plane-messenger",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/paper-plane-messenger.md",
+    "upstream_demo": "demos/transition/paper-plane-messenger/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "纸飞机信使转场——点击\"发送\"后镜头拉远脱离窗口 A，折纸飞机沿贝塞尔弧线飞出（俯仰跟随切线），镜头伴飞穿过多层视差道具，飞抵窗口 B 门前落定，B 放大接管全屏",
+      "id": "paper-plane-messenger",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "paper-plane-messenger",
+      "status": "reference-only",
+      "use": "\"发送/邀请/分享\"动作连接两个人物/场景视角的叙事转场；抽象动作需要一个隐喻实体当转场载具时"
+    }
+  ],
+  "version": 1
+}

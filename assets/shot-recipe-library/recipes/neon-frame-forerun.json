@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "0df8bbefd712cc3848ee22911ce604618a3d0f0b4cd628d9c24623f89665fcdc",
+  "category": "ui-entrance",
+  "id": "neon-frame-forerun",
+  "intent": {
+    "duration": "框奔画 ~0.6s + 点亮&贴落 ~2s + 背景熄灭收束 ~0.8s；全段 4–4.5s",
+    "energy": "中高（三层动作叠进，但都服务同一次登场）",
+    "purpose": "先立框后填肉：霓虹线框像跑道灯一样两头奔画圈出位置，宣告 \"这里要出现东西\"；页面在框内由暗转亮的同时，组件从空中带影 贴落——观众看见界面被\"安放\"进框里。三层动作（框奔画/页面点亮/ 组件贴落）必须**同步咬合**：贴落进程与点亮进程同步推进、稍滞后 收尾，框光最终并入面板辉光。背景霓虹管群终段熄灭，把亮度让给 主角完成收束。",
+    "semantic_tags": [
+      "ui-entrance",
+      "effects"
+    ],
+    "use": "暗场品牌片里给 UI 面板做\"登场仪式\"（框先到、内容后落）；功能区首次亮相；霓虹/赛博调性的段落开场"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "悬空贴落=clickup 语言核心签名（已验证的口味信号），本卡 与 graze-face-tour 共用 FloatWrap 模式——影子不可感等于没做",
+    "与 brand-frame-snap 分工：那张是品牌框咔哒定位的 节拍戏；本卡是框先行+内容贴落的登场仪式，框只是序幕",
+    "衍生方向备忘：视角旋转变体（镜头左→右弧线旋转+同时贴落） 曾被裁\"改改再看\"（要求所有组件同时贴落），已收敛进 neon-frame-orbit-drop 卡"
+  ],
+  "name": "neon-frame-forerun",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/neon-frame-forerun.md",
+    "upstream_demo": "demos/ui-entrance/neon-frame-forerun/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "强透视直角霓虹框自左缘两头奔画先行成型，页面在框内由暗转亮，同时框内组件/文字从 3D 上空带同形软影错峰贴落、随页面点亮同步完成贴合，背景霓虹管群终段熄灭让位",
+      "id": "neon-frame-forerun",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "neon-frame-forerun",
+      "status": "reference-only",
+      "use": "暗场品牌片里给 UI 面板做\"登场仪式\"（框先到、内容后落）；功能区首次亮相；霓虹/赛博调性的段落开场"
+    }
+  ],
+  "version": 1
+}

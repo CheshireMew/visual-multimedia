@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "9de1f3ae40a26f76b8bd45325eb00c2199874232b059dd4905a1336bdfced2f8",
+  "category": "interaction",
+  "id": "hashtag-to-pill-materialize",
+  "intent": {
+    "duration": "打字 ~40f + 硬切胶囊 hold ~18f + 缩移 ~14f + 硬切揭示后静置；全段约 3.5s（原片 18–21.5s）",
+    "energy": "中（干脆利落，靠硬切给劲，不靠弹跳）",
+    "purpose": "文字变实体的常规做法是渐变/morph/展开，原片帧级拆解证明 Bear 反着 来：**实体化是 1 帧硬切**——上一帧还是文字+光标，下一帧就是完整 胶囊，无展开无 cross-fade 无回弹。硬切给的是\"啪、成了\"的确定感， 任何渐变都会把\"实体\"软化成\"特效\"。全段骨架是**两次硬切夹一次 滑动**：硬切实体化 → 平滑缩移归位 → 硬切揭示成品页。唯一的连续 运动（缩移）被两记硬切框住，才显得又快又稳。这个节奏骨架是命门， 三段挪动任何一段的性质（把硬切改渐变、把滑动改硬切）整卡就塌。",
+    "semantic_tags": [
+      "interaction",
+      "typography"
+    ],
+    "use": "标签/分类/关键词功能的演示段（笔记 app 打 tag、话题聚合）；\"输入 → 变成 UI 实体 → 归位到成品\"的三段式叙事"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 typewriter-moves/ai-stream-response（打字呈现）、 morph-from-primitive（图元渐变成形）撞领域：本卡命门是**硬切 实体化非渐变变形**——只要你想加过渡，就该去用那几张卡而不是改这张",
+    "早期版本曾杜撰\"胶囊飞入下方滑入笔记卡\"段，原片对照证伪已砍； 别复活飞行段",
+    "transformOrigin 默认 50% 50% 会让缩放落位中心漂移 (1−s)×半宽， 必须 origin 0 0 + translate 到目标中心再 scale（demo 内注释）",
+    "与原片残余差距：音符图标手绘 SVG 曲线、Futura 回退字重、揭示帧 正文间距 ~10px 级别偏差；节奏与硬切时点已密帧对齐"
+  ],
+  "name": "hashtag-to-pill-materialize",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/hashtag-to-pill-materialize.md",
+    "upstream_demo": "demos/interaction/hashtag-to-pill-materialize/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "话题词打字实体化——居中打出 \"#word\"（红实心光标恒亮），1 帧硬切变成宽大胶囊标签，hold 后缩小左移落到页面标签位，再 1 帧硬切揭示成品页；\"两次硬切一次滑动\"的节奏骨架",
+      "id": "hashtag-to-pill-materialize",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "hashtag-to-pill-materialize",
+      "status": "reference-only",
+      "use": "标签/分类/关键词功能的演示段（笔记 app 打 tag、话题聚合）；\"输入 → 变成 UI 实体 → 归位到成品\"的三段式叙事"
+    }
+  ],
+  "version": 1
+}

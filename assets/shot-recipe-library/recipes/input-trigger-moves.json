@@ -1,0 +1,58 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "605e0cdc231acd1add9e22ad6d881dfdc2fcbdbe21f13e670616324a704081bc",
+  "category": "interaction",
+  "id": "input-trigger-moves",
+  "intent": {
+    "duration": "A ~5s / C ~5s",
+    "energy": "A 中 / C 高",
+    "purpose": "发布片的第一人称语法——观众不是在\"看\"产品，是在\"用\"产品：光标 是手、键帽是指尖、触发即叙事。两式共同点：**交互动作当扳机，产品 画面当枪响**。A 是慢扳机——放大光标带性格地滑入点击，镜头以点击点 推近再缓退，有去有回（区别 crash-zoom：慢速、锚定光标、会回来）； C 是引信——假 3D 键帽（⌘K）呼吸悬浮，3f 压扁+底部亮环溢出当引信， 按下引爆 30f 满屏轰鸣，最高潮一帧猛切成整齐静止全景， 按下→爆发→定论。选型：演示交互用 A，开场即高潮用 C。",
+    "semantic_tags": [
+      "interaction",
+      "opening"
+    ],
+    "use": "发布片的第一人称段落：演示核心交互、开场即高潮；观众\"在用\"而不是\"在看\"产品"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "全片输入触发 ≤2 次——每次都该是段落级开关；连按三次键帽 观众就知道这只是转场花活，扳机失效",
+    "A/C 声音强依赖：click 采样/键击采样与触发帧同帧 （sound-design §4.5）；无声的按下读作画面自己动了",
+    "C 的猛切后键帽必须在新场景里回收（嵌顶栏呼应引信）——否则 只是两个手法排队，不是组合——组合命门",
+    "C 的轰鸣段与 smash-cut 卡（trailer-grammar-moves C 式）同源， 同片二选一"
+  ],
+  "name": "input-trigger-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/input-trigger-moves.md",
+    "upstream_demo": "demos/interaction/input-trigger-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "光标三次贝塞尔弧线滑入+末端甩腕过冲，悬停提亮，点击帧按钮下陷+涟漪+推近 1.4x 停两拍缓退",
+      "id": "cursor-performance",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "cursor-performance",
+      "status": "reference-only",
+      "use": "核心按钮/交互的演示特写"
+    },
+    {
+      "description": "键帽呼吸悬浮→3f 压扁+亮环引信 + 30f 卡片四面冲镜持续加速轰鸣 + 动势最猛一帧硬切静止全景、键帽嵌顶栏",
+      "id": "keycap-smash-cut",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "keycap-smash-cut",
+      "status": "reference-only",
+      "use": "全片开场定论；能量最高"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,59 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "ab4de0680915fb71d9440d9b8105dd6401fd80fb428fe9ca7844dfd716aac64a",
+  "category": "camera",
+  "id": "overhead-camera-moves",
+  "intent": {
+    "duration": "A ~4.8s / B ~4.7s",
+    "energy": "A 中 / B 中高",
+    "purpose": "库内俯拍视角一直空缺——crane-rise 是\"平移+缩放\"的升起（俯仰角 不动），space-camera C 式 drone-dive 是俯冲降落一镜到底；这两式让 **俯仰角本身讲故事**：A 是揭示——整页 rotateX 平躺、开场只见上缘 一条透视窄带，机位\"抬头\"回正，内容一排排涌入视野，像掀开桌上的 图纸；B 是选择——三张页面卡平躺成桌面卡阵，相机俯拍横向滑过依次 掠过（韦斯·安德森 tabletop），滑到目标页猛地俯冲扎入、抬正成满屏， \"巡视一圈，就选这张\"。选型：单页开场用 A，多页转场/开场用 B。",
+    "semantic_tags": [
+      "camera",
+      "opening",
+      "transition"
+    ],
+    "use": "用\"俯仰角\"讲故事的开场/转场：单页 establishing 用 A，多页巡视择一扎入用 B"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "大角度透视下卡片必须 backfaceVisibility hidden + translateZ(4px) 兜底，否则个别帧背面/深度穿帮",
+    "A 与 crane-rise-reveal 同片二选一——都是开场揭示，两个\"揭示开场\" 等于没有揭示",
+    "B pan 段角度锁死是命门（两段职责分离判例）：巡视归巡视、扎入归 扎入，混着动观众不知道相机想干嘛",
+    "两式都是\"相机大动作\"，与 space-camera/crane-rise 同屏段落互斥， 一个段落只能有一个持镜人"
+  ],
+  "name": "overhead-camera-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/camera/overhead-camera-moves.md",
+    "upstream_demo": "demos/camera/overhead-camera-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "perspective 容器内整页 rotateX -80° 平躺，~43f 抬正，rotateX/scale/translateY 共用 out-cubic，末端轻过冲",
+      "id": "tilt-reveal",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "tilt-reveal",
+      "status": "reference-only",
+      "use": "开场 establishing；单主体"
+    },
+    {
+      "description": "卡阵平躺 rotateX 62°，pan 段只动 translateX 横滑掠过，drop 段角度/缩放/位移三通道同跑扎入落版",
+      "id": "overhead-tabletop-drop",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "overhead-tabletop-drop",
+      "status": "reference-only",
+      "use": "多页巡视后择一；转场/开场两用"
+    }
+  ],
+  "version": 1
+}

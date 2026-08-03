@@ -1,0 +1,103 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "2badcddf4b265a3f29b7b45922d55ea01a3e3462743bd531aa6d51a906bf714d",
+  "category": "transition",
+  "id": "shot-transitions",
+  "intent": {
+    "duration": "n/a（技法卡；各式占用帧数见参数表，从相邻镜头预算里划）",
+    "energy": "n/a（技法卡，不占能量位）",
+    "purpose": "库内各镜头卡只管自己的入场和收尾，镜与镜\"怎么接\"一直没有词汇—— 接缝裸切会把逐镜头攒出的电影感一次漏光。公认优秀的发布片 （Linear Releases/Agent，2026-07-11 抽帧逆向）全程没有一次裸切： 换景要么靠深度旅行、要么靠焦点接力、要么靠黑场字卡蓄力。",
+    "semantic_tags": [
+      "transition"
+    ],
+    "use": "任何两镜衔接处（技法卡，分镜阶段排完镜头后逐个接缝选一式）"
+  },
+  "known_pitfalls": [
+    "分镜表阶段就逐接缝标注转场式（写进\"关键动效\"列），逐镜头阶段才补 等于全线挪帧——转场占用的帧从相邻镜头预算划走，规矩同 hold 预算（R3）",
+    "B/C 两式借鉴自 Linear 发布片抽帧逆向（2026-07-11，进化轮 #3）， 非用户判例——是默认建议不是令，与判例冲突时判例优先",
+    "B 式对源素材要求高：后景迎面放大 = 纹理被放大看，低倍截图先过 审美准则 Q2 的高分辨率栅格化技法再上",
+    "转场不叠加：一个接缝只用一式；B 式暗场里再加 flash 白闪读作穿帮",
+    "E/F 式参数经占位素材调校+真实素材转正，非用户 实战判例——单例判例，与判例冲突时判例优先；E 基本款/急刹款按 后镜性质二选一（后镜自带入场动效→基本款；后镜靠内容说话→急刹款）， 同片混用两款算两式各记一次",
+    "F 式窗内新景语义应是被点开元素的\"详情世界\"（实战接真实详情页 截图）——窗里塞无关场景语义断裂，沦为花哨擦除",
+    "F 纵深款参数系灰阶占位调校起点、未经真实素材验证； 参考实现 demos/transition/shot-transitions/PortalWipeV2.tsx"
+  ],
+  "name": "shot-transitions",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/shot-transitions.md",
+    "upstream_demo": "demos/transition/shot-transitions/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "前镜相机推进，切点跨骑一层白闪盖住换页",
+      "id": "flash-cut",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "推进流白 flash-cut",
+      "status": "reference-only",
+      "use": "交互穿透、能量相近的页面→页面（库内已有，收编）"
+    },
+    {
+      "description": "相机顺运动方向推出前景→纯暗场滑行几帧→后景从景深迎面放大而来，一条 take 不切",
+      "id": "shot-transitions-4",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "穿暗场直航",
+      "status": "reference-only",
+      "use": "高能量→高能量的场景跳转；暗色调全片的主力转场"
+    },
+    {
+      "description": "前景滑出焦平面（blur 渐深）同时后景反向收焦入场，焦点当剪辑点",
+      "id": "shot-transitions-5",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "虚焦接力",
+      "status": "reference-only",
+      "use": "同页面内区块→区块；文档/长页游览的分段"
+    },
+    {
+      "description": "前镜收尾淡入黑场，字卡打字机/压印出现，再交棒后镜",
+      "id": "shot-transitions-6",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "黑场字卡",
+      "status": "reference-only",
+      "use": "章节级分段 + 呼吸位二合一（paper-title-card 的暗场变体）"
+    },
+    {
+      "description": "机位一拍横甩到下一场景，中段运动模糊糊到不可辨，借糊帧换景",
+      "id": "whip-pan",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "whip-pan 甩镜",
+      "status": "reference-only",
+      "use": "快节奏功能段连打（高能量→高能量的轻快款，比 B 式省帧提速）"
+    },
+    {
+      "description": "页面内真实元素（卡片）放大成全屏窗口，新场景从窗内长出接管",
+      "id": "mask-wipe",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "mask-wipe 穿窗",
+      "status": "reference-only",
+      "use": "语义化接缝：功能总览→该功能详情（\"点开这张卡进入它的世界\"）"
+    }
+  ],
+  "version": 1
+}

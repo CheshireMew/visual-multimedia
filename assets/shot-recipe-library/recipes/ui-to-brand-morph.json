@@ -1,0 +1,59 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "9aab0123485e657a03b6c424af5b5aec3dea7faf85ae54337e60c8500a2871de",
+  "category": "outro",
+  "id": "ui-to-brand-morph",
+  "intent": {
+    "duration": "A ~4.3s（130f）/ B ~4.7s（140f）",
+    "energy": "中高（收尾点睛，一次完整变形讲完）",
+    "purpose": "品牌收尾库里已有三条路：brand-ink-open 是开场描画压印、 morph-from-primitive 是图元→UI 容器（方向相反）、 outro-group-photo-launch 是元素围拢合影（聚而不变）。本卡补第四条： **产品 UI 元素自己变形成品牌符号**——A 式是图标翻一个身变成 logo （同位实体交换），B 式是全片反复出现的输入框在最后一次发送后集结成 logo 单瓣（多元素落位拼装）。观众看到的不是\"logo 出现了\"，而是 \"刚才用的东西原来就是它\"，因果链本身就是品牌论证。",
+    "semantic_tags": [
+      "outro"
+    ],
+    "use": "品牌收尾/outro 前最后一拍；\"你每天用的那个 UI 就是这个品牌\"的视觉论证"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "A 式实体交换必须发生在 scaleX ≤0.05 的最薄帧——提前换观众看见两个图形叠影，魔术穿帮",
+    "A 式 wordmark 按上表改逐字 scale+blur 落定后，错峰间隔可能要拉大（每字有独立的\"由大变小\"动作，2.2f 可能读不清），改完按可感性判例正常速度看片",
+    "B 式拼的是抽象单瓣（泪滴+胶囊组合）不是真 Slack logo——实战换成自家 logo 的图元分解，图元数 3–4 粒为宜，多了读作粒子不读作拼装",
+    "变形中途别叠其他动画（morph-from-primitive 同判例）：morph 本身是全部信息",
+    "与 outro-group-photo-launch 分工：那是全片元素飞来围住字标合影（聚），本卡是 UI 元素自己变成品牌符号（变）；同片收尾二选一",
+    "声音：A 翻扁一声\"唰\"、绽放落定\"嗒\"；B 发送一声 send、每粒落位一声 pop、呼吸段静"
+  ],
+  "name": "ui-to-brand-morph",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/outro/ui-to-brand-morph.md",
+    "upstream_demo": "demos/outro/ui-to-brand-morph/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "图标 anticipation 晃两下→Y 轴 scaleX 压扁成竖线（双层拖影+blur）→最薄处实体交换、spring 绽放成 5 瓣花形 mark→mark 左移让位、wordmark 逐字落定",
+      "id": "icon-flip-bloom",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "icon-flip-bloom",
+      "status": "reference-only",
+      "use": "单图标产品；图标与 logo 形态差异大、需要\"翻过去变身\"的魔术感"
+    },
+    {
+      "description": "光标点发送→文字飞走→输入框 x/y/w/h/r 五量 spring 插值成圆角胶囊→三粒图元错峰从画外落下拼成抽象单瓣→整组呼吸",
+      "id": "input-morph-assemble",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "input-morph-assemble",
+      "status": "reference-only",
+      "use": "输入框/卡片等矩形 UI 是全片主角的片子；logo 可拆解为几何图元组合"
+    }
+  ],
+  "version": 1
+}

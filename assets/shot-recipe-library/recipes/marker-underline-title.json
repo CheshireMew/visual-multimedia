@@ -1,0 +1,45 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "c4610b46ef80c2768be1887f211c5cc5aca1da674fde82ddceb74e244d40dd2b",
+  "category": "typography",
+  "id": "marker-underline-title",
+  "intent": {
+    "duration": "标题落定 +4~8f 后起笔，划线 8–12f，总 1–1.5s",
+    "energy": "低（一笔点睛，不抢标题的戏）",
+    "purpose": "打印体标题里突然出现一笔手绘马克笔，用材质反差把一个词从 排版里拎出来——像人拿笔在海报上圈重点。命门有三：**快** （8–12f 一笔呵成，慢了读作加载条）、**近**（贴着字底，离远了 读作分隔线不是强调）、**跟字势**（斜体词的划线必须左低右高 微上斜——斜向画反是最容易犯且一眼假的错，判例见已知坑）。",
+    "semantic_tags": [
+      "typography"
+    ],
+    "use": "标题里强调单个关键词（new/free/AI…）；手写感/人味的品牌调性；正文标注式强调"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 draw-svg-trace 撞领域（有意单列为两卡）：那张是通用 SVG 描画（图标/插画/任意线稿）；本卡专做**文字强调**的马克笔 质感（变宽+毛糙+跟字势），做图形描画去用那张",
+    "斜向判例：v1 左高右低被比对环节抓出——划线斜向必须跟字势， 正体字则水平微抖",
+    "残余差距：原片（notion-ai）笔头飞白颗粒感更细碎，实战可加 更细的笔刷噪点"
+  ],
+  "name": "marker-underline-title",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/typography/marker-underline-title.md",
+    "upstream_demo": "demos/typography/marker-underline-title/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "大标题落定后，关键词下方马克笔下划线从左到右快速描画——变宽笔形、毛糙边缘、微上斜跟随斜体字势，贴着字底",
+      "id": "marker-underline-title",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "marker-underline-title",
+      "status": "reference-only",
+      "use": "标题里强调单个关键词（new/free/AI…）；手写感/人味的品牌调性；正文标注式强调"
+    }
+  ],
+  "version": 1
+}

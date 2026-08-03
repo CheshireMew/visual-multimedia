@@ -15,6 +15,7 @@ import {
   EDITABLE_MEDIA_SOURCES_CONTRACT,
   validateMediaSources,
 } from "./validate-media-sources.mjs";
+import {listenOnBrowserSafePort} from "./browser-safe-server.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -185,13 +186,9 @@ async function startStaticServer(root) {
     }
   });
 
-  await new Promise((resolve, reject) => {
-    server.once("error", reject);
-    server.listen(0, "127.0.0.1", resolve);
-  });
-  const address = server.address();
+  const port = await listenOnBrowserSafePort(server);
   return {
-    port: address.port,
+    port,
     close: () => new Promise((resolve) => server.close(resolve)),
   };
 }

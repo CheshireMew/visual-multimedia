@@ -94,6 +94,6 @@
     "narration_bundle": "schemas/narration-bundle.v1.schema.json",
     "plan": "schemas/interview-explainer-plan.v2.schema.json",
     "confirmation": "schemas/interview-explainer-plan-confirmation.v1.schema.json",
-    "build_report": "schemas/media-build-report.v1.schema.json"
+    "build_report": "schemas/media-build-report.v2.schema.json"
   }
 }

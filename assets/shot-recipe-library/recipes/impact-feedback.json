@@ -1,0 +1,58 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "c074fb69adf581cdde9428501586db6f0fcc7aa3d68380547c6e9aa9d9639fbc",
+  "category": "effects",
+  "id": "impact-feedback",
+  "intent": {
+    "duration": "n/a（元素级技法，寄生在落位动作上；各式占用帧数见参数表）",
+    "energy": "高（瞬时冲击）",
+    "purpose": "元素砸到位却没有\"砸到了\"的一瞬，落位读作 PPT 飞入。游戏 juice （Vlambeer screenshake 理论）与动漫演出 impact frames 给了同一答案： 命中的那几帧把时间咬住，冲量才传到观众手上。两式是一条强度阶梯： B 用局部顿帧叠伤害数字和 combo 跳字，把功能清单剪成一套连招， 叙事感最强；C 是最重的一拳——撞停 3 帧翻负片炸集中线，强调级最高、 最风格化。",
+    "semantic_tags": [
+      "effects"
+    ],
+    "use": "元素落位/撞击的\"命中一瞬\"——给砸入、撞停加游戏级手感；按强度阶梯选式"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "B 式顿帧**必须全局**——背景滚动也要一起冻，否则读不出\"时间被 咬住\"，只像那张卡掉帧。demo 用统一 remap 帧 df 驱动所有层是命门； 唯闪白等\"冻结期间也要发生\"的效果用真实帧 f 驱动",
+    "帧 remap 与 speed-ramp-freeze 同技术根，同一镜头别叠用两卡—— 两套 remap 互相打架，节奏读作故障",
+    "C 式负片帧在纸墨审美的片子里非常抢戏——限高潮一次，且必须与 impact 音效同帧落地（拟音走 sound-design），无声的负片帧读作闪坏",
+    "B 式游戏化语言浓（伤害数字/combo 是明晃晃的游戏梗），产品调性 偏严肃时慎用",
+    "B 式多次顿帧后真实帧比动画时间多出累计冻结帧，排镜头预算时 按 `真实命中帧 = 动画命中帧 + 已冻结帧数` 折算（demo HITS_REAL）"
+  ],
+  "name": "impact-feedback",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/impact-feedback.md",
+    "upstream_demo": "demos/effects/impact-feedback/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "三卡接连砸入，每命中 = 顿帧 2f + 伤害数字上浮 + ×N 计数跳字逐次加码",
+      "id": "hit-counter",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "hit-counter 连招计数",
+      "status": "reference-only",
+      "use": "功能点连打段--\"功能很多\"用连招讲；游戏化语言浓"
+    },
+    {
+      "description": "crash-zoom 撞停的 3f 整幅负片反色 + 放射集中线 + 红青色散，第 4f 全撤",
+      "id": "anime-impact",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "anime-impact 打击帧",
+      "status": "reference-only",
+      "use": "全片唯一高潮的那一拳；强调级封顶"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "eeadd3de398548da87a9c86ec6bcc9cb99f9a351d46143c64b4c0f43b60e1383",
+  "category": "typography",
+  "id": "document-typewriter-reveal",
+  "intent": {
+    "duration": "约 3.7s（110f，含 history-list-stack 尾段）",
+    "energy": "低中（信息密度最高，节奏放稳让观众读字）",
+    "purpose": "观众会读清屏幕上每个字——这一镜的说服力全在\"文档是真的\"。打字机式写入把静态页面变成\"正在被写出来的文档\"，侧栏历史条目落入补上\"持续产出\"的时间纵深。",
+    "semantic_tags": [
+      "typography",
+      "ui-entrance"
+    ],
+    "use": "文档/报告/笔记类功能镜头；信息密度最高的一拍"
+  },
+  "known_pitfalls": [
+    "mock 内容必须出版级：产品原生排版、文字铺满、侧栏完整入镜（Q10）——\"贴图+标语\"级的敷衍文档会导致整镜头重做",
+    "数据合规：mock 内容里绝不出现客户/成员真名（Q1）",
+    "素材页面是活数据源（协作文档类）时，全量重采会刷掉已定稿纹理——用增量脚本只刷单页单键",
+    "强调色示例（caret/@-mention/内缘线）在模板片中为琥珀色，适配新品牌时统一换成目标品牌强调色"
+  ],
+  "name": "document-typewriter-reveal",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/typography/document-typewriter-reveal.md",
+    "upstream_demo": "template/src/aifl/live/SceneWbr.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "整页真排版文档在光标后自己\"写\"出来、侧栏跟进、历史条目逐个落入轨道",
+      "id": "document-typewriter-reveal",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "document-typewriter-reveal",
+      "status": "reference-only",
+      "use": "文档/报告/笔记类功能镜头；信息密度最高的一拍"
+    }
+  ],
+  "version": 1
+}

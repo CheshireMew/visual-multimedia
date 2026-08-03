@@ -1,0 +1,42 @@
+{
+  "protocol": "visual-multimedia-shot-recipe",
+  "version": 1,
+  "id": "feature-focus-tour",
+  "name": "功能焦点巡礼",
+  "aliases": ["feature focus tour", "产品功能巡礼"],
+  "status": "active",
+  "source_id": "visual-multimedia",
+  "category": "product-promo",
+  "intent": {
+    "purpose": "先建立产品主张，再用同一空间中的焦点和景深变化依次解释两个功能证据，最后停在能够同时辨认的结果状态。",
+    "use": "产品界面或功能面板已经具有清楚的空间关系，需要用克制运镜引导注意力而不牺牲持续可读文字。",
+    "duration": "由当前旁白或展示职责决定；内置包提供两个 3 秒场景作为可调起点。",
+    "energy": "中低到中等，依靠焦点转移推进，不依靠冲击转场。",
+    "semantic_tags": ["product-promo", "camera", "feature", "focus", "ui"]
+  },
+  "styles": [
+    {
+      "id": "semantic-focus-tour",
+      "label": "语义焦点巡礼",
+      "description": "标题和说明始终位于镜头空间之外，两个功能面板位于不同景深层；镜头按开始、解释、结果语义状态确定性定位。",
+      "use": "功能总览、双证据解释、网页产品或桌面应用的短宣传段。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/web-media-starter"
+      }
+    }
+  ],
+  "known_pitfalls": [
+    "镜头只承担注意力转移；标题、字幕和必须持续阅读的说明留在镜头根之外。",
+    "当前内容只有对象显隐或数值变化时改用对象运动，不为了电影感保留运镜。",
+    "物化后必须替换真实产品内容、版式和素材，不能把 starter 示例文字交付给用户。"
+  ],
+  "source_evidence": {
+    "source_card": "target-native:assets/web-media-starter",
+    "upstream_demo": null,
+    "upstream_preview_declared": false,
+    "notes": "目标原生配方，吸收功能到镜头选择和页面空间运镜机制，不复制来源项目实现。"
+  },
+  "behavior_fingerprint": "61108c22fc1576c5ba1fc0c9607e8443ef9a71c1f65ee6a190823a5a074a01fc"
+}

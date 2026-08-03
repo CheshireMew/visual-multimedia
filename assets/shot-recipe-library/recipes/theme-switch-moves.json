@@ -1,0 +1,57 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "cd9b9c9a42b874a6643a78b20e8368e673636e60efa42520fc2e3a900e27ee48",
+  "category": "interaction",
+  "id": "theme-switch-moves",
+  "intent": {
+    "duration": "A 3–4s / B 5–6s",
+    "energy": "A 中 / B 中高（组合款有完整因果链）",
+    "purpose": "深浅模式切换的两种拍法。A（Notion/Figma/Linear 惯用）：15° 斜向 边界带亮线从左上扫到右下，边界经过处浅色**就地**变深色，同布局 双主题共存一瞬——观众看到的是\"同一个 UI 换肤\"，不是转场。 B（组合变异）：⌘K 面板输入 \"dark\" 回车，面板收缩成一个亮点， 深色涟漪**从该点**荡开扫过全 UI——\"命令引发换肤\"的因果链完整可读。 组合命门：涟漪圆心必须是面板收缩点、起始帧必须是收缩完成帧。",
+    "semantic_tags": [
+      "interaction"
+    ],
+    "use": "深色模式/主题功能的叙事段落；同一 UI \"在你眼前变色\"而非切到新场景"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "两版布局必须逐像素一致——布局有出入就读作\"切换到另一个页面\"， 手法即失效",
+    "真实页面实战：深浅两版分别真实截图（Q1），不做滤镜假深色",
+    "一支片主题切换 ≤1 次：它是功能叙事不是转场，反复切读作演示事故",
+    "声音：A 扫场一声长 whoosh；B 回车一声确认 + 涟漪荡开接 whoosh （S4 拟音优先）"
+  ],
+  "name": "theme-switch-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/theme-switch-moves.md",
+    "upstream_demo": "demos/interaction/theme-switch-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "深色版 clip-path polygon 15° 斜边扫场（out poly3 先快后缓 ~38f），边界 4px 白亮线+18px 辉光，扫完 2f 淡出；深版 scale 1→0.995→1 坐实",
+      "id": "theme-sweep-toggle",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "theme-sweep-toggle",
+      "status": "reference-only",
+      "use": "主题功能直接展示"
+    },
+    {
+      "description": "面板 back(1.9) 弹落→逐字输入→回车面板 ease-in 收缩到 0 + 白色高光核钉住位置→圆形 clip 半径 12→1250px cubic-out 荡开，边缘 5px 白环双向辉光",
+      "id": "palette-theme-ripple",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "palette-theme-ripple",
+      "status": "reference-only",
+      "use": "命令面板+主题联动的高光段"
+    }
+  ],
+  "version": 1
+}

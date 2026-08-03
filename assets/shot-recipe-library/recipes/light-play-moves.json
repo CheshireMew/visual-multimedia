@@ -1,0 +1,69 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "7f82dc196b99bb5d6bbdb41e7767064b5d7f7e40e008e83d11406b8408d7adf7",
+  "category": "effects",
+  "id": "light-play-moves",
+  "intent": {
+    "duration": "A ~5.3s / B ~4.7s / D ~4.8s",
+    "energy": "A 中 / B 低 / D 高",
+    "purpose": "库内\"光\"一直只有 spotlight-hero-card 一个点射手法；这三式把光做成 体系，三种笔触三种职责：A 是**扫**——暗场里几乎不可见的标题被锥形 光摆动扫亮，光到哪哪亮，与 spotlight-hero-card 的区别是那个打卡片、 这个扫文字；B 是**擦**——深墨主角卡上一道 45° 高光带缓扫一次，被 圆角裁住，无声的加冕；D 是**晕**——白字撞停帧一圈柔晕猛涨炸开再 回落成驻留呼吸光，与 B 的区别是 B 移动扫过、D 驻留在高光边缘。 全部深底或深主角——**白底上提亮不可见**（判例）是这整张卡的地基。",
+    "semantic_tags": [
+      "effects",
+      "typography"
+    ],
+    "use": "把光当第四种笔触（扫/擦/晕）：暗场标题揭示（A）、主角卡加冕（B）、撞停帧冲击（D）"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "**全片光效合计 ≤2 次**——光是最快掉价的手法，每个卡都闪一下 等于廉价模板",
+    "B 式是高标准重试通过：旧否决（2026-07-13 判例）针对当时实现不好看， 非路径不可行；四约束 = 单点+主角+圆角裁剪+只扫一次，违反任何 一条回到否决区",
+    "深底是地基：三式全部依赖深底/深主角，白底上做光效直接跳过本卡",
+    "D 与 crash-zoom-punch 撞停帧天然联动（撞停即起晕）；A 与 spotlight-hero-card 同片二选一，都是\"聚光\"语汇"
+  ],
+  "name": "light-play-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/light-play-moves.md",
+    "upstream_demo": "demos/effects/light-play-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "双层同文本：暗版 0.07 常驻，亮版 radial mask 随光斑走，锥形光摆两个来回后全亮定格",
+      "id": "spotlight-sweep",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "spotlight-sweep",
+      "status": "reference-only",
+      "use": "暗场大标题揭示开场"
+    },
+    {
+      "description": "深墨卡上 45° 高光带 translateX 扫一次，overflow hidden 圆角裁剪",
+      "id": "sheen-sweep",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "sheen-sweep",
+      "status": "reference-only",
+      "use": "主角卡静止段的一次加冕"
+    },
+    {
+      "description": "文字复制底层 blur+brightness 当晕层，撞停帧起猛涨一圈回落成稳态柔光",
+      "id": "halation-bloom",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "halation-bloom",
+      "status": "reference-only",
+      "use": "crash-zoom 撞停帧的冲击加成"
+    }
+  ],
+  "version": 1
+}

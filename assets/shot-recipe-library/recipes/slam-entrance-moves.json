@@ -1,0 +1,70 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "be270db7556833922b2cdecbd9e3bd4f2d2fdf502a6727bd4ff07e9d24ea5258",
+  "category": "effects",
+  "id": "slam-entrance-moves",
+  "intent": {
+    "duration": "单式动作段 6–22f + 冲击余波 ~16f + hold ≥45f",
+    "energy": "高",
+    "purpose": "库内入场词汇的力度上限一直是 deck-deal-flyin 的\"发牌\"——快但不重。 本卡补\"砸\"这一档，三种口味：A 是方向感——卡片带鱼眼级夸张透视贴着 镜头甩进来，\"啪\"地弹平，动漫金田流的潇洒；B 是重量感——KPI 卡从 镜头前 2.5 倍大小砸落，圆环+尘点+震屏三件套同帧起爆，体育比分弹窗 的分量；C 是传导感——B 的三件套之上，冲击波前沿扫过左右邻卡时把 它们可见地推开再弹回，\"这一下震到了邻居\"，一件事说清力量大小。 选型按叙事需要：告诉观众\"它来了\"用 A，\"它很重\"用 B，\"它震动了 全场\"用 C。",
+    "semantic_tags": [
+      "effects",
+      "ui-entrance"
+    ],
+    "use": "主角卡/KPI 卡的重拳入场；impact-feedback 管落位后的反馈，本卡管入场本身就是冲击"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "三式都带震屏，震屏族（impact-feedback、montage-rhythm A/C）同一镜头 只能有一个震源；三式互相之间同镜头也只能选一",
+    "声音强依赖：A 的\"啪\"、B/C 的音爆必须同帧钉（sound-design §4.5）， 无声版 B/C 的三件套读作\"卡在抽搐\"",
+    "C 式邻卡必须先驻场稳定 ≥15f 再被波及——邻卡自己还在入场时被推开， 因果链读不出来",
+    "与 domino-cascade（montage-rhythm C 式）的区别要守住：domino 是 连锁\"接力入场\"（邻居被撞后自己入场），C 式是\"被波及晃一下回原位\" （邻居早已在场）——别混用在同一组元素上",
+    "全片砸入 ≤2 次；三次以上每次都响等于都不响（P4）"
+  ],
+  "name": "slam-entrance-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/slam-entrance-moves.md",
+    "upstream_demo": "demos/effects/slam-entrance-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "perspective 300→1500px + rotate3d 58°→0 + scale 1.7→1 甩入 18f，末 4f 过冲 +5° 弹平，长斜影收正",
+      "id": "kanada-perspective-snap",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "kanada-perspective-snap",
+      "status": "reference-only",
+      "use": "单卡潇洒亮相；调性偏动漫/轻快"
+    },
+    {
+      "description": "卡从 scale 2.5/rotate 5° 六帧 Easing.in(quad) 砸落，落点帧圆环扩散+尘点飞散+震屏同帧",
+      "id": "score-slam",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "score-slam",
+      "status": "reference-only",
+      "use": "KPI/比分类重磅数字登场"
+    },
+    {
+      "description": "B 三件套 + 冲击波前沿按半径-距离精算扫过邻卡帧，邻卡外推 30px + rotate ±3° 阻尼弹回",
+      "id": "impact-burst-kit",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "impact-burst-kit",
+      "status": "reference-only",
+      "use": "页面上已有邻居时的\"全场震动\""
+    }
+  ],
+  "version": 1
+}

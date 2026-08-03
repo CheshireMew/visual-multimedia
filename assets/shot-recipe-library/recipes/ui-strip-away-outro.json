@@ -1,0 +1,48 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "91db22cf0b4471591efc7394276adb6e280eba587c316a6a7ff3f76d3b41c7a5",
+  "category": "outro",
+  "id": "ui-strip-away-outro",
+  "intent": {
+    "duration": "~4.3s（130f：光标就位 34f → 蒸发 ~40f → 按钮独占 → 字标接棒）",
+    "energy": "中（前段安静操作，中段持续退场，无瞬时冲击）",
+    "purpose": "库内收尾全是\"加法\"：outro-group-photo-launch 元素飞来合影，logo sting 是定住再彩蛋。本卡是唯一的\"减法\"路线——点击引爆全 UI 退场， 黑场只留语义焦点（那颗被点的按钮），把\"发布 = 复杂性归零\"翻译成 动效叙事。命门有二：**蒸发要有秩序**——从外围到中心每 4f 一层、 每层带方向性位移（各自往画外散），乱序或同帧齐灭读作断电故障； **按钮是唯一幸存者且必须迁移**——蒸发期间从工具条角落滑到屏心 放大 1.5 倍、白晕随黑场增强，完成从\"UI 控件\"到\"仪式主角\"的升格， 最后淡出把黑场交给字标。",
+    "semantic_tags": [
+      "outro"
+    ],
+    "use": "\"发布/完成\"语义的 outro；想讲\"一键之后一切复杂性消失\"的产品收尾"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 outro-group-photo-launch 分工：全家福是\"加法\"峰值终镜（多功能 产品全员谢幕），本卡是\"减法\"收尾（单一动作语义、越走越静）——按 产品气质二选一，不可同片双收尾",
+    "与 edit-hook-moves B（logo-sting-button）衔接：本卡字标定版后可接 sting 彩蛋，但 sting 的\"突插\"会打破减法的静——接不接看全片性格",
+    "蒸发的每层必须是**语义完整的 UI 区块**（侧栏/面板/工具条），按 像素区域切层会在错峰时露出结构不合理的残缺态",
+    "按钮迁移全程 zIndex 压最顶——任何蒸发层从按钮前面飘过都是穿帮",
+    "触发动作必须是\"终结性\"语义（Publish/Ship/Done）；拿 Save 或普通 确认触发全 UI 蒸发，语义配不上排场",
+    "实战按钮用品牌高亮色（原片是 Framer 蓝），demo 的白钮只是灰阶占位 ——黑场上按钮与晕光的对比是主角光环，颜色弱则升格失败"
+  ],
+  "name": "ui-strip-away-outro",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/outro/ui-strip-away-outro.md",
+    "upstream_demo": "demos/outro/ui-strip-away-outro/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "减法式收尾——点击 Publish 后整个编辑器 UI 从外围到中心层层错峰蒸发，黑场上只剩那颗按钮滑到屏心放大，按钮再淡出交棒字标定版",
+      "id": "ui-strip-away-outro",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "ui-strip-away-outro",
+      "status": "reference-only",
+      "use": "\"发布/完成\"语义的 outro；想讲\"一键之后一切复杂性消失\"的产品收尾"
+    }
+  ],
+  "version": 1
+}

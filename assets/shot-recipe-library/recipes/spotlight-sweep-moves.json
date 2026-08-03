@@ -1,0 +1,69 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "7173cb0cee6077c7db52fc286d8123a3420ef6fcbb4ebbbfbc3f3080a28eb903",
+  "category": "effects",
+  "id": "spotlight-sweep-moves",
+  "intent": {
+    "duration": "单式 3.5–4.5s；A/B 可串联成巡礼段",
+    "energy": "中低（克制、神秘感，爆点在\"亮起\"瞬间）",
+    "purpose": "黑场里观众只能看见光给看的东西——聚光既是照明也是运镜和剪辑： 光到哪里哪里登场，光走即谢幕。三式共用\"贴边紫色辉光光线\"这个 身份元素（光线贴着 UI 边框/logo/顶边走，辉光要亮要糊，是光在 \"抚摸\"界面而不是描边动画）。命门是**匀速**：聚光的移动/扩张 严格 linear——缓动会让光有\"意图\"，匀速才读作探照灯的机械扫掠 （C 式判例：linear 但半径终值过大＝前 1/4 就饱和，观感照样不匀速）。",
+    "semantic_tags": [
+      "effects",
+      "ui-entrance",
+      "transition"
+    ],
+    "use": "暗色调品牌片里逐个介绍 UI 面板/功能区；黑场开场把界面\"点亮\"登场；段落间光转场"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 light-play-moves 分工：那张是元素/文字上的 光泽戏（sheen/辉光呼吸）；本卡光是**运镜和剪辑**（显影/谢幕/转场）， 光决定观众看什么",
+    "三式重做判例：聚光扫过必须带贴边光线同行（v1 只有显影罩被裁 \"改改再看\"——裸聚光没有身份，贴边紫光才是这个手法的签名）",
+    "原片（clickup-30）光线转角有一瞬彩虹色散，demo 未做；实战可 在转角帧加 1–2f 色散层提质感"
+  ],
+  "name": "spotlight-sweep-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/spotlight-sweep-moves.md",
+    "upstream_demo": "demos/effects/spotlight-sweep-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "醒睡扫过：radial 显影罩跟随光头从左向右匀速移动，贴顶边紫色光线三层辉光同行，经过 logo 描光、到右缘点亮竖直残光，尾段面板沉回黑暗",
+      "id": "glow-wake-sleep-panel",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "glow-wake-sleep-panel",
+      "status": "reference-only",
+      "use": "暗色调品牌片里介绍单个 UI 面板——有醒有睡的登场与谢幕"
+    },
+    {
+      "description": "贴边泛光横摇：光线先绕左上角竖缘、转角后沿顶边横走，紫光晕染渗入 UI 顶部内侧；聚光头匀速右移显影 + 面板匀速左滑＝相机右摇感",
+      "id": "slide-spotlight-pan",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "slide-spotlight-pan",
+      "status": "reference-only",
+      "use": "横向巡礼宽面板/多列看板，逐段点亮功能区"
+    },
+    {
+      "description": "角落匀速显影：左上角径向聚光半径严格 linear 扩张，照到显影照不到沉黑，最终全屏亮起——光即转场",
+      "id": "corner-spotlight-reveal",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "corner-spotlight-reveal",
+      "status": "reference-only",
+      "use": "黑场开场点亮界面登场；段落间光转场"
+    }
+  ],
+  "version": 1
+}

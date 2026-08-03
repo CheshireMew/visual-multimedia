@@ -1,0 +1,80 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "6b3f16a97ad81d0eba2c5ffbe2db258d7173ff67b048eb5fbea58b99dfa6e718",
+  "category": "camera",
+  "id": "tension-camera-moves",
+  "intent": {
+    "duration": "单式 4–5s；全片合计 ≤2 式（各 ≤1 次）",
+    "energy": "A 高 / B 中 / C 低压升 / D 低收",
+    "purpose": "space-camera-moves 三式是\"把页面当 3D 实体拍\"的高光炫技；这四式相反—— 动作本身克制，全部劲道在情绪语义上：A 说\"这一刻值得停下时间看\" （运动中的元素被冻住、相机绕行审视）；B 说\"问题解决了，世界被扶正\" （斜角悬着的难受感在节拍上滚回水平）；C 说\"有什么要发生了\"（慢到 不自觉的推近积压张力，顶点硬切释放）；D 说\"最后只剩这一件事\" （后拉中周围逐层熄灭，孤悬一点收束全片）。四式各占一个情绪格， 是分镜阶段\"这一段观众该感到什么\"的直接词汇。",
+    "semantic_tags": [
+      "camera"
+    ],
+    "use": "情绪节点（震撼/纠偏/积压/收束）的运镜语言；与 space-camera-moves 的\"炫技大动作\"互补——这四式动作小、情绪重"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "C 式\"前 2 秒不可察\"是设计意图不是缺陷——裁决/验收看完整播放，抽帧 diff 前段变化极小属正常（已确认成立）",
+    "A 式与 speed-ramp-freeze/impact-feedback 同为时间操纵，同一镜头别叠用 （帧 remap 互相打架）；A 的冻结是\"停给你看\"+相机动，speed-ramp 的 定格是\"停下来标注\"——选语义不选形似",
+    "B 式斜角只压\"痛点\"段——全片常态斜角是 MV 语言，产品片里读作镜头没扶稳",
+    "C 式硬切后的亮景必须信息完整可读（它承接全部积压的注意力）； 切进另一个铺垫段等于白蓄力",
+    "D 式放结尾时后接 outro-group-photo-launch 会打架（一收一放），二选一"
+  ],
+  "name": "tension-camera-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/camera/tension-camera-moves.md",
+    "upstream_demo": "demos/camera/tension-camera-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "图表生长到一半全冻住，相机绕悬停的 UI 平面 rotateY 扫 55° 再回，时间恢复接着长完",
+      "id": "bullet-time-freeze-orbit",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "bullet-time-freeze-orbit 冻结环绕",
+      "status": "reference-only",
+      "use": "核心数据/图表的加冕时刻；\"值得停表看\"的一格"
+    },
+    {
+      "description": "痛点段整帧 -10° 斜角悬着（叠微漂移），解决方案一拍带单次过冲滚回水平",
+      "id": "dutch-roll-to-level",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "dutch-roll-to-level 斜角滚正",
+      "status": "reference-only",
+      "use": "痛点→方案的翻转节拍；纠偏语义"
+    },
+    {
+      "description": "4s 匀加速推近 1.00→1.14 + 暗角渐深，张力顶点无过渡硬切亮场",
+      "id": "slow-push-in",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "slow-push-in 慢推压迫",
+      "status": "reference-only",
+      "use": "大数字/宣言前的蓄力；暗→亮的章节爆点"
+    },
+    {
+      "description": "从发光主卡特写后拉，兄弟卡按距离错峰熄灭、背景沉黑，孤卡悬在暗场中央",
+      "id": "pull-back-isolation",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "pull-back-isolation 拉远孤立",
+      "status": "reference-only",
+      "use": "结尾收束；\"全片只为这一个数字\"的谢幕"
+    }
+  ],
+  "version": 1
+}

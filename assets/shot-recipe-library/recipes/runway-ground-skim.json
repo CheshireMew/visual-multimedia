@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "30f2e3486b653641b099acf1f3f2ff3ebca9cf845498c674f47dd250b472c65a",
+  "category": "ui-entrance",
+  "id": "runway-ground-skim",
+  "intent": {
+    "duration": "悬空展示 ~0.4s + 贴落 ~1.2s + 立起转正 ~1.8s；全段 4s",
+    "energy": "高（掉落感是戏眼，立起转正是收束）",
+    "purpose": "把界面拍成跑道：低角度透视里 UI 卡片悬空在不同高度，随后按界面 位置顺序（行优先左→右）一阵急雨式贴落——掉落感=干脆利落。 三个命门：**重叠并行**（起点只错 1.5f、下落 9f ⇒ 空中恒有 5–6 张 同时在落，\"几乎一起但有涟漪感\"；串行等待两轮被裁）、**零回弹** （着地即停，弹起被裁）、**快**（下落 9f，15f 版被裁\"快一点\"）。 落齐后页面从躺倒立起（rotateX 66°→0°）、镜头拉远居中，观众从 \"看戏\"回到\"看界面\"。",
+    "semantic_tags": [
+      "ui-entrance",
+      "camera"
+    ],
+    "use": "仪表盘/卡片流界面的登场（内容\"从天而降完成自己\"）；低角度炫技段后的收正；clickup 系悬空贴落语言的\"齐落\"重型版"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "贴落节奏语义（三卡判例族）：本卡=急雨式重叠错峰； graze-face-tour=巡礼错峰；neon-frame-orbit-drop=同帧齐落。 按镜头语义选，错用即被裁",
+    "与 deck-deal-flyin 分工：那张是卡片飞入列队（水平方向运动）； 本卡是垂直贴落+页面立起的两段式，掉落感是本体",
+    "立起段原片无对应参考（用户口述新增），终态版式对齐 clickup11 正视图"
+  ],
+  "name": "runway-ground-skim",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/runway-ground-skim.md",
+    "upstream_demo": "demos/ui-entrance/runway-ground-skim/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "低角度掠地机位下 UI 卡片群从空中一阵急雨式快速贴落（起点微错、下落大量重叠并行、着地即停零回弹），落齐后整页立起、视角转正收尾",
+      "id": "runway-ground-skim",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "runway-ground-skim",
+      "status": "reference-only",
+      "use": "仪表盘/卡片流界面的登场（内容\"从天而降完成自己\"）；低角度炫技段后的收正；clickup 系悬空贴落语言的\"齐落\"重型版"
+    }
+  ],
+  "version": 1
+}

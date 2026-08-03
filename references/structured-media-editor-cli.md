@@ -40,6 +40,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 
 - 网页画面需要与实拍、录屏、旁白、音乐或字幕混剪。
 - 用户希望直接拖动图层或在属性面板中快速精调。
+- 用户需要把网页动效导出为可在目标剪辑软件中叠加的透明视频或覆盖层。
 - 最终需要统一的视频时间线、短视频派生序列或批量导出任务。
 
 只需要 PNG、GIF 或独立网页时可以继续从网页真源直接导出。独立无声代码动画只有在用户明确选择 HyperFrames 时才走 `hyperframes-rendering.md`；否则 MediaFlow Pro 可以直接用 `web.clip.export` 生成视频。不要因为 CLI 可用就增加无意义的项目步骤。
@@ -62,7 +63,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - `web.clip.data.update` 写入内联数据，`web.clip.data.snapshot` 从本地 JSON/CSV 固化一次性快照；不要把远程 API 变成运行依赖。
 - `web.batch.create` 从记录和显式字段绑定生成多个短序列，不复制或改写 HTML。
 - 带 `component` 元数据的共享网页包先按 `reusable-media-resources.md` 从不可变 `web-components` 注册版本采用到当前项目，再通过 `web.import` 把采用后的完整包交给编辑器；当前公开合同没有 `web.component.*` 操作，编辑器内部目录也不成为第二份组件注册表。
-- `web.clip.export` 从同一组场景状态派生 PNG、GIF、透明视频、普通视频或时间线覆盖层。
+- `web.clip.export` 从同一组场景状态派生 PNG、GIF、透明视频、普通视频或时间线覆盖层。透明输出只在本轮 `describe` 明确声明相应格式时使用；所选输出变体必须声明透明画布，HTML 的 body 与媒体画布也要真实透明。容器、编码和像素格式服从当前操作合同与目标剪辑软件，不能照搬固定格式。完成后检查实际文件的透明通道，并在目标软件中叠加到明、暗底片上观看。
 - 用户明确要求参考视频复刻、匹配或逐帧对齐，并且 `describe` 声明 `quality.reference.compare` 时，用该操作比较最终参考文件和候选文件；它不依赖项目数据库，也不改变网页或时间线。
 - 执行大范围自动修改前可用 `project.version.create` 建立命名恢复版本；`project.version.list/restore` 负责查看和恢复，不把项目版本塞进网页清单。
 

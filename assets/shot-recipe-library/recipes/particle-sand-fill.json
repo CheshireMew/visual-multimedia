@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "02e82e1ab1c48d7e36c453cebdf3fef92a8cd91d18319bd43a758b081496ddfa",
+  "category": "data",
+  "id": "particle-sand-fill",
+  "intent": {
+    "duration": "4–5s",
+    "energy": "中高（构筑感入场）",
+    "purpose": "把柱状图入场从\"长高动画\"换成\"落体堆积\"：每根柱上方下一场方块雨， 粒子逐颗坠落（重力加速）、触堆积面即停+15% 回弹，一层压一层堆到目标 高度后粒子面淡出换实体柱、顶部数值标签弹出。数据的\"量\"变成看得见的 \"一颗一颗攒出来\"——与 unit-dot-swarm-regroup（点群平面迁徙聚形） 分工：那是同一批点改队形，这是落体材料筑成图形。",
+    "semantic_tags": [
+      "data",
+      "effects"
+    ],
+    "use": "柱状图/量级对比入场；讲\"积累/汇聚\"语义的数据段落"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "落地帧全部闭式预解析（每颗粒子的落点/落帧编译期可算）， 帧确定性是渲染正确的前提——禁逐帧状态累积",
+    "只适合 3–5 根柱的量级对比；十几根柱的密集图表用常规入场 （雨帘太多读作噪声）",
+    "与\"碎块解体\"否决判例的界限：这是构筑（从无到有堆出图形）， 不是破坏（把完整图形打碎）——方向语义相反，别做反向播放变体",
+    "声音：细密颗粒落地声铺底，每柱堆满一声轻\"叩\"，标签弹出一声 tick"
+  ],
+  "name": "particle-sand-fill",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/data/particle-sand-fill.md",
+    "upstream_demo": "demos/data/particle-sand-fill/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "粒子落斗成柱——柱状图不长高而是\"下雨下出来\"：方点粒子逐颗坠落堆积成柱，堆满凝成实体+数值弹出",
+      "id": "particle-sand-fill",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "particle-sand-fill",
+      "status": "reference-only",
+      "use": "柱状图/量级对比入场；讲\"积累/汇聚\"语义的数据段落"
+    }
+  ],
+  "version": 1
+}

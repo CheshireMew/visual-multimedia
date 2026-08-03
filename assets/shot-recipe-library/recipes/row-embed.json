@@ -1,0 +1,43 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "613d2d4556d54f16c6abbc95e3b106c620bf8d25b7e16a7daf6ba4fbe8c3e39e",
+  "category": "ui-entrance",
+  "id": "row-embed",
+  "intent": {
+    "duration": "约 2s（12–68f）",
+    "energy": "中",
+    "purpose": "详情页的行不是\"显示出来\"而是\"长进去\"——每一行从空中降下并严丝合缝嵌入页面布局，嵌入瞬间的强调色缝是\"咔哒\"扣上的视觉拟音。",
+    "semantic_tags": [
+      "ui-entrance"
+    ],
+    "use": "\"结构化数据长进页面\"的详情页/列表镜头；行级内容的批量入场"
+  },
+  "known_pitfalls": [
+    "飞入终点必须是页面布局真实槽位、落地即嵌入（Q9）——要\"从空中飞入，嵌入 dashboard\"；悬浮其上不落地会显得假",
+    "强调色缝等光效必须裁进承载元素圆角边界内（Q4 判例），光溢出圆角是廉价感典型来源"
+  ],
+  "name": "row-embed",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/row-embed.md",
+    "upstream_demo": "template/src/aifl/live/SceneDetail.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "内容行像卡片一样从空中降下、rotateX 收平、嵌入瞬间底边亮一道强调色的缝",
+      "id": "row-embed",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "row-embed",
+      "status": "reference-only",
+      "use": "\"结构化数据长进页面\"的详情页/列表镜头；行级内容的批量入场"
+    }
+  ],
+  "version": 1
+}

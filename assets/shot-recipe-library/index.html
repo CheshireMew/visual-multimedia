@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visual Multimedia 镜头配方库</title>
+  <style>
+    :root { color-scheme: light; font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f2efe8; color: #171717; }
+    main { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 48px 0 80px; }
+    header { display: grid; grid-template-columns: 1fr minmax(280px, 480px); gap: 32px; align-items: end; }
+    h1 { margin: 0; font-size: clamp(34px, 5vw, 72px); line-height: .98; letter-spacing: -.045em; }
+    .summary { margin: 18px 0 0; max-width: 720px; color: #625d54; font-size: 18px; line-height: 1.6; }
+    input, select { width: 100%; border: 1px solid #c9c1b4; border-radius: 12px; background: #fff; padding: 13px 15px; font: inherit; }
+    .filters { display: grid; gap: 10px; }
+    .stats { margin: 30px 0 16px; color: #625d54; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    article { min-height: 280px; padding: 22px; border: 1px solid #d7d0c5; border-radius: 18px; background: #fffdf8; box-shadow: 0 16px 34px rgb(63 48 24 / 7%); }
+    .meta { display: flex; justify-content: space-between; gap: 12px; color: #746d62; font-size: 13px; }
+    h2 { margin: 28px 0 10px; font-size: 24px; }
+    article p { color: #585249; line-height: 1.55; }
+    .styles { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
+    .pill { border-radius: 999px; padding: 6px 9px; background: #ece7df; color: #4f493f; font-size: 12px; }
+    .pill.active { background: #d9f1df; color: #155b2a; }
+    a { color: #155b2a; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>镜头配方库</h1>
+        <p class="summary">按产品功能、镜头职责、能量和类别查找配方。绿色变体绑定了目标原生 editable-media 完整包；其余条目只提供方法参考，不能冒充已实现镜头。</p>
+      </div>
+      <div class="filters">
+        <input id="query" type="search" placeholder="搜索用途、功能、标签或镜头名">
+        <select id="category"><option value="">全部类别</option></select>
+        <select id="status"><option value="">全部状态</option><option value="active">有目标实现</option><option value="reference-only">仅参考</option></select>
+      </div>
+    </header>
+    <p class="stats" id="stats">正在读取唯一目录…</p>
+    <section class="grid" id="grid" aria-live="polite"></section>
+  </main>
+  <script>
+    const categoryLabels = {
+      opening: "开场与品牌", typography: "文字与字卡", "ui-entrance": "界面登场",
+      camera: "运镜与空间", data: "数据与指标", interaction: "交互演示",
+      transition: "转场", rhythm: "节奏与蒙太奇", effects: "光效与强调",
+      outro: "收尾", "product-promo": "产品宣传"
+    };
+    const query = document.querySelector("#query");
+    const category = document.querySelector("#category");
+    const status = document.querySelector("#status");
+    const grid = document.querySelector("#grid");
+    const stats = document.querySelector("#stats");
+    let catalog;
+
+    function card(recipe) {
+      const element = document.createElement("article");
+      const searchable = [recipe.id, recipe.name, recipe.purpose, recipe.use, recipe.energy, ...recipe.semantic_tags].join(" ").toLocaleLowerCase("zh-CN");
+      element.dataset.search = searchable;
+      element.dataset.category = recipe.category;
+      element.dataset.status = recipe.status;
+      const active = recipe.styles.filter((item) => item.status === "active");
+      element.innerHTML = `
+        <div class="meta"><span>${categoryLabels[recipe.category] || recipe.category}</span><span>${recipe.status === "active" ? "有目标实现" : "仅参考"}</span></div>
+        <h2>${recipe.name}</h2>
+        <p>${recipe.purpose}</p>
+        <p><strong>适用：</strong>${recipe.use}</p>
+        <div class="styles">${recipe.styles.map((item) => `<span class="pill ${item.status}">${item.label}</span>`).join("")}</div>
+        ${active.length ? `<p><a href="../web-media-starter/index.html?capture=0">打开目标原生组件预览</a></p>` : ""}`;
+      return element;
+    }
+
+    function render() {
+      const term = query.value.trim().toLocaleLowerCase("zh-CN");
+      let visible = 0;
+      for (const element of grid.children) {
+        const show = (!term || element.dataset.search.includes(term))
+          && (!category.value || element.dataset.category === category.value)
+          && (!status.value || element.dataset.status === status.value);
+        element.hidden = !show;
+        if (show) visible += 1;
+      }
+      stats.textContent = `${visible} / ${catalog.recipe_count} 张配方 · ${catalog.active_style_count} 个目标实现 · ${catalog.reference_style_count} 个参考变体`;
+    }
+
+    fetch("catalog.json").then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    }).then((value) => {
+      catalog = value;
+      const categories = [...new Set(catalog.recipes.map((item) => item.category))].sort();
+      for (const id of categories) category.add(new Option(categoryLabels[id] || id, id));
+      grid.replaceChildren(...catalog.recipes.map(card));
+      render();
+    }).catch((error) => { stats.textContent = `目录读取失败：${error.message}`; });
+    query.addEventListener("input", render);
+    category.addEventListener("change", render);
+    status.addEventListener("change", render);
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "27fde295d4ce3466c8f98a843a94800147011109cd49d327597d45d0f4b23aa2",
+  "category": "outro",
+  "id": "outro-group-photo-launch",
+  "intent": {
+    "duration": "约 4.8s（145f）",
+    "energy": "峰值（全片最高点）",
+    "purpose": "把看过的每个功能各抽一个代表元素叫回来合影，字标压轴登场——观众离场前最后记住的是\"这些东西属于同一个产品\"。规格必须是发布会级：能量推到全片最高。",
+    "semantic_tags": [
+      "outro"
+    ],
+    "use": "outro/品牌收尾；多功能产品的\"全家福\"式终镜"
+  },
+  "known_pitfalls": [
+    "初版收尾几乎总是偏保守（Q8：安静签名式→合影→发布会三级加码）——起稿就按\"像一个产品发布\"的规格给足 crane/舞台光/粒子",
+    "结构先于特效：先有\"四方飞入合影\"结构再加码氛围；直接堆特效没有骨架",
+    "outro tagline 与字标下方文案查重（P4 dedupe 判例），同一句话全片只出现一次"
+  ],
+  "name": "outro-group-photo-launch",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/outro/outro-group-photo-launch.md",
+    "upstream_demo": "template/src/aifl/live/SceneOutroLive.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "全片元素从四面八方飞来围住字标合影，crane 落机位+舞台光+金尘做成发布会收场",
+      "id": "outro-group-photo-launch",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "outro-group-photo-launch",
+      "status": "reference-only",
+      "use": "outro/品牌收尾；多功能产品的\"全家福\"式终镜"
+    }
+  ],
+  "version": 1
+}

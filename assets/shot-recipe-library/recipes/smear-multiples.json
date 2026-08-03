@@ -1,0 +1,46 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "f4662020fcbf9cf3999b94ba5dd2e548d3da31c307965a1fec06dae815795ffe",
+  "category": "rhythm",
+  "id": "smear-multiples",
+  "intent": {
+    "duration": "元素级技法（移动 12f + 合拢回弹 8f，寄生在位移动作上）",
+    "energy": "中高",
+    "purpose": "快速位移的速度感库内标准答案是 CameraMotionBlur（摄影隐喻：快门拖影， 连续的糊）。本卡给第二个答案，动漫演出的 smear frame 传统：残像是 **离散、清晰、可数的**完整副本——观众能数出 4 张卡，读作\"快到留下 分身\"而非\"快到糊掉\"。两者气质完全不同：blur 是实拍级质感，分身是 漫画级趣味；同一次位移二选一，叠用读作渲染错误。分身式还有一个 实用优势：残像里内容仍可辨，适合\"移动的东西本身是信息\"的场景。",
+    "semantic_tags": [
+      "rhythm",
+      "effects"
+    ],
+    "use": "元素高速位移段想要\"漫画式速度感\"而非\"摄影式模糊\"时；与 CameraMotionBlur 二选一"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 CameraMotionBlur 同一次位移**互斥**；同片不同镜头可以各用（一次 漫画式一次摄影式反而立体），但同类位移统一用一种（P4 一致性）",
+    "分身是\"清晰完整副本\"——加 blur、拉伸、变形都会滑向另一个手法 （轴向拉伸在词汇表另案），保持可数是本卡的身份",
+    "深底浅卡对比度下分身层次才读得开；同色系底上 0.09 那档会消失， 可减为 3 个分身重配 0.5/0.3/0.15"
+  ],
+  "name": "smear-multiples",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/rhythm/smear-multiples.md",
+    "upstream_demo": "demos/rhythm/smear-multiples/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "残像分身——卡片高速横移时拖 4 个清晰可数的半透明分身副本，落位瞬间收拢合一；motion blur 的动画式平替",
+      "id": "smear-multiples",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "smear-multiples",
+      "status": "reference-only",
+      "use": "元素高速位移段想要\"漫画式速度感\"而非\"摄影式模糊\"时；与 CameraMotionBlur 二选一"
+    }
+  ],
+  "version": 1
+}

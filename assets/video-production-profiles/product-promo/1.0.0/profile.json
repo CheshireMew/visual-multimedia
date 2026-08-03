@@ -1,0 +1,80 @@
+{
+  "protocol": "visual-multimedia-video-production-profile",
+  "version": 1,
+  "id": "product-promo",
+  "name": "产品功能宣传片",
+  "profile_version": "1.0.0",
+  "status": "active",
+  "description": "把已经确认的产品主张、真实界面证据和功能覆盖关系装配成可逐帧定位、可审查、可交付的产品宣传片。",
+  "apply_when": [
+    "用户要展示网页、桌面应用或移动产品的真实功能与结果",
+    "产品主张和至少一个必须证明的功能已经确认",
+    "可以取得产品界面、录屏、截图或可复现网页包作为证据"
+  ],
+  "do_not_apply_when": [
+    "仍需研究市场、筛选卖点或决定什么值得宣传",
+    "用户只要品牌情绪片且不要求证明具体产品功能",
+    "没有任何可验证产品证据，只有未经确认的想象稿"
+  ],
+  "default_sequence": [
+    "claim",
+    "problem-or-context",
+    "feature-proof",
+    "feature-proof-as-needed",
+    "combined-result",
+    "call-to-action"
+  ],
+  "invariants": [
+    "必选功能都绑定至少一个实际镜头和可追溯产品证据",
+    "镜头配方只决定当前镜头职责，不替代项目视觉方向和真实产品内容",
+    "reference-only 配方不能进入构建计划，必须先建立并验证目标原生 editable-media 包",
+    "产品页面采集结果写入项目 media-sources 并绑定文件哈希",
+    "每个镜头绑定物化后的包哈希、清单哈希、场景 id 和连续整数帧范围",
+    "网页镜头只使用 window.editableMedia 与 window.__hf.duration/seek(seconds) 作为编辑状态和确定性时间边界",
+    "强节拍只在已确认音乐需要驱动剪辑时启用，分析网格是派生证据而不是第二套播放时钟",
+    "声音、字幕和画面都以同一构建计划和已确认计划哈希为准",
+    "机器检查、Agent 完整观看和用户观看确认分别记录"
+  ],
+  "algorithm_defaults": {
+    "shot_selection": "semantic-duty-first",
+    "scene_export_strategy": "one-validated-editable-package-per-shot",
+    "scene_source_in_frames": 0,
+    "render_sampling_divisor": 1,
+    "transition": "direct-cut",
+    "audio_strategy": "continuous-master",
+    "caption_mode": "burned-in",
+    "atomic_publish": true
+  },
+  "project_configurable": [
+    "sequence",
+    "number_of_feature_proofs",
+    "output_geometry",
+    "frame_rate",
+    "music",
+    "sound_effects",
+    "caption_mode",
+    "colors",
+    "typography",
+    "motion",
+    "shot_recipes",
+    "render_sampling_divisor"
+  ],
+  "stop_conditions": [
+    "必选功能没有实际证据或没有镜头覆盖",
+    "页面采集、镜头选择、实现包或计划记录的文件和哈希不一致",
+    "计划未确认或确认后任一生产输入发生变化",
+    "任一活动镜头包无法在真实浏览器中定位并显示正确语义状态",
+    "强节拍音乐未分析，或低置信度结果尚未人工复核",
+    "最终视频的帧数、声音、字幕、编码或完整观看检查失败",
+    "公开交付所需素材权利仍未确认"
+  ],
+  "reference": "references/product-promo-production.md",
+  "public_entry": "scripts/product-promo.mjs",
+  "schemas": {
+    "brief_plan_confirmation": "schemas/product-promo.v1.schema.json",
+    "shot_recipe": "schemas/shot-recipe.v1.schema.json",
+    "product_ui_capture": "schemas/product-ui-capture.v1.schema.json",
+    "music_beat_analysis": "schemas/music-beat-analysis.v1.schema.json",
+    "build_plan": "schemas/media-build-plan.v1.schema.json"
+  }
+}

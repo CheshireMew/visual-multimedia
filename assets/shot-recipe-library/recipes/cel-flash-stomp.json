@@ -1,0 +1,48 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "af616cfecac253ad148eac221932e4867c7714ae161b526c1f03302ae98beb20",
+  "category": "typography",
+  "id": "cel-flash-stomp",
+  "intent": {
+    "duration": "每词 ~30f × 词数 + 收尾 ≥45f；三词约 4.8s",
+    "energy": "高",
+    "purpose": "逐词砸字（stomp typography）单用只有重量；背景纯色闪（动漫背景 フラッシュ——必杀技名出现时底色交替闪）单用只是闪。焊在一起互补 成立：词砸下的落定帧正是底闪的起爆帧，**主体稳、背景闪**——观众 盯着字，眼角余光里整个世界在震颤，打击感来自周边视野而不来自主体 抖动。这是与震屏完全相反的路线：震屏晃主体，本卡晃世界。三词逐拍 递进，末词闪加倍+标签条收束，一句口号剪成三记盖章。",
+    "semantic_tags": [
+      "typography",
+      "rhythm"
+    ],
+    "use": "口号/三连词的高能段落（\"SHIP / FASTER / TODAY\"式）；文字节奏卡，与 type-rhythm-sync 互补（那是字属性动，这是字砸+底闪）"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "**声音强依赖**：每词砸落一声 kick、底闪对齐鼓点（sound-design §4.5）——无声版读作 PPT 快翻；这卡就是给音乐段写的",
+    "底闪层里不许有任何内容元素（logo/纹理都不行）——闪的必须是 \"空气\"，有物在闪就变成内容故障（同 drop-blackout\"黑场无物\"判例）",
+    "与 background-cel-flash 单用（关键词驻场只闪底）的区别：本卡词 在换、拍在推进；驻场强调版是它的静态子集，不另立卡",
+    "与 beat-cut-moves A（递进硬切串）能量档相同且都是\"切+拍\"， 同片二选一；全片本卡 ≤1 段（P4）",
+    "实战品牌色版：底闪两色用品牌色对（如强调色×深墨），对比度须 ≥ demo 的 #ececea/#cfcfca 灰差，不然白闪一场"
+  ],
+  "name": "cel-flash-stomp",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/typography/cel-flash-stomp.md",
+    "upstream_demo": "demos/typography/cel-flash-stomp/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "底色闪砸字——大词逐拍像图章歪着砸满屏，每词落定瞬间背景层在两个纯色间频闪数帧而文字纹丝不动；动漫必杀技字卡的 UI 翻译",
+      "id": "cel-flash-stomp",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "cel-flash-stomp",
+      "status": "reference-only",
+      "use": "口号/三连词的高能段落（\"SHIP / FASTER / TODAY\"式）；文字节奏卡，与 type-rhythm-sync 互补（那是字属性动，这是字砸+底闪）"
+    }
+  ],
+  "version": 1
+}

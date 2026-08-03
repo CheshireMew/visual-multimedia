@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "94b7ef9971638a54b111acaaf9d5b4f8e0e6570ac73e7b1cd34b47a150f4d516",
+  "category": "ui-entrance",
+  "id": "deck-deal-flyin",
+  "intent": {
+    "duration": "约 2.6s 发牌段（36–113f），前接约 2s（62f）牌堆特写可选",
+    "energy": "高（节奏爬升段主力，不放开场第一镜）",
+    "purpose": "先给悬念（这一摞是什么？），再给答案（是几十个项目，它们自己飞进页面各就各位）。观众要感受到\"东西源源不断地涌进来\"，每张卡带着急迫感砸到位。",
+    "semantic_tags": [
+      "ui-entrance"
+    ],
+    "use": "展示\"内容量大/源源不断汇入\"的列表页与卡片墙；建立信息密度的第一印象"
+  },
+  "known_pitfalls": [
+    "抽象 flood 式多轮不收敛，换\"发牌\"物理隐喻一轮通过（R2/B3）——群体运动先找物理隐喻再写代码",
+    "卡纹理必须真实页面元素切片（Q1），手搓假卡一眼假；extras 复用真卡切片错位摆放",
+    "全部同时飞读作爆炸，错峰递加速是灵魂；前半 orbit 若砍掉，发牌起点要另给\"牌堆从哪来\"的交代",
+    "anticipation/follow-through 手法借鉴自迪士尼 12 法则（pixel2motion skill 内置提炼版）；预备拍幅度已有用户判例（2026-07-09：\"OK能看出来了\"，此前两档小幅度均无感）；拖拽层级错帧仍是默认建议——与 R2 判例冲突时（如用户要求更快更硬）判例优先",
+    "教科书比例（预备 = 主动作 20–30%）在拉远机位下产出的像素位移过小——**先算像素再算比例**，宣传片观众看的是全景不是特写",
+    "`<Sequence>` 重定基帧号 + CameraMotionBlur 内部 Freeze 会让 PageCam 采样错帧（横向错模糊穿帮）——绝对帧编排的镜头给 PageCam 传 `frame` prop 还原绝对帧（lib 组件已支持）"
+  ],
+  "name": "deck-deal-flyin",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/deck-deal-flyin.md",
+    "upstream_demo": "template/src/aifl/live/SceneFlyIn.tsx",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "暗场金属背景里的实体牌堆特写环绕开局，拉远交给页面后一摞卡像发牌一样硬加速甩进网格，相机追着滚动、满板停半秒",
+      "id": "deck-deal-flyin",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "deck-deal-flyin",
+      "status": "reference-only",
+      "use": "展示\"内容量大/源源不断汇入\"的列表页与卡片墙；建立信息密度的第一印象"
+    }
+  ],
+  "version": 1
+}

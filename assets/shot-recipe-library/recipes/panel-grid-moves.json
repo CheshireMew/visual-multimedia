@@ -1,0 +1,69 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "1bfdd9dbc2697ab8c01ec2d4b1aee70453bdf1130f26337d49dee0f49993773c",
+  "category": "rhythm",
+  "id": "panel-grid-moves",
+  "intent": {
+    "duration": "A ~4.7s / B ~4.8s / C ~5s",
+    "energy": "A 高 / B 中 / C 中高",
+    "purpose": "与 wall-reveal-moves 的区别是本卡的定位锚：那是\"整墙怎么入场\" （一次性揭示），这是\"格子怎么当节奏器\"——分格、重排、并列都发生 在节拍上，格变即鼓点。A 是填：3×3 格按十六分音符乱序逐格啪啪硬入， 填满停一拍，中心格放大吞掉全屏——功能矩阵一秒全亮相；B 是移：6 张卡 在节拍点集体直线换位（横排→3×2 网格），半秒落定 + 加深脉冲收束—— 布局重排本身当一个鼓点；C 是并：画面咔咔切成 3 个斜线分格，同一产品 三种机位同时定格，停半拍后一格斜边扩张吃掉全屏——Scott Pilgrim 的 分屏语言。按需选：多功能亮相用 A，布局叙事用 B，单品多视角用 C。",
+    "semantic_tags": [
+      "rhythm",
+      "ui-entrance"
+    ],
+    "use": "把\"格子\"当节奏器：逐格踩拍亮相（A）、节拍点集体换位（B）、同主体多机位定格并列（C）；三式都吃拍点"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "C 三格必须是**同一主体的不同机位**——三格塞不同内容读作 bento 排版不是漫画分格，语义就散了",
+    "三式都吃拍点、声音强依赖：A 逐格一声啪、B 起飞与脉冲各一声、 C 逐格咔咔三声（sound-design §4.5）；不踩拍的分格只是布局动画",
+    "同片分格系 ≤1 段——格子语言辨识度太强，两段就撞",
+    "A 与 wall-reveal-moves 别同片连用（都是\"墙\"，观众分不出 入场还是节奏器）"
+  ],
+  "name": "panel-grid-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/rhythm/panel-grid-moves.md",
+    "upstream_demo": "demos/rhythm/panel-grid-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "3×3 格每 2f 一格按 h(i) 乱序条件挂载硬入（入格 3f scale 1.18→1 + 2f 加深脉冲），满墙呼吸一拍，中心格 14f Easing.in(cubic) 放大 3.28x 吞屏",
+      "id": "grid-flash-mosaic",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "grid-flash-mosaic",
+      "status": "reference-only",
+      "use": "功能矩阵一秒全亮相；高潮前铺排"
+    },
+    {
+      "description": "预写两套坐标表（横排/3×2 网格），每卡 delay=i×1.5f、16f inOut cubic 直线飞行 + scale 1→1.28 带 1.02 过冲；落定后 6f brightness 0.78 全画面脉冲",
+      "id": "flip-grid-reflow",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "flip-grid-reflow",
+      "status": "reference-only",
+      "use": "布局叙事：并列→分组的语义换挡"
+    },
+    {
+      "description": "三格各一份整页 clip-path 12° 斜边裁切 + translate/scale 摆机位（1x/1.9x/2.6x），逐格 2f 间隔弹入；定格 18f 各格缓推保活，末格斜边 12f out-cubic 扩张吃屏",
+      "id": "comic-panel-split",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "comic-panel-split",
+      "status": "reference-only",
+      "use": "同一主体多视角并列；漫画感段落"
+    }
+  ],
+  "version": 1
+}

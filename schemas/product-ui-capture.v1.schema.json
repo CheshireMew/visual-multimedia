@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.product-ui-capture.v1",
+  "title": "Visual Multimedia Product UI Capture v1",
+  "oneOf": [{"$ref": "#/$defs/spec"}, {"$ref": "#/$defs/report"}],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "text": {"type": "string", "minLength": 1},
+    "localPath": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"},
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "selector", "capture", "transparent"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "selector": {"$ref": "#/$defs/text"},
+        "capture": {"type": "boolean"},
+        "transparent": {"type": "boolean"}
+      }
+    },
+    "pageSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "url", "wait_for_selector", "full_page", "selectors"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "url": {"type": "string", "format": "uri"},
+        "wait_for_selector": {"type": ["string", "null"]},
+        "full_page": {"type": "boolean"},
+        "selectors": {"type": "array", "items": {"$ref": "#/$defs/selector"}}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "project_id", "viewport", "pages"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-product-ui-capture-spec"},
+        "version": {"const": 1},
+        "project_id": {"$ref": "#/$defs/id"},
+        "viewport": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height", "device_scale_factor"],
+          "properties": {
+            "width": {"type": "integer", "minimum": 320, "maximum": 7680},
+            "height": {"type": "integer", "minimum": 240, "maximum": 4320},
+            "device_scale_factor": {"type": "number", "minimum": 1, "maximum": 4}
+          }
+        },
+        "pages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/pageSpec"}}
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source_id", "file", "sha256", "bytes", "bounds"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "source_id": {"$ref": "#/$defs/id"},
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "bounds": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["x", "y", "width", "height"],
+              "properties": {
+                "x": {"type": "number"}, "y": {"type": "number"},
+                "width": {"type": "number", "exclusiveMinimum": 0},
+                "height": {"type": "number", "exclusiveMinimum": 0}
+              }
+            }
+          ]
+        }
+      }
+    },
+    "pageReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "url", "document_width", "document_height", "assets"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "url": {"type": "string", "format": "uri"},
+        "document_width": {"type": "number", "exclusiveMinimum": 0},
+        "document_height": {"type": "number", "exclusiveMinimum": 0},
+        "assets": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/asset"}}
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "project_id", "created_at", "spec", "pages"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-product-ui-capture-report"},
+        "version": {"const": 1},
+        "project_id": {"$ref": "#/$defs/id"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "spec": {"type": "object", "additionalProperties": false, "required": ["file", "sha256"], "properties": {"file": {"$ref": "#/$defs/localPath"}, "sha256": {"$ref": "#/$defs/sha"}}},
+        "pages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/pageReport"}}
+      }
+    }
+  }
+}

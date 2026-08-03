@@ -12,6 +12,7 @@ import {
   searchEffects,
   validateTextMotionLibrary,
 } from "./text-motion-library.mjs";
+import {listenOnBrowserSafePort} from "./browser-safe-server.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -64,10 +65,10 @@ async function serve(root) {
     });
     fs.createReadStream(filePath).pipe(response);
   });
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const port = await listenOnBrowserSafePort(server);
   return {
     server,
-    url: `http://127.0.0.1:${server.address().port}/index.html?capture=1`,
+    url: `http://127.0.0.1:${port}/index.html?capture=1`,
   };
 }
 

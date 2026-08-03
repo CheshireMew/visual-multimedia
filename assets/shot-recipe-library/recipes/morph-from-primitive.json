@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "fbdc0dc1093134a5c76759cb1e2308dbd80cb5adcfbcb1ba8f2ccc8cfbd6c5c3",
+  "category": "ui-entrance",
+  "id": "morph-from-primitive",
+  "intent": {
+    "duration": "~4.7s（呼吸 20f + 变形 24f + 内容淡入 12f）",
+    "energy": "中低",
+    "purpose": "入场库全是\"从外面进来\"——飞入、砸落、翻面，主体都预先存在于画外； 本卡是**就地长出来**：画面中心一个描边正圆先鼓一口气（scale 1→1.12→1），随即轮廓连续变形为圆角矩形卡片，内容再淡入。原型 停留加呼吸这一拍就是预备动作——迪士尼 anticipation 的图形学翻译： 圆先\"吸气\"，观众就知道它要变，变形本身因此不需要任何解释。 仅适用图形/图标/卡轮廓类主体——位图截图不能 morph。",
+    "semantic_tags": [
+      "ui-entrance",
+      "opening"
+    ],
+    "use": "图形/图标/卡轮廓类主体的入场；logo→UI 容器的经典原语"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "**变形中途别叠其他动画**——morph 本身就是全部信息，同时飞入/ 变色/晃动会把\"长出来\"稀释成\"乱动\"",
+    "位图截图不能 morph：本卡只对矢量轮廓成立，页面截图请回 入场库常规手法",
+    "path 插值两端命令数必须严格同构（同为 M+8C），命令数不齐 中途会闪跳；改目标形状时先对齐锚点数再调参",
+    "变形中段呈\"桶形\"过渡是正常形态（QA 判例），不是穿帮； 出现自交/尖刺才是锚点方位角没对齐"
+  ],
+  "name": "morph-from-primitive",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/morph-from-primitive.md",
+    "upstream_demo": "demos/ui-entrance/morph-from-primitive/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "原型变形——正圆呼吸一拍（anticipation）后 SVG path 插值 24f 长成圆角卡轮廓，内容淡入",
+      "id": "morph-from-primitive",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "morph-from-primitive",
+      "status": "reference-only",
+      "use": "图形/图标/卡轮廓类主体的入场；logo→UI 容器的经典原语"
+    }
+  ],
+  "version": 1
+}

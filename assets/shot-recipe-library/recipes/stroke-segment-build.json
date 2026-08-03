@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "f46a3b2202657d23b4d09cd276bf1e1249c6c27f1763cfeb56e055a266056847",
+  "category": "opening",
+  "id": "stroke-segment-build",
+  "intent": {
+    "duration": "4–5s",
+    "energy": "低起中收（悬念型，落位帧是能量点）",
+    "purpose": "《异形》片头判例：标题不是被画出来的，是\"显影\"出来的——拆成离散 笔画段乱序点亮，观众前 70% 时间只看到神秘碎段，最后几段落位的瞬间 突然读出是什么字。\"认出的那一刻\"就是钩子，钩子的强度取决于 不可读期撑多久、钥匙段压多晚。",
+    "semantic_tags": [
+      "opening",
+      "typography"
+    ],
+    "use": "开场吊悬念的产品名/大数字揭晓；一支片 ≤1 次；与 type-assembly/draw-svg-trace 分工：那些是\"看着字被组装/描画\"，本卡是\"意义延迟揭晓\""
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "暗底上的辅助文字用亮灰——demo 首版顶部标题深灰压深底不可见（P1 自检抓到）",
+    "字数上限：4–6 字母词最佳；长词不可读期难控制，段数爆炸",
+    "本卡吃\"识别瞬间\"，标题必须是观众认识的词（产品名/SHIP/LIVE 类）， 生造词没有\"认出\"可言",
+    "声音：逐段点亮稀疏轻拟音或无声，落位帧一声 impact + 可接 riser 铺底"
+  ],
+  "name": "stroke-segment-build",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/opening/stroke-segment-build.md",
+    "upstream_demo": "demos/opening/stroke-segment-build/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "断笔成字——标题拆成十几段互不相连的笔画乱序逐段点亮，前 70% 不可读，末段落位瞬间语义\"啪\"地成立",
+      "id": "stroke-segment-build",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "stroke-segment-build",
+      "status": "reference-only",
+      "use": "开场吊悬念的产品名/大数字揭晓；一支片 ≤1 次；与 type-assembly/draw-svg-trace 分工：那些是\"看着字被组装/描画\"，本卡是\"意义延迟揭晓\""
+    }
+  ],
+  "version": 1
+}

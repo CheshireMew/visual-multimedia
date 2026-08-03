@@ -1,0 +1,23 @@
+{
+  "protocol": "visual-multimedia-caption-qc",
+  "version": 1,
+  "captions": "captions.json",
+  "captions_sha256": "65106ad38c134be96d4acc088fdf02a44b1973eb28ea78cbe45123cf0f0a8ff9",
+  "status": "passed",
+  "thresholds": {
+    "minimum_duration_seconds": 0.5,
+    "minimum_reading_units": 2,
+    "warning_reading_units_per_second": 9,
+    "maximum_reading_units_per_second": 12,
+    "minimum_time_coverage": 0.9
+  },
+  "metrics": {
+    "cue_count": 1,
+    "duration_seconds": 4.75,
+    "time_coverage": 1,
+    "maximum_reading_units_per_second": 3.3684,
+    "warning_count": 0,
+    "error_count": 0
+  },
+  "issues": []
+}

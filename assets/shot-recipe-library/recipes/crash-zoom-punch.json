@@ -1,0 +1,45 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "21a4b0047867fa0521e4dd22dae70ea9a020eb34cb4b75742cf300343555bc92",
+  "category": "camera",
+  "id": "crash-zoom-punch",
+  "intent": {
+    "duration": "约 0.5s 动作 + 前后 hold（动作 6–11f，前 hold ≥30f 建立全景、后 hold ≥45f 读特写）",
+    "energy": "高（瞬时冲击，非持续高能）",
+    "purpose": "慢推近（spotlight-hero-card）是\"请看\"，急推是\"看这个！\"——一拍之内 从全景砸到特写，视线没有选择余地。落位质感分两款：回弹是弹性 （\"看这个\"），撞停震屏是重量（\"就是它\"），按强调级选。",
+    "semantic_tags": [
+      "camera",
+      "effects"
+    ],
+    "use": "功能段\"点名\"镜头——把观众视线一拍按到目标卡/模块上；强调级用撞停"
+  },
+  "known_pitfalls": [
+    "终点必须是高清纹理槽位（card4-hires 级）——急推后全程特写它， 低倍截图糊字（Q2）；终点先按 Q2 的高分辨率栅格化技法处理",
+    "两款别混用：回弹后再震屏读作穿帮；一支片急推 ≤2 次（P4 手法去重精神）",
+    "参数经占位素材调校转正，非实战定稿，首次实战后回验"
+  ],
+  "name": "crash-zoom-punch",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/camera/crash-zoom-punch.md",
+    "upstream_demo": "demos/camera/crash-zoom-punch/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "全景一拍急推到目标特写（6f），落位二选一——过冲回弹（弹性）或撞停震屏（重量）",
+      "id": "crash-zoom-punch",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "crash-zoom-punch",
+      "status": "reference-only",
+      "use": "功能段\"点名\"镜头——把观众视线一拍按到目标卡/模块上；强调级用撞停"
+    }
+  ],
+  "version": 1
+}

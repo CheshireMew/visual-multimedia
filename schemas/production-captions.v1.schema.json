@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.production-captions.v1",
+  "title": "Visual Multimedia Production Captions v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "source", "language", "cues", "exports", "qc"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-production-captions"},
+    "version": {"const": 1},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transcript_sha256", "source_id", "source_sha256", "review_status", "timing_substrate"],
+      "properties": {
+        "transcript_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "source_id": {"type": "string", "minLength": 1},
+        "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "review_status": {"const": "passed"},
+        "timing_substrate": {"enum": ["reviewed-segment-boundaries", "reviewed-word-boundaries"]}
+      }
+    },
+    "language": {"type": "string", "minLength": 1},
+    "cues": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "start_seconds", "end_seconds", "text", "source_segment_ids", "reading_units", "reading_units_per_second"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "start_seconds": {"type": "number", "minimum": 0},
+          "end_seconds": {"type": "number", "exclusiveMinimum": 0},
+          "text": {"type": "string", "minLength": 1},
+          "source_segment_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "reading_units": {"type": "integer", "minimum": 1},
+          "reading_units_per_second": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "exports": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["srt", "vtt"],
+      "properties": {
+        "srt": {"type": "string", "minLength": 1},
+        "vtt": {"type": "string", "minLength": 1}
+      }
+    },
+    "qc": {"type": "string", "minLength": 1}
+  }
+}

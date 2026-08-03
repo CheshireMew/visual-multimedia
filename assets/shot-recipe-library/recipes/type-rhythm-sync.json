@@ -1,0 +1,58 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "ef95018d7a8e30b9136997b78116e4f091a91e90d95965938eb8ede2eca72bc8",
+  "category": "typography",
+  "id": "type-rhythm-sync",
+  "intent": {
+    "duration": "单式 4–5s；A 每拍占 10f 衰减窗、B 每词按语速 15–35f",
+    "energy": "A 高（蹦迪感）/ B 中（跟读引导）",
+    "purpose": "文字动效库内此前全是\"入场怎么进\"，没有词管\"在场的字怎么跟着声音活\"。 这两式补上：A 让标题变成节奏器官——笔画随低音鼓抽动变粗又弹回， 文字在蹦迪，适合高能段落的视觉低音炮；B 让标语变成跟读字幕—— 旁白读到哪个词哪个词从左到右填色点亮，视线被牵着走，适合口播/ 标语强调段。共同点是**字不动、属性动**：无位移、无入退场， 纯粹是字重/颜色在声音的拍点上呼吸。",
+    "semantic_tags": [
+      "typography",
+      "rhythm"
+    ],
+    "use": "标题/标语与音轨强绑定的段落；A 绑节拍（鼓点），B 绑语音（旁白逐词）"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "两式都是**声音强依赖**手法：A 命中帧必须与鼓点同帧、B 填色区间必须 跟旁白词边界（钉帧走 sound-design §4.5 相对起点）——无声上片则 A 读作 抽风、B 读作莫名变色，别在无音轨段落用",
+    "A 式实战想要真·可变字体连续字重（wght 轴逐帧插值）需先确认字体加载 与渲染器支持；demo 的 stroke+跳变方案是无字体风险的兜底，效果已可感",
+    "A 式全片 ≤1 段（P4）——标题蹦迪是抢戏大户，两段同片互相拆台",
+    "B 式词数 ≤6/屏：更多词时填色进度读不过来，拆行或拆镜"
+  ],
+  "name": "type-rhythm-sync",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/typography/type-rhythm-sync.md",
+    "upstream_demo": "demos/typography/type-rhythm-sync/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "命中帧笔画瞬间变粗（stroke+字重跳变），~10f 衰减弹回；重音拍额外撑宽 8%",
+      "id": "font-weight-pump",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "font-weight-pump 字重脉冲",
+      "status": "reference-only",
+      "use": "音乐驱动的高能段；标题当低音炮"
+    },
+    {
+      "description": "每词深色从左到右填亮，进度跟语速，读完保持；活跃词下带读指下划线",
+      "id": "karaoke-fill-sync",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "karaoke-fill-sync 填色随读",
+      "status": "reference-only",
+      "use": "旁白/口播强调段；多词标语的视线引导"
+    }
+  ],
+  "version": 1
+}

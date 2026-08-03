@@ -1,0 +1,45 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 4,
+  "sources": [
+    {
+      "id": "diagram-artwork",
+      "media_type": "generated",
+      "file": "index.html#diagram-stage",
+      "binding": {"pipeline": "browser"},
+      "representation": {"kind": "source", "source_id": null, "build": null, "verification": null},
+      "acquisition": {
+        "method": "generated-in-project",
+        "source_url": "",
+        "captured_at": "2026-08-03T00:00:00.000Z"
+      },
+      "rights": {
+        "status": "not-required",
+        "license": "generated-in-project",
+        "attribution": "",
+        "terms_url": ""
+      },
+      "usage": "original HTML and SVG technology diagram",
+      "integrity": null,
+      "generation": {
+        "provider": "local-project",
+        "model": "html-svg",
+        "prompt": "",
+        "seed": null,
+        "created_at": "2026-08-03T00:00:00.000Z"
+      },
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-08-03T00:00:00.000Z",
+          "provider": "local-project",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": {"x": 0.55, "y": 0.5},
+      "crops": {},
+      "notes": "本案例直接由网页中的 HTML/SVG 生成图解，不包含外部素材或烘焙文字。"
+    }
+  ]
+}

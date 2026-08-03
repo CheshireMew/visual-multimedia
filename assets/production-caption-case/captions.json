@@ -1,0 +1,30 @@
+{
+  "protocol": "visual-multimedia-production-captions",
+  "version": 1,
+  "source": {
+    "transcript_sha256": "ba4a888d9731cd54fa92ed934ee5c932d13bee5a56684c18959f46feec5f19f5",
+    "source_id": "case-narration",
+    "source_sha256": "a794c1a9b4dbf66a63db82b28788d04e3b564804e3fb9f01bb51c748d00b7e9b",
+    "review_status": "passed",
+    "timing_substrate": "reviewed-segment-boundaries"
+  },
+  "language": "zh-CN",
+  "cues": [
+    {
+      "id": "caption-0001",
+      "start_seconds": 0,
+      "end_seconds": 4.75,
+      "text": "大家好，我是夜希，现在来测试嘴型同步。",
+      "source_segment_ids": [
+        "segment-0001"
+      ],
+      "reading_units": 16,
+      "reading_units_per_second": 3.3684
+    }
+  ],
+  "exports": {
+    "srt": "captions.srt",
+    "vtt": "captions.vtt"
+  },
+  "qc": "caption-qc.json"
+}

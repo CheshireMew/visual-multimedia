@@ -1,0 +1,70 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "01e0854734a69c81044af3607004a35d50009970d5e4cf9d6ee1265fa4f4ca2f",
+  "category": "effects",
+  "id": "glow-flyline-moves",
+  "intent": {
+    "duration": "A ~5s / B ~4.7s / C ~5.2s",
+    "energy": "A 低（底噪级）/ B 中 / C 中高",
+    "purpose": "这是库内第一张整卡住在**暗场**的卡。白底提亮不可见判例反过来读就是： 要玩光，先去暗场。A 是空间的呼吸——近黑底三团重 blur 光斑有机漂移， 中央深卡边缘随最近光斑靠近而泛光，背景不再是死的；B 是数据的动词—— 发光弧线从 A 卡\"打\"到 B 卡，亮点头领跑、渐隐光尾，落点描边脉冲点亮， 指标关联第一次有了方向；C 是 A+B 的焊接——飞线落点帧邻近光斑同帧 涨亮一拍，氛围层与事件层**同帧共振**，互相搭腔而非各演各的（组合命门： 拆开共振帧就退化成两张卡并置）。",
+    "semantic_tags": [
+      "effects",
+      "data"
+    ],
+    "use": "全片唯一暗场段落的氛围与数据叙事：铺底噪用 A、讲数据流向用 B、要背景给前景搭腔用 C；Linear 官网味"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "暗场段与纸墨浅底主视觉切换成本高——全片暗场段 ≤1 段，进出 用 shot-transitions 藏切族垫，别生切明暗",
+    "光斑漂移末段**必须**缓动收敛到静止再冻结——匀速漂移直接 clamp 是一次可见的急刹（A 式 out-sine 收敛判例）",
+    "实战品牌色版：光斑用品牌色对（如蓝紫），灰阶参数只保证明度关系， 色相对比要重调",
+    "B 接力线 ≥3 条时改用 C——纯飞线连打读作大屏模板，共振才有作者感",
+    "声音：B/C 每次落点一声轻打点，A 无声（sound-design §4.5）"
+  ],
+  "name": "glow-flyline-moves",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/effects/glow-flyline-moves.md",
+    "upstream_demo": "demos/effects/glow-flyline-moves/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "三团 500-700px radial 光斑 + blur(100px)，双正弦漂移；卡缘辉光按光斑距离 [180,720]px→[1,0] 加权取 max 驱动",
+      "id": "glow-orb-ambient",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "glow-orb-ambient",
+      "status": "reference-only",
+      "use": "暗场段落铺底；卡呼吸感"
+    },
+    {
+      "description": "手写 bezier 100 段采样，22f out-cubic 生长；光头条件挂载领跑，段 opacity 按离头距离渐隐；落点描边脉冲，可接力",
+      "id": "flyline-arc",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "flyline-arc",
+      "status": "reference-only",
+      "use": "数据流向/指标关联；dashboard 叙事"
+    },
+    {
+      "description": "A+B 焊接：光斑 surge 与卡脉冲共用落点帧，涨亮 1+1.6×surge、5f 起升 15f 消散",
+      "id": "orb-flyline-relay",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "orb-flyline-relay",
+      "status": "reference-only",
+      "use": "暗场高光段；三卡接力收束"
+    }
+  ],
+  "version": 1
+}

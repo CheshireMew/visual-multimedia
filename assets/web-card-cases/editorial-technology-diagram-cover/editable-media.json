@@ -1,0 +1,189 @@
+{
+  "protocol": "editable-media",
+  "version": 5,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "manual",
+    "fps": 1,
+    "loop": "none",
+    "controls": {"keyboard": false, "wheel": false, "touch": false, "overview": false}
+  },
+  "accessibility": {"title_data_field": "title", "canvas_selector": "#mediaCanvas"},
+  "production": {
+    "content_unit_id": "editorial-technology-diagram-cover-demo",
+    "profile_id": "editorial-technology-diagram-cover"
+  },
+  "layers": [
+    {
+      "id": "kicker",
+      "name": "Kicker",
+      "kind": "text",
+      "selector": "[data-editable-id='kicker']",
+      "default_bounds": {"x": 80, "y": 58, "width": 560, "height": 28, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 14, "maximum": 28, "step": 1}}
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {"x": 80, "y": 126, "width": 630, "height": 196, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 48, "maximum": 90, "step": 1}}
+    },
+    {
+      "id": "deck",
+      "name": "Deck",
+      "kind": "text",
+      "selector": "[data-editable-id='deck']",
+      "default_bounds": {"x": 82, "y": 360, "width": 560, "height": 74, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 18, "maximum": 34, "step": 1}}
+    },
+    {
+      "id": "metadata",
+      "name": "Metadata",
+      "kind": "text",
+      "selector": "[data-editable-id='metadata']",
+      "default_bounds": {"x": 82, "y": 520, "width": 560, "height": 24, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 12, "maximum": 24, "step": 1}}
+    },
+    {
+      "id": "diagram-stage",
+      "name": "Diagram stage",
+      "kind": "group",
+      "selector": "[data-editable-id='diagram-stage']",
+      "default_bounds": {"x": 760, "y": 48, "width": 660, "height": 504, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "diagram-title",
+      "name": "Diagram title",
+      "kind": "text",
+      "selector": "[data-editable-id='diagram-title']",
+      "default_bounds": {"x": 810, "y": 82, "width": 360, "height": 24, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 12, "maximum": 24, "step": 1}}
+    },
+    {
+      "id": "input-label",
+      "name": "Input label",
+      "kind": "text",
+      "selector": "[data-editable-id='input-label']",
+      "default_bounds": {"x": 816, "y": 202, "width": 150, "height": 32, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 14, "maximum": 28, "step": 1}}
+    },
+    {
+      "id": "model-label",
+      "name": "Model label",
+      "kind": "text",
+      "selector": "[data-editable-id='model-label']",
+      "default_bounds": {"x": 1010, "y": 270, "width": 160, "height": 32, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 14, "maximum": 28, "step": 1}}
+    },
+    {
+      "id": "result-label",
+      "name": "Result label",
+      "kind": "text",
+      "selector": "[data-editable-id='result-label']",
+      "default_bounds": {"x": 1218, "y": 354, "width": 150, "height": 32, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 14, "maximum": 28, "step": 1}}
+    }
+  ],
+  "component": {
+    "id": "editorial-technology-diagram-cover",
+    "name": "Editorial technology diagram cover",
+    "category": "covers",
+    "tags": ["editorial", "technology", "diagram", "wide-cover"]
+  },
+  "theme_variables": [
+    {"id": "paper", "name": "Paper", "kind": "color", "css_variable": "--paper", "default": "#faf9f5"},
+    {"id": "ink", "name": "Ink", "kind": "color", "css_variable": "--ink", "default": "#252522"},
+    {"id": "muted", "name": "Muted", "kind": "color", "css_variable": "--muted", "default": "#67665f"},
+    {"id": "line", "name": "Line", "kind": "color", "css_variable": "--line", "default": "#d8d5cb"},
+    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#e05f4b"},
+    {"id": "font_sans", "name": "Sans", "kind": "font", "css_variable": "--font-sans", "default": "Noto Sans SC, Microsoft YaHei UI, PingFang SC, Segoe UI, sans-serif"},
+    {"id": "font_mono", "name": "Mono", "kind": "font", "css_variable": "--font-mono", "default": "Cascadia Mono, Consolas, monospace"}
+  ],
+  "parameters": [],
+  "scenes": [
+    {
+      "id": "cover",
+      "name": "Wide editorial technology cover",
+      "page_role": "cover",
+      "content_shape": "title-and-explanatory-diagram",
+      "layout_id": "wide-diagram-cover",
+      "duration_ms": 1000,
+      "primary_blocks": 2,
+      "steps": [
+        {"id": "page", "at_ms": 0, "label": "Page", "state_kind": "start", "review": false, "description": "静态宽幅封面一次呈现准确标题和原创科技图解。"}
+      ],
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "保持标题与图解的静态编辑关系，不用装饰运动代替图解含义。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {},
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "wide-diagram-cover",
+      "name": "Wide diagram cover",
+      "page_roles": ["cover"],
+      "content_shapes": ["title-and-explanatory-diagram"],
+      "required_data_fields": ["kicker", "title", "deck", "metadata", "diagram_title", "input_label", "model_label", "result_label"],
+      "required_layer_ids": ["kicker", "title", "deck", "metadata", "diagram-stage", "diagram-title", "input-label", "model-label", "result-label"],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": ["deck", "diagram-stage"],
+      "capacity": {"maximum_primary_blocks": 2},
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "wide-5x2",
+      "name": "Wide 5:2",
+      "canvas": {"width": 1500, "height": 600, "background_mode": "opaque", "background_color": "#faf9f5"},
+      "layers": {}
+    }
+  ],
+  "default_variant_id": "wide-5x2",
+  "data_fields": [
+    {"id": "kicker", "name": "Kicker", "kind": "string", "default": "RESEARCH NOTE / VISUAL SYSTEM"},
+    {"id": "title", "name": "Title", "kind": "string", "default": "把抽象机制\n变成一张可读图解"},
+    {"id": "deck", "name": "Deck", "kind": "string", "default": "准确文字留在网页里，右侧只负责展示输入、关系与结果。"},
+    {"id": "metadata", "name": "Metadata", "kind": "string", "default": "EDITORIAL TECHNOLOGY COVER · 2026"},
+    {"id": "diagram_title", "name": "Diagram title", "kind": "string", "default": "FROM SIGNAL TO STRUCTURE"},
+    {"id": "input_label", "name": "Input label", "kind": "string", "default": "输入 / SIGNAL"},
+    {"id": "model_label", "name": "Model label", "kind": "string", "default": "关系 / MODEL"},
+    {"id": "result_label", "name": "Result label", "kind": "string", "default": "结果 / FORM"}
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "required_layer_ids": ["kicker", "title", "deck", "metadata", "diagram-stage", "diagram-title", "input-label", "model-label", "result-label"],
+    "bounds_tolerance_px": 1,
+    "safe_area": {"top": 42, "right": 54, "bottom": 42, "left": 54},
+    "content_bounds_layer_ids": ["kicker", "title", "deck", "metadata", "diagram-stage", "diagram-title", "input-label", "model-label", "result-label"],
+    "minimum_content_span": 0.82,
+    "minimum_font_px": {"kicker": 14, "title": 48, "deck": 18, "metadata": 12, "diagram-title": 12, "input-label": 14, "model-label": 14, "result-label": 14},
+    "minimum_gaps": [
+      {"above": "title", "below": "deck", "min_px": 28}
+    ],
+    "thumbnail": {"width": 360, "minimum_text_px": 8, "text_layer_ids": ["title"]}
+  },
+  "delivery": {"preview": "local-server", "remote_dependencies": "forbid"},
+  "resources": ["editable-media-runtime.js", "style-profile.json"]
+}

@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "388fbc084af58ad65aeeb91ff248b293693bb1de166600638a374b768f380dc1",
+  "category": "data",
+  "id": "odometer-digit-roll",
+  "intent": {
+    "duration": "滚动+逐位锁定 ~63f + 脉冲 8f + hold ≥45f，约 5s",
+    "energy": "中高",
+    "purpose": "王牌数字的登场库内有\"砸\"（score-slam）和\"弹\"（damage-number）， 都是位移系。本卡是**机械系**：数字不是飞进来的，是\"算出来的\"—— 每位一条 0–9 滚轮高速转动，从左到右逐位减速、过冲半格、咔哒锁定， Vercel Ship/Stripe Sessions 指标段的标准语法。滚动过程自带悬念 （它会停在几？），逐位锁定自带节奏（哒、哒、哒、哒），比直接显示 终值多一整拍的期待感。与 VerticalTicker（backlog 待选）的区别： 有终值、逐位停稳，不是无限滚动墙。",
+    "semantic_tags": [
+      "data",
+      "typography"
+    ],
+    "use": "单个王牌指标的全屏亮相（\"10x\"/\"99.98%\"级）；与 impact-feedback B 式（伤害数字弹出）分工——那是元素级配菜，这是全屏级主菜"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "数位 ≤6（含小数点前后）——每多一位多 7f 错峰，8 位滚完 >2.5s 观众等不起；大数换缩写（12.4M 不是 12,400,000）",
+    "与 impact-feedback B（伤害数字）同片可共存但分工要清：全屏主菜 一次（本卡），卡片配菜多次（B 式）——两处都全屏就是两次主菜",
+    "滚动的数字必须是**真值的各位**——终值 99.98 就滚 9/9/9/8， 中途乱数会被暂停党抓到\"假滚动\"",
+    "声音强依赖候选位：逐位锁定\"哒\"×N + 终值确认一声低音 （sound-design §4.5），无声版成立但少一半爽感"
+  ],
+  "name": "odometer-digit-roll",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/data/odometer-digit-roll.md",
+    "upstream_demo": "demos/data/odometer-digit-roll/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "里程表数字滚动大字报——全屏巨号指标每个数位像老虎机滚轮独立纵向滚动带残影，从左到右逐位过冲停稳，全部锁定瞬间整体加深脉冲",
+      "id": "odometer-digit-roll",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "odometer-digit-roll",
+      "status": "reference-only",
+      "use": "单个王牌指标的全屏亮相（\"10x\"/\"99.98%\"级）；与 impact-feedback B 式（伤害数字弹出）分工——那是元素级配菜，这是全屏级主菜"
+    }
+  ],
+  "version": 1
+}

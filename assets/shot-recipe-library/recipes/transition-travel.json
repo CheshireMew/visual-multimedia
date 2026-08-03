@@ -1,0 +1,57 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "1295e21522f557a0dfd719e1663dccbd2593648cc2d9e208ba208d67497a029e",
+  "category": "transition",
+  "id": "transition-travel",
+  "intent": {
+    "duration": "n/a（技法卡；各式动作段 25–60f，前后 hold 另计，帧数从相邻镜头预算里划）",
+    "energy": "n/a（技法卡，不占能量位）",
+    "purpose": "shot-transitions 六式是\"交棒\"型——前镜收尾、后镜入场，接缝靠白闪/暗场/ 焦点/黑场/糊帧/窗口盖住换页瞬间。本卡两式是\"穿越\"型——后景在前景画面里 以真实元素存在（网格槽位/字形洞），镜头一条连续空间运动钻进去， 观众从头到尾跟着同一个物体，没有交棒瞬间。选型口径：后景能在前景里\"预先 在场\"→穿越；两景只是先后关系、无空间嵌套→交棒。两式内部再按语义分—— A 是\"把这张卡放回去\"（详情→总览，F 式穿窗的逆向）；C 是\"标题即是门\" （章节字卡与转场二合一）。",
+    "semantic_tags": [
+      "transition",
+      "camera"
+    ],
+    "use": "前后两镜存在\"元素/容器\"级空间关系的接缝（技法卡，与 shot-transitions 六式互补选用）"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验；灰阶测不出纹理级缺陷（轮 A 判例），真实素材 上先出静帧自检",
+    "C 式腔心坐标是字体度量估算（字宽 em 值手推），换字体/换词/渲染器字距 不同都会漂——渲后看第一帧推进方向，洞不居中就微调 origin，别信算出来的数",
+    "A 式槽位坐标必须精确到像素（demo 里从 fixtures 布局逐项推算 808,590, 524x454,r14）——差几像素落座后再对齐，观众读作\"飞到附近再吸附\"， \"归位\"的严丝合缝感全无",
+    "穿越两式与交棒六式同一接缝不叠加，一缝一式；穿越式已自带高能量， 再包白闪/震屏读作穿帮（规矩同 shot-transitions）"
+  ],
+  "name": "transition-travel",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/transition-travel.md",
+    "upstream_demo": "demos/transition/transition-travel/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "全屏特写卡收缩+位移+长出圆角，严丝合缝飞落进 dashboard 网格所属槽位，3% 过冲落座",
+      "id": "shared-element-morph",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "共享元素归位 shared-element-morph",
+      "status": "reference-only",
+      "use": "详情→总览的\"归位\"语义；与 F 式穿窗成对使用（进窗/回位）"
+    },
+    {
+      "description": "巨型标题字腔（SVG mask 挖洞）透出新页，指数推进穿洞，洞撑满瞬间接管、残余笔画甩出画外",
+      "id": "letterform-zoom",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "字腔穿越 letterform-zoom",
+      "status": "reference-only",
+      "use": "章节标题→正文；替代 D 式黑场字卡的高能量款"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "6719116cc4fcf2cc3766af12125323b6fc31c93688925b2693d378a4df84fdb0",
+  "category": "transition",
+  "id": "bubble-swarm-takeover",
+  "intent": {
+    "duration": "~4.3s（130f：飘入 ~67f + 峰值藏切 + 散开 ~43f）",
+    "energy": "中高（持续群体涌动，无瞬时冲击）",
+    "purpose": "transition-hidden-cut 的前景遮挡式是\"一件东西扫过去的 1–3 帧\"， wipe-transitions 是一条几何边界扫过——都是\"边界\"思维。本卡是\"幕布\" 思维：让一**群**品牌实体花 2 秒飘入前景涨大遮屏，遮蔽峰值藏硬切， 再散开露出新场景。比几何擦除高级的地方在于幕布本身就是品牌资产， 转场时间越长品牌露出越足，反而不嫌慢。命门有二：**峰值必须真遮满** （6 颗巨型气泡按网格钉落点兜底，随机群只管氛围）；**洗白层压在页面 与气泡之间**——页面先被洗掉细节，气泡才接得住全部视线，切换在白纱 后面完成，观众无从对比前后帧。",
+    "semantic_tags": [
+      "transition"
+    ],
+    "use": "章节级换景且品牌世界里有\"实体装饰物\"可当幕布（气泡/花瓣/图标皆可换皮）；转场即品牌露出的段落"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与 transition-hidden-cut 分工：那卡是 1–3 帧的\"看不见剪刀\"（遮挡物 是构图里既有元素，快进快出），本卡是 2 秒级\"幕布仪式\"（遮挡物是外来 群体，慢涨慢散）——接缝预算紧用那卡，章节换幕用本卡",
+    "与 wipe-transitions/shot-transitions 同层选型：几何擦除/流白是中性 转场，本卡自带品牌气质——品牌无\"实体装饰物\"资产时别硬造，中性段落 用回几何式",
+    "珠光渐变的高光偏移（34%/28%）是\"3D 球\"错觉来源，改成居中径向渐变 立即变平面圆点",
+    "峰值帧前后各 ±2f 内不得有任何气泡 opacity <1 的空隙露底——检查 方式：单帧导出峰值帧看有无旧场景像素",
+    "实战换皮（花瓣/logo/表情）时保持三层景深 + 网格保底两条铁律， 形状可换、结构不可换"
+  ],
+  "name": "bubble-swarm-takeover",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/transition/bubble-swarm-takeover.md",
+    "upstream_demo": "demos/transition/bubble-swarm-takeover/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "珠光气泡群幕布转场——大小不一的气泡从画外飘入越涨越大遮满整屏，页面同步\"洗白\"，遮蔽峰值处藏切换，气泡向外散开后已是新场景；可混入 i18n 文字胶囊变体",
+      "id": "bubble-swarm-takeover",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "bubble-swarm-takeover",
+      "status": "reference-only",
+      "use": "章节级换景且品牌世界里有\"实体装饰物\"可当幕布（气泡/花瓣/图标皆可换皮）；转场即品牌露出的段落"
+    }
+  ],
+  "version": 1
+}

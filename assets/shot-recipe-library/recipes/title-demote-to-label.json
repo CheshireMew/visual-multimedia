@@ -1,0 +1,48 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "19ed9675c9df30ce22e71f630783617c0dc0ebb89cc58dcfc14acbbb6f7df21b",
+  "category": "typography",
+  "id": "title-demote-to-label",
+  "intent": {
+    "duration": "A ~3s（92f）/ B ~3.5s（104f）；demo 两式串播 196f",
+    "energy": "低中（版式变换型，氛围镜头）",
+    "purpose": "章节标题的常规命运是\"出现→消失→内容登场\"，标题和内容互不认识。 本卡让标题**降格而不退场**：居中大字站稳一拍宣告主题，然后一次连续 补间缩到 0.3x 飞到左上角，落成这一节的栏目标签——它还在屏幕上， 只是从主角变成了门牌。观众获得免费的空间记忆：刚才那个大词就是 现在左上角那个小词，本节讲的就是它。内容骨架在降格进行中就开始 生长，交接零空档。",
+    "semantic_tags": [
+      "typography",
+      "transition"
+    ],
+    "use": "章节开场（标题先当主角再让位给内容）；教程/功能演示片的小节交接；B 式给\"文字/编辑\"类产品加身份暗示"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "与\"标题钉进 3D 空间随相机透视变形\"的场景锁定拍法（已退役）分工 （空间型），本卡是 2D 版式层级的连续降格（版式型）——要\"标题住进 产品空间\"用那卡，要\"标题变栏目名\"用本卡，同片选一",
+    "降格路径上不许有其他元素动——标题飞行是全屏唯一焦点，骨架生长 在它落点下方不抢（起点错开），但弹窗/光标类同帧入场必抢",
+    "多节连用（每节一次降格）时左上角标签要**换行不叠放**：新标签落位 旧标签上移让位，否则第二节起左上角变成标签坟场",
+    "B 式的选中高亮是\"文字可被选中\"的产品暗示，非编辑器/文档类产品 用了语义空转，别为了好看加",
+    "标题文案 ≤3 个词——降格到 0.3x 后还要当可读标签，长句缩完就是一条灰线"
+  ],
+  "name": "title-demote-to-label",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/typography/title-demote-to-label.md",
+    "upstream_demo": "demos/typography/title-demote-to-label/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "大标题降格为节标签两式——A 大标题居中显影站稳一拍后连续缩小 0.3x 平移到左上角落成小节标签、内容区在其下生长；B 同套路但登场时带文本选中态高亮块扫入再撤掉",
+      "id": "title-demote-to-label",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "title-demote-to-label",
+      "status": "reference-only",
+      "use": "章节开场（标题先当主角再让位给内容）；教程/功能演示片的小节交接；B 式给\"文字/编辑\"类产品加身份暗示"
+    }
+  ],
+  "version": 1
+}

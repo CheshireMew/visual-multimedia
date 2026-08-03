@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "1252fcbbc488c8a0c5fb0b36ac785b04f636fe30a1ea924238496029991650b3",
+  "category": "interaction",
+  "id": "autolayout-gap-dial",
+  "intent": {
+    "duration": "~4s（120f：框选入场 + 拉松 38f + hold + 弹簧回弹）",
+    "energy": "中（工具理性型，爽点在数字与位移的锁定同步）",
+    "purpose": "\"参数改了、UI 变了\"是设计工具的核心承诺，但通常拍成\"点面板→切 结果\"的前后对比，因果被剪掉了。本卡把因果拍成连续镜头：间距徽章 数字逐格跳，链接块**同帧**被推开，测量线实时拉长——数字就是缰绳， 布局就是马。框选描边+8 手柄+间距标注全是设计工具的母语，观众一眼 认出\"这是在工具里调参数\"。回程故意用欠阻尼弹簧过冲（缩到比起点 更紧再回稳），把\"归位\"做成一次有弹性的收尾。与 type-and-filter 分工：那是\"输入内容→列表收敛\"的检索因果，本卡是\"拨数值→几何 重排\"的参数因果。",
+    "semantic_tags": [
+      "interaction"
+    ],
+    "use": "设计工具/低代码产品的\"改一个数、界面跟着动\"卖点镜头；\"用设计工具语义做包装\"的品类语言"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "数字与位移必须同源同帧：徽章显示值和块坐标都从同一个 gap 派生，分开动画哪怕差 1f，\"参数驱动\"的信任即碎",
+    "demo 顶部大 GAP 读数块是灰阶示意的讲解字幕，实战里若画面已有真实工具面板就删掉，别双重报数",
+    "同族扩展：gap 只是一维，radius/padding/rotation 同语法可换参数——但一镜只拨一个参数，两个以上读作乱调",
+    "框选描边+手柄是\"设计工具语义\"借用（figma/framer 母语），非设计工具受众的片子慎用，读不懂框选就只剩块在挪",
+    "声音：徽章每跳一格一声极轻 tick（拨盘咔哒），回弹落定一声 pop；tick 密度跟步进走"
+  ],
+  "name": "autolayout-gap-dial",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/interaction/autolayout-gap-dial.md",
+    "upstream_demo": "demos/interaction/autolayout-gap-dial/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "间距拨盘驱动布局——一排链接块带框选描边+缝隙间距标注，徽章数字逐格跳动、块被参数实时推开再弹簧回弹归位；\"参数驱动布局\"的可视化",
+      "id": "autolayout-gap-dial",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "autolayout-gap-dial",
+      "status": "reference-only",
+      "use": "设计工具/低代码产品的\"改一个数、界面跟着动\"卖点镜头；\"用设计工具语义做包装\"的品类语言"
+    }
+  ],
+  "version": 1
+}

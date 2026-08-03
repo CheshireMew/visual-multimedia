@@ -39,4 +39,4 @@ node scripts/text-motion-library.mjs materialize per-character-rise --project <e
 - 降低运动时只保留必要淡入淡出或静态结果；
 - 长文、过多行或高强度效果超出当前记录的建议范围时重新选型，不靠压缩字号掩盖问题。
 
-`assets/text-motion-library/` 本身是由正式记录、正式运行时和现有 editable-media 通用运行时组成的真实画廊消费者。修改效果、运行时或目录生成逻辑后，先运行 `node scripts/text-motion-library.mjs build`，再运行 `node scripts/self-test-text-motion-library.mjs` 和 `node scripts/check-skill.mjs`。实际用于交付时继续按 `review-and-export.md` 检查关键状态和最终媒体。
+`assets/text-motion-library/` 本身是由正式记录、正式运行时和现有 editable-media 通用运行时组成的真实画廊消费者。修改效果、运行时或目录生成逻辑后，先运行 `node scripts/text-motion-library.mjs build`，再运行 `node scripts/check-skill.mjs --browser`；该档位已经包含文字动效的确定性浏览器消费者检查，不重复单独运行同一 self-test。实际用于交付时继续按 `review-and-export.md` 检查关键状态和最终媒体。

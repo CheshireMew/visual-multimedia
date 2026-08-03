@@ -1,0 +1,47 @@
+{
+  "aliases": [],
+  "behavior_fingerprint": "c59b1b2af357209212f5a138435723fb442eb084c4b914688ed366696609058b",
+  "category": "ui-entrance",
+  "id": "integration-hub-map",
+  "intent": {
+    "duration": "前摇 ~0.5s + 快翻 ~1.2s + 图标齐现 → 光管齐连两拍 ~0.7s + 输送呼吸 ≥1.5s；全段 4.5–5s",
+    "energy": "中高（翻面是爆点，输送段是余韵）",
+    "purpose": "翻面是\"换时代\"：旧文档页整个翻转 180° 得到新中枢页——必须是 完整翻面不是转个角度（判例），翻的动作**快翻+尾段减速**、一口气 完成无分段停顿（\"匀速\"判例：用户说的匀速=无停顿，不是字面 linear；90° 侧棱停顿版被裁）。侧棱时刻只\"闪一下\"（1–3f 脉冲， 长光晕平台被裁）。接入是**两拍制**：五图标同帧弹现（第一拍）→ 五管同帧起画齐连（第二拍）——齐，才读作\"生态一次到位\"；错峰 逐个连读作逐个谈判（两轮被裁）。连通后光管内亮脉冲沿图标→中枢 方向持续循环，\"输送感\"是终态的生命。",
+    "semantic_tags": [
+      "ui-entrance",
+      "effects"
+    ],
+    "use": "集成/生态能力段（一个产品连一切）；版本翻新叙事（旧页翻成新页）；暗场霓虹调性的功能高潮"
+  },
+  "known_pitfalls": [
+    "demo 在灰阶/占位素材上调校通过——参数是调校起点非实战定稿， 首次实战须以真实素材回验",
+    "时序判例链完整记录在案：错峰连入 ×2 被裁 → 管齐图标错峰被裁 → 两拍制过关。\"同时\"是这张卡的节奏身份",
+    "与 glow-flyline-moves 分工：那张是飞线本身的光效戏；本卡是 翻面+两拍接入+输送的叙事结构，光管只是元素",
+    "与 canvas-materialize-moves 分工：那张是画布元素实体化；本卡 核心是\"旧页翻成新页\"的换代语义",
+    "双面卡实现：水平/垂直线 bbox=0 会使 SVG filter/渐变失效（三管 消失判例），管线渐变用 userSpaceOnUse 每管独立定义"
+  ],
+  "name": "integration-hub-map",
+  "protocol": "visual-multimedia-shot-recipe",
+  "source_evidence": {
+    "notes": "上游 demo 路径与预览声明只证明来源材料存在；目标未复制其代码或媒体，因此全部变体保持 reference-only。",
+    "source_card": "references/shots/ui-entrance/integration-hub-map.md",
+    "upstream_demo": "demos/ui-entrance/integration-hub-map/",
+    "upstream_preview_declared": true
+  },
+  "source_id": "video-shotcraft",
+  "status": "reference-only",
+  "styles": [
+    {
+      "description": "旧页面一次性快翻 180°（侧棱瞬间亮闪）落成新中枢页，五个集成 app 图标同帧弹现、随即五条彩虹光管同帧齐连，光管内输送脉冲持续流动——\"翻开新一页，生态一齐接入\"",
+      "id": "integration-hub-map",
+      "implementation": {
+        "kind": "none",
+        "package": null
+      },
+      "label": "integration-hub-map",
+      "status": "reference-only",
+      "use": "集成/生态能力段（一个产品连一切）；版本翻新叙事（旧页翻成新页）；暗场霓虹调性的功能高潮"
+    }
+  ],
+  "version": 1
+}
