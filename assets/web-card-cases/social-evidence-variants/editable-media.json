@@ -4,11 +4,11 @@
   "entry": "index.html",
   "media_sources": "media-sources.json",
   "playback": {
-    "mode": "manual",
-    "fps": 1,
+    "mode": "hybrid",
+    "fps": 30,
     "loop": "none",
     "controls": {
-      "keyboard": false,
+      "keyboard": true,
       "wheel": false,
       "touch": false,
       "overview": false
@@ -126,7 +126,7 @@
   "scenes": [
     {
       "id": "evidence",
-      "name": "Evidence explanation",
+      "name": "Static evidence card",
       "page_role": "explanation",
       "content_shape": "editorial-evidence",
       "layout_id": "editorial-evidence",
@@ -140,6 +140,33 @@
         "driver": "none",
         "semantic_purpose": "保持静态证据版式，不为装饰引入镜头或物体运动。",
         "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {},
+      "asset_slots": {
+        "creator-avatar": {"data_field": "creator_avatar"}
+      }
+    },
+    {
+      "id": "evidence-motion",
+      "name": "Evidence relationship motion",
+      "page_role": "explanation",
+      "content_shape": "editorial-evidence",
+      "layout_id": "editorial-evidence",
+      "duration_ms": 5200,
+      "primary_blocks": 3,
+      "steps": [
+        {"id": "separated", "at_ms": 0, "label": "Separated", "state_kind": "start", "review": true, "description": "三个证据步骤保持错位和断开的初始关系，说明内容尚未形成可读链路。"},
+        {"id": "aligning", "at_ms": 1700, "label": "Aligning", "state_kind": "change", "review": true, "description": "步骤依次回到共享列和共同基线，主张开始获得清楚的版式关系。"},
+        {"id": "resolved", "at_ms": 3400, "label": "Resolved", "state_kind": "result", "review": true, "description": "主体、版式和结果完成一条连续证据链，结论线同步建立。"},
+        {"id": "reading-hold", "at_ms": 4600, "label": "Reading hold", "state_kind": "hold", "review": false, "description": "完整证据链和结论保持稳定，留出最终阅读时间。"}
+      ],
+      "motion": {
+        "complexity": "complex",
+        "driver": "object",
+        "semantic_purpose": "让三个证据步骤从分散错位移动到共同对齐，直接表达素材经过版式组织后成为可读结果。",
+        "key_state_review": "required",
         "camera": null
       },
       "parameters": {},

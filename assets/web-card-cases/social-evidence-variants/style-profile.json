@@ -1,35 +1,48 @@
 {
   "profile_id": "editorial-evidence-card",
   "source": "built-in",
-  "visual_rules": {
-    "composition": "A flat editorial sheet that separates claim, evidence and takeaway with rules, scale and one evidence-blue field",
-    "hierarchy": "Serif display title, concise sans-serif deck, evidence stage, red takeaway rule and quiet creator line",
-    "accent": "Vermilion marks decisions; deep blue belongs only to the evidence surface",
-    "texture": "Subtle CSS paper grain with no nested rounded cards, glass panels or large floating shadows",
-    "output_variants": "Portrait, landscape and square share content fields but use separate grid relationships and a dedicated square short title"
+  "applicability": {
+    "shared_visual_core": ["static-card", "cover", "web-animation", "gif", "web-derived-video", "manual-html", "hybrid-html"],
+    "static_composition": ["static-card", "cover"],
+    "time_motion": ["web-animation", "gif", "web-derived-video"],
+    "interaction": ["manual-html", "hybrid-html"]
   },
-  "image_treatment": {
-    "external_images": false,
-    "creator_avatar": "Local project-owned image, circular crop at 50% 50%",
-    "evidence_surface": "Original HTML/CSS diagram; no external visual asset",
-    "text_on_image": "Not used in this case"
+  "shared_visual_core": {
+    "typography": {
+      "display": "Noto Serif SC / Source Han Serif SC / SimSun",
+      "body": "Noto Sans SC / Microsoft YaHei UI / PingFang SC",
+      "metadata": "Cascadia Mono / Consolas",
+      "display_weight": 600,
+      "body_weight": 500
+    },
+    "color": {
+      "paper": "Warm low-saturation paper",
+      "accent": "Vermilion marks decisions and conclusions",
+      "evidence": "Deep blue belongs only to the evidence surface"
+    },
+    "material": "Subtle CSS paper grain with no nested rounded cards, glass panels or large floating shadows",
+    "shape_and_line": "A flat editorial sheet organized by rules, square fields and shared alignments",
+    "image_treatment": "The creator avatar is a local project-owned circular crop; the evidence diagram is original HTML/CSS and contains no text baked into an image",
+    "hierarchy_and_rhythm": "Serif display claim, concise sans-serif deck, evidence stage, vermilion takeaway rule and quiet creator line"
   },
-  "motion_rules": {
-    "type": "static",
-    "duration_ms": 1000,
-    "loop": "none"
-  },
-  "typography_rules": {
-    "display": "Noto Serif SC / Source Han Serif SC / SimSun",
-    "body": "Noto Sans SC / Microsoft YaHei UI / PingFang SC",
-    "metadata": "Cascadia Mono / Consolas",
-    "display_weight": "600",
-    "body_weight": "500",
-    "thumbnail": "The active title remains the first readable text at 360px output width"
-  },
-  "overrides": {
-    "responsive_layout": false,
-    "default_variant": "portrait-3x4",
-    "capture": "Each requested output variant is selected from editable-media.json and captured from the same HTML"
+  "realizations": {
+    "static_composition": {
+      "structure": "Claim, evidence and takeaway form one complete page with the evidence field as the single visual anchor",
+      "variants": "Portrait, landscape and square share content fields but use separate grid relationships and a dedicated square short title",
+      "thumbnail": "The active title remains the first readable text at 360px output width",
+      "capture": "Select each requested output variant from editable-media.json and capture it from the same HTML"
+    },
+    "time_motion": {
+      "carrier": "The three evidence steps move from separated offsets into one aligned subject-to-layout-to-result chain inside the stable evidence surface",
+      "states": "Start shows unresolved separation; change establishes shared alignment; result completes the chain and grows the takeaway rule; hold preserves the readable result",
+      "energy": "Restrained editorial movement with short translation and line growth, without page-level floating, camera motion or decorative looping",
+      "loop": "none",
+      "reduced_motion": "Show the aligned result with the stable takeaway rule"
+    },
+    "interaction": {
+      "mode": "Hybrid preview controls remain outside the media canvas",
+      "controls": "Previous, play, pause and next use the existing editable-media runtime",
+      "feedback": "Only short color and opacity feedback; controls never create a second semantic timeline"
+    }
   }
 }

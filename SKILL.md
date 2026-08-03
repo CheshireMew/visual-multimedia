@@ -110,7 +110,7 @@ description: 把用户已经确认的主题、内容真源或现有素材转化�
 
 用户不需要先学会或反复描述视觉风格。按以下顺序确定当前视觉与动效语言：同一项目已经确认的制作配方或风格档案；用户提供的品牌规范或参考样本；`references/visual-production-profiles.md` 中与内容、载体和素材相符的内置配方；都不适用时，由当前内容关系形成一个保守且可修改的方向。除非两个合理方向会让受众理解、品牌气质或制作成本明显不同，否则直接选择一个并用一句话说明，不把风格命名问题抛给用户。
 
-制作配方只决定视觉与动效怎样表达。内容取舍读取 `editorial_position`，文字和口播方式读取 `voice_contract`，构图从当前内容关系产生。首次确认后，把实际采用的字体、色彩、图形、材质、图片处理、密度和动效规则集中保存为当前项目的视觉风格档案；同一系列后续成品默认继承，只有内容不适用、用户要求变化或目标平台造成实质冲突时才调整，并说明变化范围。音乐、环境声、音效、声音身份、混音和语义同步另存为独立声音档案，不写入视觉档案，也不从视觉参考自动推导。
+制作配方只决定视觉与动效怎样表达。内容取舍读取 `editorial_position`，文字和口播方式读取 `voice_contract`，构图从当前内容关系产生。首次确认后，把当前项目的风格档案分成共享视觉核心、静态构图实现、时间运动实现和交互实现；同一系列后续成品默认只继承字体角色、色彩职责、材质、图形、图片处理与层级节奏组成的共享核心。静态卡按页面职责、容量、比例和缩略图重新构图；网页动画及从同一网页时间线导出的视频按语义片段重新确定运动载体、状态和节奏；手动或混合 HTML 另加交互实现。实拍、访谈、录屏和剪辑型视频只在标题、字幕、卡片、图表与动画包装中继承共享核心，镜头、剪辑、声音和素材处理继续由视频路径决定。音乐、环境声、音效、声音身份、混音和语义同步另存为独立声音档案，不写入视觉档案，也不从视觉参考自动推导。
 
 ### 6. 用可展示成果分阶段确认
 
@@ -141,7 +141,7 @@ description: 把用户已经确认的主题、内容真源或现有素材转化�
 | 新写、扩写、实质重组、审查或审查后改写完整口播、旁白、播客独白或主持连接语 | `references/voiceover-writing.md` | 分开读取声音证据与创作参考，从内容和结构根因消除模型组织痕迹，交付诊断或可直接朗读的活动口播 |
 | 起草或派生标题、数据标签、简短字幕、画面文字、发音文本、说明文字或媒体配套帖子 | `references/media-writing.md` | 执行轻量媒体文字、等义压缩与确定性派生，不重新发明完整口播 |
 | 初始化、接入、检索、保存、更新或验证口播声音、完整案例和开头钩子 | `references/voiceover-reference-library.md` | 定位唯一私人库，区分作者声音证据与创作参考，并把实际路径交给口播写作 |
-| 自动选择或继承视觉与动效配方 | `references/visual-production-profiles.md` | 按内容与载体选择完整制作方法，并保存项目级风格档案 |
+| 自动选择或继承视觉与动效配方 | `references/visual-production-profiles.md` | 继承共享视觉核心，并按静态、时间与交互载体选择对应实现层 |
 | 建立或继承项目、系列的声音素材角色与混音规则 | `references/sound-production-profiles.md` | 使用独立声音档案引用真实 audio source id，不把声音规则混入视觉档案 |
 | 查找、注册或采用创作者素材、通用制作素材、网页组件，或从项目晋升可复用成果 | `references/reusable-media-resources.md` | 使用不可变注册版本，经现有素材账本或完整网页包边界进入项目，并保存采用与晋升证据 |
 | 图文卡片、封面、图表、GIF、代码动画、可手动推进的多场景 HTML 或无实拍视觉 | `references/web-visual-production.md` | 建立网页真源、场景合同、播放方式、样稿、确定性时间线和派生媒体 |
@@ -164,7 +164,7 @@ description: 把用户已经确认的主题、内容真源或现有素材转化�
 
 需要实际处理媒体文案时，先按“先完成媒体文案”选定动作，再用 `references/content-to-media.md` 确定真源、受众、渠道职责和文案合同。新写、扩写、实质重组、审查或审查后改写完整口播、旁白、播客独白和主持连接语时，接着读取 `references/voiceover-reference-library.md`：保留用户或上游已经给出的声音样稿与创作参考，只读定位当前私人库；声音候选按成品语境和资格查找，不使用主题词，完整案例和钩子按写作任务与语境浏览。库未配置、为空或没有合适创作参考时普通写作继续，不初始化、不凑数；用户明确要求贴近个人声音但没有可靠声音证据时返回这一缺口。最后读取 `references/voiceover-writing.md`，交付诊断或更新唯一活动口播。轻量媒体文字和确定性派生直接进入 `references/media-writing.md`，不读取私人库。长内容转视频的确认旁白，以及采访原声讲解型中的背景、逐段解释和总结，也必须先完成对应完整口播路径，再进入导演计划、旁白包和渲染合同。
 
-代码生成视觉同时读取 `references/content-to-media.md`、`references/visual-production-profiles.md` 和 `references/web-visual-production.md`。已有项目视觉档案时先继承；只有文字自身承担主要运动表达时再读取 `references/text-motion-production.md`，由 `scripts/text-motion-library.mjs` 选择效果，并把 `assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js` 物化到当前网页包。项目确实存在可复用声音语言时另读 `references/sound-production-profiles.md`。社交卡、平台封面、轮播图或静态卡式短动态图再读取 `references/social-card-production.md`；实际使用照片、截图、生成图或视频帧时读取 `references/visual-asset-placement.md`。共享素材或网页组件的注册、采用与晋升读取 `references/reusable-media-resources.md`。
+代码生成视觉同时读取 `references/content-to-media.md`、`references/visual-production-profiles.md` 和 `references/web-visual-production.md`。已有项目视觉档案时先继承共享视觉核心，再按本次载体读取适用实现层；只有文字自身承担主要运动表达时再读取 `references/text-motion-production.md`，由 `scripts/text-motion-library.mjs` 选择效果，并把 `assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js` 物化到当前网页包。项目确实存在可复用声音语言时另读 `references/sound-production-profiles.md`。社交卡、平台封面、轮播图或静态卡式短动态图再读取 `references/social-card-production.md`；实际使用照片、截图、生成图或视频帧时读取 `references/visual-asset-placement.md`。共享素材或网页组件的注册、采用与晋升读取 `references/reusable-media-resources.md`。
 
 新的或实质重做的长视频、混合视频、音频和播客先读取 `references/staged-media-production.md`，再读取 `references/media-project-contracts.md` 并从 `assets/media-project-starter/` 建立项目。综合样片后的多场景或高成本视频按同一通用构建计划拆成可缓存单元，普通视频和 profile 都不得回到整片粗粒度重渲染。真实人物素材先建立绑定原片哈希并经过听音复核的事实转写，再选择片段。带声音的无实拍视频另读 `references/video-post-production.md`。二次元口播角色或固定角色窗读取 `references/anime-avatar-production.md`。已经选定真实访谈片段并明确采用“背景—原声—解释—总结”结构时，额外读取 `references/interview-explainer-production.md` 并只通过 `scripts/interview-explainer.mjs` 运行；它仍提交到通用阶段，不建立自己的批准系统。普通访谈剪辑、纯混剪、人物故事、录屏或其它视频不得自动变成这种类型。长视频或关键区间不明确时先用 `scripts/make-video-contact-sheet.py` 检查代表帧，再用 `scripts/validate-clip-selections.mjs` 检查真实选段。
 

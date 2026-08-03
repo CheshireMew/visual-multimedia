@@ -1388,8 +1388,8 @@ async function inspectTarget(
       window.editableMedia.setPlaybackMode(mode);
     }, { sceneId: scene.id, mode: manifest.playback.mode });
   }
+  const reviewedSteps = (scene.steps || []).filter((step) => step.review === true);
   if (scene.motion?.camera) {
-    const reviewedSteps = (scene.steps || []).filter((step) => step.review === true);
     const cameraReview = await page.evaluate((probe) => {
       const api = window.editableMedia;
       const byEditableId = (id) => Array.from(
@@ -1487,28 +1487,28 @@ async function inspectTarget(
         }
       }
     }
-    if (screenshotPath && scene.motion.key_state_review === "required") {
-      const parsed = path.parse(screenshotPath);
-      for (const step of reviewedSteps) {
-        await page.evaluate((timeMs) => window.editableMedia.setTime(timeMs),
-          sceneStartTimeForValidation(manifest, scene.id) + Number(step.at_ms));
-        const keyPath = path.join(
-          parsed.dir,
-          `${parsed.name}.key-${step.id}${parsed.ext || ".png"}`
-        );
-        fs.mkdirSync(path.dirname(keyPath), { recursive: true });
-        await page.locator(quality.canvas_selector || ".media-canvas")
-          .screenshot({ path: keyPath });
-        keyStateScreenshots.push(keyPath);
-      }
-      await page.evaluate((timeMs) => window.editableMedia.setTime(timeMs),
-        sceneStartTimeForValidation(manifest, scene.id));
-    }
   } else {
     const cameraState = await page.evaluate(() => window.editableMedia.getCamera?.() ?? null);
     if (cameraState !== null) {
       fail("B9", `无镜头场景 ${scene.id} 仍残留上一场景的镜头状态`);
     }
+  }
+  if (screenshotPath && scene.motion.key_state_review === "required") {
+    const parsed = path.parse(screenshotPath);
+    for (const step of reviewedSteps) {
+      await page.evaluate((timeMs) => window.editableMedia.setTime(timeMs),
+        sceneStartTimeForValidation(manifest, scene.id) + Number(step.at_ms));
+      const keyPath = path.join(
+        parsed.dir,
+        `${parsed.name}.key-${step.id}${parsed.ext || ".png"}`
+      );
+      fs.mkdirSync(path.dirname(keyPath), { recursive: true });
+      await page.locator(quality.canvas_selector || ".media-canvas")
+        .screenshot({ path: keyPath });
+      keyStateScreenshots.push(keyPath);
+    }
+    await page.evaluate((timeMs) => window.editableMedia.setTime(timeMs),
+      sceneStartTimeForValidation(manifest, scene.id));
   }
   if (inspection.fonts !== "loaded") fail("B2", `字体状态为 ${inspection.fonts}`);
   inspection.images.forEach((image) => {

@@ -14,6 +14,14 @@
       --line: #c9c1b4;
       --accent: #b43d29;
       --evidence: #234d69;
+      --chain-progress: 0;
+      --step-one-y: 0px;
+      --step-two-y: 0px;
+      --step-three-y: 0px;
+      --step-one-opacity: 1;
+      --step-two-opacity: 1;
+      --step-three-opacity: 1;
+      --takeaway-progress: 1;
       --font-serif: "Noto Serif SC", serif;
       --font-sans: "Noto Sans SC", sans-serif;
       --font-mono: "Cascadia Mono", Consolas, monospace;
@@ -218,12 +226,28 @@
     }
 
     .steps {
+      position: relative;
       display: grid;
       grid-template-rows: repeat(3, minmax(0, 1fr));
       gap: 0;
     }
 
+    html[data-editable-scene="evidence-motion"] .steps::before {
+      content: "";
+      position: absolute;
+      left: 27px;
+      top: 17%;
+      bottom: 17%;
+      width: 3px;
+      z-index: 2;
+      background: var(--accent);
+      transform: scaleY(var(--chain-progress));
+      transform-origin: top;
+    }
+
     .step {
+      position: relative;
+      z-index: 3;
       display: grid;
       grid-template-columns: 62px minmax(0, 1fr);
       gap: 18px;
@@ -232,6 +256,21 @@
     }
 
     .step:first-child { border-top-color: rgb(245 241 232 / 74%); }
+
+    html[data-editable-scene="evidence-motion"] .step:nth-child(1) {
+      opacity: var(--step-one-opacity);
+      transform: translateY(var(--step-one-y));
+    }
+
+    html[data-editable-scene="evidence-motion"] .step:nth-child(2) {
+      opacity: var(--step-two-opacity);
+      transform: translateY(var(--step-two-y));
+    }
+
+    html[data-editable-scene="evidence-motion"] .step:nth-child(3) {
+      opacity: var(--step-three-opacity);
+      transform: translateY(var(--step-three-y));
+    }
 
     .step-number {
       font-family: var(--font-mono);
@@ -255,6 +294,22 @@
       align-items: start;
       padding-top: 28px;
       border-top: 8px solid var(--accent);
+    }
+
+    html[data-editable-scene="evidence-motion"] .takeaway {
+      border-top-color: transparent;
+    }
+
+    html[data-editable-scene="evidence-motion"] .takeaway::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -8px;
+      height: 8px;
+      background: var(--accent);
+      transform: scaleX(var(--takeaway-progress));
+      transform-origin: left;
     }
 
     .takeaway-copy {
@@ -285,6 +340,13 @@
       letter-spacing: .03em;
     }
 
+    .preview-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
     .preview-note {
       margin: 0;
       padding: 9px 14px;
@@ -295,6 +357,54 @@
       font-family: var(--font-mono);
       font-size: 13px;
       backdrop-filter: blur(10px);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px;
+      border: 1px solid rgb(255 255 255 / 12%);
+      border-radius: 12px;
+      background: rgb(30 31 27 / 84%);
+      backdrop-filter: blur(10px);
+    }
+
+    .controls button {
+      min-width: 72px;
+      min-height: 36px;
+      border: 1px solid rgb(255 255 255 / 18%);
+      border-radius: 8px;
+      color: #f0f1ec;
+      background: rgb(255 255 255 / 7%);
+      font: 600 13px var(--font-sans);
+      cursor: pointer;
+      transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
+    }
+
+    .controls button:hover,
+    .controls button:focus-visible {
+      border-color: rgb(255 255 255 / 34%);
+      color: #fff;
+      background: rgb(255 255 255 / 13%);
+    }
+
+    .controls button:focus-visible {
+      outline: 2px solid #ef6a50;
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html[data-editable-scene="evidence-motion"] {
+        --chain-progress: 1 !important;
+        --step-one-y: 0px !important;
+        --step-two-y: 0px !important;
+        --step-three-y: 0px !important;
+        --step-one-opacity: 1 !important;
+        --step-two-opacity: 1 !important;
+        --step-three-opacity: 1 !important;
+        --takeaway-progress: 1 !important;
+      }
     }
 
     html[data-editable-variant="portrait-3x4"] .eyebrow { left: 64px; top: 56px; width: 700px; height: 32px; }
@@ -391,7 +501,7 @@
       height: calc(var(--canvas-height) * 1px) !important;
     }
     body.capture .media-canvas { transform: none !important; }
-    body.capture .preview-note { display: none; }
+    body.capture .preview-bar { display: none; }
   </style>
 </head>
 <body>
@@ -401,10 +511,10 @@
     data-composition-id="editable-media"
     data-no-timeline
     data-start="0"
-    data-duration="1"
+    data-duration="6.2"
     data-width="1080"
     data-height="1440"
-    data-fps="1"
+    data-fps="30"
   >
     <div class="viewport" id="viewport">
       <div class="canvas-shell" id="canvasShell">
@@ -461,7 +571,15 @@
         </section>
       </div>
     </div>
-    <p class="preview-note" id="previewNote"></p>
+    <div class="preview-bar">
+      <p class="preview-note" id="previewNote"></p>
+      <div class="controls" aria-label="预览控制">
+        <button id="previous" type="button">上一步</button>
+        <button id="play" type="button">播放</button>
+        <button id="pause" type="button">暂停</button>
+        <button id="next" type="button">下一步</button>
+      </div>
+    </div>
   </main>
 
   <script src="editable-media-runtime.js"></script>
@@ -471,6 +589,7 @@
     const canvasShell = document.querySelector("#canvasShell");
     const mediaCanvas = document.querySelector("#mediaCanvas");
     const viewport = document.querySelector("#viewport");
+    const root = document.documentElement;
     let output = { width: 1, height: 1 };
 
     if (captureMode) document.body.classList.add("capture");
@@ -487,6 +606,47 @@
       mediaCanvas.style.transform = `scale(${fittedScale})`;
     }
 
+    function clamp(value) {
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function ease(value) {
+      const bounded = clamp(value);
+      return 1 - Math.pow(1 - bounded, 3);
+    }
+
+    function segment(progress, start, end) {
+      return ease((progress - start) / Math.max(.001, end - start));
+    }
+
+    function renderTime(playback) {
+      const moving = playback.sceneId === "evidence-motion";
+      const progress = moving && playback.sceneDurationMs > 0
+        ? clamp(playback.localTimeMs / playback.sceneDurationMs)
+        : 1;
+      const one = moving ? segment(progress, 0, .3) : 1;
+      const two = moving ? segment(progress, .12, .45) : 1;
+      const three = moving ? segment(progress, .3, .62) : 1;
+      const chain = moving ? segment(progress, .2, .62) : 0;
+      const takeaway = moving ? segment(progress, .45, .62) : 1;
+      root.style.setProperty("--step-one-y", `${((1 - one) * 18).toFixed(3)}px`);
+      root.style.setProperty("--step-two-y", `${((1 - two) * -18).toFixed(3)}px`);
+      root.style.setProperty("--step-three-y", `${((1 - three) * 18).toFixed(3)}px`);
+      root.style.setProperty("--step-one-opacity", (.56 + one * .44).toFixed(4));
+      root.style.setProperty("--step-two-opacity", (.34 + two * .66).toFixed(4));
+      root.style.setProperty("--step-three-opacity", (.24 + three * .76).toFixed(4));
+      root.style.setProperty("--chain-progress", chain.toFixed(4));
+      root.style.setProperty("--takeaway-progress", takeaway.toFixed(4));
+      document.querySelector("#previewNote").textContent =
+        `${playback.sceneId === "evidence-motion" ? "网页动画" : "静态卡片"} · ${playback.stepId || "page"} · ${(playback.localTimeMs / 1000).toFixed(2)} s`;
+    }
+
+    document.querySelector("#previous").addEventListener("click", () => editableMedia.previous());
+    document.querySelector("#play").addEventListener("click", () => editableMedia.play());
+    document.querySelector("#pause").addEventListener("click", () => editableMedia.pause());
+    document.querySelector("#next").addEventListener("click", () => editableMedia.next());
+    window.addEventListener("editablemediatime", (event) => renderTime(event.detail));
+
     editableMedia.ready.then(() => {
       const manifest = editableMedia.getManifest();
       const state = editableMedia.getState();
@@ -495,10 +655,9 @@
         width: Number(variant.canvas.width),
         height: Number(variant.canvas.height)
       };
-      document.querySelector("#previewNote").textContent =
-        `${variant.name} · ${output.width} × ${output.height} · 清单驱动的可编辑网页`;
       new ResizeObserver(fitCanvas).observe(viewport);
       window.addEventListener("resize", fitCanvas);
+      renderTime(editableMedia.getPlayback());
       fitCanvas();
     });
   </script>

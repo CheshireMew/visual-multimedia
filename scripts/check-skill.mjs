@@ -38,6 +38,43 @@ function readJson(filePath) {
   }
 }
 
+function checkStyleProfile(filePath, label) {
+  const profile = readJson(filePath);
+  if (!profile) return null;
+  if (!String(profile.profile_id || "").trim()) fail(`${label} 缺少 profile_id`);
+  if (!String(profile.source || "").trim()) fail(`${label} 缺少 source`);
+  for (const legacyField of [
+    "visual_rules",
+    "image_treatment",
+    "motion_rules",
+    "typography_rules",
+    "overrides",
+  ]) {
+    if (Object.hasOwn(profile, legacyField)) {
+      fail(`${label} 仍保留旧风格档案字段 ${legacyField}`);
+    }
+  }
+  for (const layer of [
+    "shared_visual_core",
+    "static_composition",
+    "time_motion",
+    "interaction",
+  ]) {
+    if (!Array.isArray(profile.applicability?.[layer])) {
+      fail(`${label} 的 applicability.${layer} 必须是成品类型列表`);
+    }
+  }
+  if (!profile.shared_visual_core || typeof profile.shared_visual_core !== "object") {
+    fail(`${label} 缺少 shared_visual_core`);
+  }
+  for (const layer of ["static_composition", "time_motion", "interaction"]) {
+    if (!Object.hasOwn(profile.realizations || {}, layer)) {
+      fail(`${label} 缺少 realizations.${layer}`);
+    }
+  }
+  return profile;
+}
+
 function ensurePath(relativePath, label = relativePath) {
   const absolute = path.resolve(skillRoot, relativePath);
   if (!fs.existsSync(absolute)) fail(`${label} 不存在：${absolute}`);
@@ -449,6 +486,27 @@ for (const item of catalog?.cases || []) {
   }
   const manifestPath = path.resolve(caseRoot, item.files?.manifest || "editable-media.json");
   checkManifest(manifestPath);
+  const stylePath = path.resolve(caseRoot, item.files?.style || "style-profile.json");
+  const styleProfile = checkStyleProfile(stylePath, `案例 ${item.id} 的风格档案`);
+  if (item.id === "social-evidence-variants") {
+    const caseManifest = readJson(manifestPath);
+    const scenes = new Map((caseManifest?.scenes || []).map((scene) => [scene.id, scene]));
+    if (scenes.get("evidence")?.motion?.complexity !== "static") {
+      fail("编辑证据案例缺少静态构图消费者");
+    }
+    if (
+      scenes.get("evidence-motion")?.motion?.complexity !== "complex"
+      || scenes.get("evidence-motion")?.motion?.driver !== "object"
+    ) {
+      fail("编辑证据案例缺少由对象关系承担的真实动画消费者");
+    }
+    for (const output of ["static-card", "web-animation", "web-derived-video"]) {
+      const layer = output === "static-card" ? "static_composition" : "time_motion";
+      if (!styleProfile?.applicability?.[layer]?.includes(output)) {
+        fail(`编辑证据案例的 ${layer} 没有声明 ${output}`);
+      }
+    }
+  }
   const caseRuntime = path.join(caseRoot, "editable-media-runtime.js");
   if (!fs.existsSync(caseRuntime) || sha256File(caseRuntime) !== starterRuntimeHash) {
     fail(`案例 ${item.id} 没有消费当前唯一 editable-media 通用运行时`);
