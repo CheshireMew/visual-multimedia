@@ -19,7 +19,7 @@ node scripts/local-media-environment.mjs mediaflow describe
 
 新建工程时，`project.create` 提交合同声明的目录名、显示名称和完整工程 `profile`，不传 `project` 路径。`profile` 是输出尺寸、分数帧率、色彩、位深、48 kHz 音频和声道数的唯一创建边界；时间型生产者必须让它与已经确认的制作计划一致，不能创建默认工程后再把计划帧当成另一种帧率。MediaFlow Pro 在 `default_project_root` 下创建工程并返回绝对 `path`；后续操作只使用这个返回值。自动化调用端不得另设工程根目录，也不得先在媒体项目、缓存或临时目录建立工程后再移动或复制。桌面端只有在用户主动选择其它目录时才偏离默认根目录，自动化不能把这种人工选择推断成自己的权限。
 
-CLI 是一次请求一个进程的 JSON 接口。请求使用它声明的协议版本，从文件或标准输入交给 `execute --request`；响应只从标准输出读取并检查 `ok`、稳定错误码和结果。不要增加 MCP、后台守护进程或另一套任务实现。
+CLI 是一次请求一个进程的 JSON 客户端。请求使用它声明的 `mediaflow-editor` 协议版本，从文件或标准输入交给 `execute --request`；响应只从标准输出读取并检查 `ok`、稳定错误码和结果。CLI 和可选的 stdio MCP 转接器都只连接同一个常驻 Editor Service，不打开项目数据库，也不复制任务实现。Skill 的正式批处理继续使用 CLI；需要 MCP 的宿主可以使用编辑器公开的 `mediaflow-mcp`，但两条入口必须消费同一份 `describe` 合同。
 
 MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官方 GPT-SoVITS 子进程；这仍属于一次公开操作，不授权 Skill 自己常驻 `api_v2.py`、探测端口或保存第二套进程状态。
 
@@ -30,7 +30,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - Skill 首次决定内容、结构、风格、稳定图层 ID 和复杂动画。
 - 编辑器项目保存网页片段当前采用的输出变体，以及每个场景的文字、图片 source id、颜色、位置、尺寸、旋转、透明度、层级、显隐、图层关键帧、自定义参数、参数关键帧、数据快照和逐字段锁定状态。图片实际文件继续由网页包的 media-sources v4 `media-sources.json` 解析，编辑器不能把 source id 展开成另一份长期保存的绝对路径。
 - MediaFlow Pro 的浏览器渲染器只通过 `window.__hf.seek(seconds)` 定位网页帧，再从当前项目中的片段状态覆盖网页默认值。项目保存过一次修改后，项目状态是后续预览、缓存和成片的唯一来源；原网页包仍是组件结构真源，但不包含这些实例修改。
-- AI 与人工都调用能力合同声明的 `web.clip.*` 状态操作，并带当前 `expected_revision`；自动化写入前优先调用合同提供的差异操作，发现锁定字段或修订冲突时重新读取并展示差异。
+- AI 与人工都调用能力合同声明的 `web.clip.*` 状态操作。所有项目写请求都带最近一次读取返回的 `base_revision`、稳定 `request_id`、`actor` 和 `client_id`；自动化写入前优先调用合同提供的差异操作，发现锁定字段或修订冲突时重新读取并展示差异。
 - `web.clip.edit.describe` 是属性面板和自动化共同读取的编辑描述真源。它按当前变体、场景、运行时状态和锁定状态返回稳定路径、值类型、控件、范围、单位、选项、当前值、默认值、是否可动画及时间线类型；调用端不再维护另一份“标准字段 + 特例参数”表。
 - 用户锁定的字段不由自动化修改。需要新增、删除或重构图层时回到网页源；换版先调用 `web.asset.rebind.plan` 取得不可变计划摘要、逐路径冲突和允许选择，再把每个冲突的明确决定连同原摘要交给 `web.asset.rebind.commit`。源包、片段修订或计划内容在两步之间变化时必须重新规划；不存在 `allow_conflicts`、隐式猜测或“尽量迁移”入口。
 
@@ -67,7 +67,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - 用户明确要求参考视频复刻、匹配或逐帧对齐，并且 `describe` 声明 `quality.reference.compare` 时，用该操作比较最终参考文件和候选文件；它不依赖项目数据库，也不改变网页或时间线。
 - 执行大范围自动修改前可用 `project.version.create` 建立命名恢复版本；`project.version.list/restore` 负责查看和恢复，不把项目版本塞进网页清单。
 
-如果 `capabilities` 声明内置能力 `cooperative-desktop-updates`，桌面界面保持项目打开时也可以运行短进程 CLI。CLI 提交后，桌面端会读取同一份项目状态并刷新；双方仍需使用 `expected_revision`，冲突时重新读取并展示差异。未声明该能力的编辑器仍按其写锁规则工作，不直接操作项目数据库。
+如果 `capabilities` 声明内置能力 `cooperative-desktop-updates`，桌面界面保持项目打开时也可以运行短进程 CLI 或 stdio MCP 客户端。请求提交后，常驻 Editor Service 先持久化事件，再把同一结果实时投影到桌面端；双方仍需使用 `base_revision`，不相交的过期写入由服务自动重放，同一路径冲突则重新读取并交给用户决定。任何调用方都不直接操作项目数据库。
 
 需要把可保真的时间线交给 Final Cut Pro 时，只在 `describe` 声明 `export.fcpxml` 与 `fcpxml-export` 后调用该操作。它会先检查转场、音频总线、网页缓存等语义能否可靠交接；拒绝结果表示当前时间线不能无损映射，调用端不得绕过预检另写一份低保真 XML。
 

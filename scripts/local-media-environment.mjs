@@ -187,15 +187,19 @@ function mediaFlowResult(environment, args, input = undefined) {
   return response;
 }
 
+let mediaFlowContract = null;
+const mediaFlowProjectRevisions = new Map();
+
 export function mediaFlowProDescribe(environment) {
   const response = mediaFlowResult(environment, ["describe"]);
   if (!response.ok) {
     fail(`MediaFlow Pro describe 失败：${JSON.stringify(response.error)}`);
   }
-  if (response.protocol !== "mediaflow-cli" || response.version !== 2) {
-    fail("MediaFlow Pro 没有返回当前 v2 响应合同");
+  if (response.protocol !== "mediaflow-editor" || response.version !== 3) {
+    fail("MediaFlow Pro 没有返回当前 v3 响应合同");
   }
-  return response.result;
+  mediaFlowContract = response.result;
+  return mediaFlowContract;
 }
 
 export function mediaFlowProExecute(
@@ -205,26 +209,69 @@ export function mediaFlowProExecute(
   argumentsValue,
   requestId = null,
 ) {
+  if (!mediaFlowContract) mediaFlowProDescribe(environment);
   const request = {
-    protocol: "mediaflow-cli",
-    version: 2,
+    protocol: "mediaflow-editor",
+    version: 3,
     operation,
     project,
     arguments: argumentsValue,
+    actor: {
+      kind: "agent",
+      id: "visual-multimedia",
+      name: "Visual Multimedia",
+    },
+    client_id: "visual-multimedia",
   };
   if (requestId) request.request_id = requestId;
+  const operationContract = (mediaFlowContract?.operations || []).find(
+    (item) => item.name === operation,
+  );
+  if (!operationContract) {
+    fail(`MediaFlow Pro describe 没有声明操作：${operation}`);
+  }
+  if (operationContract.project_access === "write" && !requestId) {
+    fail(`MediaFlow Pro ${operation} 写入必须提供稳定 request_id`);
+  }
+  if (operationContract.project_access === "write" && project) {
+    const projectKey = path.resolve(project);
+    if (!mediaFlowProjectRevisions.has(projectKey) && operation !== "project.upgrade") {
+      fail(
+        `MediaFlow Pro ${operation} 写入前必须先读取 project.inspect，`
+        + `以取得当前 base_revision：${projectKey}`,
+      );
+    }
+    if (mediaFlowProjectRevisions.has(projectKey)) {
+      request.base_revision = mediaFlowProjectRevisions.get(projectKey);
+    }
+  }
   const response = mediaFlowResult(
     environment,
     ["execute", "--request", "-"],
     JSON.stringify(request),
   );
-  if (response.protocol !== "mediaflow-cli" || response.version !== 2) {
-    fail(`MediaFlow Pro ${operation} 没有返回当前 v2 响应合同`);
+  if (response.protocol !== "mediaflow-editor" || response.version !== 3) {
+    fail(`MediaFlow Pro ${operation} 没有返回当前 v3 响应合同`);
   }
   if (!response.ok) {
     fail(`MediaFlow Pro ${operation} 失败：${JSON.stringify(response.error, null, 2)}`);
   }
-  return response.result;
+  const serviceResult = response.result;
+  if (!serviceResult || typeof serviceResult !== "object" || !("result" in serviceResult)) {
+    fail(`MediaFlow Pro ${operation} 没有返回 Editor Service 结果信封`);
+  }
+  const result = serviceResult.result;
+  const resultProject = project || result?.path;
+  if (
+    resultProject
+    && Number.isInteger(serviceResult.project_revision)
+  ) {
+    mediaFlowProjectRevisions.set(
+      path.resolve(resultProject),
+      serviceResult.project_revision,
+    );
+  }
+  return result;
 }
 
 function manifestFiles(root, current = root) {

@@ -345,8 +345,8 @@ function renderSourceSegment(context, segment, outputPath, cachePath, cacheKey) 
 
 function assertMediaFlowProCapabilities(environment) {
   const describe = mediaFlowProDescribe(environment);
-  if (describe.protocol !== "mediaflow-cli" || describe.version !== 2) {
-    throw new Error("MediaFlow Pro describe 不是当前 v2 能力合同");
+  if (describe.protocol !== "mediaflow-editor" || describe.version !== 3) {
+    throw new Error("MediaFlow Pro describe 不是当前 v3 能力合同");
   }
   if (describe.product !== "MediaFlow Pro") {
     throw new Error(
@@ -389,7 +389,7 @@ function assertMediaFlowProCapabilities(environment) {
       || !["atomic", "task"].includes(operation.execution_mode)
       || !Array.isArray(operation.required_capabilities)
     ) {
-      throw new Error(`MediaFlow Pro ${name} 没有完整的 v2 操作合同`);
+      throw new Error(`MediaFlow Pro ${name} 没有完整的 v3 操作合同`);
     }
   }
   const capabilityCatalog = new Map(
@@ -641,7 +641,7 @@ function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
       overwrite: false,
       timeout: 3600,
     },
-    null,
+    `${plan.project_id}-assembly-build-${buildPlanSha.slice(0, 16)}`,
   );
   const outcome = result.task?.outcome;
   if (result.task?.status !== "completed" || outcome?.outcome_type !== "sequence_build") {
