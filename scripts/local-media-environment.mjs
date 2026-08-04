@@ -118,9 +118,9 @@ export function loadLocalMediaEnvironment(configOverride = null) {
     document.mediaflow.source_root,
     "mediaflow.source_root",
   );
-  const settingsPath = existingFile(
-    document.mediaflow.settings_path,
-    "mediaflow.settings_path",
+  const serviceSettingsPath = existingFile(
+    document.mediaflow.service_settings_path,
+    "mediaflow.service_settings_path",
   );
   const cliModule = path.join(sourceRoot, "mediaflow", "cli.py");
   if (!fs.existsSync(cliModule) || !fs.statSync(cliModule).isFile()) {
@@ -146,7 +146,7 @@ export function loadLocalMediaEnvironment(configOverride = null) {
     configPath,
     protocol: document.protocol,
     version: document.version,
-    mediaflow: {python, sourceRoot, settingsPath},
+    mediaflow: {python, sourceRoot, serviceSettingsPath},
     voiceReferenceRoots,
     runtime: {cacheRoot},
   };
@@ -160,7 +160,7 @@ function mediaFlowResult(environment, args, input = undefined) {
       cwd: environment.mediaflow.sourceRoot,
       env: {
         ...process.env,
-        MEDIAFLOW_SETTINGS_PATH: environment.mediaflow.settingsPath,
+        MEDIAFLOW_SERVICE_SETTINGS_PATH: environment.mediaflow.serviceSettingsPath,
       },
       input,
     },
@@ -272,6 +272,29 @@ export function mediaFlowProExecute(
     );
   }
   return result;
+}
+
+export function mediaFlowProWaitForTask(
+  environment,
+  project,
+  receipt,
+  timeout = 3600,
+) {
+  const taskId = requiredString(receipt?.task?.id, "MediaFlow Pro task receipt id");
+  const result = mediaFlowProExecute(
+    environment,
+    project,
+    "task.wait",
+    {task_id: taskId, timeout},
+  );
+  const task = result?.task;
+  if (!task || task.id !== taskId) {
+    fail(`MediaFlow Pro task.wait 没有返回任务 ${taskId}`);
+  }
+  if (task.status !== "completed") {
+    fail(`MediaFlow Pro 任务 ${taskId} 未完成：${JSON.stringify(task, null, 2)}`);
+  }
+  return task;
 }
 
 function manifestFiles(root, current = root) {
@@ -440,7 +463,7 @@ function main(argv) {
         python: environment.mediaflow.python,
         python_version: (version.stdout || version.stderr || "").trim(),
         source_root: environment.mediaflow.sourceRoot,
-        settings_path: environment.mediaflow.settingsPath,
+        service_settings_path: environment.mediaflow.serviceSettingsPath,
         cli_module: path.join(environment.mediaflow.sourceRoot, "mediaflow", "cli.py"),
       },
       voice_reference_roots: environment.voiceReferenceRoots,

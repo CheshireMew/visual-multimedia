@@ -30,6 +30,7 @@ import {
   loadLocalMediaEnvironment,
   mediaFlowProDescribe,
   mediaFlowProExecute,
+  mediaFlowProWaitForTask,
 } from "./local-media-environment.mjs";
 import {assertPlanAndConfirmation} from "./interview_explainer_plan.mjs";
 import {assertJsonSchema} from "./json_schema_contract.mjs";
@@ -375,6 +376,7 @@ function assertMediaFlowProCapabilities(environment) {
     "timeline.clip.source.replace",
     "web.clip.export",
     "export.sequence.build",
+    "task.wait",
   ];
   const missing = required.filter((name) => !operations.has(name));
   if (missing.length) {
@@ -512,15 +514,15 @@ function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
     mediaFlowProContract,
     {
       name: `${plan.project_id} · final segmented assembly`,
-      directoryName: `interview-explainer-assembly-${plan.project_id}`,
-      requestId: `interview-explainer-assembly-project-${plan.project_id}`,
+      directoryName: `interview-explainer-assembly-${buildPlanSha}`,
+      requestId: `interview-explainer-assembly-project-${buildPlanSha}`,
     },
     plan,
   );
   const editorProject = assemblyProject.editorProject;
   const sequenceId = assemblyProject.inspected.project.main_sequence_id;
   const imported = deliveryUnits.map((unit) => {
-    const result = mediaFlowProExecute(
+    const receipt = mediaFlowProExecute(
       mediaflowEnvironment,
       editorProject,
       "asset.import",
@@ -528,10 +530,16 @@ function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
       `${plan.project_id}-${unit.id}-assembly-asset-`
         + `${unit.cache_key.slice(0, 12)}-${unit.sha256.slice(0, 12)}`,
     );
-    if (!result.asset?.id) {
+    const task = mediaFlowProWaitForTask(
+      mediaflowEnvironment,
+      editorProject,
+      receipt,
+      600,
+    );
+    if (task.outcome?.outcome_type !== "imported_asset" || !task.outcome.asset_id) {
       throw new Error(`MediaFlow Pro 没有导入构建单元：${unit.id}`);
     }
-    return {...unit, assetId: result.asset.id};
+    return {...unit, assetId: task.outcome.asset_id};
   });
   const trackName = "Interview explainer / final segmented build";
   let timeline = mediaFlowProExecute(
@@ -613,7 +621,7 @@ function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
     ).clip;
     return {...unit, clip};
   });
-  const result = mediaFlowProExecute(
+  const receipt = mediaFlowProExecute(
     mediaflowEnvironment,
     editorProject,
     "export.sequence.build",
@@ -630,7 +638,7 @@ function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
         name: "Interview explainer segmented preview",
         format: "h264",
         container: "mp4",
-        video_codec: "libx264",
+        encoder_policy: {mode: "software", vendor: "auto"},
         audio_codec: "aac",
         pixel_format: "yuv420p",
         quality_value: 18,
@@ -643,9 +651,15 @@ function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
     },
     `${plan.project_id}-assembly-build-${buildPlanSha.slice(0, 16)}`,
   );
-  const outcome = result.task?.outcome;
-  if (result.task?.status !== "completed" || outcome?.outcome_type !== "sequence_build") {
-    throw new Error(`MediaFlow Pro 分段构建失败：${JSON.stringify(result.task)}`);
+  const task = mediaFlowProWaitForTask(
+    mediaflowEnvironment,
+    editorProject,
+    receipt,
+    3600,
+  );
+  const outcome = task.outcome;
+  if (outcome?.outcome_type !== "sequence_build") {
+    throw new Error(`MediaFlow Pro 分段构建失败：${JSON.stringify(task)}`);
   }
   const unitsById = new Map(placed.map((unit) => [unit.id, unit]));
   return {
@@ -735,7 +749,7 @@ function exportWebScene(context, segment, webOutput, cacheKey) {
     ).clip;
   }
   fs.mkdirSync(path.dirname(webOutput), {recursive: true});
-  const exported = mediaFlowProExecute(
+  const receipt = mediaFlowProExecute(
     mediaflowEnvironment,
     editorProject,
     "web.clip.export",
@@ -750,17 +764,18 @@ function exportWebScene(context, segment, webOutput, cacheKey) {
     },
     `${plan.project_id}-${segment.id}-web-export-${cacheKey.slice(0, 12)}`,
   );
-  if (exported.task?.status !== "completed") {
-    throw new Error(
-      `MediaFlow Pro 没有完成 ${segment.id}：${JSON.stringify(exported)}`,
-    );
-  }
+  const task = mediaFlowProWaitForTask(
+    mediaflowEnvironment,
+    editorProject,
+    receipt,
+    1800,
+  );
   return {
     sequenceId,
     assetId: asset.id,
     sourceHash: registeredWebAsset.source_hash,
     clipId: clip.id,
-    task: exported.task,
+    task,
   };
 }
 

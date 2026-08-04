@@ -12,6 +12,7 @@ import {
   loadLocalMediaEnvironment,
   mediaFlowProDescribe,
   mediaFlowProExecute,
+  mediaFlowProWaitForTask,
 } from "./local-media-environment.mjs";
 import {materializeShotRecipe, sha256Tree} from "./shot-recipe-library.mjs";
 import {validateVideoDirectionPlan} from "./validate-video-direction-plan.mjs";
@@ -24,7 +25,7 @@ const GALLERY_ENTRY = "/assets/shot-recipe-library/index.html";
 const REQUIRED_OPERATIONS = [
   "project.create", "project.inspect", "web.import", "timeline.get",
   "timeline.track.add", "timeline.clip.add", "web.clip.variant.select",
-  "web.clip.data.update", "web.clip.theme.update", "web.clip.export",
+  "web.clip.data.update", "web.clip.theme.update", "web.clip.export", "task.wait",
 ];
 
 function usage() {
@@ -560,7 +561,7 @@ function exportClip(context, payload) {
     : path.join(context.projectRoot, "renders", "explanatory-broll", `${binding.selection_id}${suffix}.${extensions[format]}`);
   fs.mkdirSync(path.dirname(output), {recursive: true});
   mediaFlowProExecute(context.environment, state.editor_project, "project.inspect", {});
-  const exported = mediaFlowProExecute(
+  const receipt = mediaFlowProExecute(
     context.environment,
     state.editor_project,
     "web.clip.export",
@@ -576,8 +577,13 @@ function exportClip(context, payload) {
     },
     `broll-export-${binding.selection.sha256.slice(0, 18)}-${format}-${sha256Buffer(output).slice(0, 10)}`,
   );
-  if (exported.task?.status !== "completed") throw new Error(`MediaFlow Pro 导出未完成：${JSON.stringify(exported.task)}`);
-  return {file: output, format, bytes: fs.statSync(output).size, sha256: sha256File(output), task: exported.task};
+  const task = mediaFlowProWaitForTask(
+    context.environment,
+    state.editor_project,
+    receipt,
+    1800,
+  );
+  return {file: output, format, bytes: fs.statSync(output).size, sha256: sha256File(output), task};
 }
 
 function contextDocument(context) {
