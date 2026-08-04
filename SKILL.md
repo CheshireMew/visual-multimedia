@@ -13,7 +13,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 - 从确认的主张、资料、文章、脚本或内容包中选择静态图文、GIF、视频、音频或播客。
 - 起草或修改标题、卡片文字、口播、字幕、节目结构和媒体配套帖子。
-- 初始化、接入口播文案参考库，或在用户明确要求时检索、保存和更新完整口播案例与开头钩子。
+- 初始化、接入口播私人库，或在用户明确要求时分别维护声音、完整案例和独立钩子。
 - 把图文卡片、封面、图表、解释型 B-roll、动态图解、GIF 和代码生成画面先做成可编辑网页，再派生用户需要的媒体。
 - 把多场景代码动画按用户推进、自动播放或混合播放；同一网页真源可以交互演示，也可以连续导出为动画或视频。
 - 剪辑用户已有的讲课、访谈、实拍、录屏、音频或播客素材。
@@ -73,11 +73,11 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 先写清各通道的信息职责。旁白承担主要解释时，单独听旁白应当能够知道正在讲什么、关键机制怎样成立以及结论是什么；画面再负责展示空间关系、状态变化、数量和情绪。视觉主导的作品可以让旁白更少，但制作说明必须指出哪些理解只能从画面获得。媒体时长服从完整表达；风格、构图或动效样稿只验证对应层面，不反过来截短已经确认的内容。
 
-先选择本次写作动作。只审查现有口播时判断它是否可用、应保留什么，以及问题位于内容、结构、作者位置、听众关系还是句子，交付诊断后停止，不擅自改稿。新写、扩写、实质重组或审查后改写完整口播时，锁定当前输入，净化能增加现实感的场景、动作、结果、比较、反应和自然说法，分别读取可靠声音证据与多份相关完整案例、钩子，再自由成稿；成稿后先核查正文实际写出的事实，再按内容贡献、结构关系、作者与听众、句子听感的顺序回读。典型 AI 句式只作为上层问题的症状，不建立固定禁词表。用户只改错字、格式、等义压缩、短标题、数据标签、简短字幕或从确认文案派生其它通道文字时走轻量路径。用户已经确认完整文案时不重新写作，除非明确要求审查或改写。
+先选择本次写作动作。只审查现有口播时判断它是否可用、应保留什么，以及问题位于内容、结构、作者位置、听众关系还是句子，交付诊断后停止，不擅自改稿。新写、扩写、实质重组或审查后改写完整口播时，锁定当前输入，净化真正服务本篇的现实材料，分别读取可靠声音证据、多份完整案例和多份独立钩子原文；由材料中最值得听众准确转述的一项具体关系决定开头，正文用事实、动作或结果兑现，再按内容贡献、结构关系、作者与听众、句子听感回读。典型 AI 句式只作为上层问题的症状，不建立固定禁词表，也不下发修辞许可清单。用户只改错字、格式、等义压缩、短标题、数据标签、简短字幕或从确认文案派生其它通道文字时走轻量路径。用户已经确认完整文案时不重新写作，除非明确要求审查或改写。
 
 媒体文案默认由当前模型起草；用户明确点名其它生产者时才切换。所有生产者消费同一份净化材料、作者声音和创作参考，并经过同一轮成稿核查与听众回读。逐字引用、数据标签、来源名称和用户确认保持原样。
 
-个人或系列内容的媒体文案先按 `editorial_position` 完成信息选择和评价方向，再从当前明确指令、有效声音样稿、口播声音真源和同成品语境的合格声音候选生成本次 `voice_contract`。没有可靠个人声音证据时保持普通直接，不从题材相似案例、开头钩子或 AI 草稿推导作者声音；当前作品的时长、开头任务、信息密度和情绪强度继续由成品职责决定。
+个人或系列内容的媒体文案先按 `editorial_position` 完成信息选择和评价方向，再从当前明确指令、有效声音样稿、口播声音真源和同成品语境的合格声音候选生成本次 `voice_contract`。没有可靠个人声音证据时保持普通直接，不从案例、独立钩子或 AI 草稿推导作者声音；当前作品的时长与信息密度由成品职责决定。
 
 用户已经确认文案时不重新改写。用户只要求文案时，较短正文放入便于复制的代码块，过长正文写入项目 `.md` 并提供文件；交付后停止。用户要求样稿或完整制作时再进入下一步。
 
@@ -139,7 +139,8 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 选择载体、确定媒体文案职责、分镜或节目结构 | `references/content-to-media.md` | 确定内容真源、受众称呼、媒体职责和文案合同 |
 | 新写、扩写、实质重组、审查或审查后改写完整口播、旁白、播客独白或主持连接语 | `references/voiceover-writing.md` | 分开读取声音证据与创作参考，从内容和结构根因消除模型组织痕迹，交付诊断或可直接朗读的活动口播 |
 | 起草或派生标题、数据标签、简短字幕、画面文字、发音文本、说明文字或媒体配套帖子 | `references/media-writing.md` | 执行轻量媒体文字、等义压缩与确定性派生，不重新发明完整口播 |
-| 初始化、接入、检索、保存、更新或验证口播声音、完整案例和开头钩子 | `references/voiceover-reference-library.md` | 定位唯一私人库，区分作者声音证据与创作参考，并把实际路径交给口播写作 |
+| 定位或维护口播声音与完整案例 | `references/voiceover-reference-library.md` | 管理声音资格、完整案例和案例索引 |
+| 检索、保存、更新或验证独立口播钩子 | `references/voiceover-hook-library.md` | 使用独立入口与索引，把连续原文交给口播写作 |
 | 自动选择或继承视觉与动效配方 | `references/visual-production-profiles.md` | 继承共享视觉核心，并按静态、时间与交互载体选择对应实现层 |
 | 建立或继承项目、系列的声音素材角色与混音规则 | `references/sound-production-profiles.md` | 使用独立声音档案引用真实 audio source id，不把声音规则混入视觉档案 |
 | 查找、注册或采用创作者素材、通用制作素材、网页组件，或从项目晋升可复用成果 | `references/reusable-media-resources.md` | 使用不可变注册版本，经现有素材账本或完整网页包边界进入项目，并保存采用与晋升证据 |
@@ -166,7 +167,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 用户要求合成旁白、点名 EdgeTTS 或 GPT-SoVITS，或需要为视频、动画、播客生成语音 | `references/speech-synthesis.md` | 选择声音入口，派生合成文本，生成原始语音和时间信息，并按真实时长交给媒体时间线 |
 | 实际导出或交付媒体 | `references/review-and-export.md` | 沿真实链路检查源文件、预览、编码和成品 |
 
-需要实际处理媒体文案时，先按“先完成媒体文案”选定动作，再用 `references/content-to-media.md` 确定真源、受众、渠道职责和文案合同。新写、扩写、实质重组、审查或审查后改写完整口播、旁白、播客独白和主持连接语时，接着读取 `references/voiceover-reference-library.md`：保留用户或上游已经给出的声音样稿与创作参考，只读定位当前私人库；声音候选按成品语境和资格查找，不使用主题词，完整案例和钩子按写作任务与语境浏览。库未配置、为空或没有合适创作参考时普通写作继续，不初始化、不凑数；用户明确要求贴近个人声音但没有可靠声音证据时返回这一缺口。最后读取 `references/voiceover-writing.md`，交付诊断或更新唯一活动口播。轻量媒体文字和确定性派生直接进入 `references/media-writing.md`，不读取私人库。长内容转视频的确认旁白，以及采访原声讲解型中的背景、逐段解释和总结，也必须先完成对应完整口播路径，再进入导演计划、旁白包和渲染合同。
+需要实际处理媒体文案时，先按“先完成媒体文案”选定动作，再用 `references/content-to-media.md` 确定真源、受众、渠道职责和文案合同。新写、扩写、实质重组、审查或审查后改写完整口播时，读取 `references/voiceover-reference-library.md` 与 `references/voiceover-hook-library.md`：声音候选按语境和资格查找，完整案例与独立钩子按任务和语境分别浏览，再把多份原文共同交给 `references/voiceover-writing.md`。库未配置或没有合适参考时普通写作继续，不初始化、不凑数；用户明确要求贴近个人声音但没有可靠证据时返回缺口。轻量媒体文字和确定性派生直接进入 `references/media-writing.md`，不读取私人库。长内容转视频的确认旁白，以及采访原声讲解型中的背景、逐段解释和总结，也必须先完成对应完整口播路径，再进入导演计划、旁白包和渲染合同。
 
 代码生成视觉同时读取 `references/content-to-media.md`、`references/visual-production-profiles.md` 和 `references/web-visual-production.md`。已有项目视觉档案时先继承共享视觉核心，再按本次载体读取适用实现层；卡片主要依靠一段或几段文字、单句、并列清单、名词解释、引文或文字对照成立时再读取 `references/text-card-production.md`，先确定阅读结构和内容归属。只有文字自身承担主要运动表达时再读取 `references/text-motion-production.md`，由 `scripts/text-motion-library.mjs` 选择效果，并把 `assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js` 物化到当前网页包。项目确实存在可复用声音语言时另读 `references/sound-production-profiles.md`。社交卡、平台封面、轮播图或静态卡式短动态图再读取 `references/social-card-production.md`；实际使用照片、截图、生成图或视频帧时读取 `references/visual-asset-placement.md`。需要供剪辑软件叠加的透明动效时再读取 `references/structured-media-editor-cli.md`。共享素材或网页组件的注册、采用与晋升读取 `references/reusable-media-resources.md`。
 
@@ -174,7 +175,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 需要生成声音时读取 `references/speech-synthesis.md`；播客封面或音频可视化只让网页负责视觉部分。用户明确要求 Live Photo 时才读取 `references/live-photo-delivery.md`。明确要求参考复刻、匹配、逐帧对齐或候选比较时读取 `references/reference-video-alignment.md`；需要 MediaFlow Pro 执行机器比较时再读取 `references/structured-media-editor-cli.md`。实际生成文件时总是读取 `references/review-and-export.md`。
 
-口播私人库的正式入口是 `scripts/voiceover_reference_library.py`，候选选择使用 `voice-candidates`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用。活动角色工程使用 v4 中等母版和 v3 分段计划，完整轨用于观看，项目内片段清单用于普通视频或采访视频的局部时间线消费；角色窗链路用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型先 `list-profiles`，再沿 `plan → confirm-plan → render → review → finalize` 的唯一活动链执行。
+口播声音与案例使用 `scripts/voiceover_reference_library.py`，独立钩子使用 `scripts/voiceover_hook_library.py`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用。活动角色工程使用 v4 中等母版和 v3 分段计划，完整轨用于观看，项目内片段清单用于普通视频或采访视频的局部时间线消费；角色窗链路用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型先 `list-profiles`，再沿 `plan → confirm-plan → render → review → finalize` 的唯一活动链执行。
 
 ## 实际制作与交付边界
 

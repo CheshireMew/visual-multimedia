@@ -7,22 +7,21 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Sequence, TypeAlias
+from typing import Any, Sequence
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 LIBRARY_SCHEMA = "visual-multimedia-voiceover-reference-library"
-LIBRARY_VERSION = 2
+LIBRARY_VERSION = 3
 MANIFEST_RELATIVE = Path(".visual-multimedia/voiceover-reference-library.json")
 DEFAULT_CONFIG_RELATIVE = Path(
     ".visual-multimedia/voiceover-reference-library-config.json"
 )
 CASE_DIRECTORY = "完整口播案例"
-HOOK_DIRECTORY = "开头钩子"
 VOICE_DIRECTORY = "口播声音"
 VOICE_NAME = "voice.md"
 LOCAL_PRIVATE_DIRECTORY = "口播私人库"
-INDEX_NAME = "口播文案参考索引.md"
+CASE_INDEX_NAME = "口播案例索引.md"
 WRITING_ORIGINS = {"human", "human-edited", "ai-generated", "unknown"}
 VOICE_ELIGIBLE_ORIGINS = {"human", "human-edited"}
 METADATA_PATTERN = re.compile(
@@ -48,16 +47,12 @@ class LibraryLayout:
         return self.root / CASE_DIRECTORY
 
     @property
-    def hook_root(self) -> Path:
-        return self.root / HOOK_DIRECTORY
-
-    @property
     def voice(self) -> Path:
         return self.root / VOICE_DIRECTORY / VOICE_NAME
 
     @property
-    def index(self) -> Path:
-        return self.root / INDEX_NAME
+    def case_index(self) -> Path:
+        return self.root / CASE_INDEX_NAME
 
 
 @dataclass(frozen=True)
@@ -79,26 +74,6 @@ class VoiceProfile:
     path: Path
     text: str
     source: str
-
-
-@dataclass(frozen=True)
-class HookPattern:
-    path: Path
-    title: str
-    pattern_id: str
-    hook_type: str
-    script_tasks: tuple[str, ...]
-    delivery_contexts: tuple[str, ...]
-    topics: tuple[str, ...]
-    moves: tuple[str, ...]
-    techniques: tuple[str, ...]
-    listener_effects: tuple[str, ...]
-    source_text: str
-    source: str
-    source_case_file: Path | None
-
-
-LibraryResource: TypeAlias = VoiceoverCase | HookPattern
 
 
 def default_config_path() -> Path:
@@ -377,93 +352,18 @@ def _parse_case(path: Path, layout: LibraryLayout) -> VoiceoverCase:
     )
 
 
-def _resolve_source_case(value: str, layout: LibraryLayout) -> VoiceoverCase:
-    relative = Path(value)
-    if relative.is_absolute() or ".." in relative.parts:
-        raise LibraryError("source_case_file 必须是口播参考库根目录下的相对路径")
-    path = (layout.root / relative).resolve()
-    try:
-        path.relative_to(layout.case_root.resolve())
-    except ValueError as exc:
-        raise LibraryError("source_case_file 必须指向完整口播案例") from exc
-    if not path.is_file():
-        raise LibraryError(f"source_case_file 不存在：{path}")
-    return _parse_case(path, layout)
-
-
-def _parse_hook(path: Path, layout: LibraryLayout) -> HookPattern:
-    try:
-        relative = path.relative_to(layout.hook_root)
-    except ValueError as exc:
-        raise LibraryError("开头钩子必须位于开头钩子目录") from exc
-    if len(relative.parts) != 2:
-        raise LibraryError("开头钩子必须使用“钩子类型/文件”两级路径")
-    metadata, body = _parse_metadata(path.read_text(encoding="utf-8-sig"))
-    if metadata.get("resource_type") != "hook-pattern":
-        raise LibraryError("开头钩子的 resource_type 必须是 hook-pattern")
-    hook_type = _required_string(metadata, "hook_type")
-    if hook_type != relative.parts[0]:
-        raise LibraryError("hook_type 必须与钩子目录一致")
-    source_case_value = metadata.get("source_case_file")
-    if source_case_value is not None:
-        if not isinstance(source_case_value, str) or not source_case_value.strip():
-            raise LibraryError("source_case_file 必须是非空字符串")
-        source_case = _resolve_source_case(source_case_value.strip(), layout)
-        source_text = source_case.original_text
-        source = source_case.source
-        source_case_file: Path | None = source_case.path
-    else:
-        source_text, source = _text_and_source(_body_section(body, "来源开头"))
-        source_case_file = None
-    return HookPattern(
-        path=path,
-        title=_title(body),
-        pattern_id=_required_string(metadata, "hook_pattern_id"),
-        hook_type=hook_type,
-        script_tasks=_string_list(metadata, "script_tasks", required=True),
-        delivery_contexts=_string_list(
-            metadata, "delivery_contexts", required=True
-        ),
-        topics=_string_list(metadata, "topics", required=False),
-        moves=_string_list(metadata, "moves", required=False),
-        techniques=_string_list(metadata, "hook_techniques", required=True),
-        listener_effects=_string_list(
-            metadata, "listener_effects", required=True
-        ),
-        source_text=source_text,
-        source=source,
-        source_case_file=source_case_file,
-    )
-
-
-def load_library(layout: LibraryLayout) -> tuple[list[LibraryResource], list[str]]:
-    resources: list[LibraryResource] = []
+def load_library(layout: LibraryLayout) -> tuple[list[VoiceoverCase], list[str]]:
+    resources: list[VoiceoverCase] = []
     issues: list[str] = []
-    pattern_ids: dict[str, Path] = {}
     case_texts: dict[str, Path] = {}
-    paths = [
-        *(layout.case_root.rglob("*.md") if layout.case_root.is_dir() else []),
-        *(layout.hook_root.rglob("*.md") if layout.hook_root.is_dir() else []),
-    ]
+    paths = layout.case_root.rglob("*.md") if layout.case_root.is_dir() else []
     for path in sorted(paths):
         try:
-            resource: LibraryResource = (
-                _parse_case(path, layout)
-                if path.is_relative_to(layout.case_root)
-                else _parse_hook(path, layout)
-            )
-            if isinstance(resource, VoiceoverCase):
-                previous = case_texts.get(resource.original_text)
-                if previous is not None:
-                    raise LibraryError(f"口播全文与 {previous} 重复")
-                case_texts[resource.original_text] = path
-            else:
-                previous = pattern_ids.get(resource.pattern_id)
-                if previous is not None:
-                    raise LibraryError(
-                        f"hook_pattern_id 与 {previous} 重复"
-                    )
-                pattern_ids[resource.pattern_id] = path
+            resource = _parse_case(path, layout)
+            previous = case_texts.get(resource.original_text)
+            if previous is not None:
+                raise LibraryError(f"口播全文与 {previous} 重复")
+            case_texts[resource.original_text] = path
             resources.append(resource)
         except (LibraryError, OSError, UnicodeError) as exc:
             issues.append(f"{path}: {exc}")
@@ -474,25 +374,21 @@ def _relative_link(path: Path, layout: LibraryLayout) -> str:
     return Path(os.path.relpath(path, layout.root)).as_posix()
 
 
-def build_index(resources: Sequence[LibraryResource], layout: LibraryLayout) -> str:
-    cases = [item for item in resources if isinstance(item, VoiceoverCase)]
-    hooks = [item for item in resources if isinstance(item, HookPattern)]
+def build_index(resources: Sequence[VoiceoverCase], layout: LibraryLayout) -> str:
+    cases = list(resources)
     voice_profile = load_voice_profile(layout)
     voice_cases = [item for item in cases if item.voice_eligible]
     lines = [
-        "# 口播文案参考索引",
+        "# 口播案例索引",
         "",
-        "本索引只负责定位。作者声音与创作参考必须分开读取：声音只来自当前口播声音真源和经过资格确认的同语境口播；案例与钩子提供进入、推进、节奏和收束，不自动证明作者声音。",
+        "本索引只负责定位完整口播案例。作者声音只来自当前口播声音真源和经过资格确认的同语境口播；案例身份不自动证明作者声音。",
         "",
-        f"当前声音真源：{'可用' if voice_profile else '未建立'}；声音候选 {len(voice_cases)} 份；完整口播案例 {len(cases)} 份；开头钩子 {len(hooks)} 条。",
-        "",
-        "完整口播案例与开头钩子分开管理，进入写作后可以共同影响开头、推进、节奏和收束。没有固定参考数量，也不选择唯一模仿对象。",
+        f"当前声音真源：{'可用' if voice_profile else '未建立'}；声音候选 {len(voice_cases)} 份；完整口播案例 {len(cases)} 份。",
         "",
         "需要缩小范围时，先按写作任务和成品语境浏览本索引，再用普通文本搜索标题、全文和隐藏标签；索引摘要不能代替原文。",
         "",
         "```powershell",
         f'rg -n -i "主题|动作|结果" "{CASE_DIRECTORY}"',
-        f'rg -n -i "结果|问题|反差|场景" "{HOOK_DIRECTORY}"',
         "```",
         "",
         "## 口播声音",
@@ -521,27 +417,15 @@ def build_index(resources: Sequence[LibraryResource], layout: LibraryLayout) -> 
             )
         lines.append("")
 
-    lines.extend(["## 开头钩子", ""])
-    hook_groups: dict[str, list[HookPattern]] = {}
-    for hook in hooks:
-        hook_groups.setdefault(hook.hook_type, []).append(hook)
-    for hook_type in sorted(hook_groups):
-        lines.extend([f"### {hook_type}", ""])
-        for hook in sorted(hook_groups[hook_type], key=lambda item: item.title):
-            effects = "、".join(hook.listener_effects)
-            lines.append(
-                f"- [{hook.title}](<{_relative_link(hook.path, layout)}>) — {effects}"
-            )
-        lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _write_index(layout: LibraryLayout, resources: Sequence[LibraryResource]) -> Path:
-    _write_text(layout.index, build_index(resources, layout))
-    return layout.index
+def _write_index(layout: LibraryLayout, resources: Sequence[VoiceoverCase]) -> Path:
+    _write_text(layout.case_index, build_index(resources, layout))
+    return layout.case_index
 
 
-def validate_library(root: Path) -> tuple[LibraryLayout, list[LibraryResource]]:
+def validate_library(root: Path) -> tuple[LibraryLayout, list[VoiceoverCase]]:
     layout = LibraryLayout(_absolute(root))
     if not layout.root.exists() or not layout.root.is_dir():
         raise LibraryError(f"口播参考库目录不存在：{layout.root}")
@@ -549,11 +433,11 @@ def validate_library(root: Path) -> tuple[LibraryLayout, list[LibraryResource]]:
     resources, issues = load_library(layout)
     if issues:
         raise LibraryError("\n".join(issues))
-    if not layout.index.is_file():
-        raise LibraryError(f"口播参考索引不存在：{layout.index}")
+    if not layout.case_index.is_file():
+        raise LibraryError(f"口播案例索引不存在：{layout.case_index}")
     expected = build_index(resources, layout)
-    if layout.index.read_text(encoding="utf-8") != expected:
-        raise LibraryError(f"口播参考索引需要更新：{layout.index}")
+    if layout.case_index.read_text(encoding="utf-8") != expected:
+        raise LibraryError(f"口播案例索引需要更新：{layout.case_index}")
     return layout, resources
 
 
@@ -596,9 +480,9 @@ def adopt_library(
     layout = LibraryLayout(resolved)
     if not layout.manifest.exists() and not any(
         path.exists()
-        for path in (layout.voice, layout.case_root, layout.hook_root, layout.index)
+        for path in (layout.voice, layout.case_root, layout.case_index)
     ):
-        raise LibraryError("现有目录没有口播声音、完整案例、开头钩子或参考索引")
+        raise LibraryError("现有目录没有口播声音、完整案例或案例索引")
     if layout.manifest.exists():
         _check_manifest(layout.manifest)
     resources, issues = load_library(layout)
@@ -647,7 +531,7 @@ def set_voice_profile(
 
 def add_case(
     layout: LibraryLayout,
-    resources: Sequence[LibraryResource],
+    resources: Sequence[VoiceoverCase],
     *,
     input_path: Path,
     title: str,
@@ -680,10 +564,7 @@ def add_case(
         raise LibraryError(f"输入文件不存在：{input_path}") from exc
     if not original:
         raise LibraryError("口播全文不能为空")
-    if any(
-        isinstance(item, VoiceoverCase) and item.original_text == original
-        for item in resources
-    ):
+    if any(item.original_text == original for item in resources):
         raise LibraryError("这份口播全文已经存在于参考库")
     metadata = {
         "resource_type": "voiceover-case",
@@ -716,104 +597,15 @@ def add_case(
     return path
 
 
-def add_hook(
-    layout: LibraryLayout,
-    resources: Sequence[LibraryResource],
-    *,
-    title: str,
-    pattern_id: str,
-    hook_type: str,
-    script_tasks: Sequence[str],
-    delivery_contexts: Sequence[str],
-    topics: Sequence[str],
-    moves: Sequence[str],
-    techniques: Sequence[str],
-    listener_effects: Sequence[str],
-    source_case: str | None,
-    input_path: Path | None,
-    source: str | None,
-) -> Path:
-    title = _safe_segment(title, "title")
-    hook_type = _safe_segment(hook_type, "hook_type")
-    pattern_id = pattern_id.strip()
-    if not pattern_id:
-        raise LibraryError("pattern_id 不能为空")
-    if any(
-        isinstance(item, HookPattern) and item.pattern_id == pattern_id
-        for item in resources
-    ):
-        raise LibraryError(f"hook_pattern_id 已经存在：{pattern_id}")
-    metadata: dict[str, Any] = {
-        "resource_type": "hook-pattern",
-        "hook_pattern_id": pattern_id,
-        "hook_type": hook_type,
-        "script_tasks": list(
-            _clean_values(script_tasks, "script_tasks", required=True)
-        ),
-        "delivery_contexts": list(
-            _clean_values(delivery_contexts, "delivery_contexts", required=True)
-        ),
-        "topics": list(_clean_values(topics, "topics", required=False)),
-        "moves": list(_clean_values(moves, "moves", required=False)),
-        "hook_techniques": list(
-            _clean_values(techniques, "hook_techniques", required=True)
-        ),
-        "listener_effects": list(
-            _clean_values(listener_effects, "listener_effects", required=True)
-        ),
-    }
-    if source_case is not None:
-        relative = Path(source_case)
-        if relative.is_absolute() or ".." in relative.parts:
-            raise LibraryError("source_case 必须是口播参考库根目录下的相对路径")
-        _resolve_source_case(relative.as_posix(), layout)
-        metadata["source_case_file"] = relative.as_posix()
-        source_section = "完整口播见引用案例。写作时打开原文，读取开头及紧接内容。"
-    else:
-        if input_path is None:
-            raise LibraryError("独立钩子必须提供 input")
-        try:
-            source_text = input_path.read_text(encoding="utf-8-sig").strip()
-        except FileNotFoundError as exc:
-            raise LibraryError(f"输入文件不存在：{input_path}") from exc
-        source_value = (source or "").strip()
-        if not source_text:
-            raise LibraryError("来源开头不能为空")
-        if not source_value:
-            raise LibraryError("独立钩子必须提供 source")
-        source_section = f"{source_text}\n\n来源：{source_value}"
-    path = layout.hook_root / hook_type / f"{title}.md"
-    if path.exists():
-        raise LibraryError(f"开头钩子已经存在：{path}")
-    body = "\n\n".join(
-        [
-            f"# {title}",
-            "## 来源开头",
-            source_section,
-            _metadata_block(metadata),
-        ]
-    ) + "\n"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(body, encoding="utf-8")
-    _parse_hook(temporary, layout)
-    temporary.replace(path)
-    return path
-
-
-def _counts(resources: Sequence[LibraryResource]) -> tuple[int, int, int]:
+def _counts(resources: Sequence[VoiceoverCase]) -> tuple[int, int]:
     return (
-        sum(isinstance(item, VoiceoverCase) for item in resources),
-        sum(isinstance(item, HookPattern) for item in resources),
-        sum(
-            isinstance(item, VoiceoverCase) and item.voice_eligible
-            for item in resources
-        ),
+        len(resources),
+        sum(item.voice_eligible for item in resources),
     )
 
 
 def voice_candidates(
-    resources: Sequence[LibraryResource],
+    resources: Sequence[VoiceoverCase],
     *,
     delivery_context: str,
     script_task: str | None,
@@ -828,8 +620,7 @@ def voice_candidates(
     candidates = [
         item
         for item in resources
-        if isinstance(item, VoiceoverCase)
-        and item.voice_eligible
+        if item.voice_eligible
         and context in item.delivery_contexts
         and (not task or item.script_task == task)
     ]
@@ -852,12 +643,12 @@ def _parser() -> argparse.ArgumentParser:
 
     for command, help_text in (
         ("show", "显示当前口播参考库"),
-        ("validate", "验证声音、案例、钩子与索引"),
+        ("validate", "验证声音、完整案例与案例索引"),
     ):
         item = commands.add_parser(command, help=help_text)
         item.add_argument("--root", type=Path)
 
-    index = commands.add_parser("build-index", help="重建或核对口播参考索引")
+    index = commands.add_parser("build-index", help="重建或核对口播案例索引")
     index.add_argument("--root", type=Path)
     index.add_argument("--check", action="store_true")
 
@@ -891,21 +682,6 @@ def _parser() -> argparse.ArgumentParser:
     )
     case.add_argument("--voice-eligible", action="store_true")
 
-    hook = commands.add_parser("add-hook", help="建立可迁移的开头钩子")
-    hook.add_argument("--root", type=Path)
-    hook.add_argument("--title", required=True)
-    hook.add_argument("--pattern-id", required=True)
-    hook.add_argument("--hook-type", required=True)
-    hook.add_argument("--script-task", action="append", required=True)
-    hook.add_argument("--context", action="append", required=True)
-    hook.add_argument("--topic", action="append", default=[])
-    hook.add_argument("--move", action="append", default=[])
-    hook.add_argument("--technique", action="append", required=True)
-    hook.add_argument("--listener-effect", action="append", required=True)
-    source_group = hook.add_mutually_exclusive_group(required=True)
-    source_group.add_argument("--source-case")
-    source_group.add_argument("--input", type=Path)
-    hook.add_argument("--source")
     return parser
 
 
@@ -921,7 +697,7 @@ def main(argv: list[str] | None = None) -> int:
                         "action": "initialized" if created else "already-initialized",
                         "library_root": str(layout.root),
                         "config": str(config),
-                        "index": str(layout.index),
+                        "case_index": str(layout.case_index),
                         "version": LIBRARY_VERSION,
                     },
                     ensure_ascii=False,
@@ -938,7 +714,7 @@ def main(argv: list[str] | None = None) -> int:
                         "action": "adopted",
                         "library_root": str(layout.root),
                         "config": str(config),
-                        "index": str(layout.index),
+                        "case_index": str(layout.case_index),
                         "version": LIBRARY_VERSION,
                     },
                     ensure_ascii=False,
@@ -954,20 +730,19 @@ def main(argv: list[str] | None = None) -> int:
             raise LibraryError("\n".join(issues))
         if args.command == "show":
             layout, resources = validate_library(root)
-            case_count, hook_count, voice_candidate_count = _counts(resources)
+            case_count, voice_candidate_count = _counts(resources)
             profile = load_voice_profile(layout)
             print(
                 json.dumps(
                     {
                         "ok": True,
                         "library_root": str(layout.root),
-                        "index": str(layout.index),
+                        "case_index": str(layout.case_index),
                         "version": LIBRARY_VERSION,
                         "voice_profile": str(profile.path) if profile else None,
                         "voice_ready": profile is not None,
                         "voice_candidate_count": voice_candidate_count,
                         "case_count": case_count,
-                        "hook_count": hook_count,
                     },
                     ensure_ascii=False,
                     indent=2,
@@ -976,12 +751,12 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if args.command == "validate":
             layout, resources = validate_library(root)
-            case_count, hook_count, voice_candidate_count = _counts(resources)
+            case_count, voice_candidate_count = _counts(resources)
             profile = load_voice_profile(layout)
             print(
                 f"口播私人库有效：声音真源 {'可用' if profile else '未建立'}，"
-                f"声音候选 {voice_candidate_count} 份，完整口播 {case_count} 份，"
-                f"开头钩子 {hook_count} 条；索引：{layout.index}"
+                f"声音候选 {voice_candidate_count} 份，完整口播 {case_count} 份；"
+                f"案例索引：{layout.case_index}"
             )
             return 0
         if args.command == "voice-candidates":
@@ -1021,13 +796,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "build-index":
             expected = build_index(resources, layout)
             if args.check:
-                if layout.index.read_text(encoding="utf-8") != expected:
-                    raise LibraryError(f"口播参考索引需要更新：{layout.index}")
-                print(f"口播参考索引有效：{layout.index}")
+                if layout.case_index.read_text(encoding="utf-8") != expected:
+                    raise LibraryError(f"口播案例索引需要更新：{layout.case_index}")
+                print(f"口播案例索引有效：{layout.case_index}")
             else:
-                _write_text(layout.index, expected)
+                _write_text(layout.case_index, expected)
                 validate_library(layout.root)
-                print(f"口播参考索引已更新：{layout.index}")
+                print(f"口播案例索引已更新：{layout.case_index}")
             return 0
         layout, resources = validate_library(root)
         if args.command == "set-voice":
@@ -1050,23 +825,6 @@ def main(argv: list[str] | None = None) -> int:
                 writing_origin=args.writing_origin,
                 voice_eligible=args.voice_eligible,
             )
-        elif args.command == "add-hook":
-            created = add_hook(
-                layout,
-                resources,
-                title=args.title,
-                pattern_id=args.pattern_id,
-                hook_type=args.hook_type,
-                script_tasks=args.script_task,
-                delivery_contexts=args.context,
-                topics=args.topic,
-                moves=args.move,
-                techniques=args.technique,
-                listener_effects=args.listener_effect,
-                source_case=args.source_case,
-                input_path=args.input,
-                source=args.source,
-            )
         else:
             raise LibraryError(f"不支持的命令：{args.command}")
         resources, issues = load_library(layout)
@@ -1080,7 +838,7 @@ def main(argv: list[str] | None = None) -> int:
                     "ok": True,
                     "action": args.command,
                     "created": str(created),
-                    "index": str(layout.index),
+                    "case_index": str(layout.case_index),
                 },
                 ensure_ascii=False,
                 indent=2,

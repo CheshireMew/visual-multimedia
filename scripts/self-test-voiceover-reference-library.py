@@ -37,10 +37,9 @@ def main() -> int:
 
         initialized = json.loads(run(config, "init", "--root", str(root)).stdout)
         assert initialized["action"] == "initialized"
-        assert initialized["version"] == 2
+        assert initialized["version"] == 3
         assert not (root / "口播声音").exists()
         assert not (root / "完整口播案例").exists()
-        assert not (root / "开头钩子").exists()
 
         voice_input = workspace / "voice.md"
         voice_text = (
@@ -147,79 +146,19 @@ def main() -> int:
         assert candidates["candidate_count"] == 1
         assert candidates["candidates"][0]["title"] == "一次登记替代四次抄写"
 
-        run(
-            config,
-            "add-hook",
-            "--title",
-            "从现场变化进入",
-            "--pattern-id",
-            "observable-change-entry",
-            "--hook-type",
-            "结果钩子",
-            "--script-task",
-            "解释机制",
-            "--context",
-            "短视频旁白",
-            "--topic",
-            "流程变化",
-            "--move",
-            "先结果后原因",
-            "--technique",
-            "先给实际发生的变化",
-            "--listener-effect",
-            "马上知道变化落在哪里",
-            "--source-case",
-            case_relative,
-        )
-        referenced_hook = (
-            root / "开头钩子" / "结果钩子" / "从现场变化进入.md"
-        ).read_text(encoding="utf-8")
-        assert case_text not in referenced_hook
-        assert case_relative in referenced_hook
-
-        standalone_input = workspace / "standalone-hook.md"
-        standalone_text = (
-            "门店昨天还在抄四遍地址，今天只填一次。\n"
-            "变化来自他们刚换掉的那张登记表。"
-        )
-        standalone_input.write_text(standalone_text, encoding="utf-8")
-        run(
-            config,
-            "add-hook",
-            "--title",
-            "用前后动作建立变化",
-            "--pattern-id",
-            "before-after-action",
-            "--hook-type",
-            "变化钩子",
-            "--script-task",
-            "解释机制",
-            "--context",
-            "长视频旁白",
-            "--technique",
-            "连续呈现前后动作",
-            "--listener-effect",
-            "直接看见操作差异",
-            "--input",
-            str(standalone_input),
-            "--source",
-            "local://confirmed-opening-fixture",
-        )
-
         run(config, "validate")
         run(config, "build-index", "--check")
         shown = json.loads(run(config, "show").stdout)
         assert shown["library_root"] == str(root.resolve())
-        assert shown["version"] == 2
+        assert shown["version"] == 3
         assert shown["voice_ready"] is True
         assert shown["voice_candidate_count"] == 1
         assert shown["case_count"] == 2
-        assert shown["hook_count"] == 2
-        index_text = (root / "口播文案参考索引.md").read_text(encoding="utf-8")
+        assert "hook_count" not in shown
+        index_text = (root / "口播案例索引.md").read_text(encoding="utf-8")
         assert "当前口播声音" in index_text
         assert "一次登记替代四次抄写" in index_text
         assert "声音证据" in index_text
-        assert "从现场变化进入" in index_text
 
         updated_case = case_path.read_text(encoding="utf-8").replace(
             '"delivery_contexts": ["短视频旁白"]',
@@ -269,24 +208,22 @@ def main() -> int:
         adopt_root.mkdir()
         shutil.copytree(root / "口播声音", adopt_root / "口播声音")
         shutil.copytree(root / "完整口播案例", adopt_root / "完整口播案例")
-        shutil.copytree(root / "开头钩子", adopt_root / "开头钩子")
-        shutil.copy2(root / "口播文案参考索引.md", adopt_root)
+        shutil.copy2(root / "口播案例索引.md", adopt_root)
         adopt_config = workspace / "adopt-config.json"
         adopted = json.loads(
             run(adopt_config, "adopt", "--root", str(adopt_root)).stdout
         )
         assert adopted["action"] == "adopted"
-        assert adopted["version"] == 2
+        assert adopted["version"] == 3
         adopted_show = json.loads(run(adopt_config, "show").stdout)
         assert adopted_show["library_root"] == str(adopt_root.resolve())
         assert adopted_show["voice_ready"] is True
         assert adopted_show["voice_candidate_count"] == 1
         assert adopted_show["case_count"] == 2
-        assert adopted_show["hook_count"] == 2
 
     print(
-        "口播私人库协议自测通过：v2 初始化与接入、声音真源、声音资格、"
-        "全文与钩子引用、索引重建和去重均有效；本测试不评价创作质量"
+        "口播私人库案例协议自测通过：v3 初始化与接入、声音真源、"
+        "声音资格、完整案例索引重建和去重均有效；本测试不评价创作质量"
     )
     return 0
 

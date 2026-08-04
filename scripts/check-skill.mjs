@@ -462,8 +462,11 @@ for (const mediaBuildResource of [
 for (const voiceoverReferenceResource of [
   "references/voiceover-writing.md",
   "references/voiceover-reference-library.md",
+  "references/voiceover-hook-library.md",
   "scripts/voiceover_reference_library.py",
+  "scripts/voiceover_hook_library.py",
   "scripts/self-test-voiceover-reference-library.py",
+  "scripts/self-test-voiceover-hook-library.py",
 ]) {
   ensurePath(voiceoverReferenceResource);
 }
@@ -1193,11 +1196,12 @@ if (runFullChecks && failures.length === 0) {
   const requiredVoiceoverReferenceTokens = [
     "references/voiceover-writing.md",
     "references/voiceover-reference-library.md",
+    "references/voiceover-hook-library.md",
     "scripts/voiceover_reference_library.py",
+    "scripts/voiceover_hook_library.py",
     "口播声音",
-    "voice-candidates",
-    "完整口播案例",
-    "开头钩子",
+    "完整案例",
+    "独立口播钩子",
   ];
   for (const token of requiredVoiceoverReferenceTokens) {
     if (!skillText.includes(token)) {
@@ -1213,6 +1217,7 @@ if (runFullChecks && failures.length === 0) {
     "结构关系",
     "作者与听众",
     "不建立固定禁词表",
+    "贡献事实、关系或推进",
   ]) {
     if (!voiceoverWritingText.includes(token)) {
       fail(`完整口播写作缺少根因审查合同：${token}`);
@@ -1231,7 +1236,12 @@ if (runFullChecks && failures.length === 0) {
     runChecked(
       voiceoverPython,
       [path.join(scriptDir, "self-test-voiceover-reference-library.py")],
-      "口播私人库 v2 协议、声音资格、引用、索引与去重检查"
+      "口播私人库 v3 声音、完整案例、索引与去重检查"
+    );
+    runChecked(
+      voiceoverPython,
+      [path.join(scriptDir, "self-test-voiceover-hook-library.py")],
+      "独立口播钩子生产、最少字段、索引与案例隔离检查"
     );
   }
 }
