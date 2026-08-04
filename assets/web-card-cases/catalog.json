@@ -59,6 +59,41 @@
       "reuse": "暖白纸面、炭黑图解、克制珊瑚点色、连续标题留白，以及准确文字和原创图解分层编辑的职责",
       "adapt": "当前主题决定图解命题、标题、标签、网格密度和各比例构图；5:2 是本案例画布，不是其它封面的固定输出",
       "verify": "在真实浏览器检查网页编辑回写、1500×600 完整画布、360px 标题缩略图和图解标签可读性；生成图变体另核对无文字素材与网页文字边界"
+    },
+    {
+      "id": "technical-interface-comparison",
+      "path": "technical-interface-comparison",
+      "files": {
+        "preview": "preview.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json",
+        "qa": "qa-preview.mjs"
+      },
+      "use_when": "两到四个接口、工具或工作方式需要在同一张横向卡片中并列解释各自怎样连接调用者、能力与结果",
+      "reuse": "等宽横向栏、每栏同层级的微型机制图、语义分色、克制技术线条和一条产品无关的共享能力底座",
+      "adapt": "当前主题重新决定概念、栏数、标题、节点、配色、字体、画布和署名；不得自动继承 MCP、CLI、API 文案或作者身份",
+      "verify": "真实浏览器检查文字边界、图标与标签光学中心、连线端点、结构线语义和 360px 缩略图；不能出现无意义半截横条或项目专用业务核心"
+    },
+    {
+      "id": "handdrawn-system-collaboration-flow",
+      "path": "handdrawn-system-collaboration-flow",
+      "files": {
+        "preview": "preview.png",
+        "preview_video": "preview.mp4",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json",
+        "qa": "qa-preview.mjs",
+        "export": "export-video.mjs",
+        "notices": "THIRD_PARTY_NOTICES.md"
+      },
+      "use_when": "系统、状态、反馈或人机协同关系适合用深色手绘风稳定全貌图与路径光点逐步解释",
+      "reuse": "第一帧完整显示结构、直线或正交路径、稳定细线层级、同一路径同色光点、统一本地手绘字体，以及网页源帧到移动端 MP4 的确定性链路",
+      "adapt": "当前主题重新决定节点、路径、标签、配色、字体、时间、画布和署名；不得自动继承 MCP、人机协同文案或作者身份",
+      "verify": "捕获全部语义状态，检查静态图层不变、每个事件只走一次、光点与路径同色、文字与图标边界通过；最终视频顺序解码并核对 H.264、yuv420p、avc1、BT.709 与 faststart"
     }
   ]
 }

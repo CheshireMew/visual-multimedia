@@ -1,0 +1,41 @@
+{
+  "profile_id": "dark-handdrawn-system-flow",
+  "source": "reference",
+  "applicability": {
+    "shared_visual_core": ["web-animation", "gif", "web-derived-video"],
+    "static_composition": [],
+    "time_motion": ["web-animation", "gif", "web-derived-video"],
+    "interaction": []
+  },
+  "shared_visual_core": {
+    "typography": {
+      "display": "Xiaolai",
+      "body": "Xiaolai",
+      "metadata": "Xiaolai",
+      "display_weight": 400,
+      "body_weight": 400
+    },
+    "color": {
+      "background": "Near-black canvas",
+      "cyan": "Primary invocation route",
+      "green": "Tools, triggers and feedback",
+      "purple": "Shared state",
+      "amber": "Human decision and interface"
+    },
+    "material": "Subtle SVG displacement gives a controlled hand-drawn edge without moving geometry",
+    "shape_and_line": "Thin persistent frames, simple Lucide line icons and straight or orthogonal routes",
+    "image_treatment": "All explanatory structure is native SVG; the confirmed original author uses a local project-owned avatar",
+    "hierarchy_and_rhythm": "The full system map is readable from frame one; route-colored dots reveal one semantic event at a time"
+  },
+  "realizations": {
+    "static_composition": null,
+    "time_motion": {
+      "carrier": "Three route-colored dots and short trails move only along fixed paths",
+      "states": "Overview, trigger, invocation, tool execution, human branch, feedback, automatic branch, shared-state read/write and hold",
+      "invariants": "Text, node geometry, path geometry, line width, border color and border brightness remain unchanged throughout",
+      "loop": "repeat after a stable final hold",
+      "delivery": "The same deterministic browser timeline produces source screenshots and an H.264 yuv420p mobile-compatible MP4"
+    },
+    "interaction": null
+  }
+}

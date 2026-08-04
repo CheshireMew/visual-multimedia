@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP 人机协同回路</title>
+  <style>
+    @font-face {
+      font-family: "Xiaolai";
+      src: url("assets/fonts/Xiaolai-Regular.ttf") format("truetype");
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+    }
+    :root {
+      --canvas-width: 1440;
+      --canvas-height: 900;
+      --background: #060809;
+      --paper: #0a0d0f;
+      --text: #f0eee7;
+      --muted: #aeb8bb;
+      --line: #aeb9bd;
+      --cyan: #55b9e8;
+      --green: #31c77b;
+      --purple: #bd66d6;
+      --amber: #d5a554;
+      --pulse: #61ef9f;
+      --font-display: "Xiaolai", "YouYuan", "Microsoft YaHei UI", sans-serif;
+      --font-body: "Xiaolai", "YouYuan", "Microsoft YaHei UI", sans-serif;
+      --font-sans: "Microsoft YaHei UI", "Noto Sans SC", "PingFang SC", sans-serif;
+      font-family: var(--font-body);
+      color: var(--text);
+      background: #202326;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { overflow: hidden; background: #202326; }
+    .app { width: 100vw; height: 100vh; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 12px; padding: 20px; }
+    .viewport { min-height: 0; display: grid; place-items: center; overflow: auto; }
+    .canvas-shell { width: calc(var(--canvas-width) * 1px); height: calc(var(--canvas-height) * 1px); flex: 0 0 auto; }
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      transform-origin: top left;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 12% 6%, rgb(75 114 118 / 10%), transparent 25%),
+        radial-gradient(circle at 78% 38%, rgb(31 88 107 / 7%), transparent 28%),
+        linear-gradient(180deg, #080b0c 0%, var(--background) 100%);
+      box-shadow: 0 30px 90px rgb(0 0 0 / 48%);
+    }
+    .media-canvas::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .13;
+      background-image:
+        repeating-radial-gradient(circle at 17% 31%, rgb(255 255 255 / 16%) 0 0.55px, transparent 0.7px 4px),
+        repeating-radial-gradient(circle at 83% 67%, rgb(0 0 0 / 25%) 0 0.65px, transparent 0.8px 5px);
+      mix-blend-mode: soft-light;
+      z-index: 10;
+    }
+
+    .identity { position: absolute; left: 56px; top: 28px; width: 390px; height: 82px; }
+    .identity-bar { position: absolute; left: 0; top: 5px; width: 8px; height: 47px; border-radius: 1px; background: linear-gradient(180deg, var(--purple), var(--cyan)); }
+    .identity-title { position: absolute; left: 24px; top: 0; margin: 0; font: 400 42px/50px var(--font-display); letter-spacing: .015em; }
+    .identity-copy { position: absolute; left: 27px; top: 53px; margin: 0; color: #9da9ad; font: 620 14px/22px var(--font-body); letter-spacing: .05em; white-space: nowrap; }
+    .headline {
+      position: absolute;
+      left: 505px;
+      top: 31px;
+      width: 430px;
+      height: 66px;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      border: 1.2px solid #35795b;
+      border-radius: 18px 23px 17px 21px;
+      color: #54d691;
+      background: linear-gradient(180deg, rgb(25 62 48 / 94%), rgb(17 44 35 / 94%));
+      box-shadow: inset 0 0 0 3px rgb(4 14 11 / 42%), 0 8px 24px rgb(0 0 0 / 24%);
+      font: 400 36px/62px var(--font-display);
+      letter-spacing: .08em;
+    }
+    .creator { position: absolute; left: 1130px; top: 36px; width: 260px; height: 60px; display: grid; grid-template-columns: 52px 1fr; grid-template-rows: 30px 22px; column-gap: 12px; align-items: center; }
+    .creator-avatar { grid-row: 1 / 3; width: 50px; height: 50px; object-fit: contain; border-radius: 50%; border: 1px solid #667176; background: #111619; }
+    .creator-name, .creator-role { margin: 0; white-space: nowrap; }
+    .creator-name { font: 400 18px/27px var(--font-display); }
+    .creator-role { color: #8e999d; font: 620 12px/19px var(--font-body); letter-spacing: .06em; }
+
+    .diagram-wrap { position: absolute; left: 42px; top: 128px; width: 1356px; height: 714px; }
+    .diagram { display: block; width: 100%; height: 100%; overflow: visible; }
+    .diagram text { fill: var(--text); font-family: var(--font-body); font-synthesis: none; }
+    .diagram .outer { fill: rgb(5 8 9 / 72%); stroke: #626b70; stroke-width: 1.2; }
+    .diagram .region-main { fill: #061a25; stroke: var(--cyan); stroke-width: 1.25; }
+    .diagram .region-trigger { fill: #0a2017; stroke: var(--green); stroke-width: 1.25; }
+    .diagram .region-feedback { fill: #081d14; stroke: var(--green); stroke-width: 1.25; }
+    .diagram .region-state { fill: #180d1d; stroke: var(--purple); stroke-width: 1.25; }
+    .diagram .region-human { fill: #20170c; stroke: var(--amber); stroke-width: 1.25; }
+    .diagram .inner-outline { fill: none !important; stroke: var(--green); stroke-width: .65; opacity: .46; }
+    .diagram .node { fill: rgb(5 12 16 / 87%); stroke-width: 1.1; }
+    .diagram .node-cyan { stroke: var(--cyan); }
+    .diagram .node-green { stroke: var(--green); }
+    .diagram .node-purple { stroke: var(--purple); }
+    .diagram .node-amber { stroke: var(--amber); }
+    .diagram .node-neutral { stroke: #c8ced0; }
+    .diagram .region-title { font-family: var(--font-display); font-size: 22px; font-weight: 400; letter-spacing: .04em; }
+    .diagram .region-note { fill: #9ba7ab; font-size: 13px; font-weight: 620; letter-spacing: .04em; }
+    .diagram .node-title { font-family: var(--font-display); font-size: 22px; font-weight: 400; }
+    .diagram .node-copy { fill: #b5bec1; font-size: 14px; font-weight: 400; }
+    .diagram .micro { fill: #a5b0b4; font-size: 12px; font-weight: 620; }
+    .diagram .label { fill: #dce1df; font-family: var(--font-display); font-size: 13px; font-weight: 400; paint-order: stroke; stroke: #061016; stroke-width: 5px; stroke-linejoin: round; }
+    .diagram .cyan-text { fill: #80cff1; }
+    .diagram .green-text { fill: #65dd9b; }
+    .diagram .purple-text { fill: #d18be3; }
+    .diagram .amber-text { fill: #e4bb70; }
+    .diagram .icon { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+    .diagram .icon * { vector-effect: non-scaling-stroke; }
+    .diagram .route { fill: none; stroke-width: 1.15; stroke-linecap: square; stroke-linejoin: miter; opacity: .98; }
+    .diagram .route-cyan { stroke: #76c7eb; }
+    .diagram .route-green { stroke: #66d99a; }
+    .diagram .route-purple { stroke: #d088e1; }
+    .diagram .route-amber { stroke: #e1b66c; }
+    .diagram .route-neutral { stroke: #c9d0d1; }
+    .diagram .flow-dot { opacity: 0; filter: url(#dot-glow); stroke: #f3f4ef; stroke-width: .55; }
+    .diagram .plus { font-size: 28px; font-weight: 600; opacity: .8; }
+    .diagram .boundary { fill: #9fa9ad; font-size: 13px; font-weight: 620; letter-spacing: .015em; }
+    .diagram .event-result { font-size: 10.5px; }
+    .diagram .divider { stroke: rgb(255 255 255 / 18%); stroke-width: .9; }
+
+    .controls { display: flex; align-items: center; justify-content: center; gap: 10px; color: #e8edf0; font: 600 13px/1 var(--font-sans); }
+    .controls button { height: 34px; padding: 0 15px; border: 1px solid #56636d; border-radius: 7px; background: #121a20; color: #f0f3f4; cursor: pointer; }
+    .controls input[type="range"] { width: min(520px, 42vw); accent-color: #49b979; }
+    .controls output { min-width: 72px; color: #b9c5ca; font-family: Consolas, monospace; }
+    body.capture .app { display: block; width: calc(var(--canvas-width) * 1px); height: calc(var(--canvas-height) * 1px); padding: 0; }
+    body.capture .viewport { display: block; width: calc(var(--canvas-width) * 1px); height: calc(var(--canvas-height) * 1px); overflow: visible; }
+    body.capture .canvas-shell { width: calc(var(--canvas-width) * 1px) !important; height: calc(var(--canvas-height) * 1px) !important; }
+    body.capture .media-canvas { transform: none !important; }
+    body.capture .controls { display: none; }
+  </style>
+</head>
+<body>
+  <main class="app" data-editable-media-root data-composition-id="editable-media" data-no-timeline data-start="0" data-duration="14" data-width="1440" data-height="900" data-fps="30">
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="MCP 人机协同动态流程图">
+          <div class="identity" data-editable-id="identity">
+            <span class="identity-bar"></span>
+            <h1 class="identity-title" data-editable-data="identity_title"></h1>
+            <p class="identity-copy" data-editable-data="identity_copy"></p>
+          </div>
+          <h2 class="headline" data-editable-id="headline" data-editable-data="headline"></h2>
+          <div class="creator" data-editable-id="creator">
+            <img class="creator-avatar" data-editable-image="creator_avatar" src="" alt="柴郡头像" draggable="false">
+            <p class="creator-name" data-editable-data="creator_name"></p>
+            <p class="creator-role" data-editable-data="creator_role"></p>
+          </div>
+
+          <div class="diagram-wrap" data-editable-id="diagram">
+            <svg class="diagram" id="diagramSvg" viewBox="0 0 1356 714" role="img" aria-label="任务进入 Agent，Agent 通过 MCP 调用工具，并与人共同读写应用状态">
+              <defs>
+                <filter id="rough" x="-3%" y="-3%" width="106%" height="106%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="37" result="noise"/>
+                  <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.75" xChannelSelector="R" yChannelSelector="G"/>
+                </filter>
+                <filter id="dot-glow" x="-400%" y="-400%" width="900%" height="900%">
+                  <feGaussianBlur stdDeviation="5.2" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <marker id="arrow-cyan" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#76c7eb"/></marker>
+                <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#66d99a"/></marker>
+                <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#d088e1"/></marker>
+                <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#e1b66c"/></marker>
+                <marker id="arrow-neutral" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#c9d0d1"/></marker>
+              </defs>
+
+              <g filter="url(#rough)">
+                <rect class="outer" x="1" y="1" width="1354" height="712" rx="25"/>
+                <rect class="region-trigger" x="420" y="24" width="600" height="114" rx="17"/>
+                <rect class="inner-outline green-text" x="427" y="31" width="586" height="100" rx="13"/>
+                <rect class="region-main" x="30" y="176" width="1296" height="312" rx="21"/>
+                <rect class="region-feedback" x="30" y="516" width="388" height="150" rx="17"/>
+                <rect class="region-state" x="450" y="516" width="548" height="150" rx="17"/>
+                <rect class="region-human" x="1030" y="516" width="296" height="150" rx="17"/>
+              </g>
+
+              <text x="720" y="52" text-anchor="middle" class="region-title green-text">触发 / 任务入口</text>
+              <text x="720" y="126" text-anchor="middle" class="region-note">任何事件都可以成为一次协作的起点</text>
+              <g class="green-text">
+                <svg id="trigger-icon-human" class="icon" x="488" y="66" width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                <svg id="trigger-icon-agent" class="icon" x="628" y="66" width="28" height="28" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M9 13v2M15 13v2"/></svg>
+                <svg id="trigger-icon-state" class="icon" x="776" y="66" width="28" height="28" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 16 4-5 4 3 5-7"/></svg>
+                <svg id="trigger-icon-timer" class="icon" x="911" y="66" width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              </g>
+              <text id="trigger-label-human" x="502" y="101" text-anchor="middle" class="micro">人的操作</text>
+              <text id="trigger-label-agent" x="642" y="101" text-anchor="middle" class="micro">Agent 任务</text>
+              <text id="trigger-label-state" x="790" y="101" text-anchor="middle" class="micro">状态变化</text>
+              <text id="trigger-label-timer" x="925" y="101" text-anchor="middle" class="micro">定时任务</text>
+
+              <text x="62" y="213" class="region-title cyan-text">MCP 调用回路</text>
+              <text x="1292" y="211" text-anchor="end" class="region-note">固定结构 · 按需调用</text>
+              <text x="272" y="231" class="plus cyan-text">+</text>
+              <text x="872" y="226" class="plus green-text">+</text>
+              <text x="1125" y="451" class="plus purple-text">+</text>
+
+              <g id="agent-node">
+                <rect class="node node-cyan" x="62" y="244" width="190" height="116" rx="14" filter="url(#rough)"/>
+                <svg class="icon cyan-text" x="82" y="265" width="47" height="47" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M9 13v2M15 13v2"/></svg>
+                <text x="143" y="284" class="node-title" data-editable-data="agent_title"></text>
+                <text x="143" y="309" class="node-copy">理解任务</text>
+                <text x="157" y="340" text-anchor="middle" class="micro cyan-text">选择合适的工具</text>
+              </g>
+
+              <g id="client-node">
+                <rect class="node node-cyan" x="310" y="244" width="220" height="116" rx="14" filter="url(#rough)"/>
+                <svg class="icon cyan-text" x="331" y="266" width="44" height="44" viewBox="0 0 24 24"><path d="M17 19a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1z"/><path d="M17 21v-2M21 21v-2M19 14V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V10M3 5V3M7 5V3"/><path d="M4 10a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2a2 2 0 0 1-2 2z"/></svg>
+                <text x="390" y="284" class="node-title" data-editable-data="client_title"></text>
+                <text x="390" y="309" class="node-copy">发现与校验</text>
+                <text x="420" y="340" text-anchor="middle" class="micro cyan-text">管理连接和调用过程</text>
+              </g>
+
+              <g id="server-node">
+                <rect class="node node-green" x="585" y="226" width="270" height="152" rx="15" filter="url(#rough)"/>
+                <svg class="icon green-text" x="607" y="243" width="35" height="35" viewBox="0 0 24 24"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg>
+                <text x="657" y="269" class="node-title" data-editable-data="server_title"></text>
+                <line class="divider" x1="607" y1="284" x2="833" y2="284"/>
+                <rect class="node node-green" x="607" y="297" width="226" height="29" rx="6"/><text x="620" y="316" class="micro">工具清单</text><text x="818" y="316" text-anchor="end" class="micro green-text">名称</text>
+                <rect class="node node-green" x="607" y="335" width="226" height="29" rx="6"/><text x="620" y="354" class="micro">参数与结果</text><text x="818" y="354" text-anchor="end" class="micro green-text">Schema</text>
+              </g>
+
+              <g id="tools-node">
+                <rect class="node node-green" x="925" y="244" width="190" height="116" rx="14" filter="url(#rough)"/>
+                <svg class="icon green-text" x="944" y="263" width="42" height="42" viewBox="0 0 24 24"><path d="M10 22V7a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5a1 1 0 0 0-1-1H2"/><rect x="14" y="2" width="8" height="8" rx="1"/></svg>
+                <text x="998" y="284" class="node-title" data-editable-data="tools_title"></text>
+                <text x="998" y="309" class="node-copy">已有能力与数据</text>
+                <text x="1020" y="340" text-anchor="middle" class="micro green-text">API · CLI · 文件 · 数据</text>
+              </g>
+
+              <g id="decision-node">
+                <path class="node node-amber" d="M1225 238L1295 301L1225 364L1155 301Z" filter="url(#rough)"/>
+                <svg class="icon amber-text" x="1206" y="257" width="38" height="38" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                <text x="1225" y="316" text-anchor="middle" class="node-copy amber-text">需要人工确认？</text>
+                <text x="1225" y="337" text-anchor="middle" class="micro">应用 / Agent 决定</text>
+              </g>
+
+              <path id="triggerPath" class="route route-green" d="M720 138V158H157V244" marker-end="url(#arrow-green)"/>
+              <path id="agentClientPath" class="route route-cyan" d="M252 302H310" marker-end="url(#arrow-cyan)"/>
+              <path id="clientServerPath" class="route route-cyan" d="M530 302H585" marker-end="url(#arrow-cyan)"/>
+              <path id="serverToolsPath" class="route route-green" d="M855 302H925" marker-end="url(#arrow-green)"/>
+              <path id="toolsDecisionPath" class="route route-green" d="M1115 302H1155" marker-end="url(#arrow-green)"/>
+              <text x="281" y="288" text-anchor="middle" class="label cyan-text">选择</text>
+              <text x="558" y="288" text-anchor="middle" class="label cyan-text">调用</text>
+              <text x="890" y="288" text-anchor="middle" class="label green-text">执行</text>
+              <text x="1135" y="288" text-anchor="middle" class="label green-text">结果</text>
+
+              <path id="yesHumanPath" class="route route-amber" d="M1225 364V516" marker-end="url(#arrow-amber)"/>
+              <path id="noSharedPath" class="route route-purple" d="M1155 301H1134V480H900V516" marker-end="url(#arrow-purple)"/>
+              <text x="1238" y="442" class="label amber-text">是 · 交给人</text>
+              <text x="1018" y="468" class="label purple-text">否 · 自动继续</text>
+
+              <text x="58" y="549" class="region-title green-text">事件与反馈</text>
+              <text x="388" y="547" text-anchor="end" class="region-note">让下一轮知道发生了什么</text>
+              <g>
+                <rect id="event-card-result" class="node node-green" x="54" y="566" width="104" height="65" rx="9"/><svg class="icon green-text" x="64" y="576" width="24" height="24" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="m8 12 3 3 5-6"/></svg><text id="event-title-result" x="94" y="593" class="micro">结果事件</text><text id="event-copy-result" x="106" y="619" text-anchor="middle" class="micro event-result green-text">成功 / 失败</text>
+                <rect id="event-card-state" class="node node-green" x="172" y="566" width="104" height="65" rx="9"/><svg class="icon green-text" x="182" y="576" width="24" height="24" viewBox="0 0 24 24"><path d="M4 12h16M12 4v16"/><circle cx="12" cy="12" r="8"/></svg><text id="event-title-state" x="212" y="593" class="micro">状态变化</text><text id="event-copy-state" x="224" y="619" text-anchor="middle" class="micro event-result green-text">新增 / 更新</text>
+                <rect id="event-card-next" class="node node-green" x="290" y="566" width="104" height="65" rx="9"/><svg class="icon green-text" x="300" y="576" width="24" height="24" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><text id="event-title-next" x="330" y="593" class="micro">下一轮</text><text id="event-copy-next" x="342" y="619" text-anchor="middle" class="micro event-result green-text">继续处理</text>
+              </g>
+
+              <text x="474" y="549" class="region-title purple-text" data-editable-data="state_title"></text>
+              <text x="974" y="547" text-anchor="end" class="region-note">人和 Agent 读写同一份业务事实</text>
+              <svg class="icon purple-text" x="485" y="570" width="53" height="53" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5M3 12a9 3 0 0 0 18 0"/></svg>
+              <rect class="node node-purple" x="559" y="572" width="115" height="52" rx="9"/><text x="616" y="595" text-anchor="middle" class="node-copy">任务</text><text x="616" y="614" text-anchor="middle" class="micro purple-text">目标与进度</text>
+              <rect class="node node-purple" x="688" y="572" width="115" height="52" rx="9"/><text x="745" y="595" text-anchor="middle" class="node-copy">记录</text><text x="745" y="614" text-anchor="middle" class="micro purple-text">操作与结果</text>
+              <rect class="node node-purple" x="817" y="572" width="153" height="52" rx="9"/><text x="893" y="595" text-anchor="middle" class="node-copy">状态</text><text x="893" y="614" text-anchor="middle" class="micro purple-text">界面正在显示的事实</text>
+
+              <text x="1054" y="549" class="region-title amber-text" data-editable-data="human_ui_title"></text>
+              <svg class="icon amber-text" x="1054" y="572" width="54" height="54" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              <rect class="node node-amber" x="1126" y="570" width="176" height="26" rx="7"/><circle cx="1142" cy="583" r="4" fill="#e1b66c"/><text x="1154" y="588" class="micro">查看 Agent 的结果</text>
+              <rect class="node node-amber" x="1126" y="605" width="176" height="26" rx="7"/><circle cx="1142" cy="618" r="4" fill="#e1b66c"/><text x="1154" y="623" class="micro">确认或直接修改</text>
+
+              <path id="serverStateDownPath" class="route route-purple" d="M720 378V516" marker-end="url(#arrow-purple)"/>
+              <path id="stateServerUpPath" class="route route-purple" d="M704 516V378" marker-end="url(#arrow-purple)"/>
+              <text x="735" y="446" class="label purple-text">读写状态</text>
+              <path id="humanSharedPath" class="route route-amber" d="M1030 600H998" marker-end="url(#arrow-amber)"/>
+              <path id="sharedFeedbackPath" class="route route-purple" d="M450 600H418" marker-end="url(#arrow-purple)"/>
+              <path id="feedbackAgentPath" class="route route-green" d="M126 516V488H126V360" marker-end="url(#arrow-green)"/>
+              <text x="139" y="452" class="label green-text">事件反馈</text>
+
+              <circle id="triggerDot" class="flow-dot" r="5.2" fill="#66d99a"/>
+              <circle id="agentClientDot" class="flow-dot" r="5.2" fill="#76c7eb"/>
+              <circle id="clientServerDot" class="flow-dot" r="5.2" fill="#76c7eb"/>
+              <circle id="serverToolsDot" class="flow-dot" r="5.2" fill="#66d99a"/>
+              <circle id="toolsDecisionDot" class="flow-dot" r="5.2" fill="#66d99a"/>
+              <circle id="yesHumanDot" class="flow-dot" r="5.2" fill="#e1b66c"/>
+              <circle id="humanSharedDot" class="flow-dot" r="5.2" fill="#e1b66c"/>
+              <circle id="sharedFeedbackDot" class="flow-dot" r="5.2" fill="#d088e1"/>
+              <circle id="feedbackAgentDot" class="flow-dot" r="5.2" fill="#66d99a"/>
+              <circle id="noSharedDot" class="flow-dot" r="5.2" fill="#d088e1"/>
+              <circle id="serverStateDownDot" class="flow-dot" r="5.2" fill="#d088e1"/>
+              <circle id="stateServerUpDot" class="flow-dot" r="5.2" fill="#d088e1"/>
+
+              <line x1="34" y1="683" x2="1322" y2="683" stroke="#4b5559" stroke-width=".8"/>
+              <text x="50" y="705" class="boundary"><tspan class="amber-text">边界：</tspan><tspan data-editable-data="boundary"></tspan></text>
+            </svg>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="controls" data-editable-interactive>
+      <button id="play" type="button">播放</button>
+      <button id="pause" type="button">暂停</button>
+      <input id="scrubber" type="range" min="0" max="14000" step="1" value="0" aria-label="时间定位">
+      <output id="time">0.00 秒</output>
+    </div>
+  </main>
+
+  <script>
+    const viewport = document.querySelector("#viewport");
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const scrubber = document.querySelector("#scrubber");
+    const timeOutput = document.querySelector("#time");
+    const captureMode = new URLSearchParams(location.search).get("capture") === "1";
+    if (captureMode) document.body.classList.add("capture");
+
+    let output = { width: 1440, height: 900, durationMs: 14000 };
+    const flowIds = ["trigger", "agentClient", "clientServer", "serverTools", "toolsDecision", "yesHuman", "humanShared", "sharedFeedback", "feedbackAgent", "noShared", "serverStateDown", "stateServerUp"];
+    const pathLengths = new Map();
+    const flowDots = new Map();
+    const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+    const smooth = (from, to, value) => {
+      const x = clamp((value - from) / Math.max(1, to - from));
+      return x * x * (3 - 2 * x);
+    };
+    const windowed = (time, start, end, fade = 150) => smooth(start, start + fade, time) * (1 - smooth(end - fade, end, time));
+
+    function initializePaths() {
+      for (const id of flowIds) {
+        const path = document.querySelector(`#${id}Path`);
+        const dot = document.querySelector(`#${id}Dot`);
+        const length = path.getTotalLength();
+        pathLengths.set(id, length);
+        const dots = [dot];
+        for (let index = 1; index <= 2; index += 1) {
+          const trail = dot.cloneNode(false);
+          trail.id = `${id}Trail${index}`;
+          trail.setAttribute("r", String(5.2 - index * 1.2));
+          dot.parentNode.insertBefore(trail, dot);
+          dots.push(trail);
+        }
+        flowDots.set(id, dots);
+      }
+    }
+
+    function flow(id, time, start, end) {
+      const path = document.querySelector(`#${id}Path`);
+      const length = pathLengths.get(id);
+      const visibility = windowed(time, start - 100, end + 250, 170);
+      const progress = smooth(start, end, time);
+      const dots = flowDots.get(id) || [];
+      dots.forEach((dot, index) => {
+        const p = progress - index * .048;
+        if (visibility > .015 && p > .005 && p < .995) {
+          const point = path.getPointAtLength(length * p);
+          dot.setAttribute("cx", point.x.toFixed(2));
+          dot.setAttribute("cy", point.y.toFixed(2));
+          dot.style.opacity = String(visibility * (1 - index * .27));
+        } else {
+          dot.style.opacity = "0";
+        }
+      });
+    }
+
+    function renderTime(playback) {
+      const t = playback.localTimeMs;
+      flowDots.forEach((dots) => dots.forEach((dot) => { dot.style.opacity = "0"; }));
+      flow("trigger", t, 900, 1800);
+      flow("agentClient", t, 2050, 2550);
+      flow("clientServer", t, 2800, 3350);
+      flow("serverTools", t, 3750, 4350);
+      flow("toolsDecision", t, 4650, 5050);
+      flow("yesHuman", t, 5450, 6300);
+      flow("humanShared", t, 6550, 6950);
+      flow("sharedFeedback", t, 7250, 7650);
+      flow("feedbackAgent", t, 7900, 8900);
+      flow("noShared", t, 9550, 10700);
+      flow("serverStateDown", t, 11200, 12000);
+      flow("stateServerUp", t, 12100, 12900);
+      scrubber.value = String(Math.round(playback.globalTimeMs));
+      timeOutput.value = `${(playback.globalTimeMs / 1000).toFixed(2)} 秒`;
+    }
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(viewport.clientWidth / output.width, viewport.clientHeight / output.height, 1);
+      const fittedScale = Math.max(.1, scale);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+
+    document.querySelector("#play").addEventListener("click", () => editableMedia.play());
+    document.querySelector("#pause").addEventListener("click", () => editableMedia.pause());
+    scrubber.addEventListener("input", (event) => { editableMedia.pause(); editableMedia.setTime(event.target.value); });
+    window.addEventListener("editablemediatime", (event) => renderTime(event.detail));
+  </script>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = { width: Number(variant.canvas.width), height: Number(variant.canvas.height), durationMs: editableMedia.getPlayback().totalDurationMs };
+      scrubber.max = String(output.durationMs);
+      initializePaths();
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      renderTime(editableMedia.getPlayback());
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

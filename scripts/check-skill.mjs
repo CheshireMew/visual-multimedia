@@ -648,9 +648,30 @@ for (const token of [
   }
 }
 
+const technicalDiagramReferencePath = ensurePath("references/technical-diagram-production.md");
+if (!skillText.includes("references/technical-diagram-production.md")) {
+  fail("SKILL.md 缺少技术图解正式路由：references/technical-diagram-production.md");
+}
+const technicalDiagramReferenceText = fs.readFileSync(technicalDiagramReferencePath, "utf8");
+for (const token of [
+  "通用科普图",
+  "静态对比图",
+  "稳定全貌图",
+  "光学中心",
+  "正交",
+  "同一条边",
+  "继承所在路径的颜色",
+  "顺序完整解码",
+]) {
+  if (!technicalDiagramReferenceText.includes(token)) {
+    fail(`技术图解制作说明缺少可复用机制：${token}`);
+  }
+}
+
 const catalogPath = ensurePath("assets/web-card-cases/catalog.json");
 const catalog = readJson(catalogPath);
 const browserProjects = [path.dirname(starterManifest)];
+const browserCaseQa = [];
 const starterRuntime = ensurePath("assets/web-media-starter/editable-media-runtime.js");
 const starterRuntimeHash = sha256File(starterRuntime);
 if (!fs.readFileSync(starterRuntime, "utf8").includes("getCamera")) {
@@ -736,6 +757,62 @@ for (const item of catalog?.cases || []) {
       fail("名词解释纯文字卡没有使用无头像的制作水印唯一语义");
     }
   }
+  if (item.id === "technical-interface-comparison") {
+    const caseManifest = readJson(manifestPath);
+    const indexText = fs.readFileSync(path.join(caseRoot, "index.html"), "utf8");
+    const sourceManifest = readJson(
+      path.resolve(caseRoot, item.files?.sources || "media-sources.json")
+    );
+    if (
+      !styleProfile?.applicability?.static_composition?.includes("static-card")
+      || caseManifest?.scenes?.[0]?.motion?.complexity !== "static"
+      || !indexText.includes("规则 · 数据 · 操作 · 结果")
+      || indexText.includes("MediaFlow")
+      || JSON.stringify(caseManifest).includes("编辑 · 查询 · 渲染 · 导出")
+      || !(sourceManifest?.sources || []).some(
+        (source) => source.id === "cheshire-avatar"
+          && String(source?.rights?.license || "").includes("original authorship")
+      )
+    ) {
+      fail("技术接口对比案例没有保持通用机制、静态消费者或已确认原创署名边界");
+    }
+    browserCaseQa.push({ caseRoot, script: path.join(caseRoot, item.files?.qa || "qa-preview.mjs") });
+  }
+  if (item.id === "handdrawn-system-collaboration-flow") {
+    const caseManifest = readJson(manifestPath);
+    const indexText = fs.readFileSync(path.join(caseRoot, "index.html"), "utf8");
+    const exportText = fs.readFileSync(path.join(caseRoot, item.files?.export || "export-video.mjs"), "utf8");
+    const noticesText = fs.readFileSync(path.join(caseRoot, item.files?.notices || "THIRD_PARTY_NOTICES.md"), "utf8");
+    for (const output of ["web-animation", "gif", "web-derived-video"]) {
+      if (!styleProfile?.applicability?.time_motion?.includes(output)) {
+        fail(`手绘系统协同案例的 time_motion 没有声明 ${output}`);
+      }
+    }
+    for (const flowId of [
+      "trigger", "agentClient", "clientServer", "serverTools", "toolsDecision",
+      "yesHuman", "humanShared", "sharedFeedback", "feedbackAgent", "noShared",
+      "serverStateDown", "stateServerUp",
+    ]) {
+      const count = (indexText.match(new RegExp(`flow\\(\"${flowId}\"`, "g")) || []).length;
+      if (count !== 1) fail(`手绘系统协同案例的 ${flowId} 语义路径应且只应触发一次，实际 ${count} 次`);
+    }
+    for (const token of ["yuv420p", "avc1", "bt709", "+faststart"]) {
+      if (!exportText.includes(token)) fail(`手绘系统协同案例的移动端导出缺少 ${token}`);
+    }
+    if (
+      caseManifest?.scenes?.[0]?.motion?.key_state_review !== "required"
+      || !caseManifest?.resources?.includes("style-profile.json")
+      || !caseManifest?.resources?.includes("assets/fonts/Xiaolai-Regular.ttf")
+      || !noticesText.includes("Lucide Static 1.28.0")
+      || !noticesText.includes("SIL Open Font License 1.1")
+      || !fs.existsSync(path.join(caseRoot, "LICENSE.lucide-icons.txt"))
+      || !fs.readFileSync(path.join(caseRoot, "LICENSE.lucide-icons.txt"), "utf8").includes("Copyright (c) 2013-present Cole Bemis")
+      || !fs.existsSync(path.join(caseRoot, "assets/fonts/Xiaolai-OFL.txt"))
+    ) {
+      fail("手绘系统协同案例缺少关键状态、完整字体、图标许可或风格档案边界");
+    }
+    browserCaseQa.push({ caseRoot, script: path.join(caseRoot, item.files?.qa || "qa-preview.mjs") });
+  }
   const caseRuntime = path.join(caseRoot, "editable-media-runtime.js");
   if (!fs.existsSync(caseRuntime) || sha256File(caseRuntime) !== starterRuntimeHash) {
     fail(`案例 ${item.id} 没有消费当前唯一 editable-media 通用运行时`);
@@ -816,6 +893,10 @@ if (runBrowserChecks && failures.length === 0) {
   const validator = path.join(scriptDir, "validate-editable-media.mjs");
   for (const project of browserProjects) {
     runChecked(process.execPath, [validator, project], `浏览器验证：${project}`);
+  }
+  for (const item of browserCaseQa) {
+    const output = path.join(skillRoot, "artifacts", "web-card-case-qa", path.basename(item.caseRoot));
+    runChecked(process.execPath, [item.script, item.caseRoot, output], `案例几何与运动验证：${item.caseRoot}`);
   }
 }
 

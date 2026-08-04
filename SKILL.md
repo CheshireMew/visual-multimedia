@@ -134,8 +134,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 | 任务 | 读取资源 | 读取目的 |
 | --- | --- | --- |
-| 用户明确把已经确认的内容或旁白制作成需要新视觉导演的视频 | `references/video-direction-contracts.md` | 绑定来源快照、确认旁白和结构化画面职责；按真人、录屏、证据、解释型 B-roll 或包装选择来源，但不复制剪辑时间线 |
-| 视频需要决定真人、无人物或其它已经授权的现有画面谁出现在画面里 | `references/video-direction-contracts.md` | 选择出镜方式、验证授权并保存机器可读方向计划 |
+| 已确认内容或旁白需要新视觉导演，或视频需要决定真人、无人物及其它已授权画面谁出镜 | `references/video-direction-contracts.md` | 绑定来源快照、确认画面职责、选择并验证出镜方式，保存机器可读方向计划但不复制剪辑时间线 |
 | 外部生成服务的素材尚未下载并进入本地素材账本 | `references/external-generation-jobs.md` | 在素材入账前管理规范化输入、费用授权、一次性提交锁、远程恢复、实际费用和本地化 |
 | 选择载体、确定媒体文案职责、分镜或节目结构 | `references/content-to-media.md` | 确定内容真源、受众称呼、媒体职责和文案合同 |
 | 新写、扩写、实质重组、审查或审查后改写完整口播、旁白、播客独白或主持连接语 | `references/voiceover-writing.md` | 分开读取声音证据与创作参考，从内容和结构根因消除模型组织痕迹，交付诊断或可直接朗读的活动口播 |
@@ -145,6 +144,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 建立或继承项目、系列的声音素材角色与混音规则 | `references/sound-production-profiles.md` | 使用独立声音档案引用真实 audio source id，不把声音规则混入视觉档案 |
 | 查找、注册或采用创作者素材、通用制作素材、网页组件，或从项目晋升可复用成果 | `references/reusable-media-resources.md` | 使用不可变注册版本，经现有素材账本或完整网页包边界进入项目，并保存采用与晋升证据 |
 | 图文卡片、封面、图表、GIF、代码动画、可手动推进的多场景 HTML 或无实拍视觉 | `references/web-visual-production.md` | 建立网页真源、场景合同、播放方式、样稿、确定性时间线和派生媒体 |
+| 技术概念、接口、工具或系统关系需要静态机制图、对比图，或保持全貌不变的动态流程图 | `references/technical-diagram-production.md` | 分配画面信息职责，建立可读机制、正交连接、稳定图层、同色流光和浏览器几何验收 |
 | 把已确认的网页、桌面应用或移动产品功能制作成有真实界面证据的宣传片 | `references/product-promo-production.md` | 使用正式 profile、页面采集、镜头配方状态、功能覆盖、计划确认与通用构建投影；拒绝把仅参考配方冒充已实现镜头 |
 | 口播需要流程、时间线、层级、因果、工具链、比较、拆解、指标、前后证据或真人分屏等解释型画面 | `references/explanatory-broll-production.md`、`references/structured-media-editor-cli.md` | 由导演计划自动选择活动模板，在 Gallery Studio 中编辑，并按真实声音时间投影接入 MediaFlow Pro 时间线和导出 |
 | 一段或几段话、单句观点、并列清单、名词解释、引文摘录或文字对照主要依靠文字本身成立 | `references/text-card-production.md` | 按真实阅读动作选择纯文字卡结构，分开处理原创署名、整理说明、制作水印和引用来源 |

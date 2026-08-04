@@ -1,0 +1,39 @@
+{
+  "profile_id": "technical-interface-comparison",
+  "source": "custom",
+  "applicability": {
+    "shared_visual_core": ["static-card", "cover"],
+    "static_composition": ["static-card", "cover"],
+    "time_motion": [],
+    "interaction": []
+  },
+  "shared_visual_core": {
+    "typography": {
+      "display": "Microsoft YaHei UI / Noto Sans SC / PingFang SC",
+      "body": "Microsoft YaHei UI / Noto Sans SC / PingFang SC",
+      "metadata": "Cascadia Mono / JetBrains Mono / Consolas",
+      "display_weight": 760,
+      "body_weight": 600
+    },
+    "color": {
+      "background": "Deep blue-black technical canvas",
+      "mcp": "Cyan identifies discovery and structured tool invocation",
+      "cli": "Amber identifies terminal process execution",
+      "api": "Green identifies programmatic contracts and ongoing state"
+    },
+    "material": "Flat dark technical panels with a subtle grid and restrained glow",
+    "shape_and_line": "Three equal lanes use thin stable borders, straight connectors and compact mechanism drawings",
+    "image_treatment": "The mechanism diagrams are native HTML/CSS; the confirmed original author uses a local project-owned avatar",
+    "hierarchy_and_rhythm": "One Chinese-first title, three parallel mechanism lanes and one shared product-neutral capability rail"
+  },
+  "realizations": {
+    "static_composition": {
+      "structure": "Each lane explains caller, interface behavior and observable result at the same semantic depth",
+      "comparison": "Lane geometry stays parallel while color and internal mechanism distinguish the three concepts",
+      "shared_core": "A single bottom rail names the general capability that all three interfaces can reach",
+      "thumbnail": "The title and three lane identities remain recognizable at 360px output width"
+    },
+    "time_motion": null,
+    "interaction": null
+  }
+}

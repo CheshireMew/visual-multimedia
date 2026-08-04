@@ -26,5 +26,7 @@ MPL-2.0 是文件级互惠许可证：修改并分发受其覆盖的现有文件
 
 - `assets/text-motion-library/text-motion-runtime.js` 中从 `sakura-animate-text` 确定性改写的文字动效实现继续采用 MIT License；完整版权与许可文本见 [`assets/text-motion-library/THIRD_PARTY_NOTICES.md`](assets/text-motion-library/THIRD_PARTY_NOTICES.md)。
 - `assets/shot-recipe-library/recipes/**` 中标记为 `source_id: video-shotcraft` 的镜头语义资料来自 `Vincentwei1021/video-shotcraft`，继续采用 Apache License 2.0；准确修改范围、版权声明和完整正文见 [`assets/shot-recipe-library/THIRD_PARTY_NOTICES.md`](assets/shot-recipe-library/THIRD_PARTY_NOTICES.md) 与 [`assets/shot-recipe-library/LICENSE.video-shotcraft.txt`](assets/shot-recipe-library/LICENSE.video-shotcraft.txt)。
+- `assets/web-card-cases/handdrawn-system-collaboration-flow/assets/fonts/Xiaolai-Regular.ttf` 来自 `lxgw/kose-font`，继续采用 SIL Open Font License 1.1；完整正文见同目录的 [`Xiaolai-OFL.txt`](assets/web-card-cases/handdrawn-system-collaboration-flow/assets/fonts/Xiaolai-OFL.txt)。
+- `assets/web-card-cases/handdrawn-system-collaboration-flow/index.html` 中注明的 Lucide Static 1.28.0 图标路径继续采用 Lucide ISC License；Server、Monitor、Database 等 Feather 派生图标同时保留 Cole Bemis 的 MIT License。准确范围、版权声明与完整正文见案例的 [`THIRD_PARTY_NOTICES.md`](assets/web-card-cases/handdrawn-system-collaboration-flow/THIRD_PARTY_NOTICES.md) 和 [`LICENSE.lucide-icons.txt`](assets/web-card-cases/handdrawn-system-collaboration-flow/LICENSE.lucide-icons.txt)。
 
 其它第三方文件、依赖和用户提供素材继续遵守其自身许可证、来源清单或使用边界。文件旁的具体第三方声明与本范围说明发生粒度差异时，以能准确对应到该第三方内容的声明为准。

@@ -67,6 +67,7 @@ Visual Multimedia 负责把已经确认的内容和素材组织成可编辑的�
 | 需求 | 主要输入 | 可观察结果 |
 | --- | --- | --- |
 | 社交卡、封面、轮播图、图表 | 已确认内容、尺寸与可用素材 | 可编辑网页真源、逐比例预览和指定图片 |
+| 技术机制对比与系统流程图 | 已确认概念、节点关系、参考风格与静态/动态要求 | 可编辑机制图、稳定全貌动画、关键状态检查图和指定图片或视频 |
 | GIF、动态图解、代码动画 | 内容关系、语义步骤与播放方式 | 可定位关键状态的网页动画，以及指定 GIF 或视频 |
 | 解释型 B-roll 与视频包装 | 确认口播、内容关系、布局比例与真实声音时间 | 自动配方选择、十类可编辑活动模板、MediaFlow Pro 片段和 PNG/GIF/视频/透明输出 |
 | 多场景 HTML 演示 | 完整文案、场景顺序与手动/自动/混合播放要求 | 同一网页真源中的交互演示和连续导出路径 |
@@ -90,6 +91,19 @@ Visual Multimedia 负责把已经确认的内容和素材组织成可编辑的�
     <td width="50%" valign="top">
       <img src="assets/web-card-cases/social-evidence-variants/preview-landscape-21x9.png" alt="同一内容的宽屏社交证据卡变体">
       <br><sub>多比例变体：同一结构化内容可以重排为宽屏画面。</sub>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="assets/web-card-cases/technical-interface-comparison/preview.png" alt="MCP CLI API 三种接口的横向技术机制对比图">
+      <br><sub>技术机制对比：每栏用微型流程图解释工作方式，并落到产品无关的共享能力。</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="assets/web-card-cases/handdrawn-system-collaboration-flow/preview.png" alt="深色手绘风 MCP 人机协同稳定全貌流程图">
+      <br><sub>稳定全貌动态图：结构从第一帧保持不变，路径同色光点按语义事件依次移动；目录内同时提供可编辑网页和移动端 MP4。</sub>
     </td>
   </tr>
 </table>
@@ -161,6 +175,8 @@ node scripts/check-skill.mjs --full
 
 - [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft)：`assets/shot-recipe-library/recipes/` 中 104 张镜头卡与 161 个风格变体的语义资料由原仓库改写而来，采用 Apache-2.0，Copyright 2026 Wei Yihao。本仓库没有复制上游 Remotion TSX、产品截图、音频、动态预览 MP4 或 Gallery 实现；准确范围、修改说明与完整许可证见 [shot recipe notices](assets/shot-recipe-library/THIRD_PARTY_NOTICES.md)。
 - `sakura-animate-text`：`assets/text-motion-library/text-motion-runtime.js` 的文字动效家族基于该项目确定性重写，采用 MIT License，Copyright 2026 Sakura；没有复制上游 WAAPI 播放循环、随机延迟、CDN 加载器、框架适配、示例文案、字体或站点视觉。完整声明见 [text motion notices](assets/text-motion-library/THIRD_PARTY_NOTICES.md)。
+- [Xiaolai（小赖字体）](https://github.com/lxgw/kose-font)：`assets/web-card-cases/handdrawn-system-collaboration-flow/assets/fonts/Xiaolai-Regular.ttf` 用于真实手绘中文案例，采用 SIL Open Font License 1.1；完整许可证随字体保存在案例目录。
+- [Lucide](https://github.com/lucide-icons/lucide)：同一手绘案例在 `index.html` 中内嵌 Lucide Static 1.28.0 的线性图标路径；Lucide 自有图标采用 ISC，Server、Monitor、Database 等 Feather 派生图标同时保留 Cole Bemis 的 MIT 条款。准确范围与完整许可证见 [case notices](assets/web-card-cases/handdrawn-system-collaboration-flow/THIRD_PARTY_NOTICES.md)。
 
 ## Star History
 
