@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "e5f7a668ca228a767824ce7fe1849b747cfb7abb61a9588f380a9e377f277504",
+  "behavior_fingerprint": "82f682839cd1197f4949230c4176eb84eeb8893fb021ea0d2326e77ba9bce5a5",
   "category": "effects",
   "id": "icon-performance-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "pop-burst-confirm",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "pop-burst-confirm",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "attention-bounce",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "attention-bounce",
       "status": "reference-only",
       "use": "新功能引出：\"看我\"→镜头看它→它开面板"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

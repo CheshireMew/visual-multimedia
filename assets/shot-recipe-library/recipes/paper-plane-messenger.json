@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "e6591308c562377f73f4b2a986d61413f922e9df34a199b9de9471edecf93297",
+  "behavior_fingerprint": "f07aadb8dd4061e76576ace15964603d45168f8363de7f93d5c8a29968b667e0",
   "category": "transition",
   "id": "paper-plane-messenger",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "paper-plane-messenger",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "paper-plane-messenger",
       "status": "reference-only",
       "use": "\"发送/邀请/分享\"动作连接两个人物/场景视角的叙事转场；抽象动作需要一个隐喻实体当转场载具时"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "235b4e104e83e55a8eb0bc46516df1b7652f6ddc3284874e7a4a5a22027580b2",
+  "behavior_fingerprint": "322fbd251fd7eb65e5ee85a6af1e91a29da51a816b3ad6ad3ec4d1ac735613a2",
   "category": "data",
   "id": "particle-celebrate-hits",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "confetti-crossfire",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "confetti-crossfire",
       "status": "reference-only",
@@ -46,12 +48,15 @@
       "id": "counter-tick-sparks",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "counter-tick-sparks",
       "status": "reference-only",
       "use": "计数爬升过程的节奏打点"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

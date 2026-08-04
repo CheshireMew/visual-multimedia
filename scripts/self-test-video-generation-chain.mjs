@@ -931,6 +931,15 @@ function main() {
     },
   };
   humanDraft.scenes[0].generation_job_ids = [];
+  humanDraft.scenes[0].visual_plan = {
+    source_kind: "human",
+    source_ids: ["authorized-human-source"],
+    relationship_kind: null,
+    placement_mode: "full-frame",
+    aspect_ratio: "16:9",
+    selection_reason: "能力案例明确使用已授权真人素材验证出镜路由。",
+    recipe: null,
+  };
   const humanDraftPath = path.join(humanRoot, "direction-draft.json");
   writeJson(humanDraftPath, humanDraft);
   runJson(

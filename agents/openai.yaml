@@ -1,4 +1,4 @@
 interface:
   display_name: "Visual Multimedia"
-  short_description: "审查媒体文案并制作可编辑视觉、产品宣传片、视频、音频与播客"
-  default_prompt: "使用 $visual-multimedia 把已确认内容制作成可编辑媒体；产品宣传片先绑定真实功能证据和确认计划，长媒体按阶段验收。"
+  short_description: "制作可编辑视觉、解释型 B-roll、视频、音频、播客与产品宣传片"
+  default_prompt: "使用 $visual-multimedia 把已确认内容制作成可编辑媒体；需要流程、因果、时间线等解释画面时，自动选择活动 B-roll 模板并接入真实视频时间线。"

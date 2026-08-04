@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "af73a3a696c51effcce68c4a26ab395599b5c8c0dad2fb025fe042d7597807d8",
+  "behavior_fingerprint": "792299c4ee8aea3d9fff4eed2ba3654ba8e77df2906191fcf71f8f33cf4db268",
   "category": "data",
   "id": "chart-live-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "oscilloscope-stream",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "oscilloscope-stream",
       "status": "reference-only",
@@ -47,7 +49,9 @@
       "id": "unit-dot-swarm-regroup",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "unit-dot-swarm-regroup",
       "status": "reference-only",
@@ -58,12 +62,15 @@
       "id": "axis-rescale-shock",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "axis-rescale-shock",
       "status": "reference-only",
       "use": "增长曲线高光：\"off the charts\" 字面化"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

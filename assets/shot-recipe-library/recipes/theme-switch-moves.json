@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "cd9b9c9a42b874a6643a78b20e8368e673636e60efa42520fc2e3a900e27ee48",
+  "behavior_fingerprint": "d582ef71fa23915781bd62d41bb718359b0e5b59101de586bae383f063682a76",
   "category": "interaction",
   "id": "theme-switch-moves",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "theme-sweep-toggle",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "theme-sweep-toggle",
       "status": "reference-only",
@@ -46,12 +48,15 @@
       "id": "palette-theme-ripple",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "palette-theme-ripple",
       "status": "reference-only",
       "use": "命令面板+主题联动的高光段"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

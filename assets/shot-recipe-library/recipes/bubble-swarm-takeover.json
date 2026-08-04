@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "6719116cc4fcf2cc3766af12125323b6fc31c93688925b2693d378a4df84fdb0",
+  "behavior_fingerprint": "7072661d00baac7a21d170c740c7f2b939d351512e18377f0c31f7412677a6de",
   "category": "transition",
   "id": "bubble-swarm-takeover",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "bubble-swarm-takeover",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "bubble-swarm-takeover",
       "status": "reference-only",
       "use": "章节级换景且品牌世界里有\"实体装饰物\"可当幕布（气泡/花瓣/图标皆可换皮）；转场即品牌露出的段落"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

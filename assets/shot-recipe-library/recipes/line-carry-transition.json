@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "d611157c1f4a0b1267fc21efcf1d80c8333b3210634b8c560abe4e4e4f319458",
+  "behavior_fingerprint": "8b807c06184d88459e8d888635502d555993e5a8d2e1a61f6c6f9faf1e7e3af9",
   "category": "transition",
   "id": "line-carry-transition",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "line-carry-transition",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "line-carry-transition",
       "status": "reference-only",
       "use": "两个有图形亲缘的场景之间（进度条→卡框、下划线→图表轴）；一支片子的招牌转场位，Catch Me If You Can 片头的图形接力"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

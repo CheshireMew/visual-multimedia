@@ -100,7 +100,7 @@ async function main() {
     await page.waitForFunction((count) => document.querySelectorAll("#grid article").length === count, recipeCatalog.recipe_count);
     const gallery = await page.evaluate(() => ({cards: document.querySelectorAll("#grid article").length, stats: document.querySelector("#stats").textContent}));
     await browser.close();
-    assert(gallery.cards === recipeCatalog.recipe_count && gallery.stats.includes(`${recipeCatalog.active_style_count} 个目标实现`) && gallery.stats.includes(`${recipeCatalog.reference_style_count} 个参考变体`), "镜头配方 Gallery 没有显示生成目录的真实计数");
+    assert(gallery.cards === recipeCatalog.recipe_count && gallery.stats.includes(`${recipeCatalog.active_style_count} 个活动实现`) && gallery.stats.includes(`${recipeCatalog.reference_style_count} 个参考变体`), "镜头配方 Gallery 没有显示生成目录的真实计数");
 
     const specPath = path.join(project, "captures", "product-ui-capture-spec.json");
     writeJson(specPath, {
@@ -130,10 +130,37 @@ async function main() {
   brief.constraints = ["保持标题和说明在镜头可读性层中"];
   writeJson(briefPath, brief);
 
-  const materialized = materializeShotRecipe({projectRoot: project, recipeId: "feature-focus-tour", styleId: "semantic-focus-tour"});
+  const materialized = materializeShotRecipe({
+    projectRoot: project,
+    recipeId: "feature-focus-tour",
+    styleId: "semantic-focus-tour",
+    variantId: "landscape",
+    segmentId: "shot-1",
+    visualSourceKind: "evidence",
+    relationshipKind: null,
+    placementMode: "full-frame",
+    aspectRatio: "16:9",
+    selectionReason: "用真实产品证据证明确定性预览。",
+  });
   let rejectedReferenceOnly = false;
-  try { materializeShotRecipe({projectRoot: project, recipeId: "crash-zoom-punch", styleId: "crash-zoom-punch"}); }
-  catch (error) { rejectedReferenceOnly = error.message.includes("只有参考语义"); }
+  try {
+    materializeShotRecipe({
+      projectRoot: project,
+      recipeId: "crash-zoom-punch",
+      styleId: "crash-zoom-punch",
+      variantId: "landscape",
+      segmentId: "reference-only",
+      visualSourceKind: "evidence",
+      relationshipKind: null,
+      placementMode: "full-frame",
+      aspectRatio: "16:9",
+      selectionReason: "验证参考项不会进入正式生产链。",
+    });
+  }
+  catch (error) {
+    rejectedReferenceOnly = error.message.includes("活动镜头配方必须唯一匹配")
+      || error.message.includes("只有参考语义");
+  }
   assert(rejectedReferenceOnly, "reference-only 镜头没有被正式物化入口拒绝");
 
   const selection = materialized.document;

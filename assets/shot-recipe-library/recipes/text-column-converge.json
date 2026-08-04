@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "dcd6767dff0c127ee6d7c3723ec3eef1c00b39c7d246f02f9630ad65b4b2c132",
+  "behavior_fingerprint": "f37baba342b7bdbfbe5dafb7e71ed5c4fd11e364df315b3d7f87b1c00cfcb5e0",
   "category": "typography",
   "id": "text-column-converge",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "text-column-converge",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "text-column-converge",
       "status": "reference-only",
       "use": "特性清单收束到产品名/口号的段落（\"NEW × 一串特性 → NEW <产品名>\"式）；发布会式 recap、版本号揭晓"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "fe7bedc7d6b74db30a689ba87ffb8c1712c0237dae7f4bbc3953ff6b79580ba3",
+  "behavior_fingerprint": "0a2aabe98d6a678cc2827d46851e099552b2d8b4076772decbc70810bcf5b9c0",
   "category": "transition",
   "id": "card-flip-reveal",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "card-flip-reveal",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "card-flip-reveal",
       "status": "reference-only",
       "use": "\"功能→成果\"的成对叙事：一排功能卡逐张翻出各自的指标/结论；元素级转场卡"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

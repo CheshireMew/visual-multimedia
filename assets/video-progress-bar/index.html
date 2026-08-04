@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>视频章节进度条</title>
+  <style>
+    @font-face {
+      font-family: "Microsoft YaHei";
+      src: local("Microsoft YaHei");
+      font-style: normal;
+      font-weight: 100 900;
+    }
+
+    @font-face {
+      font-family: "Segoe UI";
+      src: local("Segoe UI");
+      font-style: normal;
+      font-weight: 100 900;
+    }
+
+    :root {
+      --canvas-width: 1;
+      --canvas-height: 1;
+      --background: #00000000;
+      --surface: #555760c9;
+      --text: #f6f6f8;
+      --muted: #d1d2d7;
+      --line: #ffffff38;
+      --accent: #8b7cff;
+      --radius: 14px;
+      --shadow: 0 8px 22px rgb(0 0 0 / 22%);
+      --font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      --track-thickness-px: 4;
+      --cursor-scale: 1;
+      --inactive-opacity: .62;
+      --progress-percent: 0%;
+      font-family: var(--font-family);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #24212f;
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 20px;
+      height: 100vh;
+      padding: 24px;
+    }
+
+    .viewport {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+      background-color: #2b2933;
+      background-image:
+        linear-gradient(45deg, #35323f 25%, transparent 25%),
+        linear-gradient(-45deg, #35323f 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #35323f 75%),
+        linear-gradient(-45deg, transparent 75%, #35323f 75%);
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+      background-size: 24px 24px;
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      isolation: isolate;
+      transform-origin: top left;
+      background: var(--background);
+    }
+
+    .progress-shell {
+      position: absolute;
+      left: 16px;
+      top: 20px;
+      display: flex;
+      width: 1888px;
+      height: 64px;
+      overflow: visible;
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: inset 0 0 0 1px var(--line), var(--shadow);
+      backdrop-filter: blur(14px) saturate(120%);
+    }
+
+    .lead-label {
+      position: relative;
+      display: grid;
+      place-items: center;
+      flex: 0 0 220px;
+      width: 220px;
+      height: 64px;
+      margin: 0;
+      overflow: hidden;
+      border-right: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 680;
+      letter-spacing: .02em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chapter-strip {
+      display: flex;
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .chapter-segment {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      height: 100%;
+      border: 0;
+      border-right: 1px solid var(--line);
+      padding: 0 14px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font: 650 23px/1.1 var(--font-family);
+      opacity: var(--inactive-opacity);
+      transition: background-color 120ms ease, color 120ms ease, opacity 120ms ease;
+    }
+
+    .chapter-segment:last-child { border-right: 0; }
+    .chapter-segment.completed { opacity: .82; }
+    .chapter-segment.current {
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+      color: var(--text);
+      font-weight: 760;
+      opacity: 1;
+    }
+
+    .chapter-segment .label {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: calc(var(--track-thickness-px) * 1px);
+      background: color-mix(in srgb, var(--line) 80%, transparent);
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .progress-fill {
+      display: block;
+      width: var(--progress-percent);
+      height: calc(var(--track-thickness-px) * 1px);
+      background: var(--accent);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 62%, transparent);
+    }
+
+    .progress-cursor {
+      position: absolute;
+      left: var(--progress-percent);
+      bottom: calc(-5px * var(--cursor-scale));
+      width: calc(14px * var(--cursor-scale));
+      height: calc(14px * var(--cursor-scale));
+      border: 2px solid rgb(255 255 255 / 84%);
+      border-radius: 4px;
+      background: var(--accent);
+      box-shadow: 0 3px 10px rgb(0 0 0 / 30%);
+      transform: translateX(-50%) rotate(45deg);
+      z-index: 4;
+    }
+
+    html[data-editable-variant="portrait"] .progress-shell {
+      left: 12px;
+      top: 24px;
+      width: 1056px;
+      height: 78px;
+    }
+    html[data-editable-variant="portrait"] .lead-label { flex-basis: 168px; width: 168px; height: 78px; font-size: 25px; }
+    html[data-editable-variant="portrait"] .chapter-segment { padding: 0 9px; font-size: 25px; }
+
+    html[data-editable-variant="square"] .progress-shell {
+      left: 12px;
+      top: 18px;
+      width: 1056px;
+      height: 74px;
+    }
+    html[data-editable-variant="square"] .lead-label { flex-basis: 168px; width: 168px; height: 74px; font-size: 25px; }
+    html[data-editable-variant="square"] .chapter-segment { padding: 0 9px; font-size: 25px; }
+
+    .app[data-progress-placement="bottom"] .progress-shell { top: auto; bottom: 20px; }
+    html[data-editable-variant="portrait"] .app[data-progress-placement="bottom"] .progress-shell { top: auto; bottom: 24px; }
+    html[data-editable-variant="square"] .app[data-progress-placement="bottom"] .progress-shell { top: auto; bottom: 18px; }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 16px;
+      border: 1px solid rgb(255 255 255 / 10%);
+      border-radius: 16px;
+      background: rgb(24 21 34 / 90%);
+      box-shadow: 0 12px 36px rgb(0 0 0 / 22%);
+      backdrop-filter: blur(16px);
+    }
+
+    .controls button {
+      border: 1px solid rgb(255 255 255 / 16%);
+      border-radius: 10px;
+      padding: 9px 14px;
+      background: rgb(255 255 255 / 7%);
+      color: var(--text);
+      font: 650 14px/1 var(--font-family);
+      cursor: pointer;
+    }
+
+    .controls input[type="range"] { width: min(560px, 42vw); accent-color: var(--accent); }
+    .controls output { min-width: 92px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    body.capture { background: transparent; }
+    body.capture .app { display: block; padding: 0; }
+    body.capture .viewport { display: block; overflow: visible; }
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+      background: transparent;
+    }
+    body.capture .media-canvas { transform: none !important; }
+    body.capture .controls { display: none; }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="60"
+    data-width="1920"
+    data-height="1080"
+    data-fps="30"
+    data-progress-placement="top"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="视频横向分段进度栏">
+          <div class="progress-shell" data-editable-id="progress-shell">
+            <p class="lead-label" data-editable-data="lead_label" data-editable-id="lead-label">内容导航</p>
+            <div class="chapter-strip" id="chapterStrip" aria-label="视频章节"></div>
+            <div class="progress-track" data-editable-id="progress-track" aria-hidden="true">
+              <span class="progress-fill"></span>
+              <span class="progress-cursor" id="progressCursor"></span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="controls" aria-label="预览控制">
+      <button id="previous" type="button">上一章</button>
+      <button id="play" type="button">播放</button>
+      <button id="pause" type="button">暂停</button>
+      <button id="next" type="button">下一章</button>
+      <input id="scrubber" type="range" min="0" max="60000" step="16" value="0" aria-label="视频时间">
+      <output id="previewTime">00:00 / 01:00</output>
+    </div>
+  </main>
+
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    const root = document.documentElement;
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+    const chapterStrip = document.querySelector("#chapterStrip");
+    const progressCursor = document.querySelector("#progressCursor");
+    const scrubber = document.querySelector("#scrubber");
+    const previewTime = document.querySelector("#previewTime");
+    const captureMode = new URLSearchParams(location.search).get("capture") === "1";
+    let output = {width: 1, height: 1, durationMs: 1};
+    let currentData = {lead_label: "", traveler_mode: "cursor", chapters: []};
+    let chapters = [];
+
+    if (captureMode) document.body.classList.add("capture");
+
+    function formatTime(milliseconds) {
+      const totalSeconds = Math.max(0, Math.floor(Number(milliseconds || 0) / 1000));
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      const short = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      return hours > 0 ? `${String(hours).padStart(2, "0")}:${short}` : short;
+    }
+
+    function normalizedChapters(rows, durationMs) {
+      const seen = new Set();
+      return (Array.isArray(rows) ? rows : [])
+        .map((row) => ({
+          label: String(row?.label ?? "").trim(),
+          start_ms: Math.round(Number(row?.start_ms)),
+        }))
+        .filter((row) => row.label && Number.isFinite(row.start_ms)
+          && row.start_ms >= 0 && row.start_ms < durationMs)
+        .sort((left, right) => left.start_ms - right.start_ms)
+        .filter((row) => {
+          if (seen.has(row.start_ms)) return false;
+          seen.add(row.start_ms);
+          return true;
+        });
+    }
+
+    function buildChapters() {
+      chapters = normalizedChapters(currentData.chapters, output.durationMs);
+      if (!chapters.length) chapters = [{label: "开始", start_ms: 0}];
+      const fragment = document.createDocumentFragment();
+      chapters.forEach((chapter, index) => {
+        const end = chapters[index + 1]?.start_ms ?? output.durationMs;
+        const segment = document.createElement("button");
+        segment.type = "button";
+        segment.className = "chapter-segment";
+        segment.dataset.index = String(index);
+        segment.style.flexGrow = String(Math.max(1, end - chapter.start_ms));
+        segment.setAttribute("aria-label", `跳到章节 ${index + 1}：${chapter.label}`);
+        const label = document.createElement("span");
+        label.className = "label";
+        label.textContent = chapter.label;
+        segment.append(label);
+        segment.addEventListener("click", () => {
+          editableMedia.pause();
+          editableMedia.setTime(chapter.start_ms);
+        });
+        fragment.append(segment);
+      });
+      chapterStrip.replaceChildren(fragment);
+    }
+
+    function renderData(data) {
+      currentData = {...currentData, ...(data || {})};
+      progressCursor.hidden = currentData.traveler_mode === "none";
+      buildChapters();
+      renderTime(editableMedia.getPlayback());
+    }
+
+    function renderTime(playback) {
+      const durationMs = Math.max(1, Number(playback.totalDurationMs || output.durationMs));
+      const currentMs = Math.max(0, Math.min(durationMs, Number(playback.globalTimeMs || 0)));
+      const percent = currentMs / durationMs * 100;
+      let activeIndex = 0;
+      chapters.forEach((chapter, index) => {
+        if (chapter.start_ms <= currentMs + .5) activeIndex = index;
+      });
+      root.style.setProperty("--progress-percent", `${percent.toFixed(5)}%`);
+      const formatted = `${formatTime(currentMs)} / ${formatTime(durationMs)}`;
+      previewTime.value = formatted;
+      scrubber.value = String(Math.round(currentMs));
+      chapterStrip.querySelectorAll(".chapter-segment").forEach((segment, index) => {
+        segment.classList.toggle("completed", index < activeIndex);
+        segment.classList.toggle("current", index === activeIndex);
+      });
+      mediaCanvas.dataset.activeChapter = String(activeIndex + 1);
+      mediaCanvas.dataset.progressPercent = percent.toFixed(5);
+    }
+
+    function syncOutput() {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height),
+        durationMs: editableMedia.getPlayback().totalDurationMs,
+      };
+      scrubber.max = String(output.durationMs);
+      buildChapters();
+      fitCanvas();
+    }
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(viewport.clientWidth / output.width, viewport.clientHeight / output.height, 1);
+      const fitted = Math.max(scale, .1);
+      canvasShell.style.width = `${output.width * fitted}px`;
+      canvasShell.style.height = `${output.height * fitted}px`;
+      mediaCanvas.style.transform = `scale(${fitted})`;
+    }
+
+    document.querySelector("#previous").addEventListener("click", () => editableMedia.previous());
+    document.querySelector("#play").addEventListener("click", () => editableMedia.play());
+    document.querySelector("#pause").addEventListener("click", () => editableMedia.pause());
+    document.querySelector("#next").addEventListener("click", () => editableMedia.next());
+    scrubber.addEventListener("input", (event) => {
+      editableMedia.pause();
+      editableMedia.setTime(event.target.value);
+    });
+
+    window.addEventListener("editablemediatime", (event) => renderTime(event.detail));
+    window.addEventListener("editablemediadata", (event) => renderData(event.detail.data));
+    window.addEventListener("editablemediachange", syncOutput);
+
+    editableMedia.ready.then(() => {
+      syncOutput();
+      const sceneData = editableMedia.getState().scenes?.progress?.data || {};
+      renderData(sceneData);
+      renderTime(editableMedia.getPlayback());
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

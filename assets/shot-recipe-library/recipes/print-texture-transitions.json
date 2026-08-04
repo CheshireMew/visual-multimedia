@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "6921f41224b7a9d80dbd64474724b11667eb6b0cd2d9fbcb8ece2b4a9e4cd787",
+  "behavior_fingerprint": "3bf2f9cc2ac1c9613271d105bfb42b6e2256f656fb7be4c13cb47f70fb13cdc0",
   "category": "transition",
   "id": "print-texture-transitions",
   "intent": {
@@ -34,12 +34,15 @@
       "id": "ink-bleed-reveal",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "ink-bleed-reveal 墨渗揭示",
       "status": "reference-only",
       "use": "旧景→新景替换；书写感、叙事调性"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

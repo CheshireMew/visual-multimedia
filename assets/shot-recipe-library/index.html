@@ -3,74 +3,176 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Visual Multimedia 镜头配方库</title>
+  <title>Visual Multimedia 镜头配方 Studio</title>
   <style>
-    :root { color-scheme: light; font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; }
+    :root { color-scheme: light; font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; --ink:#171717; --muted:#665f55; --line:#d7d0c5; --paper:#fffdf8; --accent:#5a38c9; }
     * { box-sizing: border-box; }
-    body { margin: 0; background: #f2efe8; color: #171717; }
-    main { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 48px 0 80px; }
-    header { display: grid; grid-template-columns: 1fr minmax(280px, 480px); gap: 32px; align-items: end; }
-    h1 { margin: 0; font-size: clamp(34px, 5vw, 72px); line-height: .98; letter-spacing: -.045em; }
-    .summary { margin: 18px 0 0; max-width: 720px; color: #625d54; font-size: 18px; line-height: 1.6; }
-    input, select { width: 100%; border: 1px solid #c9c1b4; border-radius: 12px; background: #fff; padding: 13px 15px; font: inherit; }
-    .filters { display: grid; gap: 10px; }
-    .stats { margin: 30px 0 16px; color: #625d54; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-    article { min-height: 280px; padding: 22px; border: 1px solid #d7d0c5; border-radius: 18px; background: #fffdf8; box-shadow: 0 16px 34px rgb(63 48 24 / 7%); }
-    .meta { display: flex; justify-content: space-between; gap: 12px; color: #746d62; font-size: 13px; }
-    h2 { margin: 28px 0 10px; font-size: 24px; }
+    body { margin: 0; background: #f2efe8; color: var(--ink); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .45; }
+    main { width: min(1520px, calc(100% - 40px)); margin: 0 auto; padding: 38px 0 80px; }
+    header { display: grid; grid-template-columns: 1fr minmax(320px, 520px); gap: 32px; align-items: end; }
+    h1 { margin: 0; font-size: clamp(36px, 5vw, 72px); line-height: .98; letter-spacing: -.045em; }
+    .summary { margin: 18px 0 0; max-width: 760px; color: var(--muted); font-size: 17px; line-height: 1.65; }
+    .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .filters input { grid-column: 1 / -1; }
+    input, select { width: 100%; border: 1px solid #c9c1b4; border-radius: 11px; background: #fff; padding: 11px 13px; color: var(--ink); }
+    .studio-status { display:flex; align-items:center; gap:10px; margin: 24px 0 10px; padding: 12px 14px; border:1px solid var(--line); border-radius:12px; background:rgb(255 255 255 / 58%); color:var(--muted); }
+    .dot { width:9px; height:9px; border-radius:50%; background:#918a80; }
+    .studio-status.ready .dot { background:#1b9c53; box-shadow:0 0 0 5px rgb(27 156 83 / 12%); }
+    .stats { margin: 16px 0; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
+    article { overflow:hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 16px 34px rgb(63 48 24 / 7%); }
+    .preview { position:relative; aspect-ratio:16 / 9; background:#17141f; border-bottom:1px solid var(--line); }
+    .preview iframe { width:100%; height:100%; border:0; pointer-events:none; }
+    .preview .reference { display:grid; place-items:center; height:100%; color:#b5ada1; background:linear-gradient(145deg,#211e28,#0c0b0f); }
+    .body { padding:20px; }
+    .meta { display: flex; justify-content: space-between; gap: 12px; color: #746d62; font-size: 12px; }
+    h2 { margin: 20px 0 8px; font-size: 23px; }
     article p { color: #585249; line-height: 1.55; }
-    .styles { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
+    .styles { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
     .pill { border-radius: 999px; padding: 6px 9px; background: #ece7df; color: #4f493f; font-size: 12px; }
-    .pill.active { background: #d9f1df; color: #155b2a; }
-    a { color: #155b2a; }
+    .pill.active { background: #dff3e4; color: #155b2a; }
+    .actions { display:flex; gap:8px; margin-top:18px; }
+    .primary, .secondary { border:0; border-radius:10px; padding:10px 12px; }
+    .primary { color:#fff; background:var(--accent); }
+    .secondary { color:#332c25; background:#ebe5db; }
+    dialog { width:min(1040px, calc(100% - 32px)); border:0; border-radius:20px; padding:0; box-shadow:0 24px 90px rgb(0 0 0 / 28%); }
+    dialog::backdrop { background:rgb(23 20 28 / 58%); backdrop-filter:blur(5px); }
+    .editor { display:grid; grid-template-columns:minmax(360px, 1.15fr) minmax(300px, .85fr); background:#f8f5ef; }
+    .editor-preview { min-height:460px; display:grid; place-items:center; padding:18px; background:#16131e; }
+    .editor-preview iframe { width:100%; aspect-ratio:16/9; border:0; border-radius:12px; background:#0b0a10; }
+    .editor-form { padding:24px; max-height:82vh; overflow:auto; }
+    .editor-form h2 { margin:0 0 6px; }
+    .editor-form .hint { margin:0 0 18px; color:var(--muted); line-height:1.5; }
+    label { display:grid; gap:6px; margin:12px 0; color:#4b453d; font-size:13px; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .editor-buttons { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+    .message { min-height:22px; margin-top:12px; color:#4f493f; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
+    .close { float:right; border:0; width:34px; height:34px; border-radius:50%; background:#ebe5db; }
     [hidden] { display: none !important; }
+    @media (max-width: 850px) { header,.editor { grid-template-columns:1fr; } .editor-preview { min-height:280px; } }
   </style>
 </head>
 <body>
   <main>
     <header>
       <div>
-        <h1>镜头配方库</h1>
-        <p class="summary">按产品功能、镜头职责、能量和类别查找配方。绿色变体绑定了目标原生 editable-media 完整包；其余条目只提供方法参考，不能冒充已实现镜头。</p>
+        <h1>镜头配方 Studio</h1>
+        <p class="summary">目录按“内容关系”找画面，不按 AI、职场或商业题材堆截图。活动模板提供真实动画预览；从项目 Studio 打开后，还能把文字、数据、主题和布局写入 MediaFlow Pro 片段并导出。</p>
       </div>
       <div class="filters">
-        <input id="query" type="search" placeholder="搜索用途、功能、标签或镜头名">
+        <input id="query" type="search" placeholder="搜索流程、时间线、因果、工具链或镜头名">
         <select id="category"><option value="">全部类别</option></select>
-        <select id="status"><option value="">全部状态</option><option value="active">有目标实现</option><option value="reference-only">仅参考</option></select>
+        <select id="status"><option value="">全部状态</option><option value="active">活动模板</option><option value="reference-only">仅参考</option></select>
       </div>
     </header>
+    <div class="studio-status" id="studioStatus"><span class="dot"></span><span>正在检查项目 Studio…</span></div>
     <p class="stats" id="stats">正在读取唯一目录…</p>
     <section class="grid" id="grid" aria-live="polite"></section>
   </main>
+
+  <dialog id="dialog">
+    <div class="editor">
+      <div class="editor-preview"><iframe id="editorPreview" title="活动模板预览"></iframe></div>
+      <form class="editor-form" id="editorForm" method="dialog">
+        <button class="close" type="button" id="close" aria-label="关闭">×</button>
+        <h2 id="editorTitle">模板编辑</h2>
+        <p class="hint" id="editorHint"></p>
+        <label>导演段落<select id="segment"><option value="">不绑定导演段落</option></select></label>
+        <div class="row">
+          <label>样式<select id="style"></select></label>
+          <label>布局与比例<select id="variant"></select></label>
+        </div>
+        <label>主标题<input id="title" value="把复杂关系讲清楚"></label>
+        <label>辅助说明<input id="subtitle" value="文字、数据、颜色和布局都能继续修改"></label>
+        <div class="row">
+          <label>左侧标签<input id="leftTitle" value="输入"></label>
+          <label>右侧标签<input id="rightTitle" value="结果"></label>
+        </div>
+        <label>强调色<input id="accent" type="color" value="#8b5cf6"></label>
+        <div class="editor-buttons">
+          <button class="primary" type="button" id="attach">加入时间线</button>
+          <button class="secondary" type="button" id="save" disabled>保存修改</button>
+          <button class="secondary export" type="button" data-format="png" disabled>导出 PNG</button>
+          <button class="secondary export" type="button" data-format="gif" disabled>导出 GIF</button>
+          <button class="secondary export" type="button" data-format="video" disabled>导出视频</button>
+          <button class="secondary export" type="button" data-format="alpha_video" disabled>导出透明视频</button>
+        </div>
+        <p class="message" id="message"></p>
+      </form>
+    </div>
+  </dialog>
+
   <script>
-    const categoryLabels = {
-      opening: "开场与品牌", typography: "文字与字卡", "ui-entrance": "界面登场",
-      camera: "运镜与空间", data: "数据与指标", interaction: "交互演示",
-      transition: "转场", rhythm: "节奏与蒙太奇", effects: "光效与强调",
-      outro: "收尾", "product-promo": "产品宣传"
+    const labels = {
+      opening:"开场与品牌", typography:"文字与字卡", "ui-entrance":"界面登场",
+      camera:"运镜与空间", data:"数据与指标", interaction:"交互演示",
+      transition:"转场", rhythm:"节奏与蒙太奇", effects:"光效与强调",
+      outro:"收尾", "product-promo":"产品宣传", "explanatory-broll":"解释型 B-roll"
     };
-    const query = document.querySelector("#query");
-    const category = document.querySelector("#category");
-    const status = document.querySelector("#status");
-    const grid = document.querySelector("#grid");
-    const stats = document.querySelector("#stats");
+    const $ = (selector) => document.querySelector(selector);
+    const query = $("#query");
+    const category = $("#category");
+    const status = $("#status");
+    const grid = $("#grid");
+    const stats = $("#stats");
+    const dialog = $("#dialog");
     let catalog;
+    let studio = {enabled:false, segments:[], state:null};
+    let currentRecipe = null;
+    let currentBinding = null;
+
+    function packageHref(packagePath, scene, variant, capture = 0) {
+      if (typeof packagePath !== "string" || !packagePath.startsWith("assets/")) return null;
+      const params = new URLSearchParams({capture:String(capture)});
+      if (scene) params.set("scene", scene);
+      if (variant) params.set("variant", variant);
+      return `../${packagePath.slice(7)}/index.html?${params}`;
+    }
+
+    function firstActive(recipe) {
+      return recipe.styles.find((item) => item.status === "active") || null;
+    }
 
     function card(recipe) {
       const element = document.createElement("article");
-      const searchable = [recipe.id, recipe.name, recipe.purpose, recipe.use, recipe.energy, ...recipe.semantic_tags].join(" ").toLocaleLowerCase("zh-CN");
-      element.dataset.search = searchable;
+      element.dataset.search = [recipe.id, recipe.name, recipe.purpose, recipe.use, recipe.energy, ...recipe.semantic_tags].join(" ").toLocaleLowerCase("zh-CN");
       element.dataset.category = recipe.category;
       element.dataset.status = recipe.status;
-      const active = recipe.styles.filter((item) => item.status === "active");
-      element.innerHTML = `
-        <div class="meta"><span>${categoryLabels[recipe.category] || recipe.category}</span><span>${recipe.status === "active" ? "有目标实现" : "仅参考"}</span></div>
-        <h2>${recipe.name}</h2>
-        <p>${recipe.purpose}</p>
-        <p><strong>适用：</strong>${recipe.use}</p>
-        <div class="styles">${recipe.styles.map((item) => `<span class="pill ${item.status}">${item.label}</span>`).join("")}</div>
-        ${active.length ? `<p><a href="../web-media-starter/index.html?capture=0">打开目标原生组件预览</a></p>` : ""}`;
+      const active = firstActive(recipe);
+      const binding = active?.variants?.find((item) => item.aspect_ratio === "16:9" && item.placement_mode === "full-frame") || active?.variants?.[0];
+      const preview = active && binding ? packageHref(active.package, active.scene_id, binding.variant_id) : null;
+      const previewBox = document.createElement("div");
+      previewBox.className = "preview";
+      if (preview) {
+        const frame = document.createElement("iframe");
+        frame.loading = "lazy";
+        frame.title = `${recipe.name} 动画预览`;
+        frame.src = preview;
+        previewBox.append(frame);
+      } else {
+        const reference = document.createElement("div");
+        reference.className = "reference";
+        reference.textContent = "方法参考 · 尚无目标实现";
+        previewBox.append(reference);
+      }
+      const body = document.createElement("div");
+      body.className = "body";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `<span>${labels[recipe.category] || recipe.category}</span><span>${recipe.status === "active" ? "活动模板" : "仅参考"}</span>`;
+      const title = document.createElement("h2"); title.textContent = recipe.name;
+      const purpose = document.createElement("p"); purpose.textContent = recipe.purpose;
+      const use = document.createElement("p"); use.innerHTML = "<strong>适用：</strong>"; use.append(document.createTextNode(recipe.use));
+      const styles = document.createElement("div"); styles.className = "styles";
+      recipe.styles.forEach((item) => { const pill=document.createElement("span"); pill.className=`pill ${item.status}`; pill.textContent=item.label; styles.append(pill); });
+      const actions = document.createElement("div"); actions.className = "actions";
+      const open = document.createElement("button"); open.className="primary"; open.type="button"; open.textContent=active ? "编辑与导出" : "查看方法"; open.disabled=!active; open.addEventListener("click",()=>openEditor(recipe));
+      actions.append(open);
+      body.append(meta,title,purpose,use,styles,actions);
+      element.append(previewBox,body);
       return element;
     }
 
@@ -84,22 +186,124 @@
         element.hidden = !show;
         if (show) visible += 1;
       }
-      stats.textContent = `${visible} / ${catalog.recipe_count} 张配方 · ${catalog.active_style_count} 个目标实现 · ${catalog.reference_style_count} 个参考变体`;
+      stats.textContent = `${visible} / ${catalog.recipe_count} 张配方 · ${catalog.active_style_count} 个活动实现 · ${catalog.reference_style_count} 个参考变体`;
     }
 
-    fetch("catalog.json").then((response) => {
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return response.json();
-    }).then((value) => {
-      catalog = value;
-      const categories = [...new Set(catalog.recipes.map((item) => item.category))].sort();
-      for (const id of categories) category.add(new Option(categoryLabels[id] || id, id));
+    function activeStyles() { return currentRecipe.styles.filter((item)=>item.status==="active"); }
+    function selectedStyle() { return activeStyles().find((item)=>item.id===$("#style").value) || activeStyles()[0]; }
+    function selectedVariant() { return selectedStyle().variants.find((item)=>item.variant_id===$("#variant").value) || selectedStyle().variants[0]; }
+
+    function refreshVariants(preferred = null) {
+      const style = selectedStyle();
+      $("#variant").replaceChildren(...style.variants.map((item)=>new Option(`${item.placement_mode} · ${item.aspect_ratio}`, item.variant_id)));
+      if (preferred && style.variants.some((item)=>item.variant_id===preferred)) $("#variant").value=preferred;
+      refreshPreview();
+    }
+
+    function refreshPreview() {
+      const style = selectedStyle();
+      const variant = selectedVariant();
+      $("#editorPreview").src = packageHref(style.package, style.scene_id, variant.variant_id);
+    }
+
+    function openEditor(recipe) {
+      currentRecipe = recipe;
+      currentBinding = null;
+      $("#editorTitle").textContent = recipe.name;
+      $("#editorHint").textContent = studio.enabled ? "当前动作会写入项目唯一选择记录和 MediaFlow Pro 时间线。" : "当前是静态目录，只能预览。请用 explanatory-broll-studio.mjs 从媒体项目启动 Studio 后再编辑和导出。";
+      $("#style").replaceChildren(...activeStyles().map((item)=>new Option(item.label,item.id)));
+      refreshVariants();
+      $("#attach").disabled = !studio.enabled;
+      $("#save").disabled = true;
+      document.querySelectorAll(".export").forEach((item)=>item.disabled=true);
+      $("#message").textContent = studio.enabled ? "选择导演段落或直接加入时间线。" : "静态浏览不会伪装成可写编辑器。";
+      dialog.showModal();
+    }
+
+    function selectedSegment() {
+      return studio.segments.find((item)=>item.segment_id===$("#segment").value) || null;
+    }
+
+    function values() {
+      return {title:$("#title").value, subtitle:$("#subtitle").value, left_title:$("#leftTitle").value, right_title:$("#rightTitle").value};
+    }
+
+    async function api(endpoint, body) {
+      const response = await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+      const value = await response.json();
+      if (!response.ok) throw new Error(value.error || `HTTP ${response.status}`);
+      return value;
+    }
+
+    async function attach() {
+      const style=selectedStyle(); const variant=selectedVariant(); const segment=selectedSegment();
+      const relationship = segment?.relationship_kind ?? currentRecipe.applicability?.relationship_kinds?.[0] ?? null;
+      $("#message").textContent="正在物化模板并写入 MediaFlow Pro 时间线…";
+      try {
+        const result=await api("/api/materialize",{
+          recipe_id:currentRecipe.id, style_id:style.id, variant_id:variant.variant_id,
+          segment_id:segment?.segment_id || null,
+          visual_source_kind:segment?.source_kind || currentRecipe.applicability.visual_source_kinds[0],
+          relationship_kind:relationship,
+          placement_mode:variant.placement_mode, aspect_ratio:variant.aspect_ratio,
+          selection_reason:segment?.selection_reason || `在 ${currentRecipe.name} 中使用 ${style.label}，因为它与当前画面职责直接匹配。`,
+          values:values(), theme:{accent:$("#accent").value}
+        });
+        currentBinding=result.binding;
+        $("#save").disabled=false;
+        document.querySelectorAll(".export").forEach((item)=>item.disabled=false);
+        $("#message").textContent=`已加入时间线：${currentBinding.selection_id} · clip ${currentBinding.clip_id}`;
+      } catch(error) { $("#message").textContent=`失败：${error.message}`; }
+    }
+
+    async function save() {
+      if(!currentBinding) return;
+      $("#message").textContent="正在保存实际片段修改…";
+      try {
+        await api("/api/edit",{selection_id:currentBinding.selection_id,values:values(),theme:{accent:$("#accent").value}});
+        $("#message").textContent="修改已写入 MediaFlow Pro 片段状态。";
+      } catch(error) { $("#message").textContent=`失败：${error.message}`; }
+    }
+
+    async function exportCurrent(format) {
+      if(!currentBinding) return;
+      $("#message").textContent=`正在导出 ${format}…`;
+      try {
+        const result=await api("/api/export",{selection_id:currentBinding.selection_id,format});
+        $("#message").textContent=`已导出：${result.file}（${result.bytes} bytes）`;
+      } catch(error) { $("#message").textContent=`失败：${error.message}`; }
+    }
+
+    Promise.all([
+      fetch("catalog.json").then((response)=>{if(!response.ok) throw new Error(`HTTP ${response.status}`); return response.json();}),
+      fetch("/api/context").then((response)=>response.ok?response.json():Promise.reject()).catch(()=>null)
+    ]).then(([value,context])=>{
+      catalog=value;
+      if(context?.enabled) {
+        studio=context;
+        $("#studioStatus").classList.add("ready");
+        $("#studioStatus span:last-child").textContent=`项目 Studio 已连接 · ${context.project}`;
+        $("#segment").append(...studio.segments.map((item)=>new Option(`${item.segment_id} · ${item.purpose}`,item.segment_id)));
+      } else {
+        $("#studioStatus span:last-child").textContent="静态目录模式 · 动画预览可用，项目编辑与导出需从 Studio 启动";
+      }
+      [...new Set(catalog.recipes.map((item)=>item.category))].sort().forEach((id)=>category.add(new Option(labels[id]||id,id)));
       grid.replaceChildren(...catalog.recipes.map(card));
       render();
-    }).catch((error) => { stats.textContent = `目录读取失败：${error.message}`; });
-    query.addEventListener("input", render);
-    category.addEventListener("change", render);
-    status.addEventListener("change", render);
+    }).catch((error)=>{stats.textContent=`目录读取失败：${error.message}`;});
+    query.addEventListener("input",render); category.addEventListener("change",render); status.addEventListener("change",render);
+    $("#close").addEventListener("click",()=>dialog.close());
+    $("#style").addEventListener("change",()=>refreshVariants());
+    $("#variant").addEventListener("change",refreshPreview);
+    $("#segment").addEventListener("change",()=>{
+      const segment=selectedSegment();
+      if(!segment) return;
+      const style=activeStyles().find((item)=>item.id===segment.recipe?.style_id);
+      if(style) $("#style").value=style.id;
+      refreshVariants(segment.recipe?.variant_id || null);
+    });
+    $("#attach").addEventListener("click",attach); $("#save").addEventListener("click",save);
+    document.querySelectorAll(".export").forEach((item)=>item.addEventListener("click",()=>exportCurrent(item.dataset.format)));
   </script>
 </body>
 </html>

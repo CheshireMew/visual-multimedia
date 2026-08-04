@@ -1,0 +1,65 @@
+{
+  "protocol": "visual-multimedia-shot-recipe",
+  "version": 2,
+  "id": "explain-input-output-toolchain",
+  "name": "输入输出与工具链",
+  "aliases": [
+    "input-output-toolchain",
+    "输入输出与工具链"
+  ],
+  "status": "active",
+  "source_id": "visual-multimedia",
+  "category": "explanatory-broll",
+  "applicability": {
+    "visual_source_kinds": [
+      "explanatory-broll"
+    ],
+    "relationship_kinds": [
+      "input-output-toolchain"
+    ],
+    "placement_modes": [
+      "full-frame",
+      "presenter-split",
+      "transparent-overlay"
+    ],
+    "default_style_id": "semantic-input-output-toolchain"
+  },
+  "intent": {
+    "purpose": "把真实输入经过多个执行器形成输出的职责边界和传递关系展示出来。",
+    "use": "AI 工具链、生产流水线、数据处理、内容生产和系统接口。",
+    "duration": "由当前确认旁白或场景职责决定；内置 4.5 秒语义状态可以按真实声音重新定时。",
+    "energy": "中低到中等，关系变化优先于装饰性运动。",
+    "semantic_tags": [
+      "explanatory-broll",
+      "input-output-toolchain",
+      "editable-media"
+    ]
+  },
+  "styles": [
+    {
+      "id": "semantic-input-output-toolchain",
+      "label": "输入输出与工具链",
+      "description": "使用 explanatory-broll-templates 中的 input-output-toolchain 场景，按开始、变化、结果三种确定性状态解释当前关系。",
+      "use": "AI 工具链、生产流水线、数据处理、内容生产和系统接口。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/explanatory-broll-templates",
+        "scene_id": "input-output-toolchain",
+        "variant_profile_id": "explanatory-all"
+      }
+    }
+  ],
+  "known_pitfalls": [
+    "模板只固定关系和运动职责，条目数量、文字、数值、颜色和节奏必须读取当前内容。",
+    "物化后必须替换示例内容并重新验证，不能把目录预览直接交付。",
+    "持续阅读文字保持稳定；承担因果、推进或转折的对象变化必须直接可见。"
+  ],
+  "source_evidence": {
+    "source_card": "target-native:assets/explanatory-broll-templates",
+    "upstream_demo": null,
+    "upstream_preview_declared": false,
+    "notes": "目标原生独立实现，只吸收按内容关系组织解释型 B-roll 的能力结构，不复制外部模板造型、代码或素材。"
+  },
+  "behavior_fingerprint": "d1161fdcb6a6ab120fd876915e5c2dacfdd99dc9d345d2c893a42e543af92856"
+}

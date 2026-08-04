@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "6b3f16a97ad81d0eba2c5ffbe2db258d7173ff67b048eb5fbea58b99dfa6e718",
+  "behavior_fingerprint": "3619b8a79d1090483b59c8d11cb00cb961de047e2555356546745db45ab3b4ea",
   "category": "camera",
   "id": "tension-camera-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "bullet-time-freeze-orbit",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "bullet-time-freeze-orbit 冻结环绕",
       "status": "reference-only",
@@ -47,7 +49,9 @@
       "id": "dutch-roll-to-level",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "dutch-roll-to-level 斜角滚正",
       "status": "reference-only",
@@ -58,7 +62,9 @@
       "id": "slow-push-in",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "slow-push-in 慢推压迫",
       "status": "reference-only",
@@ -69,12 +75,15 @@
       "id": "pull-back-isolation",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "pull-back-isolation 拉远孤立",
       "status": "reference-only",
       "use": "结尾收束；\"全片只为这一个数字\"的谢幕"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

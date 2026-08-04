@@ -1,0 +1,50 @@
+{
+  "media_project_id": "explanatory-broll-case",
+  "source_id": "explanatory-broll-article",
+  "source_version": "v1",
+  "content_unit_id": "full-article",
+  "media_script_version": "v1-confirmed",
+  "content_brief": {
+    "audience": "需要把抽象口播变成可读画面的创作者",
+    "promise": "看懂输入、执行和结果怎样形成一条可复用流程",
+    "core_claim": "解释型 B-roll 应直接表现内容关系，而不是只做装饰运动。",
+    "supporting_points": [
+      {"id": "ordered-flow", "text": "输入、执行和结果有明确顺序。", "source_refs": ["explanatory-broll-article@v1#paragraph-1"]}
+    ],
+    "required_facts": [
+      {"text": "流程图必须同时保留顺序、当前动作和结果。", "source_refs": ["explanatory-broll-article@v1#paragraph-1"]}
+    ],
+    "risk_flags": []
+  },
+  "narration": {
+    "status": "confirmed",
+    "text": "先确认输入，再执行明确步骤，最后检查输出是否满足目标。",
+    "source_refs": ["explanatory-broll-article@v1#paragraph-1"],
+    "major_editorial_changes": []
+  },
+  "pronunciations": [],
+  "presenter": {
+    "mode": "none",
+    "source_id": null,
+    "approval": {"status": "approved", "confirmed_at": "2026-08-04T00:00:00.000Z", "evidence": "能力案例采用无人物全屏解释图"}
+  },
+  "scenes": [
+    {
+      "segment_id": "input-to-result",
+      "source_refs": ["explanatory-broll-article@v1#paragraph-1"],
+      "purpose": "让输入、执行和结果的顺序直接可见",
+      "voiceover_ref": "narration#full",
+      "visual_plan": {
+        "source_kind": "explanatory-broll",
+        "source_ids": [],
+        "relationship_kind": "process",
+        "placement_mode": "full-frame",
+        "aspect_ratio": "16:9",
+        "selection_reason": "口播描述了有顺序的输入、执行和结果，流程模板能直接呈现这三个关系。",
+        "recipe": null
+      },
+      "timing": {"source": "real-speech", "estimated_seconds": 3},
+      "generation_job_ids": []
+    }
+  ]
+}

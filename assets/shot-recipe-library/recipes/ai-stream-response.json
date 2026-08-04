@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "eaade14b5021ad20531789663b75851cddf256922e58304cdd7c197afffd3cb3",
+  "behavior_fingerprint": "8e6494353019e31e075635752812200c073a38659572d278cbbb31e6f08bdadc",
   "category": "interaction",
   "id": "ai-stream-response",
   "intent": {
@@ -34,12 +34,15 @@
       "id": "ai-stream-response",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "ai-stream-response",
       "status": "reference-only",
       "use": "AI 助手/agent/search/copilot 的结果生成镜头；强调“结论先到、证据随后、任务完成”"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

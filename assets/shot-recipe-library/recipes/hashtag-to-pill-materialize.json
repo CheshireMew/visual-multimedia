@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "9de1f3ae40a26f76b8bd45325eb00c2199874232b059dd4905a1336bdfced2f8",
+  "behavior_fingerprint": "d4217bb2e4c3513590adaa3451b0f7df921134406ba7965406d612a83b49ca72",
   "category": "interaction",
   "id": "hashtag-to-pill-materialize",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "hashtag-to-pill-materialize",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "hashtag-to-pill-materialize",
       "status": "reference-only",
       "use": "标签/分类/关键词功能的演示段（笔记 app 打 tag、话题聚合）；\"输入 → 变成 UI 实体 → 归位到成品\"的三段式叙事"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

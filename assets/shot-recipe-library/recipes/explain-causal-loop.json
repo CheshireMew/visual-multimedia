@@ -1,0 +1,65 @@
+{
+  "protocol": "visual-multimedia-shot-recipe",
+  "version": 2,
+  "id": "explain-causal-loop",
+  "name": "因果链与反馈循环",
+  "aliases": [
+    "causal-loop",
+    "因果链与反馈循环"
+  ],
+  "status": "active",
+  "source_id": "visual-multimedia",
+  "category": "explanatory-broll",
+  "applicability": {
+    "visual_source_kinds": [
+      "explanatory-broll"
+    ],
+    "relationship_kinds": [
+      "causal-loop"
+    ],
+    "placement_modes": [
+      "full-frame",
+      "presenter-split",
+      "transparent-overlay"
+    ],
+    "default_style_id": "semantic-causal-loop"
+  },
+  "intent": {
+    "purpose": "让原因、行动、结果和返回起点的反馈方向直接可见。",
+    "use": "复杂问题拆解、增长循环、恶性循环、机制解释和因果推理。",
+    "duration": "由当前确认旁白或场景职责决定；内置 4.5 秒语义状态可以按真实声音重新定时。",
+    "energy": "中低到中等，关系变化优先于装饰性运动。",
+    "semantic_tags": [
+      "explanatory-broll",
+      "causal-loop",
+      "editable-media"
+    ]
+  },
+  "styles": [
+    {
+      "id": "semantic-causal-loop",
+      "label": "因果链与反馈循环",
+      "description": "使用 explanatory-broll-templates 中的 causal-loop 场景，按开始、变化、结果三种确定性状态解释当前关系。",
+      "use": "复杂问题拆解、增长循环、恶性循环、机制解释和因果推理。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/explanatory-broll-templates",
+        "scene_id": "causal-loop",
+        "variant_profile_id": "explanatory-all"
+      }
+    }
+  ],
+  "known_pitfalls": [
+    "模板只固定关系和运动职责，条目数量、文字、数值、颜色和节奏必须读取当前内容。",
+    "物化后必须替换示例内容并重新验证，不能把目录预览直接交付。",
+    "持续阅读文字保持稳定；承担因果、推进或转折的对象变化必须直接可见。"
+  ],
+  "source_evidence": {
+    "source_card": "target-native:assets/explanatory-broll-templates",
+    "upstream_demo": null,
+    "upstream_preview_declared": false,
+    "notes": "目标原生独立实现，只吸收按内容关系组织解释型 B-roll 的能力结构，不复制外部模板造型、代码或素材。"
+  },
+  "behavior_fingerprint": "fdb990b79337e8d17ea31a75968d63bdaa869211dec06fda83e6727b8fb5ff84"
+}

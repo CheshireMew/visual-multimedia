@@ -381,7 +381,9 @@ for (const schema of [
   "schemas/media-project-state.v3.schema.json",
   "schemas/media-review.v3.schema.json",
   "schemas/media-delivery.v2.schema.json",
-  "schemas/video-direction-plan.v1.schema.json",
+  "schemas/video-direction-plan.v2.schema.json",
+  "schemas/video-direction-timing-projection.v1.schema.json",
+  "schemas/explanatory-broll-studio.v1.schema.json",
   "schemas/generation-jobs.v1.schema.json",
   "schemas/video-production-profile-catalog.v1.schema.json",
   "schemas/interview-explainer-draft.v2.schema.json",
@@ -390,7 +392,8 @@ for (const schema of [
   "schemas/interview-explainer-plan-confirmation.v1.schema.json",
   "schemas/media-build-plan.v1.schema.json",
   "schemas/media-build-report.v2.schema.json",
-  "schemas/shot-recipe.v1.schema.json",
+  "schemas/shot-recipe.v2.schema.json",
+  "schemas/video-progress-bar-spec.v1.schema.json",
   "schemas/product-promo.v1.schema.json",
   "schemas/product-ui-capture.v1.schema.json",
   "schemas/music-beat-analysis.v1.schema.json",
@@ -489,6 +492,7 @@ for (const productPromoResource of [
   "assets/shot-recipe-library/THIRD_PARTY_NOTICES.md",
   "assets/shot-recipe-library/LICENSE.video-shotcraft.txt",
   "assets/shot-recipe-library/recipes/feature-focus-tour.json",
+  "assets/shot-recipe-library/recipes/video-chapter-progress.json",
   "scripts/video-production-profile-catalog.mjs",
   "scripts/shot-recipe-library.mjs",
   "scripts/migrate-video-shotcraft-recipes.mjs",
@@ -499,6 +503,18 @@ for (const productPromoResource of [
   "scripts/browser-safe-server.mjs",
 ]) {
   ensurePath(productPromoResource);
+}
+for (const videoProgressResource of [
+  "references/web-visual-production.md",
+  "assets/video-progress-bar/editable-media.json",
+  "assets/video-progress-bar/index.html",
+  "assets/video-progress-bar/editable-media-runtime.js",
+  "assets/video-progress-bar/media-sources.json",
+  "assets/video-progress-bar/video-progress-bar-spec.json",
+  "scripts/create-video-progress-bar.mjs",
+  "scripts/self-test-video-progress-bar.mjs",
+]) {
+  ensurePath(videoProgressResource);
 }
 const shotRecipeNoticeText = fs.readFileSync(
   ensurePath("assets/shot-recipe-library/THIRD_PARTY_NOTICES.md"),
@@ -538,6 +554,12 @@ for (const directionResource of [
   "scripts/manage-generation-job.mjs",
   "scripts/validate-generation-jobs.mjs",
   "scripts/self-test-video-generation-chain.mjs",
+  "scripts/explanatory-broll-studio.mjs",
+  "scripts/self-test-explanatory-broll.mjs",
+  "assets/explanatory-broll-templates/editable-media.json",
+  "assets/explanatory-broll-templates/index.html",
+  "assets/explanatory-broll-case/source.md",
+  "assets/explanatory-broll-case/direction-draft.json",
   "assets/video-generation-case/source.md",
   "assets/video-generation-case/direction-draft.json",
   "assets/video-generation-case/generation-request.json",
@@ -548,6 +570,7 @@ for (const directionResource of [
 }
 for (const directionJson of [
   "assets/video-generation-case/direction-draft.json",
+  "assets/explanatory-broll-case/direction-draft.json",
   "assets/video-generation-case/generation-request.json",
   "assets/video-generation-case/generation-job-spec.json",
 ]) {
@@ -738,6 +761,31 @@ if (!textMotionValidation.ok) {
   browserProjects.push(textMotionRoot);
 }
 
+const videoProgressRoot = ensurePath("assets/video-progress-bar");
+const videoProgressManifestPath = path.join(videoProgressRoot, "editable-media.json");
+checkManifest(videoProgressManifestPath);
+const videoProgressRuntime = path.join(videoProgressRoot, "editable-media-runtime.js");
+if (
+  !fs.existsSync(videoProgressRuntime)
+  || sha256File(videoProgressRuntime) !== starterRuntimeHash
+) {
+  fail("视频进度条没有消费当前唯一 editable-media 通用运行时");
+}
+const videoProgressSpec = readJson(path.join(videoProgressRoot, "video-progress-bar-spec.json"));
+const videoProgressManifest = readJson(videoProgressManifestPath);
+const videoProgressScene = videoProgressManifest?.scenes?.find((scene) => scene.id === "progress");
+if (
+  videoProgressSpec?.protocol !== "visual-multimedia-video-progress-bar"
+  || videoProgressManifest?.default_variant_id !== videoProgressSpec?.variant_id
+  || videoProgressScene?.duration_ms !== videoProgressSpec?.duration_ms
+  || videoProgressScene?.data?.lead_label !== videoProgressSpec?.lead_label
+  || videoProgressScene?.data?.traveler_mode !== videoProgressSpec?.traveler_mode
+  || JSON.stringify(videoProgressScene?.data?.chapters) !== JSON.stringify(videoProgressSpec?.chapters)
+) {
+  fail("横向分段进度栏的首格、游标、时长、输出变体或章节真源没有保持一致");
+}
+browserProjects.push(videoProgressRoot);
+
 const shotRecipeValidation = validateShotRecipeLibrary();
 if (!shotRecipeValidation.ok) {
   shotRecipeValidation.errors.forEach((message) => fail(`镜头配方库：${message}`));
@@ -745,14 +793,23 @@ if (!shotRecipeValidation.ok) {
   shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").length !== 104
   || shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").flatMap((item) => item.document.styles).length !== 161
   || shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").flatMap((item) => item.document.styles).some((style) => style.status !== "reference-only")
-  || shotRecipeValidation.catalog.active_style_count < 1
+  || shotRecipeValidation.catalog.active_style_count !== 14
+  || shotRecipeValidation.recipes.filter((item) => item.document.category === "explanatory-broll" && item.document.status === "active").length !== 10
 ) {
-  fail("镜头配方目录没有保持 104 张来源配方、161 个仅参考变体和至少一个目标原生实现的证据边界");
+  fail("镜头配方目录没有保持 104 张来源配方、161 个仅参考变体、十类解释型 B-roll 和 14 个活动样式的证据边界");
 }
 
 const videoProfileValidation = validateVideoProductionProfileCatalog();
 if (!videoProfileValidation.ok) {
   videoProfileValidation.errors.forEach((message) => fail(`视频生产 profile：${message}`));
+}
+
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-explanatory-broll.mjs")],
+    "十类解释型 B-roll—九种布局—Gallery 动画预览浏览器检查",
+  );
 }
 
 if (runBrowserChecks && failures.length === 0) {
@@ -767,6 +824,14 @@ if (runFullChecks && failures.length === 0) {
     process.execPath,
     [path.join(scriptDir, "self-test-production-captions.mjs")],
     "真实转写—生产字幕—便携字幕—短语质检检查",
+  );
+}
+
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-video-progress-bar.mjs")],
+    "真实视频参数—透明进度条包—章节跳转—确定性浏览器消费者检查",
   );
 }
 
@@ -1036,6 +1101,11 @@ if (runFullChecks && failures.length === 0) {
     [path.join(scriptDir, "self-test-video-generation-chain.mjs")],
     "长内容—导演计划—费用门—远程任务—素材入账—时间线—交付真实链路检查"
   );
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-explanatory-broll.mjs"), "--mediaflow"],
+    "导演计划—活动模板选择—真实时间投影—MediaFlow Pro 时间线—五种导出真实链路检查",
+  );
 }
 
 {
@@ -1291,6 +1361,12 @@ if (runFullChecks && failures.length === 0) {
     "interview_explainer_review.mjs",
     "video-production-profile-catalog.mjs",
     "shot-recipe-library.mjs",
+    "create-video-direction-plan.mjs",
+    "validate-video-direction-plan.mjs",
+    "explanatory-broll-studio.mjs",
+    "self-test-explanatory-broll.mjs",
+    "create-video-progress-bar.mjs",
+    "self-test-video-progress-bar.mjs",
     "migrate-video-shotcraft-recipes.mjs",
     "product-promo.mjs",
     "capture-product-ui.mjs",
@@ -1346,7 +1422,7 @@ if (failures.length > 0) {
 
 const successMessages = {
   fast: `visual-multimedia fast 通过：静态合同、schema、资源索引、许可证、${catalog?.cases?.length || 0} 个网页案例与脚本入口均通过验证`,
-  browser: `visual-multimedia browser 通过：fast 档位、${browserProjects.length} 个真实网页包、确定性时间、文字动效与产品功能宣传片浏览器链路均通过验证`,
-  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片与采访原声讲解型完整链路均通过验证`,
+  browser: `visual-multimedia browser 通过：fast 档位、${browserProjects.length} 个真实网页包、确定性时间、透明视频进度条、文字动效与产品功能宣传片浏览器链路均通过验证`,
+  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、透明视频进度条、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片与采访原声讲解型完整链路均通过验证`,
 };
 console.log(successMessages[checkMode]);

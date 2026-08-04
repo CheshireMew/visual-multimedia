@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.video-direction-timing-projection.v1",
+  "title": "Video Direction Timing Projection v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "direction_plan", "source_timeline", "fps", "segments"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-video-direction-timing-projection"},
+    "version": {"const": 1},
+    "direction_plan": {"$ref": "#/$defs/fileIntegrity"},
+    "source_timeline": {"$ref": "#/$defs/fileIntegrity"},
+    "fps": {"type": "integer", "minimum": 1, "maximum": 240},
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["segment_id", "timeline_start_frame", "duration_frames"],
+        "properties": {
+          "segment_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "timeline_start_frame": {"type": "integer", "minimum": 0},
+          "duration_frames": {"type": "integer", "minimum": 1}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "fileIntegrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "bytes"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

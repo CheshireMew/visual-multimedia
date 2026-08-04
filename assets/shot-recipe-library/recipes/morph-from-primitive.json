@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "fbdc0dc1093134a5c76759cb1e2308dbd80cb5adcfbcb1ba8f2ccc8cfbd6c5c3",
+  "behavior_fingerprint": "fbba0f8895adde8a17bea7d681ba342382a0b045bd3cd46dcadcc53e90b9812e",
   "category": "ui-entrance",
   "id": "morph-from-primitive",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "morph-from-primitive",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "morph-from-primitive",
       "status": "reference-only",
       "use": "图形/图标/卡轮廓类主体的入场；logo→UI 容器的经典原语"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

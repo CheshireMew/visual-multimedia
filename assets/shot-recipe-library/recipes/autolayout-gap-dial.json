@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "1252fcbbc488c8a0c5fb0b36ac785b04f636fe30a1ea924238496029991650b3",
+  "behavior_fingerprint": "3eb24a27d887929192a0f635132b9c1d4eaa443c4b2c547ddba1208f5925358e",
   "category": "interaction",
   "id": "autolayout-gap-dial",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "autolayout-gap-dial",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "autolayout-gap-dial",
       "status": "reference-only",
       "use": "设计工具/低代码产品的\"改一个数、界面跟着动\"卖点镜头；\"用设计工具语义做包装\"的品类语言"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

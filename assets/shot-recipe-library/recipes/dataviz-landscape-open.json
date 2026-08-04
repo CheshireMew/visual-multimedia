@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "9ca0ff69aa1cc5b0a29deaf1857f7c38db6c8ef88bd0484b092c8f004b9eb58b",
+  "behavior_fingerprint": "3e265bdf10e79c83a7aff0cef761acbc0b398515bf502e5ff950a0e41b6591c9",
   "category": "opening",
   "id": "dataviz-landscape-open",
   "intent": {
@@ -38,12 +38,15 @@
       "id": "dataviz-landscape-open",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "dataviz-landscape-open",
       "status": "reference-only",
       "use": "品牌级抽象开场（\"数据宇宙\"隐喻），接亮场产品段或字标；与 glow-flyline-moves 分工：那卡是段落内卡片之间的连线叙事，本卡是开场专用的全画幅地景"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

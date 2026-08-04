@@ -28,7 +28,7 @@
 
 已经完成内容筛选，并且成片明确需要“必要背景—采访原声证据—紧接解释—独立总结”时，读取 `interview-explainer-production.md` 并采用其版本化 profile。它只是本 reference 之上的一种可选装配类型；普通访谈剪辑、原声集锦、人物故事、录屏和其它混合视频继续由当前时间线决定结构，不能自动套用该顺序。
 
-当前项目存在 `video-direction-plan.json` 时，时间线读取其中的 `segment_id`、来源引用、内容目的、画面职责、出镜布局和外部生成 job id；真实声音、原片和固定规格到位后，再在时间线中写实际起止时间、轨道、转场、素材入点与出点。外部生成任务只有在 `generation-jobs.json` 已经写回 `imported_source_id` 后才成为候选素材，时间线必须显式采用这个 source id；不能直接采用远程地址、任务 id 或消费端手写占位记录。
+当前项目存在 v2 `video-direction-plan.json` 时，时间线读取 `segment_id`、来源引用、内容目的、`visual_plan` 和外部生成 job id。真人、录屏与现有证据使用其中的正式 source id；外部生成任务只有在 `generation-jobs.json` 写回 `imported_source_id` 后才成为候选素材，不能直接采用远程地址、任务 id 或占位记录。解释型 B-roll 与包装画面只消费生产者生成的 shot-recipe selection；真实声音、原片或现有视频时间线形成后，把当前导演计划和实际时间源的文件哈希投影为段落起止帧，再用 `scripts/explanatory-broll-studio.mjs apply-plan` 加入 MediaFlow Pro。投影只负责接线，实际轨道仍是唯一可编辑时间真源。
 
 ## 三、按真实声音建立语义时间线
 

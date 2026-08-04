@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "4be2d0ee6ff88b425919791c9c3bba98092df1fd5a54718799ce80522b77d433",
+  "behavior_fingerprint": "3d0fbf123297b7af94fe6cfb384df6f9bbb417fc8046d97625deee54ba201e51",
   "category": "transition",
   "id": "color-block-step-wipe",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "color-block-step-wipe",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "color-block-step-wipe",
       "status": "reference-only",
       "use": "品牌色转场/章节交接；\"硬朗无缓动\"的像素游戏手感段落；接管后的纯色场当下一段的舞台"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

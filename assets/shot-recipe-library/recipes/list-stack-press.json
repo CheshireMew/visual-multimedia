@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "59f496e491c993d5b011393c77427b00056c75d0202a6e12e1d3984fe1c46484",
+  "behavior_fingerprint": "3af6a78057a150360c5b9deca68dceca72ed11db1418170631b833070db9f863",
   "category": "ui-entrance",
   "id": "list-stack-press",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "list-stack-press",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "list-stack-press",
       "status": "reference-only",
       "use": "feed/雷达/收件箱类\"每天有新东西\"的镜头；强调持续积累的资产列表"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

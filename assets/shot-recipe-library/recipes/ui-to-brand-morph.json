@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "9aab0123485e657a03b6c424af5b5aec3dea7faf85ae54337e60c8500a2871de",
+  "behavior_fingerprint": "f935e70f414396fb8f39cdb6f26bd1cc0aac3adc1b7b4a45418e492f896ee632",
   "category": "outro",
   "id": "ui-to-brand-morph",
   "intent": {
@@ -37,7 +37,9 @@
       "id": "icon-flip-bloom",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "icon-flip-bloom",
       "status": "reference-only",
@@ -48,12 +50,15 @@
       "id": "input-morph-assemble",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "input-morph-assemble",
       "status": "reference-only",
       "use": "输入框/卡片等矩形 UI 是全片主角的片子；logo 可拆解为几何图元组合"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

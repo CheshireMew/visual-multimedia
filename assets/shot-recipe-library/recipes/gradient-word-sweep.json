@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "917205ccd60395df5b078ae7eb9b7532a72fb45edcfebb443303890662fd4612",
+  "behavior_fingerprint": "6205c36b67c6fa32e188bae5be86367a9e70b32c37f0c1f6f753de9ba8b9043a",
   "category": "typography",
   "id": "gradient-word-sweep",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "gradient-word-sweep",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "gradient-word-sweep",
       "status": "reference-only",
       "use": "标语里给单个动词/卖点词充能（Supercharged/faster/AI…）；能量高潮段的文字戏；黑场品牌片的口号帧"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

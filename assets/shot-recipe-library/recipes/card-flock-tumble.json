@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "d6541fae29faf717c815689dd739ef97d5f8d2bdbbdf0ac3acbf3c75ffd99182",
+  "behavior_fingerprint": "cdc46f77f710c10147f5820f42d30c182f22ded47f6ff48638c690c7bdd1f675",
   "category": "transition",
   "id": "card-flock-tumble",
   "intent": {
@@ -34,12 +34,15 @@
       "id": "card-flock-tumble",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "card-flock-tumble",
       "status": "reference-only",
       "use": "能量高潮段（功能页群→品牌口号的爆点转场）；霓虹暗场调性；\"多页面能力\"收束成一句话的段落"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "e02495b025da9243250f49151b7ec02c1e377f5221a71fc7b10062871726fa70",
+  "behavior_fingerprint": "df8e2506746c3eb2e71672bd23b1641532ade70091e4703bc2f62d9b3e74e90a",
   "category": "opening",
   "id": "letterspace-materialize",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "letterspace-materialize",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "letterspace-materialize",
       "status": "reference-only",
       "use": "片尾/片头品牌字标登场（SUPERHUMAN 式大字距全大写）；章节题字；needs 静谧/高级感的收束帧"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "ab4de0680915fb71d9440d9b8105dd6401fd80fb428fe9ca7844dfd716aac64a",
+  "behavior_fingerprint": "d29629d6625def5a6d602c825ba6363505f300c1c556114d8ed9f776ed99dd41",
   "category": "camera",
   "id": "overhead-camera-moves",
   "intent": {
@@ -37,7 +37,9 @@
       "id": "tilt-reveal",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "tilt-reveal",
       "status": "reference-only",
@@ -48,12 +50,15 @@
       "id": "overhead-tabletop-drop",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "overhead-tabletop-drop",
       "status": "reference-only",
       "use": "多页巡视后择一；转场/开场两用"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

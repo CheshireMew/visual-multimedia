@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "01e0854734a69c81044af3607004a35d50009970d5e4cf9d6ee1265fa4f4ca2f",
+  "behavior_fingerprint": "2dcc24d1633b2cc6186c562eb8ae62c796cfa4aa0b15de974b5627c6ae39c55b",
   "category": "effects",
   "id": "glow-flyline-moves",
   "intent": {
@@ -37,7 +37,9 @@
       "id": "glow-orb-ambient",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "glow-orb-ambient",
       "status": "reference-only",
@@ -48,7 +50,9 @@
       "id": "flyline-arc",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "flyline-arc",
       "status": "reference-only",
@@ -59,12 +63,15 @@
       "id": "orb-flyline-relay",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "orb-flyline-relay",
       "status": "reference-only",
       "use": "暗场高光段；三卡接力收束"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

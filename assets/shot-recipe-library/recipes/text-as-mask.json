@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "45195d8d99e182b77f5739e7e89c07c2407d80a3525bdca37d6c56ab1ffdd528",
+  "behavior_fingerprint": "887bbbeb2823118001d0d22ac48b2ae0cdbc30d229efafdd9310835429035b88",
   "category": "opening",
   "id": "text-as-mask",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "text-as-mask",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "text-as-mask",
       "status": "reference-only",
       "use": "品牌词/口号与产品画面二合一的开场或章节卡；字是门、产品在门里"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "8cbdd7a3f62ed2f52806a567410222b74fe5f7c4d1723c08f8406031ed9188eb",
+  "behavior_fingerprint": "a6377c0f1adc3e47b9236c62bc6acc94b78026f88be42b7f78a227367b1c878c",
   "category": "opening",
   "id": "crane-rise-reveal",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "crane-rise-reveal",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "crane-rise-reveal",
       "status": "reference-only",
       "use": "\"从细节到全局\"的开场定场；与 drone-dive-landing（全局→单点俯冲）互为反向"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

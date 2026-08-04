@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "a22d31ad5a49840a802648f000f07614d1b7f1e6eed33d06ee106eef72bbb05b",
+  "behavior_fingerprint": "96e1f6d8f08c541d293de7b81ad3f1eb824f6aeec16c1fee484f3b130cd75879",
   "category": "transition",
   "id": "tear-streak-transitions",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "glitch-displace",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "glitch-displace",
       "status": "reference-only",
       "use": "故障/断裂语义；高潮前的暴力换页"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

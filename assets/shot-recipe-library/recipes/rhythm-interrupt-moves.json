@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "678439be0196bc978786e5a05ac17560a3287fad60db9b0114ea91bf9e2939d9",
+  "behavior_fingerprint": "0db2cff97ceb27125dd53f3369443013b49357bdac9784f2d2e88fe16721454d",
   "category": "rhythm",
   "id": "rhythm-interrupt-moves",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "jump-cut-punch-in",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "jump-cut-punch-in",
       "status": "reference-only",
@@ -46,12 +48,15 @@
       "id": "strobe-black-frames",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "strobe-black-frames",
       "status": "reference-only",
       "use": "全片最高潮前的倒数蓄压"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

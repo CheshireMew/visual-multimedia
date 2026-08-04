@@ -1,0 +1,37 @@
+/* Generated from editable-media.json variant layer baselines. */
+html[data-editable-variant="landscape-full"] [data-editable-id="title"] { left: 96px; top: 72px; width: 1728px; height: 92px; font-size: 56px; }
+html[data-editable-variant="landscape-full"] [data-editable-id="subtitle"] { left: 96px; top: 174px; width: 1500px; height: 62px; font-size: 26px; }
+html[data-editable-variant="landscape-full"] [data-editable-id="diagram-stage"] { left: 96px; top: 272px; width: 1728px; height: 710px; }
+html[data-editable-variant="landscape-full"] [data-editable-id="presenter-slot"] { left: 0px; top: 0px; width: 1px; height: 1px; }
+html[data-editable-variant="portrait-full"] [data-editable-id="title"] { left: 64px; top: 104px; width: 952px; height: 164px; font-size: 62px; }
+html[data-editable-variant="portrait-full"] [data-editable-id="subtitle"] { left: 64px; top: 294px; width: 900px; height: 110px; font-size: 30px; }
+html[data-editable-variant="portrait-full"] [data-editable-id="diagram-stage"] { left: 64px; top: 480px; width: 952px; height: 1328px; }
+html[data-editable-variant="portrait-full"] [data-editable-id="presenter-slot"] { left: 0px; top: 0px; width: 1px; height: 1px; }
+html[data-editable-variant="square-full"] [data-editable-id="title"] { left: 56px; top: 54px; width: 968px; height: 112px; font-size: 48px; }
+html[data-editable-variant="square-full"] [data-editable-id="subtitle"] { left: 56px; top: 174px; width: 920px; height: 72px; font-size: 24px; }
+html[data-editable-variant="square-full"] [data-editable-id="diagram-stage"] { left: 56px; top: 280px; width: 968px; height: 744px; }
+html[data-editable-variant="square-full"] [data-editable-id="presenter-slot"] { left: 0px; top: 0px; width: 1px; height: 1px; }
+html[data-editable-variant="landscape-presenter-split"] [data-editable-id="title"] { left: 790px; top: 86px; width: 1034px; height: 92px; font-size: 50px; }
+html[data-editable-variant="landscape-presenter-split"] [data-editable-id="subtitle"] { left: 790px; top: 184px; width: 980px; height: 68px; font-size: 24px; }
+html[data-editable-variant="landscape-presenter-split"] [data-editable-id="diagram-stage"] { left: 790px; top: 292px; width: 1034px; height: 672px; }
+html[data-editable-variant="landscape-presenter-split"] [data-editable-id="presenter-slot"] { left: 72px; top: 72px; width: 640px; height: 936px; }
+html[data-editable-variant="portrait-presenter-split"] [data-editable-id="title"] { left: 64px; top: 852px; width: 952px; height: 138px; font-size: 54px; }
+html[data-editable-variant="portrait-presenter-split"] [data-editable-id="subtitle"] { left: 64px; top: 1008px; width: 920px; height: 94px; font-size: 28px; }
+html[data-editable-variant="portrait-presenter-split"] [data-editable-id="diagram-stage"] { left: 64px; top: 1140px; width: 952px; height: 700px; }
+html[data-editable-variant="portrait-presenter-split"] [data-editable-id="presenter-slot"] { left: 64px; top: 64px; width: 952px; height: 700px; }
+html[data-editable-variant="square-presenter-split"] [data-editable-id="title"] { left: 510px; top: 62px; width: 514px; height: 122px; font-size: 42px; }
+html[data-editable-variant="square-presenter-split"] [data-editable-id="subtitle"] { left: 510px; top: 194px; width: 500px; height: 76px; font-size: 22px; }
+html[data-editable-variant="square-presenter-split"] [data-editable-id="diagram-stage"] { left: 510px; top: 302px; width: 514px; height: 716px; }
+html[data-editable-variant="square-presenter-split"] [data-editable-id="presenter-slot"] { left: 46px; top: 46px; width: 402px; height: 988px; }
+html[data-editable-variant="landscape-transparent-overlay"] [data-editable-id="title"] { left: 128px; top: 636px; width: 1040px; height: 82px; font-size: 46px; }
+html[data-editable-variant="landscape-transparent-overlay"] [data-editable-id="subtitle"] { left: 128px; top: 726px; width: 980px; height: 58px; font-size: 23px; }
+html[data-editable-variant="landscape-transparent-overlay"] [data-editable-id="diagram-stage"] { left: 1120px; top: 590px; width: 690px; height: 390px; }
+html[data-editable-variant="landscape-transparent-overlay"] [data-editable-id="presenter-slot"] { left: 0px; top: 0px; width: 1px; height: 1px; }
+html[data-editable-variant="portrait-transparent-overlay"] [data-editable-id="title"] { left: 62px; top: 1250px; width: 956px; height: 124px; font-size: 50px; }
+html[data-editable-variant="portrait-transparent-overlay"] [data-editable-id="subtitle"] { left: 62px; top: 1392px; width: 920px; height: 82px; font-size: 26px; }
+html[data-editable-variant="portrait-transparent-overlay"] [data-editable-id="diagram-stage"] { left: 62px; top: 1500px; width: 956px; height: 350px; }
+html[data-editable-variant="portrait-transparent-overlay"] [data-editable-id="presenter-slot"] { left: 0px; top: 0px; width: 1px; height: 1px; }
+html[data-editable-variant="square-transparent-overlay"] [data-editable-id="title"] { left: 54px; top: 590px; width: 972px; height: 108px; font-size: 44px; }
+html[data-editable-variant="square-transparent-overlay"] [data-editable-id="subtitle"] { left: 54px; top: 708px; width: 930px; height: 70px; font-size: 23px; }
+html[data-editable-variant="square-transparent-overlay"] [data-editable-id="diagram-stage"] { left: 54px; top: 804px; width: 972px; height: 222px; }
+html[data-editable-variant="square-transparent-overlay"] [data-editable-id="presenter-slot"] { left: 0px; top: 0px; width: 1px; height: 1px; }

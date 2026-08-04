@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "620401f19e33aba3f162cd80adeefb3d02345d4f472211a79b5d933e83be446b",
+  "behavior_fingerprint": "b3fd93937cd104d1a6284ed175e25893b27231cab08dfa3350e17d184fdf4f35",
   "category": "outro",
   "id": "neon-triple-marquee",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "neon-triple-marquee",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "neon-triple-marquee",
       "status": "reference-only",
       "use": "片尾主题词复读机段落；三连词口号的\"余韵\"拍法（cel-flash-stomp 砸完之后的低一档收尾）；音乐段无旁白铺陈"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

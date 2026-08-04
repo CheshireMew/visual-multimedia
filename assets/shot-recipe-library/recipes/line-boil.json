@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "2b90d2e64dea7b4f82857a12a3f3d7c7f2eb0a085492d073cc3ab88678a6f32c",
+  "behavior_fingerprint": "84fbd16d2b1a7fdf2d701deecc222431b5dff8a6174281923d03f4507c3bd5ab",
   "category": "effects",
   "id": "line-boil",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "line-boil",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "line-boil",
       "status": "reference-only",
       "use": "标题字卡/描边元素的长 hold 段（黑场字卡升级首选）；质感层手法，寄生在别的镜头上"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

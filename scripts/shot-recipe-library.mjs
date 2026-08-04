@@ -22,7 +22,7 @@ export const libraryRoot = path.join(skillRoot, "assets", "shot-recipe-library")
 export const recipesRoot = path.join(libraryRoot, "recipes");
 export const libraryPath = path.join(libraryRoot, "library.json");
 export const catalogPath = path.join(libraryRoot, "catalog.json");
-export const schemaPath = path.join(skillRoot, "schemas", "shot-recipe.v1.schema.json");
+export const schemaPath = path.join(skillRoot, "schemas", "shot-recipe.v2.schema.json");
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -92,17 +92,25 @@ function resolveSkillPath(value, label) {
 export function recipeFingerprint(recipe) {
   return sha256(JSON.stringify(stable({
     category: recipe.category,
+    applicability: recipe.applicability,
     intent: recipe.intent,
     styles: recipe.styles.map((style) => ({
       id: style.id,
       description: style.description,
       use: style.use,
+      implementation: style.implementation,
     })),
   })));
 }
 
 export function loadShotRecipeLibrary() {
   return readJson(libraryPath);
+}
+
+function variantProfile(library, profileId) {
+  const profile = (library.variant_profiles || []).find((item) => item.id === profileId);
+  if (!profile) throw new Error(`找不到 variant profile ${profileId || "(empty)"}`);
+  return profile;
 }
 
 export function loadShotRecipes() {
@@ -115,7 +123,7 @@ export function loadShotRecipes() {
     .sort((left, right) => String(left.document.id).localeCompare(String(right.document.id), "en"));
 }
 
-function validatePackage(packagePath, errors, label) {
+function validatePackage(packagePath, errors, label, implementation = null, variantBindings = []) {
   try {
     const editable = readEditableMediaPackage(packagePath);
     assertEditableMediaPackageClosed(editable.packageRoot, editable.manifest);
@@ -124,6 +132,22 @@ function validatePackage(packagePath, errors, label) {
       {contract: EDITABLE_MEDIA_SOURCES_CONTRACT},
     );
     if (!media.ok) throw new Error(media.errors.join("；"));
+    if (implementation) {
+      const sceneIds = new Set((editable.manifest.scenes || []).map((item) => item.id));
+      const variantIds = new Set((editable.manifest.variants || []).map((item) => item.id));
+      if (!sceneIds.has(implementation.scene_id)) {
+        throw new Error(`scene_id 不存在于 editable-media：${implementation.scene_id}`);
+      }
+      const declared = new Set();
+      for (const binding of variantBindings) {
+        if (!variantIds.has(binding.variant_id)) {
+          throw new Error(`variant_id 不存在于 editable-media：${binding.variant_id}`);
+        }
+        const key = `${binding.placement_mode}/${binding.aspect_ratio}`;
+        if (declared.has(key)) throw new Error(`重复的布局与比例绑定：${key}`);
+        declared.add(key);
+      }
+    }
     return {
       package_sha256: sha256Tree(packagePath),
       manifest_sha256: sha256File(editable.manifestPath),
@@ -142,6 +166,7 @@ export function buildCatalogDocument(library, recipes, errors = []) {
     name: document.name,
     category: document.category,
     status: document.status,
+    applicability: document.applicability,
     path: `recipes/${document.id}.json`,
     sha256: sha256(bytes),
     behavior_fingerprint: document.behavior_fingerprint,
@@ -154,11 +179,19 @@ export function buildCatalogDocument(library, recipes, errors = []) {
       if (active) activeStyleCount += 1;
       else referenceStyleCount += 1;
       let hashes = null;
+      let variants = [];
       if (active) {
+        try {
+          variants = variantProfile(library, style.implementation.variant_profile_id).bindings;
+        } catch (error) {
+          errors.push(`${document.id}/${style.id}：${error.message}`);
+        }
         hashes = validatePackage(
           resolveSkillPath(style.implementation.package, `${document.id}/${style.id}.package`),
           errors,
           `${document.id}/${style.id}`,
+          style.implementation,
+          variants,
         );
       }
       return {
@@ -167,6 +200,9 @@ export function buildCatalogDocument(library, recipes, errors = []) {
         status: style.status,
         implementation_kind: style.implementation.kind,
         package: style.implementation.package,
+        scene_id: style.implementation.scene_id,
+        variant_profile_id: style.implementation.variant_profile_id,
+        variants,
         package_sha256: hashes?.package_sha256 ?? null,
         manifest_sha256: hashes?.manifest_sha256 ?? null,
       };
@@ -174,7 +210,7 @@ export function buildCatalogDocument(library, recipes, errors = []) {
   }));
   return {
     protocol: "visual-multimedia-shot-recipe-catalog",
-    version: 1,
+    version: 2,
     library_version: library.library_version,
     recipe_count: recipes.length,
     active_style_count: activeStyleCount,
@@ -189,6 +225,17 @@ export function validateShotRecipeLibrary() {
   errors.push(...validateJsonSchema(library, schemaPath).map((message) => `library.json：${message}`));
   const sourceIds = new Set((library.sources || []).map((source) => source.id));
   if (sourceIds.size !== (library.sources || []).length) errors.push("library.json 的 source id 重复");
+  const profileIds = new Set();
+  for (const profile of library.variant_profiles || []) {
+    if (profileIds.has(profile.id)) errors.push(`variant profile id 重复：${profile.id}`);
+    profileIds.add(profile.id);
+    const bindings = new Set();
+    for (const binding of profile.bindings || []) {
+      const key = `${binding.placement_mode}/${binding.aspect_ratio}`;
+      if (bindings.has(key)) errors.push(`${profile.id} 重复绑定 ${key}`);
+      bindings.add(key);
+    }
+  }
   const recipes = loadShotRecipes();
   if (!recipes.length) errors.push("镜头配方目录不能为空");
   const ids = new Set();
@@ -215,14 +262,50 @@ export function validateShotRecipeLibrary() {
       styleIds.add(style.id);
       if (style.status === "active") {
         active += 1;
-        if (style.implementation.kind !== "editable-media-package" || !style.implementation.package) {
+        if (
+          style.implementation.kind !== "editable-media-package"
+          || !style.implementation.package
+          || !style.implementation.scene_id
+          || !style.implementation.variant_profile_id
+        ) {
           errors.push(`${recipe.id}/${style.id} active 但没有完整 editable-media package`);
+        } else if (!profileIds.has(style.implementation.variant_profile_id)) {
+          errors.push(`${recipe.id}/${style.id} 引用了未知 variant profile ${style.implementation.variant_profile_id}`);
         }
-      } else if (style.implementation.kind !== "none" || style.implementation.package !== null) {
+      } else if (
+        style.implementation.kind !== "none"
+        || style.implementation.package !== null
+        || style.implementation.scene_id !== null
+        || style.implementation.variant_profile_id !== null
+      ) {
         errors.push(`${recipe.id}/${style.id} reference-only 不能绑定活动实现`);
       }
     }
     if ((recipe.status === "active") !== (active > 0)) errors.push(`${recipe.id} 的 recipe status 与 style 状态不一致`);
+    if (recipe.status === "active") {
+      if (!recipe.applicability) errors.push(`${recipe.id} active 但缺少 applicability`);
+      else {
+        const defaultStyle = recipe.styles.find((item) => item.id === recipe.applicability.default_style_id);
+        if (!defaultStyle || defaultStyle.status !== "active") {
+          errors.push(`${recipe.id} 的 default_style_id 没有指向 active style`);
+        }
+        const supportedPlacements = new Set(
+          recipe.styles
+            .filter((item) => item.status === "active")
+            .flatMap((item) => variantProfile(
+              library,
+              item.implementation.variant_profile_id,
+            ).bindings.map((binding) => binding.placement_mode)),
+        );
+        for (const placement of recipe.applicability.placement_modes) {
+          if (!supportedPlacements.has(placement)) {
+            errors.push(`${recipe.id} 声明 placement ${placement} 但没有真实 variant`);
+          }
+        }
+      }
+    } else if (recipe.applicability !== null) {
+      errors.push(`${recipe.id} reference-only 的 applicability 必须是 null`);
+    }
   }
   const expectedCatalog = buildCatalogDocument(library, recipes, errors);
   if (!fs.existsSync(catalogPath)) errors.push("缺少生成目录 catalog.json；请运行 build");
@@ -263,10 +346,61 @@ export function searchShotRecipes(query, recipes = loadShotRecipes()) {
       document.id, document.name, ...document.aliases, document.category,
       document.intent.purpose, document.intent.use, document.intent.duration,
       document.intent.energy, ...document.intent.semantic_tags,
+      ...(document.applicability?.visual_source_kinds || []),
+      ...(document.applicability?.relationship_kinds || []),
+      ...(document.applicability?.placement_modes || []),
       ...document.styles.flatMap((style) => [style.id, style.label, style.description, style.use]),
     ].join(" ").normalize("NFKC").toLocaleLowerCase("zh-CN");
     return tokens.every((token) => haystack.includes(token));
   });
+}
+
+export function selectActiveShotRecipe({
+  visualSourceKind,
+  relationshipKind = null,
+  placementMode,
+  aspectRatio,
+  recipeId = null,
+  styleId = null,
+  variantId = null,
+} = {}) {
+  const candidates = loadShotRecipes().filter(({document}) => {
+    const applicability = document.applicability;
+    if (document.status !== "active" || !applicability) return false;
+    if (recipeId && document.id !== recipeId) return false;
+    if (!applicability.visual_source_kinds.includes(visualSourceKind)) return false;
+    if (relationshipKind !== null && !applicability.relationship_kinds.includes(relationshipKind)) return false;
+    if (relationshipKind === null && applicability.relationship_kinds.length > 0) return false;
+    return applicability.placement_modes.includes(placementMode);
+  });
+  if (candidates.length !== 1) {
+    throw new Error(
+      `活动镜头配方必须唯一匹配，当前得到 ${candidates.length} 个：`
+      + `${visualSourceKind}/${relationshipKind ?? "none"}/${placementMode}/${aspectRatio}`,
+    );
+  }
+  const item = candidates[0];
+  const resolvedStyleId = styleId || item.document.applicability.default_style_id;
+  const style = item.document.styles.find(
+    (candidate) => candidate.id === resolvedStyleId && candidate.status === "active",
+  );
+  if (!style) throw new Error(`${item.document.id} 没有 active style ${resolvedStyleId}`);
+  const profile = variantProfile(
+    loadShotRecipeLibrary(),
+    style.implementation.variant_profile_id,
+  );
+  const matchingBindings = profile.bindings.filter((binding) => (
+    binding.placement_mode === placementMode
+    && binding.aspect_ratio === aspectRatio
+    && (!variantId || binding.variant_id === variantId)
+  ));
+  if (matchingBindings.length !== 1) {
+    throw new Error(
+      `${item.document.id}/${resolvedStyleId} 没有唯一 variant：`
+      + `${placementMode}/${aspectRatio}${variantId ? `/${variantId}` : ""}`,
+    );
+  }
+  return {item, style, variant: matchingBindings[0]};
 }
 
 function copyDirectoryOnce(source, destination, expectedHash) {
@@ -281,32 +415,72 @@ function copyDirectoryOnce(source, destination, expectedHash) {
   if (sha256Tree(destination) !== expectedHash) throw new Error(`物化后包哈希不一致：${destination}`);
 }
 
-export function materializeShotRecipe({projectRoot, recipeId, styleId}) {
+export function materializeShotRecipe({
+  projectRoot,
+  recipeId = null,
+  styleId = null,
+  variantId = null,
+  segmentId = null,
+  visualSourceKind,
+  relationshipKind = null,
+  placementMode,
+  aspectRatio,
+  selectionReason,
+}) {
   const project = path.resolve(projectRoot || "");
   if (!fs.existsSync(project) || !fs.statSync(project).isDirectory()) throw new Error(`项目目录不存在：${project}`);
-  const item = loadShotRecipes().find(({document}) => document.id === recipeId);
-  if (!item) throw new Error(`找不到镜头配方 ${recipeId || "(empty)"}`);
-  const style = item.document.styles.find((candidate) => candidate.id === styleId);
-  if (!style) throw new Error(`${recipeId} 没有 style ${styleId || "(empty)"}`);
-  if (style.status !== "active" || style.implementation.kind !== "editable-media-package") {
-    throw new Error(`${recipeId}/${styleId} 只有参考语义；先在当前项目建立并验证完整 editable-media 包`);
+  if (typeof selectionReason !== "string" || !selectionReason.trim()) {
+    throw new Error("物化活动镜头必须提供 selectionReason");
   }
+  const resolved = selectActiveShotRecipe({
+    visualSourceKind,
+    relationshipKind,
+    placementMode,
+    aspectRatio,
+    recipeId,
+    styleId,
+    variantId,
+  });
+  const {item, style, variant} = resolved;
+  recipeId = item.document.id;
+  styleId = style.id;
   const sourcePackage = resolveSkillPath(style.implementation.package, "implementation.package");
   const packageHash = sha256Tree(sourcePackage);
   const destination = path.join(project, "components", "shot-recipes", recipeId, styleId, packageHash);
   copyDirectoryOnce(sourcePackage, destination, packageHash);
   const packageErrors = [];
-  const hashes = validatePackage(destination, packageErrors, `${recipeId}/${styleId}`);
+  const hashes = validatePackage(
+    destination,
+    packageErrors,
+    `${recipeId}/${styleId}`,
+    style.implementation,
+    variantProfile(
+      loadShotRecipeLibrary(),
+      style.implementation.variant_profile_id,
+    ).bindings,
+  );
   if (packageErrors.length) throw new Error(packageErrors.join("\n"));
+  const selectionId = segmentId
+    ? `${segmentId}.${recipeId}.${styleId}.${variant.variant_id}`
+    : `${recipeId}.${styleId}.${variant.variant_id}`;
   const selection = {
     protocol: "visual-multimedia-shot-recipe-selection",
-    version: 1,
+    version: 2,
     library_version: loadShotRecipeLibrary().library_version,
+    selection_id: selectionId,
+    segment_id: segmentId,
+    visual_source_kind: visualSourceKind,
+    relationship_kind: relationshipKind,
+    placement_mode: placementMode,
+    aspect_ratio: aspectRatio,
+    selection_reason: selectionReason.trim(),
     recipe_id: recipeId,
     style_id: styleId,
     recipe_sha256: sha256(item.bytes),
     behavior_fingerprint: item.document.behavior_fingerprint,
     package: relativeInside(project, destination, "物化包"),
+    scene_id: style.implementation.scene_id,
+    variant_id: variant.variant_id,
     package_sha256: hashes.package_sha256,
     manifest_sha256: hashes.manifest_sha256,
     time_source: "editable-media",
@@ -315,7 +489,7 @@ export function materializeShotRecipe({projectRoot, recipeId, styleId}) {
   if (schemaErrors.length) throw new Error(schemaErrors.join("\n"));
   const selectionDir = path.join(project, "shot-recipe-selections");
   fs.mkdirSync(selectionDir, {recursive: true});
-  const selectionPath = path.join(selectionDir, `${recipeId}.${styleId}.json`);
+  const selectionPath = path.join(selectionDir, `${selectionId}.json`);
   const serialized = stableText(selection);
   if (fs.existsSync(selectionPath) && fs.readFileSync(selectionPath, "utf8") !== serialized) {
     throw new Error(`selection 已存在且内容不同，不会覆盖：${selectionPath}`);
@@ -334,7 +508,7 @@ function option(argv, name) {
 }
 
 function usage() {
-  console.error("用法：node scripts/shot-recipe-library.mjs <list|search|get|validate|build|fingerprint|materialize> [query-or-id] [--style <id>] [--project <目录>] [--json]");
+  console.error("用法：node scripts/shot-recipe-library.mjs <list|search|get|validate|build|fingerprint|materialize> [query-or-id] [--style <id>] [--variant <id>] [--project <目录>] [--visual-source <kind>] [--relationship <kind>] [--placement <mode>] [--aspect <ratio>] [--reason <说明>] [--segment <id>] [--json]");
 }
 
 async function main(argv) {
@@ -382,6 +556,13 @@ async function main(argv) {
       projectRoot: option(argv, "--project"),
       recipeId: argv[1],
       styleId: option(argv, "--style"),
+      variantId: option(argv, "--variant"),
+      segmentId: option(argv, "--segment"),
+      visualSourceKind: option(argv, "--visual-source"),
+      relationshipKind: option(argv, "--relationship"),
+      placementMode: option(argv, "--placement"),
+      aspectRatio: option(argv, "--aspect"),
+      selectionReason: option(argv, "--reason"),
     });
     console.log(JSON.stringify(result, null, 2));
     return;

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "19ed9675c9df30ce22e71f630783617c0dc0ebb89cc58dcfc14acbbb6f7df21b",
+  "behavior_fingerprint": "99617b7e84844ad61ea35d776afa4e694f04a92e77f576ad6450700aea32b679",
   "category": "typography",
   "id": "title-demote-to-label",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "title-demote-to-label",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "title-demote-to-label",
       "status": "reference-only",
       "use": "章节开场（标题先当主角再让位给内容）；教程/功能演示片的小节交接；B 式给\"文字/编辑\"类产品加身份暗示"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

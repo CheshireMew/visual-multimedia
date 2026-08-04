@@ -13,7 +13,7 @@
       "id": "product-promo",
       "name": "产品功能宣传片",
       "package": "product-promo/1.0.0/profile.json",
-      "package_sha256": "93efe1c1c6382105ae82c26e622de9946244108e1829badb2b2f83d4aee0dbb7",
+      "package_sha256": "58d875bd2c3d48cfd5202049adacf173bf5981c9a30faeaab06bfae40f9a42c1",
       "public_entry": "scripts/product-promo.mjs",
       "status": "active",
       "version": "1.0.0"

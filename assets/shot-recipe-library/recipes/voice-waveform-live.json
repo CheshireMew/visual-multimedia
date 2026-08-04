@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "0dd25122bd53af9e51650fbbf834f1d6e3ec404f496550def664e142c0e510ac",
+  "behavior_fingerprint": "54c11109162eedd1ad085d96262463c0722d9039907cb6549170ce7b13ab649e",
   "category": "interaction",
   "id": "voice-waveform-live",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "voice-waveform-live",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "voice-waveform-live",
       "status": "reference-only",
       "use": "语音输入/AI 助手\"正在听你说\"的功能镜头；无 UI 内容可展示但需要持续活性撑画面的段落"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

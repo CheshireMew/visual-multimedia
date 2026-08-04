@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "be8cccb47dc86b02ef66e751e9f777ae23a08c09f47aaa6bec4898b1d981cda0",
+  "behavior_fingerprint": "b505ce7b3757b482b2b4d40cdfdc4d46f9960415446427fb52f8a2cecdd7fe55",
   "category": "effects",
   "id": "riso-print-hits",
   "intent": {
@@ -38,7 +38,9 @@
       "id": "misregistration-hit",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "misregistration-hit 单发",
       "status": "reference-only",
@@ -49,12 +51,15 @@
       "id": "beat-pump",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "beat-pump 节拍泵",
       "status": "reference-only",
       "use": "音乐卡点段；\"越打越狠\"的蓄力连打"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

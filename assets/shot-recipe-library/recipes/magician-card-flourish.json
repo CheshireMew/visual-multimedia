@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "9dc5f2b9f73dc9cf321f7b49294c1fa0ab456c75c026969a48675ce82af66e37",
+  "behavior_fingerprint": "255cb372f25ab9db6ced32db8cc373f747dc09693b592216cc06c157c8649240",
   "category": "opening",
   "id": "magician-card-flourish",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "magician-card-flourish",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "magician-card-flourish",
       "status": "reference-only",
       "use": "单张卡片/海报/封面的魔术性登场（片头主视觉、产品卡揭晓）；纯黑暗场；需要\"变出来\"仪式感的爆点"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

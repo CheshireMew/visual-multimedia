@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "c4610b46ef80c2768be1887f211c5cc5aca1da674fde82ddceb74e244d40dd2b",
+  "behavior_fingerprint": "7100d0b05dc0c8c18ac61338ca938825824453cd1af2b92325f6e7d69c762b92",
   "category": "typography",
   "id": "marker-underline-title",
   "intent": {
@@ -34,12 +34,15 @@
       "id": "marker-underline-title",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "marker-underline-title",
       "status": "reference-only",
       "use": "标题里强调单个关键词（new/free/AI…）；手写感/人味的品牌调性；正文标注式强调"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

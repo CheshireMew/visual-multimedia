@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.shot-recipe.v2",
+  "title": "Visual Multimedia Shot Recipe v2 Documents",
+  "oneOf": [
+    {"$ref": "#/$defs/library"},
+    {"$ref": "#/$defs/recipe"},
+    {"$ref": "#/$defs/catalog"},
+    {"$ref": "#/$defs/selection"}
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "text": {"type": "string", "minLength": 1},
+    "sha": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "versionString": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "visualSourceKind": {
+      "enum": ["human", "screen-recording", "evidence", "explanatory-broll", "packaging"]
+    },
+    "relationshipKind": {
+      "enum": [
+        "process", "phase-timeline", "layered-framework", "causal-loop",
+        "input-output-toolchain", "comparison-matrix", "decompose-assemble",
+        "metric-dashboard", "evidence-before-after", "layout"
+      ]
+    },
+    "placementMode": {
+      "enum": ["full-frame", "presenter-split", "transparent-overlay"]
+    },
+    "aspectRatio": {"enum": ["16:9", "9:16", "1:1"]},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "license", "copyright", "source_reference", "adaptation"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "license": {"$ref": "#/$defs/text"},
+        "copyright": {"$ref": "#/$defs/text"},
+        "source_reference": {"$ref": "#/$defs/text"},
+        "adaptation": {"$ref": "#/$defs/text"}
+      }
+    },
+    "library": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "library_version", "name", "default_locale", "sources", "variant_profiles"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-shot-recipe-library"},
+        "version": {"const": 2},
+        "library_version": {"$ref": "#/$defs/versionString"},
+        "name": {"$ref": "#/$defs/text"},
+        "default_locale": {"$ref": "#/$defs/text"},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}},
+        "variant_profiles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "bindings"],
+            "properties": {
+              "id": {"$ref": "#/$defs/id"},
+              "bindings": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/variantBinding"}}
+            }
+          }
+        }
+      }
+    },
+    "variantBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant_id", "placement_mode", "aspect_ratio"],
+      "properties": {
+        "variant_id": {"$ref": "#/$defs/id"},
+        "placement_mode": {"$ref": "#/$defs/placementMode"},
+        "aspect_ratio": {"$ref": "#/$defs/aspectRatio"}
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "package", "scene_id", "variant_profile_id"],
+      "properties": {
+        "kind": {"enum": ["editable-media-package", "none"]},
+        "package": {"oneOf": [{"$ref": "#/$defs/localPath"}, {"type": "null"}]},
+        "scene_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "variant_profile_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"const": "editable-media-package"}}},
+          "then": {
+            "properties": {
+              "package": {"$ref": "#/$defs/localPath"},
+              "scene_id": {"$ref": "#/$defs/id"},
+              "variant_profile_id": {"$ref": "#/$defs/id"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"kind": {"const": "none"}}},
+          "then": {
+            "properties": {
+              "package": {"type": "null"},
+              "scene_id": {"type": "null"},
+              "variant_profile_id": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "description", "use", "status", "implementation"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "label": {"$ref": "#/$defs/text"},
+        "description": {"$ref": "#/$defs/text"},
+        "use": {"type": "string"},
+        "status": {"enum": ["active", "reference-only"]},
+        "implementation": {"$ref": "#/$defs/implementation"}
+      }
+    },
+    "applicability": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "visual_source_kinds", "relationship_kinds", "placement_modes", "default_style_id"
+          ],
+          "properties": {
+            "visual_source_kinds": {
+              "type": "array", "minItems": 1, "uniqueItems": true,
+              "items": {"$ref": "#/$defs/visualSourceKind"}
+            },
+            "relationship_kinds": {
+              "type": "array", "uniqueItems": true,
+              "items": {"$ref": "#/$defs/relationshipKind"}
+            },
+            "placement_modes": {
+              "type": "array", "minItems": 1, "uniqueItems": true,
+              "items": {"$ref": "#/$defs/placementMode"}
+            },
+            "default_style_id": {"$ref": "#/$defs/id"}
+          }
+        }
+      ]
+    },
+    "recipe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol", "version", "id", "name", "aliases", "status", "source_id",
+        "category", "applicability", "intent", "styles", "known_pitfalls",
+        "source_evidence", "behavior_fingerprint"
+      ],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-shot-recipe"},
+        "version": {"const": 2},
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "aliases": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+        "status": {"enum": ["active", "reference-only"]},
+        "source_id": {"$ref": "#/$defs/id"},
+        "category": {
+          "enum": [
+            "opening", "typography", "ui-entrance", "camera", "data", "interaction",
+            "transition", "rhythm", "effects", "outro", "product-promo", "explanatory-broll"
+          ]
+        },
+        "applicability": {"$ref": "#/$defs/applicability"},
+        "intent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["purpose", "use", "duration", "energy", "semantic_tags"],
+          "properties": {
+            "purpose": {"$ref": "#/$defs/text"},
+            "use": {"$ref": "#/$defs/text"},
+            "duration": {"$ref": "#/$defs/text"},
+            "energy": {"$ref": "#/$defs/text"},
+            "semantic_tags": {
+              "type": "array", "minItems": 1, "uniqueItems": true,
+              "items": {"$ref": "#/$defs/id"}
+            }
+          }
+        },
+        "styles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/style"}},
+        "known_pitfalls": {"type": "array", "items": {"$ref": "#/$defs/text"}},
+        "source_evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_card", "upstream_demo", "upstream_preview_declared", "notes"],
+          "properties": {
+            "source_card": {"$ref": "#/$defs/text"},
+            "upstream_demo": {"type": ["string", "null"]},
+            "upstream_preview_declared": {"type": "boolean"},
+            "notes": {"type": "string"}
+          }
+        },
+        "behavior_fingerprint": {"$ref": "#/$defs/sha"}
+      }
+    },
+    "catalogStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "label", "status", "implementation_kind", "package", "scene_id",
+        "variant_profile_id", "variants", "package_sha256", "manifest_sha256"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "label": {"$ref": "#/$defs/text"},
+        "status": {"enum": ["active", "reference-only"]},
+        "implementation_kind": {"enum": ["editable-media-package", "none"]},
+        "package": {"oneOf": [{"$ref": "#/$defs/localPath"}, {"type": "null"}]},
+        "scene_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "variant_profile_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "variants": {"type": "array", "items": {"$ref": "#/$defs/variantBinding"}},
+        "package_sha256": {"oneOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+        "manifest_sha256": {"oneOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]}
+      }
+    },
+    "catalogItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "name", "category", "status", "applicability", "path", "sha256",
+        "behavior_fingerprint", "purpose", "use", "energy", "semantic_tags", "styles"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "category": {"$ref": "#/$defs/text"},
+        "status": {"enum": ["active", "reference-only"]},
+        "applicability": {"$ref": "#/$defs/applicability"},
+        "path": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha"},
+        "behavior_fingerprint": {"$ref": "#/$defs/sha"},
+        "purpose": {"$ref": "#/$defs/text"},
+        "use": {"$ref": "#/$defs/text"},
+        "energy": {"$ref": "#/$defs/text"},
+        "semantic_tags": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}},
+        "styles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/catalogStyle"}}
+      }
+    },
+    "catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol", "version", "library_version", "recipe_count", "active_style_count",
+        "reference_style_count", "recipes"
+      ],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-shot-recipe-catalog"},
+        "version": {"const": 2},
+        "library_version": {"$ref": "#/$defs/versionString"},
+        "recipe_count": {"type": "integer", "minimum": 1},
+        "active_style_count": {"type": "integer", "minimum": 1},
+        "reference_style_count": {"type": "integer", "minimum": 0},
+        "recipes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/catalogItem"}}
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol", "version", "library_version", "selection_id", "segment_id",
+        "visual_source_kind", "relationship_kind", "placement_mode", "aspect_ratio",
+        "selection_reason", "recipe_id", "style_id", "recipe_sha256",
+        "behavior_fingerprint", "package", "scene_id", "variant_id", "package_sha256",
+        "manifest_sha256", "time_source"
+      ],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-shot-recipe-selection"},
+        "version": {"const": 2},
+        "library_version": {"$ref": "#/$defs/versionString"},
+        "selection_id": {"$ref": "#/$defs/id"},
+        "segment_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "visual_source_kind": {"$ref": "#/$defs/visualSourceKind"},
+        "relationship_kind": {"oneOf": [{"$ref": "#/$defs/relationshipKind"}, {"type": "null"}]},
+        "placement_mode": {"$ref": "#/$defs/placementMode"},
+        "aspect_ratio": {"$ref": "#/$defs/aspectRatio"},
+        "selection_reason": {"$ref": "#/$defs/text"},
+        "recipe_id": {"$ref": "#/$defs/id"},
+        "style_id": {"$ref": "#/$defs/id"},
+        "recipe_sha256": {"$ref": "#/$defs/sha"},
+        "behavior_fingerprint": {"$ref": "#/$defs/sha"},
+        "package": {"$ref": "#/$defs/localPath"},
+        "scene_id": {"$ref": "#/$defs/id"},
+        "variant_id": {"$ref": "#/$defs/id"},
+        "package_sha256": {"$ref": "#/$defs/sha"},
+        "manifest_sha256": {"$ref": "#/$defs/sha"},
+        "time_source": {"const": "editable-media"}
+      }
+    }
+  }
+}

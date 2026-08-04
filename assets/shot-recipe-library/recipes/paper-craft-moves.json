@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "a920b75be053df9cdbb3b89ffa12b8a3233e490780987ef15cd70c3ab22738c3",
+  "behavior_fingerprint": "c2bdd698ad3fe0d16d467e210cf12cd098ee746181ca407aaa749c6f78318afa",
   "category": "ui-entrance",
   "id": "paper-craft-moves",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "masking-tape-slap",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "masking-tape-slap",
       "status": "reference-only",
@@ -46,12 +48,15 @@
       "id": "popup-book-rise",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "popup-book-rise",
       "status": "reference-only",
       "use": "整版 dashboard 开场；\"系统被搭建起来\""
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "003ed993767a67ba0d89dd4eede06da2d207d3155e113bf186a4692891e54797",
+  "behavior_fingerprint": "f307c0fceae56d93bcf8b60feab10ce09a61f9b32e1d093618179268ede1a9de",
   "category": "camera",
   "id": "steep-tilt-glide",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "steep-tilt-glide",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "steep-tilt-glide",
       "status": "reference-only",
       "use": "长页面/多区块 UI 的炫技巡览（内容依次滑过固定机位）；暗场霓虹调性；与贴面运镜卡互补的\"侧掠\"机位"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "6195e8e00f4922f8af57dc4f8162058ef61dc3b343f17ed7df4fd7799cae6d4a",
+  "behavior_fingerprint": "469dd92570e878b625161070ea3c968d57a3da54935da9dd35dfb0a29a6cce89",
   "category": "data",
   "id": "scroll-brake-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "changelog-scroll-brake",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "changelog-scroll-brake",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "brake-reticle-lock",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "brake-reticle-lock",
       "status": "reference-only",
       "use": "停点需要更强打击感的高光段"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,0 +1,65 @@
+{
+  "protocol": "visual-multimedia-shot-recipe",
+  "version": 2,
+  "id": "video-chapter-progress",
+  "name": "全片章节进度条",
+  "aliases": [
+    "video progress bar",
+    "chapter progress",
+    "视频进度条"
+  ],
+  "status": "active",
+  "source_id": "visual-multimedia",
+  "category": "rhythm",
+  "intent": {
+    "purpose": "把全部章节并排放进同一条横向矩形导航栏，用底边进度和移动游标持续显示全片位置。",
+    "use": "教程、案例拆解、工作流讲解和其它具有明确章节节点的长短视频包装；作为透明覆盖层叠到真实视频之上。",
+    "duration": "与成片总时长完全一致，章节节点读取已确认脚本、字幕或剪辑结构中的毫秒起点。",
+    "energy": "低干扰、持续可读；进度和章节状态随统一时间线推进，不加入独立表演性动画。",
+    "semantic_tags": [
+      "progress",
+      "chapter",
+      "overlay",
+      "timeline",
+      "packaging"
+    ]
+  },
+  "styles": [
+    {
+      "id": "segmented-progress-rail",
+      "label": "横向分段进度栏",
+      "description": "一个细长圆角矩形容纳首格和全部章节矩形分段，底边连续填充真实播放进度；当前几何游标与未来人物素材共用同一移动坐标。",
+      "use": "横屏、竖屏或方形视频顶部或底部的全片章节导航包装。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/video-progress-bar",
+        "scene_id": "progress",
+        "variant_profile_id": "progress-overlay"
+      }
+    }
+  ],
+  "known_pitfalls": [
+    "总时长和章节起点必须来自当前视频的真实结构，不能拿模板默认 60 秒直接覆盖成片。",
+    "它是全片包装层，不是每句口播都要出现的 B-roll；章节过密时先合并结构，不能把轨道挤成不可读标签墙。",
+    "人物素材暂缺时保留轻量几何游标即可；以后替换人物时继续读取同一进度坐标，不能另启计时器。",
+    "透明输出必须保持 body、媒体画布和变体背景都透明；不要为了预览方便把棋盘格写进捕获画面。"
+  ],
+  "source_evidence": {
+    "source_card": "target-native:assets/video-progress-bar",
+    "upstream_demo": null,
+    "upstream_preview_declared": false,
+    "notes": "目标原生配方，按真实视频总时间生成 editable-media v5 透明覆盖层，不复制外部教程或模板资产。"
+  },
+  "behavior_fingerprint": "9a1e51946230e947b5c4eaafc04f723fb2f3e9b483004cd929e5f22ae3200f27",
+  "applicability": {
+    "visual_source_kinds": [
+      "packaging"
+    ],
+    "relationship_kinds": [],
+    "placement_modes": [
+      "transparent-overlay"
+    ],
+    "default_style_id": "segmented-progress-rail"
+  }
+}

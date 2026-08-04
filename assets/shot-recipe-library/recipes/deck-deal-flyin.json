@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "94b7ef9971638a54b111acaaf9d5b4f8e0e6570ac73e7b1cd34b47a150f4d516",
+  "behavior_fingerprint": "3d2f700600661b492470bc760186e833f8e4632e97be8c241a4a80c36c77d3cc",
   "category": "ui-entrance",
   "id": "deck-deal-flyin",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "deck-deal-flyin",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "deck-deal-flyin",
       "status": "reference-only",
       "use": "展示\"内容量大/源源不断汇入\"的列表页与卡片墙；建立信息密度的第一印象"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

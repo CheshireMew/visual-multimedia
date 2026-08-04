@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "64d1645393bbc508049c3c6dc8b019edcf4d7d4a171dab76ea28acc1886673b2",
+  "behavior_fingerprint": "127e4e29e607fccd049dc78b91093e7d803519e2c005a5cd14f9cbb14ac660b8",
   "category": "rhythm",
   "id": "trailer-grammar-moves",
   "intent": {
@@ -37,7 +37,9 @@
       "id": "trailer-bumper",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "trailer-bumper",
       "status": "reference-only",
@@ -48,7 +50,9 @@
       "id": "card-footage-cadence",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "card-footage-cadence",
       "status": "reference-only",
@@ -59,12 +63,15 @@
       "id": "smash-cut",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "smash-cut",
       "status": "reference-only",
       "use": "全片最高潮的收束句号"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

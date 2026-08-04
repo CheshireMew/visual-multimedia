@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "ba97572132f47d2f2b67278d439d8404167c01d50894d8504b6f0afec2aeabf5",
+  "behavior_fingerprint": "88a5cbba00d9de31bec36f0ed4c675af87fa5be98473a04a5e4e28d7b04274e7",
   "category": "ui-entrance",
   "id": "draw-svg-trace",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "draw-svg-trace",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "draw-svg-trace",
       "status": "reference-only",
       "use": "单个卡片/图表/标题的被点名入场；元素级手法（整页级蓝图描线归 wall-reveal-moves C 式）"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

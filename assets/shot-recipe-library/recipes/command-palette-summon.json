@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "d5159acbeebf36cbe183ce3b78def57ec9d61fcf3672ca8676ad8a7ce6a51d87",
+  "behavior_fingerprint": "902a83368529392319ba5c41c63ff56586ecfb0075462f47e9025bf26629409c",
   "category": "interaction",
   "id": "command-palette-summon",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "command-palette-summon",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "command-palette-summon",
       "status": "reference-only",
       "use": "效率型产品的\"全产品在一个输入框里\"叙事；命令面板/搜索/快捷键功能的标志性登场"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

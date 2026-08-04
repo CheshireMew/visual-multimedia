@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "605e0cdc231acd1add9e22ad6d881dfdc2fcbdbe21f13e670616324a704081bc",
+  "behavior_fingerprint": "c5b3fff81a2a8131ed84219fbbd849dd4cf57c93d791c83f4234e88b754e42e5",
   "category": "interaction",
   "id": "input-trigger-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "cursor-performance",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "cursor-performance",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "keycap-smash-cut",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "keycap-smash-cut",
       "status": "reference-only",
       "use": "全片开场定论；能量最高"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

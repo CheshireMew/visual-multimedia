@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "a029aec1132adebea989c5357a965613fe8dc06a19248191da1d73ec6b37c212",
+  "behavior_fingerprint": "d2624c3c8f70829099612b142221cde1e6dff5290014d32ff65d3776b8d58290",
   "category": "opening",
   "id": "brand-ink-open",
   "intent": {
@@ -33,12 +33,15 @@
       "id": "brand-ink-open",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "brand-ink-open",
       "status": "reference-only",
       "use": "品牌开场；任何\"先立名号再进产品\"的片头"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

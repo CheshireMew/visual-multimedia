@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "ff0c070f2a604fe6d2151105a7548036a1e3677c23500827173d20dbc9ccd6fe",
+  "behavior_fingerprint": "33d76299b26a0a5a1647a34a6f7fefaeaba7bf721c6f80bb1fa66faf8573c503",
   "category": "transition",
   "id": "bottom-push-stack-wipe",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "bottom-push-stack-wipe",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "bottom-push-stack-wipe",
       "status": "reference-only",
       "use": "多章节产品片的换章骨架（每章一个卖点一种底色）；需要\"翻页节奏感\"贯穿全片的段落切换"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

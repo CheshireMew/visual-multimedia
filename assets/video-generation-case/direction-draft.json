@@ -94,9 +94,15 @@
       ],
       "purpose": "让观众看到提交、入账和采用是连续但独立的三步",
       "voiceover_ref": "narration#full",
-      "visual_role": "用三个状态节点展示同一任务怎样跨越远程与本地边界",
-      "graphic_type": "state-transition",
-      "presenter_layout": "faceless-full-frame",
+      "visual_plan": {
+        "source_kind": "evidence",
+        "source_ids": [],
+        "relationship_kind": null,
+        "placement_mode": "full-frame",
+        "aspect_ratio": "16:9",
+        "selection_reason": "这个能力案例要验证外部生成结果从任务、入账到时间线采用的真实边界，因此使用生成任务产出的证据画面。",
+        "recipe": null
+      },
       "timing": {
         "source": "text-estimate",
         "estimated_seconds": 3

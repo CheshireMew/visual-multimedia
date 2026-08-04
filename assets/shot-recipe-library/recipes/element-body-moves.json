@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "72c2eb3063a3d79e177250a6e265cce143faf303e84232f1f67f497e97d439b1",
+  "behavior_fingerprint": "0459e9023b8802e78852fc89f937c1a99810217cdf5cafa9757fc036420d22f5",
   "category": "ui-entrance",
   "id": "element-body-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "axial-stretch",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "axial-stretch",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "contact-shadow-lift",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "contact-shadow-lift",
       "status": "reference-only",
       "use": "逐张点名强调；2.5D 段落的离面铺垫"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "1295e21522f557a0dfd719e1663dccbd2593648cc2d9e208ba208d67497a029e",
+  "behavior_fingerprint": "a1325eaae13557440a3559157c67dbf76b72ef1996924196fb5365203768ce92",
   "category": "transition",
   "id": "transition-travel",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "shared-element-morph",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "共享元素归位 shared-element-morph",
       "status": "reference-only",
@@ -46,12 +48,15 @@
       "id": "letterform-zoom",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "字腔穿越 letterform-zoom",
       "status": "reference-only",
       "use": "章节标题→正文；替代 D 式黑场字卡的高能量款"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

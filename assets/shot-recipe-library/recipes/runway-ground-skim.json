@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "30f2e3486b653641b099acf1f3f2ff3ebca9cf845498c674f47dd250b472c65a",
+  "behavior_fingerprint": "1f5cbd9c6147b375d23eb7b26835034b13b54f348772a1e09c58c83f72ef2839",
   "category": "ui-entrance",
   "id": "runway-ground-skim",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "runway-ground-skim",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "runway-ground-skim",
       "status": "reference-only",
       "use": "仪表盘/卡片流界面的登场（内容\"从天而降完成自己\"）；低角度炫技段后的收正；clickup 系悬空贴落语言的\"齐落\"重型版"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

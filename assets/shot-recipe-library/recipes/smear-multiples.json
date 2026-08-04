@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "f4662020fcbf9cf3999b94ba5dd2e548d3da31c307965a1fec06dae815795ffe",
+  "behavior_fingerprint": "3ce1a2061df1528240872523dbf9e7d23222a5a90a027fe27614e8bd2d578f52",
   "category": "rhythm",
   "id": "smear-multiples",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "smear-multiples",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "smear-multiples",
       "status": "reference-only",
       "use": "元素高速位移段想要\"漫画式速度感\"而非\"摄影式模糊\"时；与 CameraMotionBlur 二选一"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

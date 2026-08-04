@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "93ff61086f4c5b606f973b591e36dc0e899e1d57f75978bdf7d69cf2cffd9e16",
+  "behavior_fingerprint": "a72d4a81ee36aa7c0cb9bfed3d7e5180681d9a3be42dfb86bc744100ca8de08b",
   "category": "data",
   "id": "gauge-readout-moves",
   "intent": {
@@ -34,7 +34,9 @@
       "id": "needle-sweep-selftest",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "needle-sweep-selftest",
       "status": "reference-only",
@@ -45,12 +47,15 @@
       "id": "tape-scroll-fixed-pointer",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "tape-scroll-fixed-pointer",
       "status": "reference-only",
       "use": "单指标大跳变（性能翻倍/配额提升）"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

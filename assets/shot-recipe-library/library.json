@@ -1,7 +1,7 @@
 {
   "protocol": "visual-multimedia-shot-recipe-library",
-  "version": 1,
-  "library_version": "1.0.0",
+  "version": 2,
+  "library_version": "2.0.0",
   "name": "Visual Multimedia 镜头配方库",
   "default_locale": "zh-CN",
   "sources": [
@@ -10,8 +10,8 @@
       "name": "Visual Multimedia",
       "license": "Repository license",
       "copyright": "Visual Multimedia contributors",
-      "source_reference": "assets/web-media-starter/",
-      "adaptation": "目标原生配方使用 editable-media v5 完整网页包和现有唯一时间边界。"
+      "source_reference": "assets/web-media-starter/ and assets/video-progress-bar/",
+      "adaptation": "目标原生配方使用 editable-media v5 完整网页包和现有唯一时间边界；全片进度组件由真实时长与章节参数生成。"
     },
     {
       "id": "video-shotcraft",
@@ -20,6 +20,158 @@
       "copyright": "video-shotcraft contributors",
       "source_reference": "https://github.com/vincentwei1021/video-shotcraft",
       "adaptation": "只迁入镜头意图、用途、能量、时长、变体说明和已知坑；不复制 Remotion、截图、音频或 Gallery MP4。迁入条目在目标实现通过前保持 reference-only。"
+    }
+  ],
+  "variant_profiles": [
+    {
+      "id": "standard-full",
+      "bindings": [
+        {
+          "variant_id": "landscape",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "1:1"
+        }
+      ]
+    },
+    {
+      "id": "progress-overlay",
+      "bindings": [
+        {
+          "variant_id": "landscape",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "1:1"
+        }
+      ]
+    },
+    {
+      "id": "explanatory-all",
+      "bindings": [
+        {
+          "variant_id": "landscape-full",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait-full",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square-full",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "1:1"
+        },
+        {
+          "variant_id": "landscape-presenter-split",
+          "placement_mode": "presenter-split",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait-presenter-split",
+          "placement_mode": "presenter-split",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square-presenter-split",
+          "placement_mode": "presenter-split",
+          "aspect_ratio": "1:1"
+        },
+        {
+          "variant_id": "landscape-transparent-overlay",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait-transparent-overlay",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square-transparent-overlay",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "1:1"
+        }
+      ]
+    },
+    {
+      "id": "explanatory-full",
+      "bindings": [
+        {
+          "variant_id": "landscape-full",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait-full",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square-full",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "1:1"
+        }
+      ]
+    },
+    {
+      "id": "explanatory-split",
+      "bindings": [
+        {
+          "variant_id": "landscape-presenter-split",
+          "placement_mode": "presenter-split",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait-presenter-split",
+          "placement_mode": "presenter-split",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square-presenter-split",
+          "placement_mode": "presenter-split",
+          "aspect_ratio": "1:1"
+        }
+      ]
+    },
+    {
+      "id": "explanatory-overlay",
+      "bindings": [
+        {
+          "variant_id": "landscape-transparent-overlay",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait-transparent-overlay",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square-transparent-overlay",
+          "placement_mode": "transparent-overlay",
+          "aspect_ratio": "1:1"
+        }
+      ]
     }
   ]
 }

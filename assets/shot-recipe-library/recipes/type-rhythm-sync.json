@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "ef95018d7a8e30b9136997b78116e4f091a91e90d95965938eb8ede2eca72bc8",
+  "behavior_fingerprint": "698f4269dc9c9db0b063c01bc8ae9bc1b5ffc062c804e559348b332053c579b2",
   "category": "typography",
   "id": "type-rhythm-sync",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "font-weight-pump",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "font-weight-pump 字重脉冲",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "karaoke-fill-sync",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "karaoke-fill-sync 填色随读",
       "status": "reference-only",
       "use": "旁白/口播强调段；多词标语的视线引导"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

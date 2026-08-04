@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "af616cfecac253ad148eac221932e4867c7714ae161b526c1f03302ae98beb20",
+  "behavior_fingerprint": "dbcf847d29fb78aa12461535298de438403669d6d7b1441f8eeee7630ee4c72a",
   "category": "typography",
   "id": "cel-flash-stomp",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "cel-flash-stomp",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "cel-flash-stomp",
       "status": "reference-only",
       "use": "口号/三连词的高能段落（\"SHIP / FASTER / TODAY\"式）；文字节奏卡，与 type-rhythm-sync 互补（那是字属性动，这是字砸+底闪）"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

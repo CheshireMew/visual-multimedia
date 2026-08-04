@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "1d35a9c206c7f714a16cc38776c6ae1b9694da7f7fc01f3c7a65527f36587dd1",
+  "behavior_fingerprint": "01b8a5e839c9dd45c41c5c89de28555a5a2127b187d42782aef50ee6f6929283",
   "category": "opening",
   "id": "icon-field-colorize",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "icon-field-colorize",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "icon-field-colorize",
       "status": "reference-only",
       "use": "开场铺陈产品能力面（图标=功能宇宙）再一举打上品牌色；功能集合页、生态/集成规模展示、片头 logo 前垫场"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "48586152d14bf5fe13c57a3894fa6b1784aab99ce26f0108b6b26ee695a70caf",
+  "behavior_fingerprint": "4fca7b3c13dd4f98992226de7e0f50a4d1df05bc16037c0bdf915d43347bf449",
   "category": "ui-entrance",
   "id": "wall-reveal-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "bento-light-up",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "bento-light-up 逐格点亮",
       "status": "reference-only",
@@ -47,7 +49,9 @@
       "id": "grid-wave-flip",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "grid-wave-flip 波浪翻面",
       "status": "reference-only",
@@ -58,12 +62,15 @@
       "id": "wireframe-draw-on",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "wireframe-draw-on 蓝图描线成形",
       "status": "reference-only",
       "use": "\"从设计到实物/从想法到产品\"叙事；产品首次整体亮相"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

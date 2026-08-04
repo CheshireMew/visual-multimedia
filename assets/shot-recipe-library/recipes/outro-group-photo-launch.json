@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "27fde295d4ce3466c8f98a843a94800147011109cd49d327597d45d0f4b23aa2",
+  "behavior_fingerprint": "5bfceee4ecf02df8011f71187b9d211580c9f9b77f167c2ba63f6163ffa32cc3",
   "category": "outro",
   "id": "outro-group-photo-launch",
   "intent": {
@@ -33,12 +33,15 @@
       "id": "outro-group-photo-launch",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "outro-group-photo-launch",
       "status": "reference-only",
       "use": "outro/品牌收尾；多功能产品的\"全家福\"式终镜"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

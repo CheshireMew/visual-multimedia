@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "2badcddf4b265a3f29b7b45922d55ea01a3e3462743bd531aa6d51a906bf714d",
+  "behavior_fingerprint": "96e2a5d9ec66c1dde36c610cce0ff87435bbbbe0b2e751ee61d3ed3547fac93f",
   "category": "transition",
   "id": "shot-transitions",
   "intent": {
@@ -37,7 +37,9 @@
       "id": "flash-cut",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "推进流白 flash-cut",
       "status": "reference-only",
@@ -48,7 +50,9 @@
       "id": "shot-transitions-4",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "穿暗场直航",
       "status": "reference-only",
@@ -59,7 +63,9 @@
       "id": "shot-transitions-5",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "虚焦接力",
       "status": "reference-only",
@@ -70,7 +76,9 @@
       "id": "shot-transitions-6",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "黑场字卡",
       "status": "reference-only",
@@ -81,7 +89,9 @@
       "id": "whip-pan",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "whip-pan 甩镜",
       "status": "reference-only",
@@ -92,12 +102,15 @@
       "id": "mask-wipe",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "mask-wipe 穿窗",
       "status": "reference-only",
       "use": "语义化接缝：功能总览→该功能详情（\"点开这张卡进入它的世界\"）"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

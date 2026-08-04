@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "5c98d126f1ce1d483cac046bd7539ad10c082d1d60e7d281ffb16eb44e507fe7",
+  "behavior_fingerprint": "fd57fd5065d86434dde61ead519244d4064b3b326cebfdde8c071683609c5846",
   "category": "effects",
   "id": "fui-hud-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "line-unfold-panel",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "line-unfold-panel",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "reticle-lock-on",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "reticle-lock-on",
       "status": "reference-only",
       "use": "目标点名；踩音效重拍"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

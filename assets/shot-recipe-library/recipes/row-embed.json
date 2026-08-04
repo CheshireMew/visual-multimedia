@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "613d2d4556d54f16c6abbc95e3b106c620bf8d25b7e16a7daf6ba4fbe8c3e39e",
+  "behavior_fingerprint": "d0a317c5827f1bf558e08693dc43fcb80fa052c7e6dec54d6ceabf7d2f4f3e49",
   "category": "ui-entrance",
   "id": "row-embed",
   "intent": {
@@ -32,12 +32,15 @@
       "id": "row-embed",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "row-embed",
       "status": "reference-only",
       "use": "\"结构化数据长进页面\"的详情页/列表镜头；行级内容的批量入场"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

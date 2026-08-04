@@ -1,0 +1,65 @@
+{
+  "protocol": "visual-multimedia-shot-recipe",
+  "version": 2,
+  "id": "explain-comparison-matrix",
+  "name": "对比与决策矩阵",
+  "aliases": [
+    "comparison-matrix",
+    "对比与决策矩阵"
+  ],
+  "status": "active",
+  "source_id": "visual-multimedia",
+  "category": "explanatory-broll",
+  "applicability": {
+    "visual_source_kinds": [
+      "explanatory-broll"
+    ],
+    "relationship_kinds": [
+      "comparison-matrix"
+    ],
+    "placement_modes": [
+      "full-frame",
+      "presenter-split",
+      "transparent-overlay"
+    ],
+    "default_style_id": "semantic-comparison-matrix"
+  },
+  "intent": {
+    "purpose": "让多个候选在同一组标准下同时比较，并突出最终选择。",
+    "use": "方案比较、选型、优先级、四象限判断和取舍说明。",
+    "duration": "由当前确认旁白或场景职责决定；内置 4.5 秒语义状态可以按真实声音重新定时。",
+    "energy": "中低到中等，关系变化优先于装饰性运动。",
+    "semantic_tags": [
+      "explanatory-broll",
+      "comparison-matrix",
+      "editable-media"
+    ]
+  },
+  "styles": [
+    {
+      "id": "semantic-comparison-matrix",
+      "label": "对比与决策矩阵",
+      "description": "使用 explanatory-broll-templates 中的 comparison-matrix 场景，按开始、变化、结果三种确定性状态解释当前关系。",
+      "use": "方案比较、选型、优先级、四象限判断和取舍说明。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/explanatory-broll-templates",
+        "scene_id": "comparison-matrix",
+        "variant_profile_id": "explanatory-all"
+      }
+    }
+  ],
+  "known_pitfalls": [
+    "模板只固定关系和运动职责，条目数量、文字、数值、颜色和节奏必须读取当前内容。",
+    "物化后必须替换示例内容并重新验证，不能把目录预览直接交付。",
+    "持续阅读文字保持稳定；承担因果、推进或转折的对象变化必须直接可见。"
+  ],
+  "source_evidence": {
+    "source_card": "target-native:assets/explanatory-broll-templates",
+    "upstream_demo": null,
+    "upstream_preview_declared": false,
+    "notes": "目标原生独立实现，只吸收按内容关系组织解释型 B-roll 的能力结构，不复制外部模板造型、代码或素材。"
+  },
+  "behavior_fingerprint": "0b00f774cd06b235209af78ab0bdfad335a540f1eb62fc5f2ce6c0ec2e7a6836"
+}

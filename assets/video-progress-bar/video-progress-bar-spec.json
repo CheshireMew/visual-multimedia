@@ -1,0 +1,15 @@
+{
+  "protocol": "visual-multimedia-video-progress-bar",
+  "version": 1,
+  "lead_label": "内容导航",
+  "duration_ms": 60000,
+  "variant_id": "landscape",
+  "placement": "top",
+  "traveler_mode": "cursor",
+  "chapters": [
+    {"label": "问题", "start_ms": 0},
+    {"label": "方法", "start_ms": 15000},
+    {"label": "演示", "start_ms": 33000},
+    {"label": "结果", "start_ms": 50000}
+  ]
+}

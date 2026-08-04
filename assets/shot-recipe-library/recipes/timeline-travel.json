@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "4b68f6759c3165ee6daa778ea53f92a95ce5fc89cd601398084987b51d56865f",
+  "behavior_fingerprint": "c1f8ce1c08e48bb8fe40073ed128d6570b920ef3e34b4d974de1dbce1bda4d57",
   "category": "data",
   "id": "timeline-travel",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "timeline-travel",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "timeline-travel",
       "status": "reference-only",
       "use": "changelog/里程碑/发展史段落（\"我们一直在发货\"的另一种拍法）；与 scroll-brake-moves 分工：那卡是纵向列表急刹，本卡是横向时间旅行"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

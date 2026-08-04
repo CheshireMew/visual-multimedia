@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "d97b0fc4b331b987b3033b123aafe58f972dac6f2b1f4df8cf7cd379add8e5fa",
+  "behavior_fingerprint": "264e2aae1bd246cb53d4b7724990a8f511d1c2960c5d52aa1042a1210d2b9890",
   "category": "ui-entrance",
   "id": "neon-frame-orbit-drop",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "neon-frame-orbit-drop",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "neon-frame-orbit-drop",
       "status": "reference-only",
       "use": "单页 UI 的一次性隆重登场（与巡礼/逐区亮相相对）；暗场霓虹调性段落的主视觉揭幕；neon-frame-forerun 的姊妹镜"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

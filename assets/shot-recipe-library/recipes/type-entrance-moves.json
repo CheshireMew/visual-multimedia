@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "d8a0fb33cf98aea60d45b3895ab6d8f56f8b349257676ab7ca56ddd82859f4f5",
+  "behavior_fingerprint": "30cc083dc11510e17e2c965b4a6753fa85ee844c0920ae77416261906067009a",
   "category": "typography",
   "id": "type-entrance-moves",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "scramble-decode",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "scramble-decode 乱码解码",
       "status": "reference-only",
@@ -46,12 +48,15 @@
       "id": "letter-drop-physics",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "letter-drop-physics 字符坠落",
       "status": "reference-only",
       "use": "轻松调性开场；\"活物感\"的标题破冰"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

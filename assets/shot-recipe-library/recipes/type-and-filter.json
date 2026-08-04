@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "7e4fc9d8b930e86cdafb44b46e1ecbb3b13505c6b34c9bf313860f680d9760e4",
+  "behavior_fingerprint": "650a3e8edbec618d620de183b296c61310274d3a3f8498925ae64e2d35afeba9",
   "category": "interaction",
   "id": "type-and-filter",
   "intent": {
@@ -32,12 +32,15 @@
       "id": "type-and-filter",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "type-and-filter",
       "status": "reference-only",
       "use": "功能演示的\"操作叙事\"段；搜索/筛选/进入详情的任何交互链路"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

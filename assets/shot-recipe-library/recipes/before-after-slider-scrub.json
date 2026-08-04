@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "8e94be3172a8239543082221c5d7f6bc0a7d2616168aae2d58b12c56bcf1b38d",
+  "behavior_fingerprint": "6098642f8fb985771b6abe259837729456b9f39f79084a1a0c42bdced1a66847",
   "category": "data",
   "id": "before-after-slider-scrub",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "before-after-slider-scrub",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "before-after-slider-scrub",
       "status": "reference-only",
       "use": "AI 增强/优化/重构类功能的效果对比段落（\"用前 vs 用后\"一镜讲清）"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

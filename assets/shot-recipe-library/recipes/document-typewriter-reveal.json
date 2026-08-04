@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "eeadd3de398548da87a9c86ec6bcc9cb99f9a351d46143c64b4c0f43b60e1383",
+  "behavior_fingerprint": "6f16fa847e546446de01fbc642ae62161841d9338d06fe1dd8d6d270ad7966d4",
   "category": "typography",
   "id": "document-typewriter-reveal",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "document-typewriter-reveal",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "document-typewriter-reveal",
       "status": "reference-only",
       "use": "文档/报告/笔记类功能镜头；信息密度最高的一拍"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

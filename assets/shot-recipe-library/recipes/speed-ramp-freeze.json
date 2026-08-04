@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "59394addbe8d8f0468c044fac2d1a032b28d235b75102ca9f4c8e2aa8958ac1d",
+  "behavior_fingerprint": "320a01e2cb8c15b1a4ef261df3348a855f93c2efe5d46e24fb384ce708d23c4a",
   "category": "rhythm",
   "id": "speed-ramp-freeze",
   "intent": {
@@ -33,7 +33,9 @@
       "id": "speed-ramp",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "speed-ramp",
       "status": "reference-only",
@@ -44,12 +46,15 @@
       "id": "freeze-annotate",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "freeze-annotate",
       "status": "reference-only",
       "use": "卡片流/长横移中把一个重点\"放慢/停下给人看\"；教学解说语境用定格标注"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

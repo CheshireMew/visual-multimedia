@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "5064d668abbb739ec53e7b605126e2f950aee8a07564bf4db4952a93618f9299",
+  "behavior_fingerprint": "0e74193cae4dbfb0b016c03dca98064ff1484ecdadb3fa647c2429a9d4605dc9",
   "category": "typography",
   "id": "typewriter-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "terminal-typewriter",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "terminal-typewriter",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "error-retype",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "error-retype",
       "status": "reference-only",
       "use": "slogan 字卡的\"改口\"戏；否定式文案"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "110866aad3a9a8e2a0333f0943219edc6627951eae0c5f52dd1302a9ff39751e",
+  "behavior_fingerprint": "93baf612b3676feddcaec4197de60e3ee3260f3e4d51552cc98e575558ed40b6",
   "category": "typography",
   "id": "pill-slot-cycle",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "pill-slot-cycle",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "pill-slot-cycle",
       "status": "reference-only",
       "use": "\"功能列举\"类文案的最优雅解法（比逐条列表快、比乱码解码有语义）；一句话卖点 + 多个动词短语的段落"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

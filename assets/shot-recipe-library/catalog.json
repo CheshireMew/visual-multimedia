@@ -1,11 +1,12 @@
 {
-  "active_style_count": 1,
-  "library_version": "1.0.0",
+  "active_style_count": 14,
+  "library_version": "2.0.0",
   "protocol": "visual-multimedia-shot-recipe-catalog",
-  "recipe_count": 105,
+  "recipe_count": 116,
   "recipes": [
     {
-      "behavior_fingerprint": "eaade14b5021ad20531789663b75851cddf256922e58304cdd7c197afffd3cb3",
+      "applicability": null,
+      "behavior_fingerprint": "8e6494353019e31e075635752812200c073a38659572d278cbbb31e6f08bdadc",
       "category": "interaction",
       "energy": "中高（信息持续增加，但阅读优先于速度炫技）",
       "id": "ai-stream-response",
@@ -15,7 +16,7 @@
       "semantic_tags": [
         "interaction"
       ],
-      "sha256": "b3ed362434d3e6986359d043f70826c507aed7b5c5827cb2b565fc76c3f108c7",
+      "sha256": "b0fe20513037b965cba27963e75ab87a4461c052ca84cbc5f72705179482aaa6",
       "status": "reference-only",
       "styles": [
         {
@@ -25,13 +26,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "AI 助手/agent/search/copilot 的结果生成镜头；强调“结论先到、证据随后、任务完成”"
     },
     {
-      "behavior_fingerprint": "1252fcbbc488c8a0c5fb0b36ac785b04f636fe30a1ea924238496029991650b3",
+      "applicability": null,
+      "behavior_fingerprint": "3eb24a27d887929192a0f635132b9c1d4eaa443c4b2c547ddba1208f5925358e",
       "category": "interaction",
       "energy": "中（工具理性型，爽点在数字与位移的锁定同步）",
       "id": "autolayout-gap-dial",
@@ -41,7 +46,7 @@
       "semantic_tags": [
         "interaction"
       ],
-      "sha256": "231bf3930ae61d96682b78f02eba3b9e0e57964ab437a3353f486111587d593f",
+      "sha256": "491b57f63c2b4daeff8387634a4d08376b54104ecb1a6b079c8578646b8855d7",
       "status": "reference-only",
       "styles": [
         {
@@ -51,13 +56,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "设计工具/低代码产品的\"改一个数、界面跟着动\"卖点镜头；\"用设计工具语义做包装\"的品类语言"
     },
     {
-      "behavior_fingerprint": "5bcc05c7e77e1e91e2e820b83d3830b91997750cc08be21078dd9aeb436d63db",
+      "applicability": null,
+      "behavior_fingerprint": "b357c64c76823849f832a24958782a88d9f21e84508b97c175e5630d5eb7b2e2",
       "category": "rhythm",
       "energy": "高",
       "id": "beat-cut-moves",
@@ -68,7 +77,7 @@
         "rhythm",
         "transition"
       ],
-      "sha256": "617a9ccb54fc7aba80cf6d6cd6e84547ef918d51fac6d29c8b8034c46d352792",
+      "sha256": "690035109a500b9815efd8b1cc220a43b28f985a39857481059b61243a5a7b6a",
       "status": "reference-only",
       "styles": [
         {
@@ -78,7 +87,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "paparazzi-flash",
@@ -87,13 +99,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "高光/冲刺段落把\"切\"本身打成鼓点；A 式预告片式加速逼近，B 式颁奖连拍仪式感"
     },
     {
-      "behavior_fingerprint": "d5b07057feea2b16654b9ed7768e1cfa9f043274b9fee145ff33ccd61bd9840b",
+      "applicability": null,
+      "behavior_fingerprint": "148c771c43ed367d40eaa4ad7fb40e71d3192670a8116fc0bb01f90c62de39ee",
       "category": "rhythm",
       "energy": "高（0.6s 一拍三通道齐跳，密度型高能）",
       "id": "beat-step-list-theme-cycle",
@@ -104,7 +120,7 @@
         "rhythm",
         "typography"
       ],
-      "sha256": "c77d191c88e76095bfd8197baa8d581df52720b29a918d5f93876919f1259487",
+      "sha256": "733d142974f133748781939d12fe42697d4d8dbf10ee1c64173cdb33f3f6bb5d",
       "status": "reference-only",
       "styles": [
         {
@@ -114,13 +130,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"同一产品多种气质/多主题展示\"段落（modern/playful/expressive 式形容词连打）；全片节奏最密的一段；音乐段对拍"
     },
     {
-      "behavior_fingerprint": "8e94be3172a8239543082221c5d7f6bc0a7d2616168aae2d58b12c56bcf1b38d",
+      "applicability": null,
+      "behavior_fingerprint": "6098642f8fb985771b6abe259837729456b9f39f79084a1a0c42bdced1a66847",
       "category": "data",
       "energy": "中（快甩是打击点，慢扫是阅读期）",
       "id": "before-after-slider-scrub",
@@ -131,7 +151,7 @@
         "data",
         "interaction"
       ],
-      "sha256": "cd6673d26e9fa0d57034284a04f40fe627b27aa011906dc2b186f1b7bcf21d54",
+      "sha256": "1e3dfa69f988714d21e0125fb6fee777b9caca5069bd80e24fed97c31fe1e181",
       "status": "reference-only",
       "styles": [
         {
@@ -141,13 +161,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "AI 增强/优化/重构类功能的效果对比段落（\"用前 vs 用后\"一镜讲清）"
     },
     {
-      "behavior_fingerprint": "ff0c070f2a604fe6d2151105a7548036a1e3677c23500827173d20dbc9ccd6fe",
+      "applicability": null,
+      "behavior_fingerprint": "33d76299b26a0a5a1647a34a6f7fefaeaba7bf721c6f80bb1fa66faf8573c503",
       "category": "transition",
       "energy": "中",
       "id": "bottom-push-stack-wipe",
@@ -157,7 +181,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "9d5aa20e5123665fe8913657dfb2a5d8b6e1d477cff21cf637118d70b53324fc",
+      "sha256": "591b5ba38336f9fd96f629c00e954c37e1a6e39ea1fef9e87246c7b7589522c8",
       "status": "reference-only",
       "styles": [
         {
@@ -167,13 +191,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "多章节产品片的换章骨架（每章一个卖点一种底色）；需要\"翻页节奏感\"贯穿全片的段落切换"
     },
     {
-      "behavior_fingerprint": "f3d1582e43ed1c43af45c66d5007f02a67a46cb696bf3a9076923d01c7394a88",
+      "applicability": null,
+      "behavior_fingerprint": "0bd0b59513c01ea3b387033a39eb11cad3fb38222927c3efed1f5b0ffe3bb62c",
       "category": "effects",
       "energy": "中（翻色瞬间高，其余时间是安静的包装层）",
       "id": "brand-frame-snap",
@@ -184,7 +212,7 @@
         "effects",
         "transition"
       ],
-      "sha256": "df2d29e9e8c8ea68387415414d792448a871e508bd54a0d615e83fb23aa53ef5",
+      "sha256": "912ad196fc8c496a6235ccb59aa509d5764600370a6852d882323abab8dee79a",
       "status": "reference-only",
       "styles": [
         {
@@ -194,13 +222,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "双模式/双章节产品片的全片包装层（蓝=模式A、绿=模式B 颜色编码）；真实录屏素材的品牌化包裹"
     },
     {
-      "behavior_fingerprint": "a029aec1132adebea989c5357a965613fe8dc06a19248191da1d73ec6b37c212",
+      "applicability": null,
+      "behavior_fingerprint": "d2624c3c8f70829099612b142221cde1e6dff5290014d32ff65d3776b8d58290",
       "category": "opening",
       "energy": "低（起步位，为后续镜头留爬升空间）",
       "id": "brand-ink-open",
@@ -211,7 +243,7 @@
         "opening",
         "typography"
       ],
-      "sha256": "f446c94192fee57bae2bdb0f4bdb87919526126672cfe74ab15e6b9a3f950cd0",
+      "sha256": "87efe416cf1c9466908211690b3483d7632f2113bd41535ac310dc676f9a9186",
       "status": "reference-only",
       "styles": [
         {
@@ -221,13 +253,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "品牌开场；任何\"先立名号再进产品\"的片头"
     },
     {
-      "behavior_fingerprint": "6719116cc4fcf2cc3766af12125323b6fc31c93688925b2693d378a4df84fdb0",
+      "applicability": null,
+      "behavior_fingerprint": "7072661d00baac7a21d170c740c7f2b939d351512e18377f0c31f7412677a6de",
       "category": "transition",
       "energy": "中高（持续群体涌动，无瞬时冲击）",
       "id": "bubble-swarm-takeover",
@@ -237,7 +273,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "e26f76ac37b5c11b4f6da449ba36e13fd6e01441f03b4d542961a93699bda56f",
+      "sha256": "99c4fe83ec2fc2457764336984138e8f97b7579a214fb7391e3b7dc8c06b1545",
       "status": "reference-only",
       "styles": [
         {
@@ -247,13 +283,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "章节级换景且品牌世界里有\"实体装饰物\"可当幕布（气泡/花瓣/图标皆可换皮）；转场即品牌露出的段落"
     },
     {
-      "behavior_fingerprint": "549ce8e4f4ff6544577a4e55e170c06ab07f0712c6b4629696b1d970a4868d39",
+      "applicability": null,
+      "behavior_fingerprint": "576ed19c7d63f73380cf89817e0ff843668e36298002e3f2f3d86fdaf066bd5b",
       "category": "interaction",
       "energy": "中",
       "id": "canvas-materialize-moves",
@@ -264,7 +304,7 @@
         "interaction",
         "ui-entrance"
       ],
-      "sha256": "5c95909487c437ad9c35a1ef228aa4c9d12c94299851ccc6fb544e673ae9bd58",
+      "sha256": "0070e63916ae73b42be882d69a139370ee84f5ee46e6cf429082f815f8317e53",
       "status": "reference-only",
       "styles": [
         {
@@ -274,7 +314,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "diagram-cascade",
@@ -283,13 +326,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "AI/协作工具\"生成结果落到画布上\"的叙事段落；A 式讲\"已有内容换了个存在形态\"，B 式讲\"从一句话长出一棵结构\""
     },
     {
-      "behavior_fingerprint": "fe7bedc7d6b74db30a689ba87ffb8c1712c0237dae7f4bbc3953ff6b79580ba3",
+      "applicability": null,
+      "behavior_fingerprint": "0a2aabe98d6a678cc2827d46851e099552b2d8b4076772decbc70810bcf5b9c0",
       "category": "transition",
       "energy": "中高",
       "id": "card-flip-reveal",
@@ -300,7 +347,7 @@
         "transition",
         "data"
       ],
-      "sha256": "1b231d099f5785defe89f665e749ebb6aec058ce8a1fea754608a9e1dafc48da",
+      "sha256": "1d2684167162a3fc9478187441b9abd27b74ceedc4de34746bb95557a8c15352",
       "status": "reference-only",
       "styles": [
         {
@@ -310,13 +357,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"功能→成果\"的成对叙事：一排功能卡逐张翻出各自的指标/结论；元素级转场卡"
     },
     {
-      "behavior_fingerprint": "d6541fae29faf717c815689dd739ef97d5f8d2bdbbdf0ac3acbf3c75ffd99182",
+      "applicability": null,
+      "behavior_fingerprint": "cdc46f77f710c10147f5820f42d30c182f22ded47f6ff48638c690c7bdd1f675",
       "category": "transition",
       "energy": "极高（全片能量顶点用）",
       "id": "card-flock-tumble",
@@ -326,7 +377,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "703407bf7aa857ce6ba05940432a124d5370639135bbf1dd4889ce3b54117297",
+      "sha256": "37acef3ca9342d3977d0b8366895306fec1898d461d07478310ec76305411b2d",
       "status": "reference-only",
       "styles": [
         {
@@ -336,13 +387,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "能量高潮段（功能页群→品牌口号的爆点转场）；霓虹暗场调性；\"多页面能力\"收束成一句话的段落"
     },
     {
-      "behavior_fingerprint": "af616cfecac253ad148eac221932e4867c7714ae161b526c1f03302ae98beb20",
+      "applicability": null,
+      "behavior_fingerprint": "dbcf847d29fb78aa12461535298de438403669d6d7b1441f8eeee7630ee4c72a",
       "category": "typography",
       "energy": "高",
       "id": "cel-flash-stomp",
@@ -353,7 +408,7 @@
         "typography",
         "rhythm"
       ],
-      "sha256": "dd9b95e78c40618099c117db12e6c4ac81939215f2493234ffc7c4da593b7740",
+      "sha256": "be111cec47f8495bb9135c923c0c2dd505624bc3e6217cedd8b30f5ff4890bef",
       "status": "reference-only",
       "styles": [
         {
@@ -363,13 +418,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "口号/三连词的高能段落（\"SHIP / FASTER / TODAY\"式）；文字节奏卡，与 type-rhythm-sync 互补（那是字属性动，这是字砸+底闪）"
     },
     {
-      "behavior_fingerprint": "af73a3a696c51effcce68c4a26ab395599b5c8c0dad2fb025fe042d7597807d8",
+      "applicability": null,
+      "behavior_fingerprint": "792299c4ee8aea3d9fff4eed2ba3654ba8e77df2906191fcf71f8f33cf4db268",
       "category": "data",
       "energy": "中高（数据即剧情）",
       "id": "chart-live-moves",
@@ -379,7 +438,7 @@
       "semantic_tags": [
         "data"
       ],
-      "sha256": "65531b22952ab7620806313f29027147f117d9aee38ce0b77e6928dadda3448f",
+      "sha256": "0d1e415c7628170b6746a183ab78a88aaeccb861650a15704d5733433424f9e7",
       "status": "reference-only",
       "styles": [
         {
@@ -389,7 +448,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "unit-dot-swarm-regroup",
@@ -398,7 +460,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "axis-rescale-shock",
@@ -407,13 +472,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "数据叙事段落；分别讲\"实时性\"、\"每个数字是一个人\"、\"增长装不下\""
     },
     {
-      "behavior_fingerprint": "68d2fd81072c02ff9f42bee46254061fc62977a6130d86b038fc82596c14ec3b",
+      "applicability": null,
+      "behavior_fingerprint": "49f99907f4096ac66322ff96a66e0c308b1c55ecd081bdb1d708b939b0eb6e64",
       "category": "transition",
       "energy": "中高",
       "id": "circle-match-iris",
@@ -423,7 +492,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "8fee43eb28386b7fb43f9783c5968132af4188229562c74482fda9620e131715",
+      "sha256": "7d309f6ddb28000e3b2a57283d835d950433aa62578f76c12be3f638fe4f91bc",
       "status": "reference-only",
       "styles": [
         {
@@ -433,13 +502,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "前景有圆形元素（头像/图标/圆钮）、后景有圆形主体（donut 图/圆环进度）的接缝；转场技法卡"
     },
     {
-      "behavior_fingerprint": "17d16d8da33e357394a41226f77135ce0d1f917806c7f36658cb1a749343006c",
+      "applicability": null,
+      "behavior_fingerprint": "4c64b680947bf9698b7bc26c76b139a7b5f03c27e20346b1a15b4008f1dd827b",
       "category": "ui-entrance",
       "energy": "中（陈列-收束型）",
       "id": "cloner-depth-echo",
@@ -449,7 +522,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "12ef1cf745083db0cf965078698a0ea8f99150df5ff5ca62d64f45b51c029642",
+      "sha256": "de1982cebfc1284a092b991c06969cb792bfe3cbb97e04ea331c879d5c9fc5eb",
       "status": "reference-only",
       "styles": [
         {
@@ -459,13 +532,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"多副本/多租户/规模感/批量处理\"卖点；一镜讲完\"一个=很多\""
     },
     {
-      "behavior_fingerprint": "22d2eef1ccc1330d2b8cab34c6f06918c994af1e47a7663c8b199989fc27bed8",
+      "applicability": null,
+      "behavior_fingerprint": "f540f8f7d73607c4f9fb27450b1761d74235b038ea6f6907217c0506d9914d4e",
       "category": "interaction",
       "energy": "A 中（叙事密度高）/ B 低中（氛围层，可垫任何时长）",
       "id": "collab-cursor-moves",
@@ -475,7 +552,7 @@
       "semantic_tags": [
         "interaction"
       ],
-      "sha256": "5a2a39e870a0def5ce019f18044c0fe899b497f7d0e75536d0cacbb4cd9931b3",
+      "sha256": "adc1eda17b3d9724520d876a8e7257b9cd0bec0b3a7f21967def147184e5913c",
       "status": "reference-only",
       "styles": [
         {
@@ -485,7 +562,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "cast-ensemble",
@@ -494,13 +574,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "协作/多人/交接主题的叙事段；A 撑起无 UI 的纯叙事拍，B 给画布场景铺\"团队在场\"体温"
     },
     {
-      "behavior_fingerprint": "4be2d0ee6ff88b425919791c9c3bba98092df1fd5a54718799ce80522b77d433",
+      "applicability": null,
+      "behavior_fingerprint": "3d0fbf123297b7af94fe6cfb384df6f9bbb417fc8046d97625deee54ba201e51",
       "category": "transition",
       "energy": "中高（能量来自\"跳变\"的顿挫而非速度）",
       "id": "color-block-step-wipe",
@@ -510,7 +594,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "96b0dda1e538cce1166fa1fdc6b3d4b3c04d6f9c88c47d7e2516fa02e674ea03",
+      "sha256": "c63c1a28a7abcbc8c78aa798acbd76671c0c471b5b25c4b2c01630cdb090c65c",
       "status": "reference-only",
       "styles": [
         {
@@ -520,13 +604,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "品牌色转场/章节交接；\"硬朗无缓动\"的像素游戏手感段落；接管后的纯色场当下一段的舞台"
     },
     {
-      "behavior_fingerprint": "d5159acbeebf36cbe183ce3b78def57ec9d61fcf3672ca8676ad8a7ce6a51d87",
+      "applicability": null,
+      "behavior_fingerprint": "902a83368529392319ba5c41c63ff56586ecfb0075462f47e9025bf26629409c",
       "category": "interaction",
       "energy": "中（仪式感型，弹落帧与收窄是两个小打击点）",
       "id": "command-palette-summon",
@@ -537,7 +625,7 @@
         "interaction",
         "ui-entrance"
       ],
-      "sha256": "fbbf90f7b1c5a8ff95c0d6ca8e04737eeac5d394c3cc7e327da36b31cbc9084b",
+      "sha256": "a68e5e15df0f04cce21ef9d9b9c4b6d7a03e52593ca28b2c594d7fb7f396d87c",
       "status": "reference-only",
       "styles": [
         {
@@ -547,13 +635,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "效率型产品的\"全产品在一个输入框里\"叙事；命令面板/搜索/快捷键功能的标志性登场"
     },
     {
-      "behavior_fingerprint": "8cbdd7a3f62ed2f52806a567410222b74fe5f7c4d1723c08f8406031ed9188eb",
+      "applicability": null,
+      "behavior_fingerprint": "a6377c0f1adc3e47b9236c62bc6acc94b78026f88be42b7f78a227367b1c878c",
       "category": "opening",
       "energy": "中高（持续单向运动，无冲击拍）",
       "id": "crane-rise-reveal",
@@ -565,7 +657,7 @@
         "camera",
         "data"
       ],
-      "sha256": "60a0971cda4dc44418e194085513c3bf9c9fae5403f23df8846cd62ad24a3c53",
+      "sha256": "8170a1b448797e41000c1e737be334ed6e8c26e6ef2d99da215413437b78e296",
       "status": "reference-only",
       "styles": [
         {
@@ -575,13 +667,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"从细节到全局\"的开场定场；与 drone-dive-landing（全局→单点俯冲）互为反向"
     },
     {
-      "behavior_fingerprint": "21a4b0047867fa0521e4dd22dae70ea9a020eb34cb4b75742cf300343555bc92",
+      "applicability": null,
+      "behavior_fingerprint": "491f0a7cdf447e88bf316c39f91025d61a5c70f33e5e137c9bbf78354c16fb2f",
       "category": "camera",
       "energy": "高（瞬时冲击，非持续高能）",
       "id": "crash-zoom-punch",
@@ -592,7 +688,7 @@
         "camera",
         "effects"
       ],
-      "sha256": "2232ad7515ec1c6c3eb1e002058c0a2dd96454fdc1d80c5f935c9f32380296dd",
+      "sha256": "12121f09fc32804338a992fc712f7c1d5c49b3c2f0434f6a298d2b5da6930c35",
       "status": "reference-only",
       "styles": [
         {
@@ -602,13 +698,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "功能段\"点名\"镜头——把观众视线一拍按到目标卡/模块上；强调级用撞停"
     },
     {
-      "behavior_fingerprint": "9ca0ff69aa1cc5b0a29deaf1857f7c38db6c8ef88bd0484b092c8f004b9eb58b",
+      "applicability": null,
+      "behavior_fingerprint": "3e265bdf10e79c83a7aff0cef761acbc0b398515bf502e5ff950a0e41b6591c9",
       "category": "opening",
       "energy": "低开缓升（起步位，为后续爬升留空间）",
       "id": "dataviz-landscape-open",
@@ -620,7 +720,7 @@
         "data",
         "camera"
       ],
-      "sha256": "cf29d443f10b065237942ab8e9750e87ffd5516563da5b6424751a8ceeb32569",
+      "sha256": "cb8f56b56a4589c3f3903274e77b443ce6de69bedb91c274b8dfe679f2003582",
       "status": "reference-only",
       "styles": [
         {
@@ -630,13 +730,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "品牌级抽象开场（\"数据宇宙\"隐喻），接亮场产品段或字标；与 glow-flyline-moves 分工：那卡是段落内卡片之间的连线叙事，本卡是开场专用的全画幅地景"
     },
     {
-      "behavior_fingerprint": "94b7ef9971638a54b111acaaf9d5b4f8e0e6570ac73e7b1cd34b47a150f4d516",
+      "applicability": null,
+      "behavior_fingerprint": "3d2f700600661b492470bc760186e833f8e4632e97be8c241a4a80c36c77d3cc",
       "category": "ui-entrance",
       "energy": "高（节奏爬升段主力，不放开场第一镜）",
       "id": "deck-deal-flyin",
@@ -646,7 +750,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "fe9b01fff354419e95f263f0e09b2850ad25450d825c1b6da7d27a3d304373dc",
+      "sha256": "d1c500c7be37b9c96c19b727e93d870c82ff9ac4389a479e47f0c2937cefb754",
       "status": "reference-only",
       "styles": [
         {
@@ -656,13 +760,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "展示\"内容量大/源源不断汇入\"的列表页与卡片墙；建立信息密度的第一印象"
     },
     {
-      "behavior_fingerprint": "2773781be25ff04c181f78ff8f0a432f8f063537e99e83d6ccbf40eef42a2715",
+      "applicability": null,
+      "behavior_fingerprint": "837fefcb87c08cb8a6812315f97a113162092559829f226d7d893a21e2d9e101",
       "category": "camera",
       "energy": "视差=中（质感型）；dolly-zoom=中高（压迫感渐强）",
       "id": "depth-layer-moves",
@@ -672,7 +780,7 @@
       "semantic_tags": [
         "camera"
       ],
-      "sha256": "6a76859c09d14bb0fda3e9d45e0b42f65c104dc82109e7ee316ea127defba7cf",
+      "sha256": "ee38191d3e29004f87099074b6dd0345b2d92f851b28e40f2a876fae03b7bf0a",
       "status": "reference-only",
       "styles": [
         {
@@ -682,7 +790,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "dolly-zoom",
@@ -691,13 +802,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "平面截图要\"有厚度\"的段落；戏剧性蓄力时刻用 dolly-zoom（一支片 ≤1 次）"
     },
     {
-      "behavior_fingerprint": "eeadd3de398548da87a9c86ec6bcc9cb99f9a351d46143c64b4c0f43b60e1383",
+      "applicability": null,
+      "behavior_fingerprint": "6f16fa847e546446de01fbc642ae62161841d9338d06fe1dd8d6d270ad7966d4",
       "category": "typography",
       "energy": "低中（信息密度最高，节奏放稳让观众读字）",
       "id": "document-typewriter-reveal",
@@ -708,7 +823,7 @@
         "typography",
         "ui-entrance"
       ],
-      "sha256": "3cdb1d2bb952642b42a15ecf4d188f949f1e85d1d3346fba6e0e65478cb22458",
+      "sha256": "31bad20a8135c812fb3f649fa472157bd2f118a6e8391eef4620ad2711ba1a15",
       "status": "reference-only",
       "styles": [
         {
@@ -718,13 +833,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "文档/报告/笔记类功能镜头；信息密度最高的一拍"
     },
     {
-      "behavior_fingerprint": "ba97572132f47d2f2b67278d439d8404167c01d50894d8504b6f0afec2aeabf5",
+      "applicability": null,
+      "behavior_fingerprint": "88a5cbba00d9de31bec36f0ed4c675af87fa5be98473a04a5e4e28d7b04274e7",
       "category": "ui-entrance",
       "energy": "中",
       "id": "draw-svg-trace",
@@ -735,7 +854,7 @@
         "ui-entrance",
         "typography"
       ],
-      "sha256": "8b157b7964c6eb440b510d48a22aa65ff9cef38bba15e1ae419ca46142b56f0b",
+      "sha256": "171bba83566d84f9f4b803a42641f1556167cd063ae3bb1024c4adfb5bdf368f",
       "status": "reference-only",
       "styles": [
         {
@@ -745,13 +864,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "单个卡片/图表/标题的被点名入场；元素级手法（整页级蓝图描线归 wall-reveal-moves C 式）"
     },
     {
-      "behavior_fingerprint": "c4860135b3696b4f75e919e4222415d9e5ad9010ae96c781c05081191fa3425b",
+      "applicability": null,
+      "behavior_fingerprint": "523cd6c08087763a2cc8cc9a837727ba55b356a64e738d2f19cc4508ae1d2a14",
       "category": "outro",
       "energy": "低→瞬时中→低",
       "id": "edit-hook-moves",
@@ -761,7 +884,7 @@
       "semantic_tags": [
         "outro"
       ],
-      "sha256": "ee1b01c50c5e6060b9037ca5f514c00806ee21e74e7401c680ce507d26a16bf3",
+      "sha256": "e67cf5d582708c4c415e6d597ff9f5aaec177f25daac349fd293ac163d971ab8",
       "status": "reference-only",
       "styles": [
         {
@@ -771,13 +894,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "片尾收束（全片 ≤1 次）"
     },
     {
-      "behavior_fingerprint": "72c2eb3063a3d79e177250a6e265cce143faf303e84232f1f67f497e97d439b1",
+      "applicability": null,
+      "behavior_fingerprint": "0459e9023b8802e78852fc89f937c1a99810217cdf5cafa9757fc036420d22f5",
       "category": "ui-entrance",
       "energy": "A 中高 / B 低中",
       "id": "element-body-moves",
@@ -787,7 +914,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "133abe607f937b7b012f4369029cb6e23d3ea84d26cec76146b7c5845c0ab2ee",
+      "sha256": "12f31c1d4c3eb86c6935661077837e0a81bfa8f58ba35edf50e096634c8e0e16",
       "status": "reference-only",
       "styles": [
         {
@@ -797,7 +924,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "contact-shadow-lift",
@@ -806,13 +936,963 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "给\"位置在变\"之外补\"身体在变\"：高速飞入给速度肉身（A）、卡片点名给悬浮证据（B）；A 配横冲入场，B 配 2.5D 运镜与逐张点名"
     },
     {
-      "behavior_fingerprint": "61108c22fc1576c5ba1fc0c9607e8443ef9a71c1f65ee6a190823a5a074a01fc",
+      "applicability": {
+        "default_style_id": "semantic-causal-loop",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "causal-loop"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "fdb990b79337e8d17ea31a75968d63bdaa869211dec06fda83e6727b8fb5ff84",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-causal-loop",
+      "name": "因果链与反馈循环",
+      "path": "recipes/explain-causal-loop.json",
+      "purpose": "让原因、行动、结果和返回起点的反馈方向直接可见。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "causal-loop",
+        "editable-media"
+      ],
+      "sha256": "fa8a7bb075bccf4b1ce4038629aed20ee920e7353c2126386831ea263c682877",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-causal-loop",
+          "implementation_kind": "editable-media-package",
+          "label": "因果链与反馈循环",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "causal-loop",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "复杂问题拆解、增长循环、恶性循环、机制解释和因果推理。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-comparison-matrix",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "comparison-matrix"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "0b00f774cd06b235209af78ab0bdfad335a540f1eb62fc5f2ce6c0ec2e7a6836",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-comparison-matrix",
+      "name": "对比与决策矩阵",
+      "path": "recipes/explain-comparison-matrix.json",
+      "purpose": "让多个候选在同一组标准下同时比较，并突出最终选择。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "comparison-matrix",
+        "editable-media"
+      ],
+      "sha256": "6081be4a5f5a8586ff594f75cb104742867da4c745ce9823c8639fb589b2f51c",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-comparison-matrix",
+          "implementation_kind": "editable-media-package",
+          "label": "对比与决策矩阵",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "comparison-matrix",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "方案比较、选型、优先级、四象限判断和取舍说明。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-decompose-assemble",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "decompose-assemble"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "8d4ed982cae5f6f2e4304da18c11c0cd7fdf2181a9ddd88ac27db7e1bbb70983",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-decompose-assemble",
+      "name": "概念拆解与组装",
+      "path": "recipes/explain-decompose-assemble.json",
+      "purpose": "把抽象整体拆成可理解部分，再让各部分重新连接成可操作系统。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "decompose-assemble",
+        "editable-media"
+      ],
+      "sha256": "87f796339daf03800b2657ecbdd7c8618a8ce6aa067a9b16a65d018718a846fa",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-decompose-assemble",
+          "implementation_kind": "editable-media-package",
+          "label": "概念拆解与组装",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "decompose-assemble",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "概念解释、能力组成、产品模块、方法拆解和系统组装。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-evidence-before-after",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "evidence-before-after"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "ac2b53948230617aa52a9158b6da62319419f3a6cc8a28cf681e69e8756081f6",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-evidence-before-after",
+      "name": "案例证据与前后对比",
+      "path": "recipes/explain-evidence-before-after.json",
+      "purpose": "保留同一对象的前后状态，让真正发生的变化和结果证据同时可见。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "evidence-before-after",
+        "editable-media"
+      ],
+      "sha256": "e74b1fa694d531450a9ab11fbafa366eebb057e2b3cce1771eef25f0dd5ec7df",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-evidence-before-after",
+          "implementation_kind": "editable-media-package",
+          "label": "案例证据与前后对比",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "evidence-before-after",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "案例拆解、改版、优化结果、实验对照和效果证明。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-input-output-toolchain",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "input-output-toolchain"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "d1161fdcb6a6ab120fd876915e5c2dacfdd99dc9d345d2c893a42e543af92856",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-input-output-toolchain",
+      "name": "输入输出与工具链",
+      "path": "recipes/explain-input-output-toolchain.json",
+      "purpose": "把真实输入经过多个执行器形成输出的职责边界和传递关系展示出来。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "input-output-toolchain",
+        "editable-media"
+      ],
+      "sha256": "7e2d68064db1e4c4c63cc9e5503e4b496c19c65e13a43562731a3d0bb0c757b1",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-input-output-toolchain",
+          "implementation_kind": "editable-media-package",
+          "label": "输入输出与工具链",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "input-output-toolchain",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "AI 工具链、生产流水线、数据处理、内容生产和系统接口。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-layered-framework",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "layered-framework"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "8fd01be720e161f80562af675db57b517baa8b0c925d42ec74244964622cbea1",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-layered-framework",
+      "name": "框架与层级",
+      "path": "recipes/explain-layered-framework.json",
+      "purpose": "从基础到结果逐层建立依赖，让每一层为什么存在可以追溯。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "layered-framework",
+        "editable-media"
+      ],
+      "sha256": "51360dedca4db04886268e511afe2eb87f299eacfdc5978909ed0c5e09017662",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-layered-framework",
+          "implementation_kind": "editable-media-package",
+          "label": "框架与层级",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "layered-framework",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "能力模型、方法论框架、技术栈、组织层级和系统结构。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "full-frame-layout",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "layout"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "a13aa986d13926e05a8b707d703d6b2dab445e353cd10e33c4b8194c9cefe979",
+      "category": "explanatory-broll",
+      "energy": "低干扰，布局变化不抢夺内容。",
+      "id": "explain-layout-shell",
+      "name": "全屏、真人分屏与透明叠加布局",
+      "path": "recipes/explain-layout-shell.json",
+      "purpose": "让同一解释型画面按全屏、真人分屏或透明覆盖层进入视频，而不改变内容关系和时间真源。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "layout",
+        "presenter",
+        "overlay"
+      ],
+      "sha256": "4052e99d11d43fd815fa97168acee60d4b4667d6105911af2d3d6d7716ae30ff",
+      "status": "active",
+      "styles": [
+        {
+          "id": "full-frame-layout",
+          "implementation_kind": "editable-media-package",
+          "label": "全屏解释",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "layout-shell",
+          "status": "active",
+          "variant_profile_id": "explanatory-full",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            }
+          ]
+        },
+        {
+          "id": "presenter-split-layout",
+          "implementation_kind": "editable-media-package",
+          "label": "真人分屏",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "layout-shell",
+          "status": "active",
+          "variant_profile_id": "explanatory-split",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            }
+          ]
+        },
+        {
+          "id": "transparent-overlay-layout",
+          "implementation_kind": "editable-media-package",
+          "label": "透明叠加",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "layout-shell",
+          "status": "active",
+          "variant_profile_id": "explanatory-overlay",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "已经确定解释画面，但仍需根据人物、底片和字幕职责选择最终占屏方式。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-metric-dashboard",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "metric-dashboard"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "27627c2587036b17d89b4b8471abe7ff234d716ea005919842dfc0ccae84c91d",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-metric-dashboard",
+      "name": "排名、进度、KPI 与数据看板",
+      "path": "recipes/explain-metric-dashboard.json",
+      "purpose": "让数值生长、相对排名和关键指标共同形成一个可读结论。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "metric-dashboard",
+        "editable-media"
+      ],
+      "sha256": "49533cd30100833f1894af46ebcfb53bd0cfa8ddd0492d3feb19303645df70fe",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-metric-dashboard",
+          "implementation_kind": "editable-media-package",
+          "label": "排名、进度、KPI 与数据看板",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "metric-dashboard",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "排名、覆盖率、进度、KPI、数据证明和结果汇报。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-phase-timeline",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "phase-timeline"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "f693791c6d89836c795b3298ecfa307bbe4f9fb9ad9908e7d10b60f919e0e1ba",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-phase-timeline",
+      "name": "时间线与阶段演进",
+      "path": "recipes/explain-phase-timeline.json",
+      "purpose": "把过去、现在、未来或多个发展阶段沿同一时间轴推进并保持可比较。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "phase-timeline",
+        "editable-media"
+      ],
+      "sha256": "4eb7842323a282153bf3261274207ebe3a079c11a0335e7468d878c08270995d",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-phase-timeline",
+          "implementation_kind": "editable-media-package",
+          "label": "时间线与阶段演进",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "phase-timeline",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "阶段变化、历史演进、路线图、里程碑和趋势讲解。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-process",
+        "placement_modes": [
+          "full-frame",
+          "presenter-split",
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [
+          "process"
+        ],
+        "visual_source_kinds": [
+          "explanatory-broll"
+        ]
+      },
+      "behavior_fingerprint": "f9c7390d87bf60338c4d63f8794f2b1350b0ce56f0ca464cb4ce7374dfaf0c75",
+      "category": "explanatory-broll",
+      "energy": "中低到中等，关系变化优先于装饰性运动。",
+      "id": "explain-process-flow",
+      "name": "流程与 SOP",
+      "path": "recipes/explain-process-flow.json",
+      "purpose": "把有顺序的动作、当前执行点和最终输出放进同一条连续流程。",
+      "semantic_tags": [
+        "explanatory-broll",
+        "ordered-process",
+        "editable-media"
+      ],
+      "sha256": "f0745b63ca70438031e2c585c104da1e7e28f0d2011c5897f781eaafc3e38225",
+      "status": "active",
+      "styles": [
+        {
+          "id": "semantic-process",
+          "implementation_kind": "editable-media-package",
+          "label": "流程与 SOP",
+          "manifest_sha256": "75068017e60d7ced52b16cbea0a89c3ada5a9a2cea96bf61109c62926ab19813",
+          "package": "assets/explanatory-broll-templates",
+          "package_sha256": "1ba7730b5b4eef2e214c889e9dc0f389bb4846dceb3eeec9bea5f105a4f9c373",
+          "scene_id": "process-flow",
+          "status": "active",
+          "variant_profile_id": "explanatory-all",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-full"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-full"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-full"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "presenter-split",
+              "variant_id": "landscape-presenter-split"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "presenter-split",
+              "variant_id": "portrait-presenter-split"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "presenter-split",
+              "variant_id": "square-presenter-split"
+            },
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait-transparent-overlay"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square-transparent-overlay"
+            }
+          ]
+        }
+      ],
+      "use": "操作步骤、SOP、工作流、自动化链路和方法讲解。"
+    },
+    {
+      "applicability": {
+        "default_style_id": "semantic-focus-tour",
+        "placement_modes": [
+          "full-frame"
+        ],
+        "relationship_kinds": [],
+        "visual_source_kinds": [
+          "evidence"
+        ]
+      },
+      "behavior_fingerprint": "e9079a1c88e91fa5d66ff9f1e1a49f967795ebedad2dc24a6f49c1df0a704cac",
       "category": "product-promo",
       "energy": "中低到中等，依靠焦点转移推进，不依靠冲击转场。",
       "id": "feature-focus-tour",
@@ -826,7 +1906,7 @@
         "focus",
         "ui"
       ],
-      "sha256": "b7e68d2d91055a0c21afb0ce277ae05c4cf65983609601c74ffc1217db3ec66a",
+      "sha256": "5a4cfab2745c12c67c6377455d1dff65b6c4682a3b3da677de953cad7298ffbb",
       "status": "active",
       "styles": [
         {
@@ -836,13 +1916,33 @@
           "manifest_sha256": "e86f6f821114704eb780b2ce3eed106d26205503ce1b367dcd2737ecdb6ae914",
           "package": "assets/web-media-starter",
           "package_sha256": "d1f1f89dba792e35d184736f27b2dbf91bf498d797676701fafb94c7395d8aef",
-          "status": "active"
+          "scene_id": "opening",
+          "status": "active",
+          "variant_profile_id": "standard-full",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square"
+            }
+          ]
         }
       ],
       "use": "产品界面或功能面板已经具有清楚的空间关系，需要用克制运镜引导注意力而不牺牲持续可读文字。"
     },
     {
-      "behavior_fingerprint": "5c98d126f1ce1d483cac046bd7539ad10c082d1d60e7d281ffb16eb44e507fe7",
+      "applicability": null,
+      "behavior_fingerprint": "fd57fd5065d86434dde61ead519244d4064b3b326cebfdde8c071683609c5846",
       "category": "effects",
       "energy": "A 中 / B 中高（咬合帧是打击点）",
       "id": "fui-hud-moves",
@@ -853,7 +1953,7 @@
         "effects",
         "ui-entrance"
       ],
-      "sha256": "be2609a55a9f955f2b927e797034a3f46ec8f24d0b0dc323f1ba7978e922175a",
+      "sha256": "51fce51a01774b4b346258bfc7c01cd08a384aa115dbae8a4d3f501ab32e63a7",
       "status": "reference-only",
       "styles": [
         {
@@ -863,7 +1963,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "reticle-lock-on",
@@ -872,13 +1975,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "暗场/科技感段落的面板入退场用 A；任何\"看这里\"的目标点名用 B（替代箭头圈红，画面不冻结）"
     },
     {
-      "behavior_fingerprint": "93ff61086f4c5b606f973b591e36dc0e899e1d57f75978bdf7d69cf2cffd9e16",
+      "applicability": null,
+      "behavior_fingerprint": "a72d4a81ee36aa7c0cb9bfed3d7e5180681d9a3be42dfb86bc744100ca8de08b",
       "category": "data",
       "energy": "中高（机械仪式型）",
       "id": "gauge-readout-moves",
@@ -888,7 +1995,7 @@
       "semantic_tags": [
         "data"
       ],
-      "sha256": "951773bb782de85a71f01f2cdf95d773a5677e08891f124761ee143582cf4376",
+      "sha256": "483cd7a9e0c2e8e49042dfdaaa5a6010b5be212d61902992936960550fc4982a",
       "status": "reference-only",
       "styles": [
         {
@@ -898,7 +2005,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "tape-scroll-fixed-pointer",
@@ -907,13 +2017,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "dashboard 开场仪式/性能指标揭晓；A 多表盘开机感，B 单指标大跳变"
     },
     {
-      "behavior_fingerprint": "01e0854734a69c81044af3607004a35d50009970d5e4cf9d6ee1265fa4f4ca2f",
+      "applicability": null,
+      "behavior_fingerprint": "2dcc24d1633b2cc6186c562eb8ae62c796cfa4aa0b15de974b5627c6ae39c55b",
       "category": "effects",
       "energy": "A 低（底噪级）/ B 中 / C 中高",
       "id": "glow-flyline-moves",
@@ -924,7 +2038,7 @@
         "effects",
         "data"
       ],
-      "sha256": "4ae4d07019df89b0beb09eaad9e691d0a1ba9dd918be9ca674d8a487295d6872",
+      "sha256": "b07b86ab83299c1b18d018f0d6b651535ab5c767d6e40b60d2a5dfe6c047e511",
       "status": "reference-only",
       "styles": [
         {
@@ -934,7 +2048,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "flyline-arc",
@@ -943,7 +2060,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "orb-flyline-relay",
@@ -952,13 +2072,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "全片唯一暗场段落的氛围与数据叙事：铺底噪用 A、讲数据流向用 B、要背景给前景搭腔用 C；Linear 官网味"
     },
     {
-      "behavior_fingerprint": "917205ccd60395df5b078ae7eb9b7532a72fb45edcfebb443303890662fd4612",
+      "applicability": null,
+      "behavior_fingerprint": "6205c36b67c6fa32e188bae5be86367a9e70b32c37f0c1f6f753de9ba8b9043a",
       "category": "typography",
       "energy": "高（一词爆点，前后都该让位）",
       "id": "gradient-word-sweep",
@@ -969,7 +2093,7 @@
         "typography",
         "effects"
       ],
-      "sha256": "784c2a1b10b7ada34c18ce3c56473f60ce33386dacd274f7e790d05b509dc1b2",
+      "sha256": "f4d88686a468e4d7b84fece6053cbf6f495daec7981ebb3f2bd88106fad0ce17",
       "status": "reference-only",
       "styles": [
         {
@@ -979,13 +2103,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "标语里给单个动词/卖点词充能（Supercharged/faster/AI…）；能量高潮段的文字戏；黑场品牌片的口号帧"
     },
     {
-      "behavior_fingerprint": "dc4d912c2de380e0e45704d755b142fcdcc74fb50c4acd26b6fe8eb60d730cd1",
+      "applicability": null,
+      "behavior_fingerprint": "b8ff4b8adec3b8421e6a61ebcdb599cda707e84495e4827c59c62d2c0e28c051",
       "category": "camera",
       "energy": "中高（运镜持续推进+元素连续落位，信息密度高）",
       "id": "graze-face-tour",
@@ -996,7 +2124,7 @@
         "camera",
         "ui-entrance"
       ],
-      "sha256": "1efc1b0cf49439d0059c6e36a4b3ccd032bf981c9997a18bcd10c5743b7a74ce",
+      "sha256": "c6b8479f989cc42208b6ae4631cd1d3f662a3967f4518787966fed00e3beee9a",
       "status": "reference-only",
       "styles": [
         {
@@ -1006,13 +2134,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "功能区巡礼（把 UI 当地景飞掠）；配合暗场+霓虹缘光做产品\"内部世界\"段落；界面内容逐区登场"
     },
     {
-      "behavior_fingerprint": "9de1f3ae40a26f76b8bd45325eb00c2199874232b059dd4905a1336bdfced2f8",
+      "applicability": null,
+      "behavior_fingerprint": "d4217bb2e4c3513590adaa3451b0f7df921134406ba7965406d612a83b49ca72",
       "category": "interaction",
       "energy": "中（干脆利落，靠硬切给劲，不靠弹跳）",
       "id": "hashtag-to-pill-materialize",
@@ -1023,7 +2155,7 @@
         "interaction",
         "typography"
       ],
-      "sha256": "643b5dca77e7e57f1aa162efdebf12c5365c75061492f3b5b1db3a153891a7b6",
+      "sha256": "5d35335a8329a84a662b6df024aaa887582951c2fd7b21bfb6a536ccb4231e38",
       "status": "reference-only",
       "styles": [
         {
@@ -1033,13 +2165,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "标签/分类/关键词功能的演示段（笔记 app 打 tag、话题聚合）；\"输入 → 变成 UI 实体 → 归位到成品\"的三段式叙事"
     },
     {
-      "behavior_fingerprint": "1d35a9c206c7f714a16cc38776c6ae1b9694da7f7fc01f3c7a65527f36587dd1",
+      "applicability": null,
+      "behavior_fingerprint": "01b8a5e839c9dd45c41c5c89de28555a5a2127b187d42782aef50ee6f6929283",
       "category": "opening",
       "energy": "中（浮现是铺垫，翻色瞬间是唯一爆点）",
       "id": "icon-field-colorize",
@@ -1051,7 +2187,7 @@
         "ui-entrance",
         "outro"
       ],
-      "sha256": "46c7b4184929c5d64e4e90437ca4cef83f12a5a0724c4d6307183242cf9c117f",
+      "sha256": "cd51e0af3bd2dc56acbbc058caadc1f8a95e59337acdc060266cf0185f7c93b6",
       "status": "reference-only",
       "styles": [
         {
@@ -1061,13 +2197,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "开场铺陈产品能力面（图标=功能宇宙）再一举打上品牌色；功能集合页、生态/集成规模展示、片头 logo 前垫场"
     },
     {
-      "behavior_fingerprint": "e5f7a668ca228a767824ce7fe1849b747cfb7abb61a9588f380a9e377f277504",
+      "applicability": null,
+      "behavior_fingerprint": "82f682839cd1197f4949230c4176eb84eeb8893fb021ea0d2326e77ba9bce5a5",
       "category": "effects",
       "energy": "A 高潮点缀 / B 蓄势引入",
       "id": "icon-performance-moves",
@@ -1078,7 +2218,7 @@
         "effects",
         "interaction"
       ],
-      "sha256": "6f1479482d3710e766bfd5634f1e21024106cbcb0860fb56494d6956e77681aa",
+      "sha256": "4627a1d5441954dccb597f77338e60f42fd9c7e2ca0489781269aabae6ec3208",
       "status": "reference-only",
       "styles": [
         {
@@ -1088,7 +2228,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "attention-bounce",
@@ -1097,13 +2240,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "半屏级 icon 特写段落；A \"完成/成功\"的标点符号，B 新功能引出"
     },
     {
-      "behavior_fingerprint": "c074fb69adf581cdde9428501586db6f0fcc7aa3d68380547c6e9aa9d9639fbc",
+      "applicability": null,
+      "behavior_fingerprint": "640c338f604f2c51cfe1f1fdfdb56348a8337cbb4e43c0057f0b3f6c31c064d5",
       "category": "effects",
       "energy": "高（瞬时冲击）",
       "id": "impact-feedback",
@@ -1113,7 +2260,7 @@
       "semantic_tags": [
         "effects"
       ],
-      "sha256": "9161d7653d84cba29fcae0cbe4beef0fca6da0f3e98e30ede3305929bf4322a8",
+      "sha256": "bbaa3d4d9689a34cf99e22ee9c0adfe17ad4cb09dbf18a61fcc93ce2aa7e7cb9",
       "status": "reference-only",
       "styles": [
         {
@@ -1123,7 +2270,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "anime-impact",
@@ -1132,13 +2282,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "元素落位/撞击的\"命中一瞬\"——给砸入、撞停加游戏级手感；按强度阶梯选式"
     },
     {
-      "behavior_fingerprint": "605e0cdc231acd1add9e22ad6d881dfdc2fcbdbe21f13e670616324a704081bc",
+      "applicability": null,
+      "behavior_fingerprint": "c5b3fff81a2a8131ed84219fbbd849dd4cf57c93d791c83f4234e88b754e42e5",
       "category": "interaction",
       "energy": "A 中 / C 高",
       "id": "input-trigger-moves",
@@ -1149,7 +2303,7 @@
         "interaction",
         "opening"
       ],
-      "sha256": "427d1186c722c803e3583b330a3ce1543ba572957f4c121557a0125813a0d95b",
+      "sha256": "f17cec498f0cf10779c99290167d0a1ed3c93e55b218f46eb9bbf8413dc9cd4a",
       "status": "reference-only",
       "styles": [
         {
@@ -1159,7 +2313,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "keycap-smash-cut",
@@ -1168,13 +2325,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "发布片的第一人称段落：演示核心交互、开场即高潮；观众\"在用\"而不是\"在看\"产品"
     },
     {
-      "behavior_fingerprint": "c59b1b2af357209212f5a138435723fb442eb084c4b914688ed366696609058b",
+      "applicability": null,
+      "behavior_fingerprint": "16d9a7b053853ab63a936af5280ffadcdcbef90236dd88261f802691f1aa9257",
       "category": "ui-entrance",
       "energy": "中高（翻面是爆点，输送段是余韵）",
       "id": "integration-hub-map",
@@ -1185,7 +2346,7 @@
         "ui-entrance",
         "effects"
       ],
-      "sha256": "a718e518c33c34b8cbfc84785101d572d9b02c7e912f695fcf33ed75cadc2d73",
+      "sha256": "700e60dec50e60508d0b367f7bcb028712efdd62f7ce4914a54da5190ed9da14",
       "status": "reference-only",
       "styles": [
         {
@@ -1195,13 +2356,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "集成/生态能力段（一个产品连一切）；版本翻新叙事（旧页翻成新页）；暗场霓虹调性的功能高潮"
     },
     {
-      "behavior_fingerprint": "e02495b025da9243250f49151b7ec02c1e377f5221a71fc7b10062871726fa70",
+      "applicability": null,
+      "behavior_fingerprint": "df8e2506746c3eb2e71672bd23b1641532ade70091e4703bc2f62d9b3e74e90a",
       "category": "opening",
       "energy": "低（静谧仪式感，一次呼吸完成）",
       "id": "letterspace-materialize",
@@ -1213,7 +2378,7 @@
         "typography",
         "outro"
       ],
-      "sha256": "36ebef85aba44d0e8f60f10831f8f43ec9afe6fb55369a0e8fd067e5fc972d12",
+      "sha256": "8223c436041dd14186071bd4533900ca5e326e9509c5971dc8cf2fc9f4320657",
       "status": "reference-only",
       "styles": [
         {
@@ -1223,13 +2388,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "片尾/片头品牌字标登场（SUPERHUMAN 式大字距全大写）；章节题字；needs 静谧/高级感的收束帧"
     },
     {
-      "behavior_fingerprint": "7f82dc196b99bb5d6bbdb41e7767064b5d7f7e40e008e83d11406b8408d7adf7",
+      "applicability": null,
+      "behavior_fingerprint": "1badd5bb033ebfb7964d9b9cbe60fd8318fa7701a146ef19d4a7d3dfebb277f9",
       "category": "effects",
       "energy": "A 中 / B 低 / D 高",
       "id": "light-play-moves",
@@ -1240,7 +2409,7 @@
         "effects",
         "typography"
       ],
-      "sha256": "4f1cf137c876c283445b30417715dac9cefe5be75b3c57ad45356200df7ff155",
+      "sha256": "c31b80d0aafa69b1d6c17b30f923308672d76f2fc8923b3f5c4e2c95f9c9718c",
       "status": "reference-only",
       "styles": [
         {
@@ -1250,7 +2419,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "sheen-sweep",
@@ -1259,7 +2431,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "halation-bloom",
@@ -1268,13 +2443,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "把光当第四种笔触（扫/擦/晕）：暗场标题揭示（A）、主角卡加冕（B）、撞停帧冲击（D）"
     },
     {
-      "behavior_fingerprint": "2b90d2e64dea7b4f82857a12a3f3d7c7f2eb0a085492d073cc3ab88678a6f32c",
+      "applicability": null,
+      "behavior_fingerprint": "84fbd16d2b1a7fdf2d701deecc222431b5dff8a6174281923d03f4507c3bd5ab",
       "category": "effects",
       "energy": "低（底噪级）",
       "id": "line-boil",
@@ -1285,7 +2464,7 @@
         "effects",
         "typography"
       ],
-      "sha256": "4e26f0cf349a80d16d2b44df91780a37e6bae46527ab125a6b7aa8200327573f",
+      "sha256": "e59adff28f1edc6bba2277f4e6d7b8d904cad0153c3deaf55f93de2f86d2b073",
       "status": "reference-only",
       "styles": [
         {
@@ -1295,13 +2474,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "标题字卡/描边元素的长 hold 段（黑场字卡升级首选）；质感层手法，寄生在别的镜头上"
     },
     {
-      "behavior_fingerprint": "d611157c1f4a0b1267fc21efcf1d80c8333b3210634b8c560abe4e4e4f319458",
+      "applicability": null,
+      "behavior_fingerprint": "8b807c06184d88459e8d888635502d555993e5a8d2e1a61f6c6f9faf1e7e3af9",
       "category": "transition",
       "energy": "中",
       "id": "line-carry-transition",
@@ -1312,7 +2495,7 @@
         "transition",
         "camera"
       ],
-      "sha256": "31376440d1ed2f7f9c2e436a3a7fd7402ef5ade71759ccc62ac3a5fb4328cba3",
+      "sha256": "c25051a66856ad8107fa81efff3c81798f0b5a4dbf57e1f43c0831aa7bdd64da",
       "status": "reference-only",
       "styles": [
         {
@@ -1322,13 +2505,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "两个有图形亲缘的场景之间（进度条→卡框、下划线→图表轴）；一支片子的招牌转场位，Catch Me If You Can 片头的图形接力"
     },
     {
-      "behavior_fingerprint": "59f496e491c993d5b011393c77427b00056c75d0202a6e12e1d3984fe1c46484",
+      "applicability": null,
+      "behavior_fingerprint": "3af6a78057a150360c5b9deca68dceca72ed11db1418170631b833070db9f863",
       "category": "ui-entrance",
       "energy": "中",
       "id": "list-stack-press",
@@ -1338,7 +2525,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "d0aa88f9a110c3df17fb81eb89baac654e85763f68d5982f8e151302e273da8f",
+      "sha256": "1fe9cc93d7857c565eb83ec7e626e5cde46310fb236bd1d7c48e1ed217f84c23",
       "status": "reference-only",
       "styles": [
         {
@@ -1348,13 +2535,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "feed/雷达/收件箱类\"每天有新东西\"的镜头；强调持续积累的资产列表"
     },
     {
-      "behavior_fingerprint": "9dc5f2b9f73dc9cf321f7b49294c1fa0ab456c75c026969a48675ce82af66e37",
+      "applicability": null,
+      "behavior_fingerprint": "255cb372f25ab9db6ced32db8cc373f747dc09693b592216cc06c157c8649240",
       "category": "opening",
       "energy": "高（一次性爆点，定格后即静）",
       "id": "magician-card-flourish",
@@ -1366,7 +2557,7 @@
         "ui-entrance",
         "effects"
       ],
-      "sha256": "27c112d0a1793067fef4e78af227e4fa5844b9e94e5fa85400ee9c415aae86e0",
+      "sha256": "b41598b29088601f5f5f45d32dbba5573099653a771cd5b059a86aca9056fe2c",
       "status": "reference-only",
       "styles": [
         {
@@ -1376,13 +2567,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "单张卡片/海报/封面的魔术性登场（片头主视觉、产品卡揭晓）；纯黑暗场；需要\"变出来\"仪式感的爆点"
     },
     {
-      "behavior_fingerprint": "c4610b46ef80c2768be1887f211c5cc5aca1da674fde82ddceb74e244d40dd2b",
+      "applicability": null,
+      "behavior_fingerprint": "7100d0b05dc0c8c18ac61338ca938825824453cd1af2b92325f6e7d69c762b92",
       "category": "typography",
       "energy": "低（一笔点睛，不抢标题的戏）",
       "id": "marker-underline-title",
@@ -1392,7 +2587,7 @@
       "semantic_tags": [
         "typography"
       ],
-      "sha256": "bd962686dfb064f26ae20827f448e3073e88d01c16c5babf8f1a3cba3cec930a",
+      "sha256": "fbd59e3e0d468bb3be25fb5ee94189d9380bbec43b672dcb3af1ae381570fd88",
       "status": "reference-only",
       "styles": [
         {
@@ -1402,13 +2597,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "标题里强调单个关键词（new/free/AI…）；手写感/人味的品牌调性；正文标注式强调"
     },
     {
-      "behavior_fingerprint": "00d59e8b79c79318ebca634ff09e4d975b3ff133a5e3fbb0021a2fceced9bc0c",
+      "applicability": null,
+      "behavior_fingerprint": "1decfd701d1c0a43c25567d0ae4f84cc36a1d806f7971269c8ae957d59b920f1",
       "category": "rhythm",
       "energy": "高",
       "id": "montage-rhythm-moves",
@@ -1418,7 +2617,7 @@
       "semantic_tags": [
         "rhythm"
       ],
-      "sha256": "11a5623769e93537e114ed395bf356768f47a0c61a57ec82887e71d8c0ad3807",
+      "sha256": "013d3ccc5fd1ac637070cd147932d3379fa632bcbafedff5e9e162594ab2c52c",
       "status": "reference-only",
       "styles": [
         {
@@ -1428,7 +2627,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "wright-triple-cut",
@@ -1437,7 +2639,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "domino-cascade",
@@ -1446,13 +2651,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "段落级节奏设计：蓄力爆发（A）、流程速写（B）、开场连锁（C）；与 beat-cut-moves（切点排布）互补——这三式管\"段落的呼吸形状\""
     },
     {
-      "behavior_fingerprint": "fbdc0dc1093134a5c76759cb1e2308dbd80cb5adcfbcb1ba8f2ccc8cfbd6c5c3",
+      "applicability": null,
+      "behavior_fingerprint": "fbba0f8895adde8a17bea7d681ba342382a0b045bd3cd46dcadcc53e90b9812e",
       "category": "ui-entrance",
       "energy": "中低",
       "id": "morph-from-primitive",
@@ -1463,7 +2672,7 @@
         "ui-entrance",
         "opening"
       ],
-      "sha256": "0a9f3e7adc197933de971d8e2f8db23abaf54076a5ca54702ecccd927bc4578b",
+      "sha256": "89a55a5d4084517462d111b7b4d8ba17fb9c0824b7dedf6f098ba055b9f35d74",
       "status": "reference-only",
       "styles": [
         {
@@ -1473,13 +2682,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "图形/图标/卡轮廓类主体的入场；logo→UI 容器的经典原语"
     },
     {
-      "behavior_fingerprint": "0df8bbefd712cc3848ee22911ce604618a3d0f0b4cd628d9c24623f89665fcdc",
+      "applicability": null,
+      "behavior_fingerprint": "556c675b4163c84e92c7d54dbbbd5cda1bfdcc2234b19a03883e8253a0edf8ba",
       "category": "ui-entrance",
       "energy": "中高（三层动作叠进，但都服务同一次登场）",
       "id": "neon-frame-forerun",
@@ -1490,7 +2703,7 @@
         "ui-entrance",
         "effects"
       ],
-      "sha256": "916acbd8548a0bb2286f6c8c167b7d5d1fba6a0b45d6da602c7095b5bb023ec5",
+      "sha256": "f64af98e9f100b84c4d33a4612572d3320381d2e3c3c3948b3af27d881cad008",
       "status": "reference-only",
       "styles": [
         {
@@ -1500,13 +2713,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "暗场品牌片里给 UI 面板做\"登场仪式\"（框先到、内容后落）；功能区首次亮相；霓虹/赛博调性的段落开场"
     },
     {
-      "behavior_fingerprint": "d97b0fc4b331b987b3033b123aafe58f972dac6f2b1f4df8cf7cd379add8e5fa",
+      "applicability": null,
+      "behavior_fingerprint": "264e2aae1bd246cb53d4b7724990a8f511d1c2960c5d52aa1042a1210d2b9890",
       "category": "ui-entrance",
       "energy": "中高（一次性的大动作，落定即静）",
       "id": "neon-frame-orbit-drop",
@@ -1518,7 +2735,7 @@
         "effects",
         "camera"
       ],
-      "sha256": "21168afb025f2cfbf026f1c74ab1c12e764d013f4e7178df66fb0f87699d76bf",
+      "sha256": "4f5c1759510f88dfece6e2bfb65c3e7a38a44c86b17ea820a3c0d86aae7651b9",
       "status": "reference-only",
       "styles": [
         {
@@ -1528,13 +2745,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "单页 UI 的一次性隆重登场（与巡礼/逐区亮相相对）；暗场霓虹调性段落的主视觉揭幕；neon-frame-forerun 的姊妹镜"
     },
     {
-      "behavior_fingerprint": "620401f19e33aba3f162cd80adeefb3d02345d4f472211a79b5d933e83be446b",
+      "applicability": null,
+      "behavior_fingerprint": "b3fd93937cd104d1a6284ed175e25893b27231cab08dfa3350e17d184fdf4f35",
       "category": "outro",
       "energy": "中高（持续流动 + 逐行脉冲，无瞬时冲击）",
       "id": "neon-triple-marquee",
@@ -1545,7 +2766,7 @@
         "outro",
         "typography"
       ],
-      "sha256": "658a595577c11830456e9614691254f4295adcaf141408250c47e302f7dbcc72",
+      "sha256": "4a92b3073054b132254bf1440e582706974aa2677cff7e81ee011bb1cd46a9f5",
       "status": "reference-only",
       "styles": [
         {
@@ -1555,13 +2776,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "片尾主题词复读机段落；三连词口号的\"余韵\"拍法（cel-flash-stomp 砸完之后的低一档收尾）；音乐段无旁白铺陈"
     },
     {
-      "behavior_fingerprint": "388fbc084af58ad65aeeb91ff248b293693bb1de166600638a374b768f380dc1",
+      "applicability": null,
+      "behavior_fingerprint": "ba3e26ab5b64b2fb255f05a6fbf17a6e9f3040d9b9c3e60fe4abce55842b867a",
       "category": "data",
       "energy": "中高",
       "id": "odometer-digit-roll",
@@ -1572,7 +2797,7 @@
         "data",
         "typography"
       ],
-      "sha256": "f65900e420057466a1ca00c468a056ffe6c1856e3919ff19daff643d73cd9763",
+      "sha256": "37d3392854f0171977475441ff5f96177b8fd069522a18e266315fd31eae4d37",
       "status": "reference-only",
       "styles": [
         {
@@ -1582,13 +2807,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "单个王牌指标的全屏亮相（\"10x\"/\"99.98%\"级）；与 impact-feedback B 式（伤害数字弹出）分工——那是元素级配菜，这是全屏级主菜"
     },
     {
-      "behavior_fingerprint": "27fde295d4ce3466c8f98a843a94800147011109cd49d327597d45d0f4b23aa2",
+      "applicability": null,
+      "behavior_fingerprint": "5bfceee4ecf02df8011f71187b9d211580c9f9b77f167c2ba63f6163ffa32cc3",
       "category": "outro",
       "energy": "峰值（全片最高点）",
       "id": "outro-group-photo-launch",
@@ -1598,7 +2827,7 @@
       "semantic_tags": [
         "outro"
       ],
-      "sha256": "956fd761125618c2608b499dc4bcfad0bf11840e1dddab58d8f65ef0f7af8e2c",
+      "sha256": "3f3ba53144ac4b6f1b5e78ec6147bf121aecc01c981e15f3efc93dce07faf7e7",
       "status": "reference-only",
       "styles": [
         {
@@ -1608,13 +2837,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "outro/品牌收尾；多功能产品的\"全家福\"式终镜"
     },
     {
-      "behavior_fingerprint": "ab4de0680915fb71d9440d9b8105dd6401fd80fb428fe9ca7844dfd716aac64a",
+      "applicability": null,
+      "behavior_fingerprint": "d29629d6625def5a6d602c825ba6363505f300c1c556114d8ed9f776ed99dd41",
       "category": "camera",
       "energy": "A 中 / B 中高",
       "id": "overhead-camera-moves",
@@ -1626,7 +2859,7 @@
         "opening",
         "transition"
       ],
-      "sha256": "d3330c4011a7c77717a78f3dd52063f45a155794a51a3ef8b90ce9691c3f1874",
+      "sha256": "54c3ec334fd2bfbb1252d5bf49af24d77cea493dffdde796535e440e0e975814",
       "status": "reference-only",
       "styles": [
         {
@@ -1636,7 +2869,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "overhead-tabletop-drop",
@@ -1645,13 +2881,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "用\"俯仰角\"讲故事的开场/转场：单页 establishing 用 A，多页巡视择一扎入用 B"
     },
     {
-      "behavior_fingerprint": "3ab60567e437f3d8decd1c00dfbae81b3fcae35ab5c11162c90f1816d5de42df",
+      "applicability": null,
+      "behavior_fingerprint": "4c41bec34dd3ce06ee427cb4f102771eb2500ea08a335d669a2b1dc564d5bfbb",
       "category": "transition",
       "energy": "中高",
       "id": "page-turn-transitions",
@@ -1661,7 +2901,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "a291afe41dc3332d5cc2118fe7cef2699deaa36400e3580b03e3a63ad7246bcd",
+      "sha256": "d42490e494bcf781fad40dcdd4e15038104f531663ca95fd11f381091628598a",
       "status": "reference-only",
       "styles": [
         {
@@ -1671,7 +2911,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "barn-door-split",
@@ -1680,13 +2923,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "章节级换页：两个并列大段落之间的\"翻篇\"仪式；与 shot-transitions 系（镜头交棒）分工——那是\"航拍机移过去\"，这是\"页面自己是实体\""
     },
     {
-      "behavior_fingerprint": "0f323a1ab161ac9b1f33e5d058467cca80dd6092c40fc46b5e8358b96b38d0b8",
+      "applicability": null,
+      "behavior_fingerprint": "f85be3964f24b9b921785780b345c4c95702b22ceb0c3be20c3adf9ce671991c",
       "category": "ui-entrance",
       "energy": "中（流动陈列型）",
       "id": "page-waterfall-wall",
@@ -1696,7 +2943,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "cc6d7db065b8c6a442a8d280a68e5cb7883d68407d01c97549314dd971c1edae",
+      "sha256": "e0de5f54d16b71fd5629b930969cebd8729dcfc410fb365a0fe29abb14e87a0e",
       "status": "reference-only",
       "styles": [
         {
@@ -1706,13 +2953,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"多页面/多功能/多模板\"体量感段落；montage 中段铺陈或 intro 后的产品广度镜头"
     },
     {
-      "behavior_fingerprint": "1bfdd9dbc2697ab8c01ec2d4b1aee70453bdf1130f26337d49dee0f49993773c",
+      "applicability": null,
+      "behavior_fingerprint": "339ef46775b29165ebdc464181b36bf7c5ac45970b931b3c644d3be1d855f0a4",
       "category": "rhythm",
       "energy": "A 高 / B 中 / C 中高",
       "id": "panel-grid-moves",
@@ -1723,7 +2974,7 @@
         "rhythm",
         "ui-entrance"
       ],
-      "sha256": "5f970346a67d8cb94cf3e58b262b2833f019e4e56f54a1b764be67901d9f8301",
+      "sha256": "6778550297f3c3bfbc078848f0941558a4a3f6c60b26ea220822dcdafc692f90",
       "status": "reference-only",
       "styles": [
         {
@@ -1733,7 +2984,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "flip-grid-reflow",
@@ -1742,7 +2996,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "comic-panel-split",
@@ -1751,13 +3008,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "把\"格子\"当节奏器：逐格踩拍亮相（A）、节拍点集体换位（B）、同主体多机位定格并列（C）；三式都吃拍点"
     },
     {
-      "behavior_fingerprint": "a920b75be053df9cdbb3b89ffa12b8a3233e490780987ef15cd70c3ab22738c3",
+      "applicability": null,
+      "behavior_fingerprint": "c2bdd698ad3fe0d16d467e210cf12cd098ee746181ca407aaa749c6f78318afa",
       "category": "ui-entrance",
       "energy": "A 中（两拍打击）/ B 中高（立墙有纵深冲击）",
       "id": "paper-craft-moves",
@@ -1767,7 +3028,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "66b53627e12d5742a43e3ec88711771c3ce9ff20b9194aca6408db54f4d2f61c",
+      "sha256": "b64f39fd08f315a1f0c144d7f31d0fd58b1abbe864ebed8f652dc5ee87d73a83",
       "status": "reference-only",
       "styles": [
         {
@@ -1777,7 +3038,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "popup-book-rise",
@@ -1786,13 +3050,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "纸墨主视觉片的实体材料语言：单卡定妆入场用 A、整版 dashboard 开场建立用 B；与纸墨+强调色的主视觉（模板片为纸/墨/琥珀）天然同源"
     },
     {
-      "behavior_fingerprint": "e6591308c562377f73f4b2a986d61413f922e9df34a199b9de9471edecf93297",
+      "applicability": null,
+      "behavior_fingerprint": "f07aadb8dd4061e76576ace15964603d45168f8363de7f93d5c8a29968b667e0",
       "category": "transition",
       "energy": "中",
       "id": "paper-plane-messenger",
@@ -1803,7 +3071,7 @@
         "transition",
         "camera"
       ],
-      "sha256": "1f46291fe794e08c465f6ae4f08d2347f535154029664312a4ea662d036c0f21",
+      "sha256": "05eebe3d1957538074e4e8a977455e38b8eb6fd6bf68fba068e6eace926c8ed0",
       "status": "reference-only",
       "styles": [
         {
@@ -1813,13 +3081,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"发送/邀请/分享\"动作连接两个人物/场景视角的叙事转场；抽象动作需要一个隐喻实体当转场载具时"
     },
     {
-      "behavior_fingerprint": "4e3fdf9ebce904e4a5c45ae2611dd02f40278591fa17186a733914e0665ec052",
+      "applicability": null,
+      "behavior_fingerprint": "de87c57b1f1f022f8bb6b1d6b16bd3207cd3b1a67ea872ab282de5471abf8f3f",
       "category": "typography",
       "energy": "低（呼吸位，隔开两段高能镜头）",
       "id": "paper-title-card",
@@ -1831,7 +3103,7 @@
         "transition",
         "rhythm"
       ],
-      "sha256": "063cfd78a48b43230002221bbd8650c96d87c7ce03eb33e983e0d95421a436fb",
+      "sha256": "4c526cbb0004dcc8c5dbba57c7f9be713a93384c8c485875517dd1bf60bba97a",
       "status": "reference-only",
       "styles": [
         {
@@ -1841,13 +3113,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "章节转场/价值主张字卡；重要功能出场前的引导卡；全片呼吸位"
     },
     {
-      "behavior_fingerprint": "235b4e104e83e55a8eb0bc46516df1b7652f6ddc3284874e7a4a5a22027580b2",
+      "applicability": null,
+      "behavior_fingerprint": "322fbd251fd7eb65e5ee85a6af1e91a29da51a816b3ad6ad3ec4d1ac735613a2",
       "category": "data",
       "energy": "高潮点缀型（爆发后必须落回纯净静止）",
       "id": "particle-celebrate-hits",
@@ -1858,7 +3134,7 @@
         "data",
         "effects"
       ],
-      "sha256": "55c968009fe38cafe7791ec8c854ca4798a487dd981d59719ca4e48d2cb665d6",
+      "sha256": "873f96467b18a192346723c008f4fd24ba696b44994fd8a573c94fa2308982dd",
       "status": "reference-only",
       "styles": [
         {
@@ -1868,7 +3144,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "counter-tick-sparks",
@@ -1877,13 +3156,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "里程碑数字/KPI 揭晓/成就段落；A 一次性大庆祝，B 持续小打点"
     },
     {
-      "behavior_fingerprint": "02e82e1ab1c48d7e36c453cebdf3fef92a8cd91d18319bd43a758b081496ddfa",
+      "applicability": null,
+      "behavior_fingerprint": "70019f2f5867487a123b7c86f2bb35d13322f16411573fdce7c262caa05b2034",
       "category": "data",
       "energy": "中高（构筑感入场）",
       "id": "particle-sand-fill",
@@ -1894,7 +3177,7 @@
         "data",
         "effects"
       ],
-      "sha256": "8e70bef65b5ada66314b28c095c8bbd126cf15f7541038df6946020aef9d6a68",
+      "sha256": "34700ff326d28d46a7de58891acc84ce1293fc47e0c1f9b3497df57a094a7651",
       "status": "reference-only",
       "styles": [
         {
@@ -1904,13 +3187,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "柱状图/量级对比入场；讲\"积累/汇聚\"语义的数据段落"
     },
     {
-      "behavior_fingerprint": "110866aad3a9a8e2a0333f0943219edc6627951eae0c5f52dd1302a9ff39751e",
+      "applicability": null,
+      "behavior_fingerprint": "93baf612b3676feddcaec4197de60e3ee3260f3e4d51552cc98e575558ed40b6",
       "category": "typography",
       "energy": "中（稳定节拍器，无峰值）",
       "id": "pill-slot-cycle",
@@ -1920,7 +3207,7 @@
       "semantic_tags": [
         "typography"
       ],
-      "sha256": "5df5e88e18edab90b071812ff5e943a8b89d87f7610eac57ec197c22123cc0b4",
+      "sha256": "8e660b4708dc37a7b1ae16c7ee77df169ab33464f492a42ce695b2c1111a9da3",
       "status": "reference-only",
       "styles": [
         {
@@ -1930,13 +3217,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"功能列举\"类文案的最优雅解法（比逐条列表快、比乱码解码有语义）；一句话卖点 + 多个动词短语的段落"
     },
     {
-      "behavior_fingerprint": "6921f41224b7a9d80dbd64474724b11667eb6b0cd2d9fbcb8ece2b4a9e4cd787",
+      "applicability": null,
+      "behavior_fingerprint": "3bf2f9cc2ac1c9613271d105bfb42b6e2256f656fb7be4c13cb47f70fb13cdc0",
       "category": "transition",
       "energy": "中（渐进显形，无冲击拍）",
       "id": "print-texture-transitions",
@@ -1946,7 +3237,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "5c747e71e8b903a2ec4d094af6926ea45686e01988f5046044b2df08337e9c8c",
+      "sha256": "b3482f6e71d4eb98f6773a0d7c1ff1c3e045a81d4302944ce43177d10b2f367a",
       "status": "reference-only",
       "styles": [
         {
@@ -1956,13 +3247,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "换景接缝的纸墨审美款；与交棒六式/穿越三式并列的第三族——\"介质显影\"型转场"
     },
     {
-      "behavior_fingerprint": "678439be0196bc978786e5a05ac17560a3287fad60db9b0114ea91bf9e2939d9",
+      "applicability": null,
+      "behavior_fingerprint": "0db2cff97ceb27125dd53f3369443013b49357bdac9784f2d2e88fe16721454d",
       "category": "rhythm",
       "energy": "B 中 / C 高",
       "id": "rhythm-interrupt-moves",
@@ -1972,7 +3267,7 @@
       "semantic_tags": [
         "rhythm"
       ],
-      "sha256": "d1c7e46fad4c227a0c1b5803ecff11ec2a5184476d5f25a8545dec43ac0911de",
+      "sha256": "a4bd183f4ef21d5aa725ce2011370c61c948fda660f3b3fb7444e7a2686c20c6",
       "status": "reference-only",
       "styles": [
         {
@@ -1982,7 +3277,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "strobe-black-frames",
@@ -1991,13 +3289,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "用\"打断连续性\"本身当节奏器：顿挫推近（B）、窒息逼近（C）；与 beat-cut-moves（切点排布）、montage-rhythm（段落呼吸）互补"
     },
     {
-      "behavior_fingerprint": "be8cccb47dc86b02ef66e751e9f777ae23a08c09f47aaa6bec4898b1d981cda0",
+      "applicability": null,
+      "behavior_fingerprint": "b505ce7b3757b482b2b4d40cdfdc4d46f9960415446427fb52f8a2cecdd7fe55",
       "category": "effects",
       "energy": "高",
       "id": "riso-print-hits",
@@ -2009,7 +3311,7 @@
         "typography",
         "rhythm"
       ],
-      "sha256": "304b85255b9394b8dec02e5de0948998ffae613d2681f9f15a7c09eba48257f3",
+      "sha256": "1fc4f52c07df3c052d916886cbe164ba52563c85faa0d10e720d0f447ed143af",
       "status": "reference-only",
       "styles": [
         {
@@ -2019,7 +3321,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "beat-pump",
@@ -2028,13 +3333,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "标题/卡片的命中强调，纸墨审美版的\"故障闪\"；A 单发高潮、B 节奏段连打"
     },
     {
-      "behavior_fingerprint": "613d2d4556d54f16c6abbc95e3b106c620bf8d25b7e16a7daf6ba4fbe8c3e39e",
+      "applicability": null,
+      "behavior_fingerprint": "d0a317c5827f1bf558e08693dc43fcb80fa052c7e6dec54d6ceabf7d2f4f3e49",
       "category": "ui-entrance",
       "energy": "中",
       "id": "row-embed",
@@ -2044,7 +3353,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "69c9f1a53d3333b789e9c57e97dbe6276d93a99e6d185d8c4d82d5093c019b5a",
+      "sha256": "196a95abea530a1811642e7b71d2b569de60e0fd0ba6793d6b7a09626dcdc77f",
       "status": "reference-only",
       "styles": [
         {
@@ -2054,13 +3363,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"结构化数据长进页面\"的详情页/列表镜头；行级内容的批量入场"
     },
     {
-      "behavior_fingerprint": "30f2e3486b653641b099acf1f3f2ff3ebca9cf845498c674f47dd250b472c65a",
+      "applicability": null,
+      "behavior_fingerprint": "1f5cbd9c6147b375d23eb7b26835034b13b54f348772a1e09c58c83f72ef2839",
       "category": "ui-entrance",
       "energy": "高（掉落感是戏眼，立起转正是收束）",
       "id": "runway-ground-skim",
@@ -2071,7 +3384,7 @@
         "ui-entrance",
         "camera"
       ],
-      "sha256": "6a3174a8e77836edded761c9a83ef5a43ddb105f41a4a7f55c107fde74526212",
+      "sha256": "abec650b25760583aad0d791d5a627f461fb07e8890497beec1915b99cbfe60b",
       "status": "reference-only",
       "styles": [
         {
@@ -2081,13 +3394,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "仪表盘/卡片流界面的登场（内容\"从天而降完成自己\"）；低角度炫技段后的收正；clickup 系悬空贴落语言的\"齐落\"重型版"
     },
     {
-      "behavior_fingerprint": "2f0c595420a84542a8c24178e378af1d686a3266fab464da9c6f3af174a3558a",
+      "applicability": null,
+      "behavior_fingerprint": "66d5ee39a40ded7a224c54cc2aafa961e5decbd0ef4f4d286feadab7ac47553b",
       "category": "rhythm",
       "energy": "中高",
       "id": "sakuga-timing-shift",
@@ -2098,7 +3415,7 @@
         "rhythm",
         "ui-entrance"
       ],
-      "sha256": "9eef7e78aaabbef4925ea66be3d0a37dde78a24281cc3dd80627e16172c23755",
+      "sha256": "9668c1dadddce63f9f0842f50ea239d3f1620f7a610d4c210968d05a67df6918",
       "status": "reference-only",
       "styles": [
         {
@@ -2108,13 +3425,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "单元素的强调性位移（卡片入场、指标冲线）；需要\"手工感→高潮爆发\"反差的段落"
     },
     {
-      "behavior_fingerprint": "6195e8e00f4922f8af57dc4f8162058ef61dc3b343f17ed7df4fd7799cae6d4a",
+      "applicability": null,
+      "behavior_fingerprint": "469dd92570e878b625161070ea3c968d57a3da54935da9dd35dfb0a29a6cce89",
       "category": "data",
       "energy": "高开中收（速度对比型）",
       "id": "scroll-brake-moves",
@@ -2125,7 +3446,7 @@
         "data",
         "rhythm"
       ],
-      "sha256": "15363a3eef72622eff553d44204ef0b89b3b21d57147b1a19f18c16098adf3d8",
+      "sha256": "297420d6d04287c765983ab7be84a54752acece9d00d7b10b0d42b34d2a4002a",
       "status": "reference-only",
       "styles": [
         {
@@ -2135,7 +3456,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "brake-reticle-lock",
@@ -2144,13 +3468,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "changelog/发布史/长列表段落：\"一直在发货，今天这条最大\"；要给停点更强打击感用 B"
     },
     {
-      "behavior_fingerprint": "4fcfd7885aa690b9055d60b20b55292743b308f1d03161cbcf1c6daa98553779",
+      "applicability": null,
+      "behavior_fingerprint": "30242486b563decef38d865db099870966ea08447748206c608cbbf03310169f",
       "category": "interaction",
       "energy": "中（微交互特写，精致不轰）",
       "id": "segmented-thumb-hero",
@@ -2160,7 +3488,7 @@
       "semantic_tags": [
         "interaction"
       ],
-      "sha256": "57b67389d8fa6e2efbe7bd12293b6cbff28033c5172cb7daf874ef03b4a76d6d",
+      "sha256": "2f6cac42730d77449b809ee3eb736d5a0c8b9b8211c99b44544d379dc821a409",
       "status": "reference-only",
       "styles": [
         {
@@ -2170,13 +3498,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"模式切换/二选一\"功能的宣告镜头（Ask→Computer、Chat→Agent 式）；一个 UI 微交互撑一整镜的特写拍法"
     },
     {
-      "behavior_fingerprint": "2badcddf4b265a3f29b7b45922d55ea01a3e3462743bd531aa6d51a906bf714d",
+      "applicability": null,
+      "behavior_fingerprint": "96e2a5d9ec66c1dde36c610cce0ff87435bbbbe0b2e751ee61d3ed3547fac93f",
       "category": "transition",
       "energy": "n/a（技法卡，不占能量位）",
       "id": "shot-transitions",
@@ -2186,7 +3518,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "6a0c42eb0d3ca4c9d4b0d8f2a65bbcd7b9a891e5c1477854eb2709b4e32902c6",
+      "sha256": "46789a3a4bd1de6d681652a1bd767ab6f6b46a779cc5527f730995d9051326c6",
       "status": "reference-only",
       "styles": [
         {
@@ -2196,7 +3528,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "shot-transitions-4",
@@ -2205,7 +3540,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "shot-transitions-5",
@@ -2214,7 +3552,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "shot-transitions-6",
@@ -2223,7 +3564,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "whip-pan",
@@ -2232,7 +3576,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "mask-wipe",
@@ -2241,13 +3588,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "任何两镜衔接处（技法卡，分镜阶段排完镜头后逐个接缝选一式）"
     },
     {
-      "behavior_fingerprint": "ccb8e3018c275a1c0550cee4e21ae1580fba1c7f50391e7a6c53ad9a01b2e976",
+      "applicability": null,
+      "behavior_fingerprint": "b8f0020f9535ac50304606f0f4e6a43b277929bcb5232327fba85654ddb82ea2",
       "category": "ui-entrance",
       "energy": "中（叙事型登场，重点是\"变成真的\"那两次跃迁）",
       "id": "skeleton-reveal",
@@ -2257,7 +3608,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "38689a372f7a6fc0c5d6e21e079930d427c0d023928b62b1e51f606b3040dec2",
+      "sha256": "2e76d4bf5610edb475688ab09e77e7c40ef7fbba904a12248726d7392d122fc6",
       "status": "reference-only",
       "styles": [
         {
@@ -2267,13 +3618,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "产品 UI 的\"从无到有\"登场叙事；开场后第一次亮产品界面的段落"
     },
     {
-      "behavior_fingerprint": "be270db7556833922b2cdecbd9e3bd4f2d2fdf502a6727bd4ff07e9d24ea5258",
+      "applicability": null,
+      "behavior_fingerprint": "16724c8101e2d8b2a61fc3812a47927a20c47e0376e730fe6490c0340dddc59d",
       "category": "effects",
       "energy": "高",
       "id": "slam-entrance-moves",
@@ -2284,7 +3639,7 @@
         "effects",
         "ui-entrance"
       ],
-      "sha256": "03885e8ac15e156a37e46fee97e45ac6fd803626b30aff24c09f5dc6377bfa94",
+      "sha256": "390da14bad4a2897ec031bee3aeb71d4a0ebd2fbc8a3a7004b71c1b294218bfa",
       "status": "reference-only",
       "styles": [
         {
@@ -2294,7 +3649,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "score-slam",
@@ -2303,7 +3661,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "impact-burst-kit",
@@ -2312,13 +3673,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "主角卡/KPI 卡的重拳入场；impact-feedback 管落位后的反馈，本卡管入场本身就是冲击"
     },
     {
-      "behavior_fingerprint": "f4662020fcbf9cf3999b94ba5dd2e548d3da31c307965a1fec06dae815795ffe",
+      "applicability": null,
+      "behavior_fingerprint": "3ce1a2061df1528240872523dbf9e7d23222a5a90a027fe27614e8bd2d578f52",
       "category": "rhythm",
       "energy": "中高",
       "id": "smear-multiples",
@@ -2329,7 +3694,7 @@
         "rhythm",
         "effects"
       ],
-      "sha256": "0a463b79cfe0a0d54263d4fe6f1d6569686b3d9ff8c774764858369f29d01aee",
+      "sha256": "29e4ab74e82e8a49133a0696c504a3bcabe0d4669725704b30ee7d77cfe94cc6",
       "status": "reference-only",
       "styles": [
         {
@@ -2339,13 +3704,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "元素高速位移段想要\"漫画式速度感\"而非\"摄影式模糊\"时；与 CameraMotionBlur 二选一"
     },
     {
-      "behavior_fingerprint": "ae228d5bb649001a00e5cbbfbb8df70b3ed1539e31c26f027b1fb6fcb9feb8c5",
+      "applicability": null,
+      "behavior_fingerprint": "18f2b3f511cdf18c473cc9ea19bc488da96766f8b19aad4a2974aac6d50f7dc7",
       "category": "camera",
       "energy": "高",
       "id": "space-camera-moves",
@@ -2355,7 +3724,7 @@
       "semantic_tags": [
         "camera"
       ],
-      "sha256": "40cc39933c28d7713733dc0f7b57a310d73c91a846ee2798b51b41967a53bafd",
+      "sha256": "dfb35bb55f883bff60d072b6d6a2c4e9ef15f7eeb3f875f689a480aad136c193",
       "status": "reference-only",
       "styles": [
         {
@@ -2365,7 +3734,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "drone-dive-landing",
@@ -2374,13 +3746,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "把平面页面当 3D 实体拍的高光段落；两式都是\"大动作\"，一支片合计 ≤2 次"
     },
     {
-      "behavior_fingerprint": "6f6962415625e041d70c55b3bcacf24af45af86015f596fceeefd9b6c914aecc",
+      "applicability": null,
+      "behavior_fingerprint": "2ad6332dd310b437b93fc462a3b91475a98bff26c3f61428bc8dcf4bdf2409c6",
       "category": "rhythm",
       "energy": "中",
       "id": "spectrum-morph-ui",
@@ -2391,7 +3767,7 @@
         "rhythm",
         "typography"
       ],
-      "sha256": "b0b4b385b59dcc56f61a190c19e5602e350c269ab6cfa16fb8d45bec068fbce7",
+      "sha256": "19f19fc25e54d4775759587bd2596ea563c0972815a0af1e079ed3e9a7f10f6e",
       "status": "reference-only",
       "styles": [
         {
@@ -2401,13 +3777,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "有音轨片子的声画同步高光段（BGM 副歌起/鼓点密集段）；标题字卡、章节页的下划线/分隔线构件"
     },
     {
-      "behavior_fingerprint": "59394addbe8d8f0468c044fac2d1a032b28d235b75102ca9f4c8e2aa8958ac1d",
+      "applicability": null,
+      "behavior_fingerprint": "320a01e2cb8c15b1a4ef261df3348a855f93c2efe5d46e24fb384ce708d23c4a",
       "category": "rhythm",
       "energy": "中高（速度反差本身即energy beat）",
       "id": "speed-ramp-freeze",
@@ -2417,7 +3797,7 @@
       "semantic_tags": [
         "rhythm"
       ],
-      "sha256": "8529685bb6e1f486fb3e876b8694d25584e9827511531c89291448ca99d60825",
+      "sha256": "1ae6dd9c1bf9342a6eb3611261a9fd2de8d48f2dc97c227e7fa41f2c256c3af1",
       "status": "reference-only",
       "styles": [
         {
@@ -2427,7 +3807,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "freeze-annotate",
@@ -2436,13 +3819,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "卡片流/长横移中把一个重点\"放慢/停下给人看\"；教学解说语境用定格标注"
     },
     {
-      "behavior_fingerprint": "0256e787af38b10da1aa308b14f417aafe28e233750ef6b55940d71891b0f5c7",
+      "applicability": null,
+      "behavior_fingerprint": "f088f1886012862f5d1b65694fd53b9e3fafee39384fbde314c0c5fd5303366e",
       "category": "typography",
       "energy": "中（持续的机械动感，非瞬时冲击）",
       "id": "split-flap-title",
@@ -2453,7 +3840,7 @@
         "typography",
         "opening"
       ],
-      "sha256": "3317a9c674ed94bfbe074262ff6c91e802eee67e26acce6f9353478e864b967e",
+      "sha256": "3ef24f7bbb80a4b354a9e7b53ccd10ac6fbb8dccaea2cf5f020bd4319870c80e",
       "status": "reference-only",
       "styles": [
         {
@@ -2463,13 +3850,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "开场/章节大标题；倒计时、发布日期、数据播报类文案；需要\"机械宣告感\"的一拍"
     },
     {
-      "behavior_fingerprint": "cbb568cadef3d7d586f5647fa539bc8e86ca73d043612fcec533dbaa24a9365c",
+      "applicability": null,
+      "behavior_fingerprint": "f757ed805b492e4a2a1a8bac564d7a7be8d0d93113c29e19c63eada6205a5b5b",
       "category": "opening",
       "energy": "中（质感最高的一镜，节奏慢而稳）",
       "id": "spotlight-hero-card",
@@ -2481,7 +3872,7 @@
         "effects",
         "camera"
       ],
-      "sha256": "ec6e758cf437318c8975fe54deae7dd8b96f39f44feb6d956b2d90057b0d8f27",
+      "sha256": "9003eb21433f8b019ec2f455b1a38cdd3add7b2bfe15e51daa40b12d72d8d165",
       "status": "reference-only",
       "styles": [
         {
@@ -2491,13 +3882,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"单一主角\"式产品开场；把一个核心对象（卡片/条目/模块）立成全片主角"
     },
     {
-      "behavior_fingerprint": "7173cb0cee6077c7db52fc286d8123a3420ef6fcbb4ebbbfbc3f3080a28eb903",
+      "applicability": null,
+      "behavior_fingerprint": "9f6d920b08d4b6e08a5d11196419d8c6ad0ebdc289c19a51fadd435de33a159c",
       "category": "effects",
       "energy": "中低（克制、神秘感，爆点在\"亮起\"瞬间）",
       "id": "spotlight-sweep-moves",
@@ -2509,7 +3904,7 @@
         "ui-entrance",
         "transition"
       ],
-      "sha256": "5069b66b9611ec0b123f43796fb35056b80f646209dbb383613fb6b44ba0b9b1",
+      "sha256": "389fd6fcef4ff44b08900fc0db36111f8c6ecf205d89314488ae0bf3fae1ee20",
       "status": "reference-only",
       "styles": [
         {
@@ -2519,7 +3914,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "slide-spotlight-pan",
@@ -2528,7 +3926,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "corner-spotlight-reveal",
@@ -2537,13 +3938,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "暗色调品牌片里逐个介绍 UI 面板/功能区；黑场开场把界面\"点亮\"登场；段落间光转场"
     },
     {
-      "behavior_fingerprint": "003ed993767a67ba0d89dd4eede06da2d207d3155e113bf186a4692891e54797",
+      "applicability": null,
+      "behavior_fingerprint": "f307c0fceae56d93bcf8b60feab10ce09a61f9b32e1d093618179268ede1a9de",
       "category": "camera",
       "energy": "中高（透视炫技+持续运动，但节奏是匀的）",
       "id": "steep-tilt-glide",
@@ -2554,7 +3959,7 @@
         "camera",
         "ui-entrance"
       ],
-      "sha256": "820cd2549c129d0f2a7e41dd3a877d38fea2ec70ac000f8491dd6dd7ac4aa70b",
+      "sha256": "b060f42fd1ac8219a714837aff16b14647639e26db566999eca5d5ed399b2b6b",
       "status": "reference-only",
       "styles": [
         {
@@ -2564,13 +3969,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "长页面/多区块 UI 的炫技巡览（内容依次滑过固定机位）；暗场霓虹调性；与贴面运镜卡互补的\"侧掠\"机位"
     },
     {
-      "behavior_fingerprint": "f46a3b2202657d23b4d09cd276bf1e1249c6c27f1763cfeb56e055a266056847",
+      "applicability": null,
+      "behavior_fingerprint": "31d80dbee17af0d376437da3a71a4f3b94a756d16257c691187d720bfd615cd0",
       "category": "opening",
       "energy": "低起中收（悬念型，落位帧是能量点）",
       "id": "stroke-segment-build",
@@ -2581,7 +3990,7 @@
         "opening",
         "typography"
       ],
-      "sha256": "85ec54dc6769917bbc850a10aa099a65baada10cea496a96bf67b23705c58a41",
+      "sha256": "e0152f82a9bf6112868df9c803859d2255e140d090b52b4ce69c0dd69fbb0b2b",
       "status": "reference-only",
       "styles": [
         {
@@ -2591,13 +4000,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "开场吊悬念的产品名/大数字揭晓；一支片 ≤1 次；与 type-assembly/draw-svg-trace 分工：那些是\"看着字被组装/描画\"，本卡是\"意义延迟揭晓\""
     },
     {
-      "behavior_fingerprint": "a22d31ad5a49840a802648f000f07614d1b7f1e6eed33d06ee106eef72bbb05b",
+      "applicability": null,
+      "behavior_fingerprint": "96e1f6d8f08c541d293de7b81ad3f1eb824f6aeec16c1fee484f3b130cd75879",
       "category": "transition",
       "energy": "高",
       "id": "tear-streak-transitions",
@@ -2608,7 +4021,7 @@
         "transition",
         "effects"
       ],
-      "sha256": "22c7cad1ce887d526b69810d3ad64a226c3f663bafe0db634b69d8fe21aa533d",
+      "sha256": "73ff237cd0077ff8784f2cbb5e8663a86fc2014a9bd614aecaada483224387cd",
       "status": "reference-only",
       "styles": [
         {
@@ -2618,13 +4031,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "高能换页：数字故障/断裂语义；页面完整性不破、能量拉满的条带级撕裂"
     },
     {
-      "behavior_fingerprint": "6b3f16a97ad81d0eba2c5ffbe2db258d7173ff67b048eb5fbea58b99dfa6e718",
+      "applicability": null,
+      "behavior_fingerprint": "3619b8a79d1090483b59c8d11cb00cb961de047e2555356546745db45ab3b4ea",
       "category": "camera",
       "energy": "A 高 / B 中 / C 低压升 / D 低收",
       "id": "tension-camera-moves",
@@ -2634,7 +4051,7 @@
       "semantic_tags": [
         "camera"
       ],
-      "sha256": "279548a3ec110ea0bee545b65f72dc8bd26e95414ea1dff28ee773ec5e52523d",
+      "sha256": "307af3e00f3a678363602f25cccf89532092a4c0c42681eb71b3af7241bca264",
       "status": "reference-only",
       "styles": [
         {
@@ -2644,7 +4061,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "dutch-roll-to-level",
@@ -2653,7 +4073,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "slow-push-in",
@@ -2662,7 +4085,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "pull-back-isolation",
@@ -2671,13 +4097,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "情绪节点（震撼/纠偏/积压/收束）的运镜语言；与 space-camera-moves 的\"炫技大动作\"互补——这四式动作小、情绪重"
     },
     {
-      "behavior_fingerprint": "45195d8d99e182b77f5739e7e89c07c2407d80a3525bdca37d6c56ab1ffdd528",
+      "applicability": null,
+      "behavior_fingerprint": "887bbbeb2823118001d0d22ac48b2ae0cdbc30d229efafdd9310835429035b88",
       "category": "opening",
       "energy": "中高（漂移段沉稳，接管段一次爆发）",
       "id": "text-as-mask",
@@ -2688,7 +4118,7 @@
         "opening",
         "typography"
       ],
-      "sha256": "10e37e4b9f49dc5b0197251e9f2d485b9e92690c85a58c0fb17386fe479d9d4b",
+      "sha256": "88bf0deebe1edf9bd4f7c67c8b0c48bd20713c7539d1de278d5caa631ddab2a0",
       "status": "reference-only",
       "styles": [
         {
@@ -2698,13 +4128,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "品牌词/口号与产品画面二合一的开场或章节卡；字是门、产品在门里"
     },
     {
-      "behavior_fingerprint": "dcd6767dff0c127ee6d7c3723ec3eef1c00b39c7d246f02f9630ad65b4b2c132",
+      "applicability": null,
+      "behavior_fingerprint": "f37baba342b7bdbfbe5dafb7e71ed5c4fd11e364df315b3d7f87b1c00cfcb5e0",
       "category": "typography",
       "energy": "中低（机器节奏、小字规格清单气质，不是砸字）",
       "id": "text-column-converge",
@@ -2715,7 +4149,7 @@
         "typography",
         "outro"
       ],
-      "sha256": "89145891eec37b059a4044441d648eab124c6fb643456c46bc019ba795d6020c",
+      "sha256": "9ba034a3cd6c3834df730240396a5a6b29182df2c6907b61a51d213c5bf1e558",
       "status": "reference-only",
       "styles": [
         {
@@ -2725,13 +4159,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "特性清单收束到产品名/口号的段落（\"NEW × 一串特性 → NEW <产品名>\"式）；发布会式 recap、版本号揭晓"
     },
     {
-      "behavior_fingerprint": "cd9b9c9a42b874a6643a78b20e8368e673636e60efa42520fc2e3a900e27ee48",
+      "applicability": null,
+      "behavior_fingerprint": "d582ef71fa23915781bd62d41bb718359b0e5b59101de586bae383f063682a76",
       "category": "interaction",
       "energy": "A 中 / B 中高（组合款有完整因果链）",
       "id": "theme-switch-moves",
@@ -2741,7 +4179,7 @@
       "semantic_tags": [
         "interaction"
       ],
-      "sha256": "f6b33d6d9c71348a1f96f8ec229ca387063812dcebbf6f8092e70271a90147ee",
+      "sha256": "2f3a9d0678d0deb8e7262baf881506015155027f2b184108a595211cce7c6712",
       "status": "reference-only",
       "styles": [
         {
@@ -2751,7 +4189,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "palette-theme-ripple",
@@ -2760,13 +4201,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "深色模式/主题功能的叙事段落；同一 UI \"在你眼前变色\"而非切到新场景"
     },
     {
-      "behavior_fingerprint": "4b68f6759c3165ee6daa778ea53f92a95ce5fc89cd601398084987b51d56865f",
+      "applicability": null,
+      "behavior_fingerprint": "c1f8ce1c08e48bb8fe40073ed128d6570b920ef3e34b4d974de1dbce1bda4d57",
       "category": "data",
       "energy": "中高（加速→急刹的节奏型镜头）",
       "id": "timeline-travel",
@@ -2777,7 +4222,7 @@
         "data",
         "camera"
       ],
-      "sha256": "be28fcd522720379c194c2cc962a0c90dd19a8947f28fb3ffe307a642532f50d",
+      "sha256": "f84ab81ba5f66489f74c2362d156bf9d2820b68f513bc954e35f81ac2cdd988c",
       "status": "reference-only",
       "styles": [
         {
@@ -2787,13 +4232,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "changelog/里程碑/发展史段落（\"我们一直在发货\"的另一种拍法）；与 scroll-brake-moves 分工：那卡是纵向列表急刹，本卡是横向时间旅行"
     },
     {
-      "behavior_fingerprint": "19ed9675c9df30ce22e71f630783617c0dc0ebb89cc58dcfc14acbbb6f7df21b",
+      "applicability": null,
+      "behavior_fingerprint": "99617b7e84844ad61ea35d776afa4e694f04a92e77f576ad6450700aea32b679",
       "category": "typography",
       "energy": "低中（版式变换型，氛围镜头）",
       "id": "title-demote-to-label",
@@ -2804,7 +4253,7 @@
         "typography",
         "transition"
       ],
-      "sha256": "14f09d7bd398b7f997a8c912637b98e7dc95632b6af39a1e3e1edd56a8d972e1",
+      "sha256": "f2f233dfb5482c2bdecf7a665ec2d952aa76870db9c176643c2839f8c6480f44",
       "status": "reference-only",
       "styles": [
         {
@@ -2814,13 +4263,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "章节开场（标题先当主角再让位给内容）；教程/功能演示片的小节交接；B 式给\"文字/编辑\"类产品加身份暗示"
     },
     {
-      "behavior_fingerprint": "64d1645393bbc508049c3c6dc8b019edcf4d7d4a171dab76ea28acc1886673b2",
+      "applicability": null,
+      "behavior_fingerprint": "127e4e29e607fccd049dc78b91093e7d803519e2c005a5cd14f9cbb14ac660b8",
       "category": "rhythm",
       "energy": "A 高 / B 中 / C 高",
       "id": "trailer-grammar-moves",
@@ -2832,7 +4285,7 @@
         "opening",
         "transition"
       ],
-      "sha256": "f78c0099fbfc838e47cd15d1d5f46ab966e73fa8ffabbaa44032b1901a04a8be",
+      "sha256": "8420789c170fceee18820418d126e97808685ed7382f32cbbfaca621e51e8529",
       "status": "reference-only",
       "styles": [
         {
@@ -2842,7 +4295,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "card-footage-cadence",
@@ -2851,7 +4307,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "smash-cut",
@@ -2860,13 +4319,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "预告片的三个结构性时刻：开场怎么钩（A）、中段怎么对话（B）、高潮怎么收（C）；三式合用即一支预告片的骨架"
     },
     {
-      "behavior_fingerprint": "ab28ce5efdd2dae86fde63ce26e3b1b0d0e536aa7d69eddb1d583ed20d72f05b",
+      "applicability": null,
+      "behavior_fingerprint": "47ea79dfd651d73dad3c000770fea8908eaf13c1606a255b674d91e29d796f3d",
       "category": "transition",
       "energy": "n/a（技法卡，不占能量位）",
       "id": "transition-hidden-cut",
@@ -2876,7 +4339,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "b91f1b8579753abee3ef99e10fe7fcbb481b6c8eaff1d1e0562d91c6728e8b1f",
+      "sha256": "5d10e6c143965d47e1c86f9373cf17a56384a708e7d6a653d36d008640cb2bce",
       "status": "reference-only",
       "styles": [
         {
@@ -2886,7 +4349,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "versus-slam",
@@ -2895,7 +4361,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "light-leak-burn",
@@ -2904,13 +4373,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "两镜衔接处需要\"无痕换景\"或\"仪式感开屏\"时（技法卡，与 shot-transitions 六式同层选型）"
     },
     {
-      "behavior_fingerprint": "1295e21522f557a0dfd719e1663dccbd2593648cc2d9e208ba208d67497a029e",
+      "applicability": null,
+      "behavior_fingerprint": "a1325eaae13557440a3559157c67dbf76b72ef1996924196fb5365203768ce92",
       "category": "transition",
       "energy": "n/a（技法卡，不占能量位）",
       "id": "transition-travel",
@@ -2921,7 +4394,7 @@
         "transition",
         "camera"
       ],
-      "sha256": "c37547e1022b8b478fe530a92be5ca6a7611ac7ffab0023cc10ce1692b350c9a",
+      "sha256": "691287b2dbbcde2501b990257d27cdf04c94f204403634bb0e87bde6f3dc6f71",
       "status": "reference-only",
       "styles": [
         {
@@ -2931,7 +4404,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "letterform-zoom",
@@ -2940,13 +4416,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "前后两镜存在\"元素/容器\"级空间关系的接缝（技法卡，与 shot-transitions 六式互补选用）"
     },
     {
-      "behavior_fingerprint": "7e4fc9d8b930e86cdafb44b46e1ecbb3b13505c6b34c9bf313860f680d9760e4",
+      "applicability": null,
+      "behavior_fingerprint": "650a3e8edbec618d620de183b296c61310274d3a3f8498925ae64e2d35afeba9",
       "category": "interaction",
       "energy": "中（发牌高能段之后的从容一拍）",
       "id": "type-and-filter",
@@ -2956,7 +4436,7 @@
       "semantic_tags": [
         "interaction"
       ],
-      "sha256": "d81aaf8fd2418e755d99c8b5aa7bcd19efa88754668492c0fcee30798fdb47c0",
+      "sha256": "0e35641bdf8dfe3443a230a6acb1bca85dcd0e3d24b10f915a17f3577da240c1",
       "status": "reference-only",
       "styles": [
         {
@@ -2966,13 +4446,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "功能演示的\"操作叙事\"段；搜索/筛选/进入详情的任何交互链路"
     },
     {
-      "behavior_fingerprint": "b51cc5de85f7b43160716413fc8de965fb7208c02d7cc42ff339f5ee82d88307",
+      "applicability": null,
+      "behavior_fingerprint": "e236ab19c47d318f8e8a58240446613e62f7f19832fbe6dd3e4060811f335792",
       "category": "typography",
       "energy": "A 中 / B 中高 / C 低中 / D 中",
       "id": "type-assembly-moves",
@@ -2982,7 +4466,7 @@
       "semantic_tags": [
         "typography"
       ],
-      "sha256": "b60f6aea206c9475e7ea34a4af19ff56f99f54ad0556e6c5d20db396056ab9f9",
+      "sha256": "9284358718e750eb7aac79e2ac023e9dcc5ff5977f3a416b841cf9272044e5f3",
       "status": "reference-only",
       "styles": [
         {
@@ -2992,7 +4476,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "drift-assembly",
@@ -3001,7 +4488,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "tracking-expand",
@@ -3010,7 +4500,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "text-on-path",
@@ -3019,13 +4512,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "大标题/标语的入场；与 type-entrance-moves 两式、split-flap-title、document-typewriter-reveal 同属标题入场大品类，全片 ≤2 种"
     },
     {
-      "behavior_fingerprint": "d8a0fb33cf98aea60d45b3895ab6d8f56f8b349257676ab7ca56ddd82859f4f5",
+      "applicability": null,
+      "behavior_fingerprint": "30cc083dc11510e17e2c965b4a6753fa85ee844c0920ae77416261906067009a",
       "category": "typography",
       "energy": "中高（A 偏理性推进，B 偏物理趣味）",
       "id": "type-entrance-moves",
@@ -3035,7 +4532,7 @@
       "semantic_tags": [
         "typography"
       ],
-      "sha256": "517e3cf46b90e29eb3246fc4ed75a99c55d1f1a7b0169ecc3536ce0bd10d8ff7",
+      "sha256": "51b70eb164dbff3bb3260b116f8152761be9297eb91f4db721c6472d921e170b",
       "status": "reference-only",
       "styles": [
         {
@@ -3045,7 +4542,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "letter-drop-physics",
@@ -3054,13 +4554,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "大标题/章节字卡的入场；与 split-flap-title（机械翻牌）、document-typewriter-reveal（打字机）同品类互斥选用"
     },
     {
-      "behavior_fingerprint": "ef95018d7a8e30b9136997b78116e4f091a91e90d95965938eb8ede2eca72bc8",
+      "applicability": null,
+      "behavior_fingerprint": "698f4269dc9c9db0b063c01bc8ae9bc1b5ffc062c804e559348b332053c579b2",
       "category": "typography",
       "energy": "A 高（蹦迪感）/ B 中（跟读引导）",
       "id": "type-rhythm-sync",
@@ -3071,7 +4575,7 @@
         "typography",
         "rhythm"
       ],
-      "sha256": "98d3a658e77ed1fd508e99c9e43d4f20482945ca127fb1d58acb6611b82f2426",
+      "sha256": "b3637c94b69e5a607541a280386797f39a547204ac0f58b9c50f2f209bf9676f",
       "status": "reference-only",
       "styles": [
         {
@@ -3081,7 +4585,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "karaoke-fill-sync",
@@ -3090,13 +4597,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "标题/标语与音轨强绑定的段落；A 绑节拍（鼓点），B 绑语音（旁白逐词）"
     },
     {
-      "behavior_fingerprint": "5064d668abbb739ec53e7b605126e2f950aee8a07564bf4db4952a93618f9299",
+      "applicability": null,
+      "behavior_fingerprint": "0e74193cae4dbfb0b016c03dca98064ff1484ecdadb3fa647c2429a9d4605dc9",
       "category": "typography",
       "energy": "A 中高 / B 中低",
       "id": "typewriter-moves",
@@ -3107,7 +4618,7 @@
         "typography",
         "opening"
       ],
-      "sha256": "a6c82d5c2e6e6dc071f015b1b6aef30511d83ecbca0ba614291d69d7825e0eaa",
+      "sha256": "d2674ad45de1f0724aba70de93e0dc9d7f1c39e8e3ecf7b25fdcc2958fed9f49",
       "status": "reference-only",
       "styles": [
         {
@@ -3117,7 +4628,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "error-retype",
@@ -3126,13 +4640,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "开发者产品开场（A）、slogan/卖点字卡（B）；文字自带时间性的入场"
     },
     {
-      "behavior_fingerprint": "91db22cf0b4471591efc7394276adb6e280eba587c316a6a7ff3f76d3b41c7a5",
+      "applicability": null,
+      "behavior_fingerprint": "1909359a50c030f2dc89858253866dec6e475b897af8f57129a33370e06541b4",
       "category": "outro",
       "energy": "中（前段安静操作，中段持续退场，无瞬时冲击）",
       "id": "ui-strip-away-outro",
@@ -3142,7 +4660,7 @@
       "semantic_tags": [
         "outro"
       ],
-      "sha256": "66eecd9e12c1249969187b242648c94a20287a78f56a8c784b6d8aef0109dc5d",
+      "sha256": "bf086b80ac3a09e18813e44db0e1a010fb4b32f4229d092e8713c48d22200c4c",
       "status": "reference-only",
       "styles": [
         {
@@ -3152,13 +4670,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"发布/完成\"语义的 outro；想讲\"一键之后一切复杂性消失\"的产品收尾"
     },
     {
-      "behavior_fingerprint": "9aab0123485e657a03b6c424af5b5aec3dea7faf85ae54337e60c8500a2871de",
+      "applicability": null,
+      "behavior_fingerprint": "f935e70f414396fb8f39cdb6f26bd1cc0aac3adc1b7b4a45418e492f896ee632",
       "category": "outro",
       "energy": "中高（收尾点睛，一次完整变形讲完）",
       "id": "ui-to-brand-morph",
@@ -3168,7 +4690,7 @@
       "semantic_tags": [
         "outro"
       ],
-      "sha256": "48ed55d36a53aae1351778e46226f7086692d3a0a85c20946956a042e65a75ad",
+      "sha256": "3ad0ba97041f9f363302f2e76809d082854c694cd0937c2acc2bb51838ce978f",
       "status": "reference-only",
       "styles": [
         {
@@ -3178,7 +4700,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "input-morph-assemble",
@@ -3187,13 +4712,76 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "品牌收尾/outro 前最后一拍；\"你每天用的那个 UI 就是这个品牌\"的视觉论证"
     },
     {
-      "behavior_fingerprint": "0dd25122bd53af9e51650fbbf834f1d6e3ec404f496550def664e142c0e510ac",
+      "applicability": {
+        "default_style_id": "segmented-progress-rail",
+        "placement_modes": [
+          "transparent-overlay"
+        ],
+        "relationship_kinds": [],
+        "visual_source_kinds": [
+          "packaging"
+        ]
+      },
+      "behavior_fingerprint": "9a1e51946230e947b5c4eaafc04f723fb2f3e9b483004cd929e5f22ae3200f27",
+      "category": "rhythm",
+      "energy": "低干扰、持续可读；进度和章节状态随统一时间线推进，不加入独立表演性动画。",
+      "id": "video-chapter-progress",
+      "name": "全片章节进度条",
+      "path": "recipes/video-chapter-progress.json",
+      "purpose": "把全部章节并排放进同一条横向矩形导航栏，用底边进度和移动游标持续显示全片位置。",
+      "semantic_tags": [
+        "progress",
+        "chapter",
+        "overlay",
+        "timeline",
+        "packaging"
+      ],
+      "sha256": "d682abd587afad9915d80b776c5c14142f0eab342de3721aa4de61878315a47f",
+      "status": "active",
+      "styles": [
+        {
+          "id": "segmented-progress-rail",
+          "implementation_kind": "editable-media-package",
+          "label": "横向分段进度栏",
+          "manifest_sha256": "6ff4825747dc88b843fc10c96f1ba0acd98cfe5bd97ca5842534d8cd209b9599",
+          "package": "assets/video-progress-bar",
+          "package_sha256": "a10651bc1008d7cff606e3f8a46f0d220d8495f1a064a5969b5719adfed572c0",
+          "scene_id": "progress",
+          "status": "active",
+          "variant_profile_id": "progress-overlay",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "landscape"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "portrait"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "transparent-overlay",
+              "variant_id": "square"
+            }
+          ]
+        }
+      ],
+      "use": "教程、案例拆解、工作流讲解和其它具有明确章节节点的长短视频包装；作为透明覆盖层叠到真实视频之上。"
+    },
+    {
+      "applicability": null,
+      "behavior_fingerprint": "54c11109162eedd1ad085d96262463c0722d9039907cb6549170ce7b13ab649e",
       "category": "interaction",
       "energy": "中（功能性活性，不是炫技）",
       "id": "voice-waveform-live",
@@ -3203,7 +4791,7 @@
       "semantic_tags": [
         "interaction"
       ],
-      "sha256": "f0233e0aca4d8c5d440a40cdf1b499daf0b8498eb48e95d36dd43188395db878",
+      "sha256": "06cf014a49cf7222dfd9ad36d98f0f1f398f0e75e3a9508512326d9b896ad29f",
       "status": "reference-only",
       "styles": [
         {
@@ -3213,13 +4801,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "语音输入/AI 助手\"正在听你说\"的功能镜头；无 UI 内容可展示但需要持续活性撑画面的段落"
     },
     {
-      "behavior_fingerprint": "48586152d14bf5fe13c57a3894fa6b1784aab99ce26f0108b6b26ee695a70caf",
+      "applicability": null,
+      "behavior_fingerprint": "4fca7b3c13dd4f98992226de7e0f50a4d1df05bc16037c0bdf915d43347bf449",
       "category": "ui-entrance",
       "energy": "中",
       "id": "wall-reveal-moves",
@@ -3229,7 +4821,7 @@
       "semantic_tags": [
         "ui-entrance"
       ],
-      "sha256": "5d1439714f8bf71c77e08ad9669fcfefd892d33cc7934d949628ce35e2d25436",
+      "sha256": "36bcb2e890b7bdeace10bc014d5269a570abbd45fefd17ca521e3e45a67b9052",
       "status": "reference-only",
       "styles": [
         {
@@ -3239,7 +4831,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "grid-wave-flip",
@@ -3248,7 +4843,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "wireframe-draw-on",
@@ -3257,13 +4855,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "功能墙/卡片墙/整页界面的整体亮相；内容已在原位、要\"显形\"而非\"涌入\"的段落"
     },
     {
-      "behavior_fingerprint": "5a4e0af103549ad8f8dcc970d5181faef5b1f77eecd6ba88e60a0890e6d564f6",
+      "applicability": null,
+      "behavior_fingerprint": "d5b0d001620359f70f949bab2cc18d2ce43644a263aa33ec198fe46965c582df",
       "category": "transition",
       "energy": "中",
       "id": "wipe-transitions",
@@ -3273,7 +4875,7 @@
       "semantic_tags": [
         "transition"
       ],
-      "sha256": "2b364656b143c56d82d02c1898c900aacfcde9ffc0174215767eec381e2420b7",
+      "sha256": "ca5ae4e8be33ab28114f6e08f8fc5655f7d66255440dd43c6b7f83fe60965446",
       "status": "reference-only",
       "styles": [
         {
@@ -3283,7 +4885,10 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         },
         {
           "id": "blinds-slice",
@@ -3292,13 +4897,17 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "新旧页都不动、一条几何边界扫过完成交接的通用转场；不依赖构图里有合适元素，哪儿都能用"
     },
     {
-      "behavior_fingerprint": "6a7f0866f58f6764821ce20286f710641a90517f5fcfd040b104afaabe5b1b78",
+      "applicability": null,
+      "behavior_fingerprint": "307500b1569ac17e06d3461f0d54f2b0723f1a1e83932de9ba6089c7c5e8e1eb",
       "category": "typography",
       "energy": "中低（编辑部气质，节奏靠切词的\"咔哒\"感）",
       "id": "word-relay-filmstrip",
@@ -3309,7 +4918,7 @@
         "typography",
         "ui-entrance"
       ],
-      "sha256": "01b8a8d818946e45df1b40b18c342718d6cd8b592862b1bca83fc132ebed6871",
+      "sha256": "aab93c3e739f2e9d190e22d2a761b0bdb372cfc570ddab975de7910c108be37a",
       "status": "reference-only",
       "styles": [
         {
@@ -3319,12 +4928,15 @@
           "manifest_sha256": null,
           "package": null,
           "package_sha256": null,
-          "status": "reference-only"
+          "scene_id": null,
+          "status": "reference-only",
+          "variant_profile_id": null,
+          "variants": []
         }
       ],
       "use": "\"一个主体 × 多种能力\"的枚举段（Computer researches/builds/codes…）；作品集/案例流展示；产品多场景巡礼"
     }
   ],
   "reference_style_count": 161,
-  "version": 1
+  "version": 2
 }

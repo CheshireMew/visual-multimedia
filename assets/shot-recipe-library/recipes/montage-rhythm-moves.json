@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "00d59e8b79c79318ebca634ff09e4d975b3ff133a5e3fbb0021a2fceced9bc0c",
+  "behavior_fingerprint": "1decfd701d1c0a43c25567d0ae4f84cc36a1d806f7971269c8ae957d59b920f1",
   "category": "rhythm",
   "id": "montage-rhythm-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "drop-blackout-slam",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "drop-blackout-slam 黑场蓄爆",
       "status": "reference-only",
@@ -47,7 +49,9 @@
       "id": "wright-triple-cut",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "wright-triple-cut 三连特写",
       "status": "reference-only",
@@ -58,12 +62,15 @@
       "id": "domino-cascade",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "domino-cascade 连锁入场",
       "status": "reference-only",
       "use": "开场整页入场的叙事化版本；替代平铺直叙的逐个 fade-in"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

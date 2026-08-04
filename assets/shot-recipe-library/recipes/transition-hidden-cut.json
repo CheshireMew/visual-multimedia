@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "ab28ce5efdd2dae86fde63ce26e3b1b0d0e536aa7d69eddb1d583ed20d72f05b",
+  "behavior_fingerprint": "47ea79dfd651d73dad3c000770fea8908eaf13c1606a255b674d91e29d796f3d",
   "category": "transition",
   "id": "transition-hidden-cut",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "invisible-cut",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "invisible-cut 前景遮挡隐形切",
       "status": "reference-only",
@@ -47,7 +49,9 @@
       "id": "versus-slam",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "versus-slam 对撞开屏",
       "status": "reference-only",
@@ -58,12 +62,15 @@
       "id": "light-leak-burn",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "light-leak-burn 琥珀漏光",
       "status": "reference-only",
       "use": "想要暖调/胶片味的章节过渡；比白闪柔、有方向、有温度"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

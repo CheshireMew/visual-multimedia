@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "d5b07057feea2b16654b9ed7768e1cfa9f043274b9fee145ff33ccd61bd9840b",
+  "behavior_fingerprint": "148c771c43ed367d40eaa4ad7fb40e71d3192670a8116fc0bb01f90c62de39ee",
   "category": "rhythm",
   "id": "beat-step-list-theme-cycle",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "beat-step-list-theme-cycle",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "beat-step-list-theme-cycle",
       "status": "reference-only",
       "use": "\"同一产品多种气质/多主题展示\"段落（modern/playful/expressive 式形容词连打）；全片节奏最密的一段；音乐段对拍"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

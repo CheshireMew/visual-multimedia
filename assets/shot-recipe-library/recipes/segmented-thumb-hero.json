@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "4fcfd7885aa690b9055d60b20b55292743b308f1d03161cbcf1c6daa98553779",
+  "behavior_fingerprint": "30242486b563decef38d865db099870966ea08447748206c608cbbf03310169f",
   "category": "interaction",
   "id": "segmented-thumb-hero",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "segmented-thumb-hero",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "segmented-thumb-hero",
       "status": "reference-only",
       "use": "\"模式切换/二选一\"功能的宣告镜头（Ask→Computer、Chat→Agent 式）；一个 UI 微交互撑一整镜的特写拍法"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

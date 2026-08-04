@@ -1,9 +1,12 @@
 {
   "protocol": "visual-multimedia-shot-recipe",
-  "version": 1,
+  "version": 2,
   "id": "feature-focus-tour",
   "name": "功能焦点巡礼",
-  "aliases": ["feature focus tour", "产品功能巡礼"],
+  "aliases": [
+    "feature focus tour",
+    "产品功能巡礼"
+  ],
   "status": "active",
   "source_id": "visual-multimedia",
   "category": "product-promo",
@@ -12,7 +15,13 @@
     "use": "产品界面或功能面板已经具有清楚的空间关系，需要用克制运镜引导注意力而不牺牲持续可读文字。",
     "duration": "由当前旁白或展示职责决定；内置包提供两个 3 秒场景作为可调起点。",
     "energy": "中低到中等，依靠焦点转移推进，不依靠冲击转场。",
-    "semantic_tags": ["product-promo", "camera", "feature", "focus", "ui"]
+    "semantic_tags": [
+      "product-promo",
+      "camera",
+      "feature",
+      "focus",
+      "ui"
+    ]
   },
   "styles": [
     {
@@ -23,7 +32,9 @@
       "status": "active",
       "implementation": {
         "kind": "editable-media-package",
-        "package": "assets/web-media-starter"
+        "package": "assets/web-media-starter",
+        "scene_id": "opening",
+        "variant_profile_id": "standard-full"
       }
     }
   ],
@@ -38,5 +49,15 @@
     "upstream_preview_declared": false,
     "notes": "目标原生配方，吸收功能到镜头选择和页面空间运镜机制，不复制来源项目实现。"
   },
-  "behavior_fingerprint": "61108c22fc1576c5ba1fc0c9607e8443ef9a71c1f65ee6a190823a5a074a01fc"
+  "behavior_fingerprint": "e9079a1c88e91fa5d66ff9f1e1a49f967795ebedad2dc24a6f49c1df0a704cac",
+  "applicability": {
+    "visual_source_kinds": [
+      "evidence"
+    ],
+    "relationship_kinds": [],
+    "placement_modes": [
+      "full-frame"
+    ],
+    "default_style_id": "semantic-focus-tour"
+  }
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "c59b1b2af357209212f5a138435723fb442eb084c4b914688ed366696609058b",
+  "behavior_fingerprint": "16d9a7b053853ab63a936af5280ffadcdcbef90236dd88261f802691f1aa9257",
   "category": "ui-entrance",
   "id": "integration-hub-map",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "integration-hub-map",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "integration-hub-map",
       "status": "reference-only",
       "use": "集成/生态能力段（一个产品连一切）；版本翻新叙事（旧页翻成新页）；暗场霓虹调性的功能高潮"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

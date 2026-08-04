@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "6a7f0866f58f6764821ce20286f710641a90517f5fcfd040b104afaabe5b1b78",
+  "behavior_fingerprint": "307500b1569ac17e06d3461f0d54f2b0723f1a1e83932de9ba6089c7c5e8e1eb",
   "category": "typography",
   "id": "word-relay-filmstrip",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "word-relay-filmstrip",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "word-relay-filmstrip",
       "status": "reference-only",
       "use": "\"一个主体 × 多种能力\"的枚举段（Computer researches/builds/codes…）；作品集/案例流展示；产品多场景巡礼"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

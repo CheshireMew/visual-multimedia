@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "3ab60567e437f3d8decd1c00dfbae81b3fcae35ab5c11162c90f1816d5de42df",
+  "behavior_fingerprint": "4c41bec34dd3ce06ee427cb4f102771eb2500ea08a335d669a2b1dc564d5bfbb",
   "category": "transition",
   "id": "page-turn-transitions",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "cube-rotate",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "cube-rotate",
       "status": "reference-only",
@@ -46,12 +48,15 @@
       "id": "barn-door-split",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "barn-door-split",
       "status": "reference-only",
       "use": "新旧交替：改版前后、方案 A→方案 B"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

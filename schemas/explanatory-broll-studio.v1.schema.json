@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.explanatory-broll-studio.v1",
+  "title": "Explanatory B-roll Studio State v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "project_id", "editor_project", "sequence_id", "track_id", "fps", "timing_projections", "clips", "updated_at"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-explanatory-broll-studio"},
+    "version": {"const": 1},
+    "project_id": {"$ref": "#/$defs/id"},
+    "editor_project": {"type": "string", "minLength": 1},
+    "sequence_id": {"$ref": "#/$defs/id"},
+    "track_id": {"$ref": "#/$defs/id"},
+    "fps": {"type": "integer", "minimum": 1, "maximum": 240},
+    "timing_projections": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/fileIntegrity"}},
+    "clips": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["selection_id", "selection", "segment_id", "recipe_id", "style_id", "scene_id", "variant_id", "runtime_package", "runtime_package_sha256", "runtime_manifest_sha256", "asset_id", "clip_id", "timeline_start_frame", "duration_frames"],
+        "properties": {
+          "selection_id": {"$ref": "#/$defs/id"},
+          "selection": {"$ref": "#/$defs/fileIntegrity"},
+          "segment_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+          "recipe_id": {"$ref": "#/$defs/id"},
+          "style_id": {"$ref": "#/$defs/id"},
+          "scene_id": {"$ref": "#/$defs/id"},
+          "variant_id": {"$ref": "#/$defs/id"},
+          "runtime_package": {"type": "string", "minLength": 1},
+          "runtime_package_sha256": {"$ref": "#/$defs/sha"},
+          "runtime_manifest_sha256": {"$ref": "#/$defs/sha"},
+          "asset_id": {"$ref": "#/$defs/id"},
+          "clip_id": {"$ref": "#/$defs/id"},
+          "timeline_start_frame": {"type": "integer", "minimum": 0},
+          "duration_frames": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "updated_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "sha": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "fileIntegrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "bytes"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha"},
+        "bytes": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

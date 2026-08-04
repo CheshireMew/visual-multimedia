@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "7f82dc196b99bb5d6bbdb41e7767064b5d7f7e40e008e83d11406b8408d7adf7",
+  "behavior_fingerprint": "1badd5bb033ebfb7964d9b9cbe60fd8318fa7701a146ef19d4a7d3dfebb277f9",
   "category": "effects",
   "id": "light-play-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "spotlight-sweep",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "spotlight-sweep",
       "status": "reference-only",
@@ -47,7 +49,9 @@
       "id": "sheen-sweep",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "sheen-sweep",
       "status": "reference-only",
@@ -58,12 +62,15 @@
       "id": "halation-bloom",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "halation-bloom",
       "status": "reference-only",
       "use": "crash-zoom 撞停帧的冲击加成"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

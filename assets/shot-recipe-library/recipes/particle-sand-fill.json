@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "02e82e1ab1c48d7e36c453cebdf3fef92a8cd91d18319bd43a758b081496ddfa",
+  "behavior_fingerprint": "70019f2f5867487a123b7c86f2bb35d13322f16411573fdce7c262caa05b2034",
   "category": "data",
   "id": "particle-sand-fill",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "particle-sand-fill",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "particle-sand-fill",
       "status": "reference-only",
       "use": "柱状图/量级对比入场；讲\"积累/汇聚\"语义的数据段落"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -31,7 +31,7 @@ const STARTER_ROOT = path.join(SKILL_ROOT, "assets", "media-project-starter");
 const PROFILE_RELATIVE = "assets/video-production-profiles/product-promo/1.0.0/profile.json";
 const PROFILE_PATH = path.join(SKILL_ROOT, ...PROFILE_RELATIVE.split("/"));
 const PRODUCT_SCHEMA = path.join(SKILL_ROOT, "schemas", "product-promo.v1.schema.json");
-const SHOT_SCHEMA = path.join(SKILL_ROOT, "schemas", "shot-recipe.v1.schema.json");
+const SHOT_SCHEMA = path.join(SKILL_ROOT, "schemas", "shot-recipe.v2.schema.json");
 const CAPTURE_SCHEMA = path.join(SKILL_ROOT, "schemas", "product-ui-capture.v1.schema.json");
 const BEAT_SCHEMA = path.join(SKILL_ROOT, "schemas", "music-beat-analysis.v1.schema.json");
 const PROJECT_SCHEMA = path.join(SKILL_ROOT, "schemas", "media-project-state.v3.schema.json");
@@ -328,7 +328,18 @@ async function main(argv) {
     return;
   }
   if (command === "materialize-recipe") {
-    console.log(JSON.stringify(materializeShotRecipe({projectRoot: project, recipeId: requireArg(args, "recipe-id"), styleId: requireArg(args, "style-id")}), null, 2));
+    console.log(JSON.stringify(materializeShotRecipe({
+      projectRoot: project,
+      recipeId: requireArg(args, "recipe-id"),
+      styleId: requireArg(args, "style-id"),
+      variantId: args.variant || null,
+      segmentId: args.segment || null,
+      visualSourceKind: args["source-kind"] || "evidence",
+      relationshipKind: args.relationship || null,
+      placementMode: args.placement || "full-frame",
+      aspectRatio: args.aspect || "16:9",
+      selectionReason: requireArg(args, "reason"),
+    }), null, 2));
     return;
   }
   if (command === "validate-brief") {

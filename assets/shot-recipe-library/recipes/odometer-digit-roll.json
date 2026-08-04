@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "388fbc084af58ad65aeeb91ff248b293693bb1de166600638a374b768f380dc1",
+  "behavior_fingerprint": "ba3e26ab5b64b2fb255f05a6fbf17a6e9f3040d9b9c3e60fe4abce55842b867a",
   "category": "data",
   "id": "odometer-digit-roll",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "odometer-digit-roll",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "odometer-digit-roll",
       "status": "reference-only",
       "use": "单个王牌指标的全屏亮相（\"10x\"/\"99.98%\"级）；与 impact-feedback B 式（伤害数字弹出）分工——那是元素级配菜，这是全屏级主菜"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

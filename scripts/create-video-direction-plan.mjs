@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { validateVideoDirectionPlan } from "./validate-video-direction-plan.mjs";
+import { materializeShotRecipe } from "./shot-recipe-library.mjs";
 
 const DRAFT_FIELDS = [
   "media_project_id",
@@ -22,10 +23,11 @@ const DRAFT_FIELDS = [
 function usage() {
   console.log(`用法：
 node scripts/create-video-direction-plan.mjs --project <项目目录>
-  --source <已确认长内容文件> --draft <导演输入.json>
+  --source <已确认内容文件> --draft <导演输入.json>
   [--created-at <ISO 日期时间>]
 
 导演输入只保存创意判断；本脚本绑定真实来源快照、输入哈希和旁白哈希，
+并为解释型 B-roll / 包装画面自动选择、物化和冻结活动镜头配方，
 并写入项目唯一的 video-direction-plan.json。相同输入幂等复用，不覆盖变化后的计划。`);
 }
 
@@ -86,7 +88,7 @@ function ensureProjectFile(projectRoot, filePath, label) {
 
 function snapshotSource(projectRoot, sourcePath) {
   const buffer = fs.readFileSync(sourcePath);
-  if (buffer.length === 0) throw new Error("已确认长内容文件不能为空");
+  if (buffer.length === 0) throw new Error("已确认内容文件不能为空");
   const digest = sha256(buffer);
   const extension = path.extname(sourcePath).toLowerCase();
   const destination = path.join(
@@ -124,6 +126,67 @@ function validateDraft(draft) {
   if (draft.narration?.status !== "confirmed") {
     throw new Error("导演输入的 narration.status 必须是 confirmed");
   }
+  if (!Array.isArray(draft.scenes) || draft.scenes.length === 0) {
+    throw new Error("导演输入至少需要一个 scenes 项");
+  }
+  for (const [index, scene] of draft.scenes.entries()) {
+    const visual = scene?.visual_plan;
+    if (!visual || typeof visual !== "object" || Array.isArray(visual)) {
+      throw new Error(`scenes[${index}].visual_plan 必须是对象`);
+    }
+    const fields = [
+      "source_kind", "source_ids", "relationship_kind", "placement_mode",
+      "aspect_ratio", "selection_reason", "recipe",
+    ];
+    const missingVisual = fields.filter((field) => !Object.hasOwn(visual, field));
+    const unknownVisual = Object.keys(visual).filter((field) => !fields.includes(field));
+    if (missingVisual.length) {
+      throw new Error(`scenes[${index}].visual_plan 缺少字段：${missingVisual.join(", ")}`);
+    }
+    if (unknownVisual.length) {
+      throw new Error(`scenes[${index}].visual_plan 包含未知字段：${unknownVisual.join(", ")}`);
+    }
+  }
+}
+
+function materializeVisualPlan(projectRoot, scene) {
+  const visual = scene.visual_plan;
+  if (!["explanatory-broll", "packaging"].includes(visual.source_kind)) {
+    if (visual.recipe !== null) {
+      throw new Error(`${scene.segment_id} 的 ${visual.source_kind} 画面不能绑定镜头配方`);
+    }
+    return {...visual, recipe: null};
+  }
+  const intent = visual.recipe;
+  if (intent !== null && (typeof intent !== "object" || Array.isArray(intent))) {
+    throw new Error(`${scene.segment_id}.visual_plan.recipe 必须是对象或 null`);
+  }
+  const materialized = materializeShotRecipe({
+    projectRoot,
+    recipeId: intent?.recipe_id || null,
+    styleId: intent?.style_id || null,
+    variantId: intent?.variant_id || null,
+    segmentId: scene.segment_id,
+    visualSourceKind: visual.source_kind,
+    relationshipKind: visual.relationship_kind,
+    placementMode: visual.placement_mode,
+    aspectRatio: visual.aspect_ratio,
+    selectionReason: visual.selection_reason,
+  });
+  const stat = fs.statSync(materialized.selection);
+  return {
+    ...visual,
+    recipe: {
+      recipe_id: materialized.document.recipe_id,
+      style_id: materialized.document.style_id,
+      variant_id: materialized.document.variant_id,
+      selection: {
+        file: path.relative(projectRoot, materialized.selection).split(path.sep).join("/"),
+        sha256: sha256(fs.readFileSync(materialized.selection)),
+        bytes: stat.size,
+      },
+    },
+  };
 }
 
 function main() {
@@ -140,7 +203,7 @@ function main() {
   const sourcePath = ensureProjectFile(
     projectRoot,
     required(args, "source"),
-    "已确认长内容"
+    "已确认内容"
   );
   const draftPath = ensureProjectFile(
     projectRoot,
@@ -153,7 +216,7 @@ function main() {
   const snapshot = snapshotSource(projectRoot, sourcePath);
   const plan = {
     protocol: "visual-multimedia-video-direction",
-    version: 1,
+    version: 2,
     project: {
       media_project_id: draft.media_project_id,
       source: {
@@ -174,7 +237,10 @@ function main() {
     pronunciations: draft.pronunciations,
     presenter: draft.presenter,
     generation_jobs: "generation-jobs.json",
-    scenes: draft.scenes,
+    scenes: draft.scenes.map((scene) => ({
+      ...scene,
+      visual_plan: materializeVisualPlan(projectRoot, scene),
+    })),
   };
   const output = path.join(projectRoot, "video-direction-plan.json");
   if (fs.existsSync(output)) {

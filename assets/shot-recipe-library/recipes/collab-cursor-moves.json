@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "22d2eef1ccc1330d2b8cab34c6f06918c994af1e47a7663c8b199989fc27bed8",
+  "behavior_fingerprint": "f540f8f7d73607c4f9fb27450b1761d74235b038ea6f6907217c0506d9914d4e",
   "category": "interaction",
   "id": "collab-cursor-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "dialogue-duet",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "dialogue-duet",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "cast-ensemble",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "cast-ensemble",
       "status": "reference-only",
       "use": "画布/白板类产品全片氛围层；主内容之外需要\"别人也在\"的背景活性"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

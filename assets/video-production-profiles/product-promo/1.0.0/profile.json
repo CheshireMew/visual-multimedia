@@ -72,7 +72,7 @@
   "public_entry": "scripts/product-promo.mjs",
   "schemas": {
     "brief_plan_confirmation": "schemas/product-promo.v1.schema.json",
-    "shot_recipe": "schemas/shot-recipe.v1.schema.json",
+    "shot_recipe": "schemas/shot-recipe.v2.schema.json",
     "product_ui_capture": "schemas/product-ui-capture.v1.schema.json",
     "music_beat_analysis": "schemas/music-beat-analysis.v1.schema.json",
     "build_plan": "schemas/media-build-plan.v1.schema.json"

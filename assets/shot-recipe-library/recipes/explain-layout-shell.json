@@ -1,0 +1,93 @@
+{
+  "protocol": "visual-multimedia-shot-recipe",
+  "version": 2,
+  "id": "explain-layout-shell",
+  "name": "全屏、真人分屏与透明叠加布局",
+  "aliases": [
+    "explanatory layout",
+    "讲解布局",
+    "全屏分屏透明叠加"
+  ],
+  "status": "active",
+  "source_id": "visual-multimedia",
+  "category": "explanatory-broll",
+  "applicability": {
+    "visual_source_kinds": [
+      "explanatory-broll"
+    ],
+    "relationship_kinds": [
+      "layout"
+    ],
+    "placement_modes": [
+      "full-frame",
+      "presenter-split",
+      "transparent-overlay"
+    ],
+    "default_style_id": "full-frame-layout"
+  },
+  "intent": {
+    "purpose": "让同一解释型画面按全屏、真人分屏或透明覆盖层进入视频，而不改变内容关系和时间真源。",
+    "use": "已经确定解释画面，但仍需根据人物、底片和字幕职责选择最终占屏方式。",
+    "duration": "与当前解释场景一致。",
+    "energy": "低干扰，布局变化不抢夺内容。",
+    "semantic_tags": [
+      "explanatory-broll",
+      "layout",
+      "presenter",
+      "overlay"
+    ]
+  },
+  "styles": [
+    {
+      "id": "full-frame-layout",
+      "label": "全屏解释",
+      "description": "图解占据完整画布并承担主要视觉表达。",
+      "use": "无人物或需要集中阅读复杂关系时。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/explanatory-broll-templates",
+        "scene_id": "layout-shell",
+        "variant_profile_id": "explanatory-full"
+      }
+    },
+    {
+      "id": "presenter-split-layout",
+      "label": "真人分屏",
+      "description": "为已经授权的真人底片保留稳定区域，解释画面在另一侧或下方独立排版。",
+      "use": "人物持续讲解且证据需要同时出现时。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/explanatory-broll-templates",
+        "scene_id": "layout-shell",
+        "variant_profile_id": "explanatory-split"
+      }
+    },
+    {
+      "id": "transparent-overlay-layout",
+      "label": "透明叠加",
+      "description": "保留透明画布，把标题和图解作为覆盖层叠到真实视频之上。",
+      "use": "底片必须持续可见，只需要局部解释和强调时。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/explanatory-broll-templates",
+        "scene_id": "layout-shell",
+        "variant_profile_id": "explanatory-overlay"
+      }
+    }
+  ],
+  "known_pitfalls": [
+    "布局是画面职责，不是内容关系；先选择解释模板，再选择占屏方式。",
+    "真人分屏只预留合成区域，不生成或冒充人物素材。",
+    "透明叠加必须用声明透明的变体，并在明暗底片上检查边缘和可读性。"
+  ],
+  "source_evidence": {
+    "source_card": "target-native:assets/explanatory-broll-templates",
+    "upstream_demo": null,
+    "upstream_preview_declared": false,
+    "notes": "目标原生独立实现，布局由现有 editable-media 变体和 MediaFlow 合成消费。"
+  },
+  "behavior_fingerprint": "a13aa986d13926e05a8b707d703d6b2dab445e353cd10e33c4b8194c9cefe979"
+}

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "c074fb69adf581cdde9428501586db6f0fcc7aa3d68380547c6e9aa9d9639fbc",
+  "behavior_fingerprint": "640c338f604f2c51cfe1f1fdfdb56348a8337cbb4e43c0057f0b3f6c31c064d5",
   "category": "effects",
   "id": "impact-feedback",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "hit-counter",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "hit-counter 连招计数",
       "status": "reference-only",
@@ -47,12 +49,15 @@
       "id": "anime-impact",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "anime-impact 打击帧",
       "status": "reference-only",
       "use": "全片唯一高潮的那一拳；强调级封顶"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "5bcc05c7e77e1e91e2e820b83d3830b91997750cc08be21078dd9aeb436d63db",
+  "behavior_fingerprint": "b357c64c76823849f832a24958782a88d9f21e84508b97c175e5630d5eb7b2e2",
   "category": "rhythm",
   "id": "beat-cut-moves",
   "intent": {
@@ -37,7 +37,9 @@
       "id": "beat-cut-accelerando",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "beat-cut-accelerando 递进硬切串",
       "status": "reference-only",
@@ -48,12 +50,15 @@
       "id": "paparazzi-flash",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "paparazzi-flash 连闪定格",
       "status": "reference-only",
       "use": "高光时刻仪式感：颁奖连拍、关键数字的加冕"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

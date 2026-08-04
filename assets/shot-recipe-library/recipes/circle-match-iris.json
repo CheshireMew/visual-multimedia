@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "68d2fd81072c02ff9f42bee46254061fc62977a6130d86b038fc82596c14ec3b",
+  "behavior_fingerprint": "49f99907f4096ac66322ff96a66e0c308b1c55ecd081bdb1d708b939b0eb6e64",
   "category": "transition",
   "id": "circle-match-iris",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "circle-match-iris",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "circle-match-iris",
       "status": "reference-only",
       "use": "前景有圆形元素（头像/图标/圆钮）、后景有圆形主体（donut 图/圆环进度）的接缝；转场技法卡"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

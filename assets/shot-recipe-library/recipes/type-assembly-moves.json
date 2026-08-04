@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "b51cc5de85f7b43160716413fc8de965fb7208c02d7cc42ff339f5ee82d88307",
+  "behavior_fingerprint": "e236ab19c47d318f8e8a58240446613e62f7f19832fbe6dd3e4060811f335792",
   "category": "typography",
   "id": "type-assembly-moves",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "split-text-stagger",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "split-text-stagger 裂升",
       "status": "reference-only",
@@ -46,7 +48,9 @@
       "id": "drift-assembly",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "drift-assembly 漂移合拢",
       "status": "reference-only",
@@ -57,7 +61,9 @@
       "id": "tracking-expand",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "tracking-expand 字距呼吸",
       "status": "reference-only",
@@ -68,12 +74,15 @@
       "id": "text-on-path",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "text-on-path 沿线流入",
       "status": "reference-only",
       "use": "曲线有语义时（增长线/流程线）"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

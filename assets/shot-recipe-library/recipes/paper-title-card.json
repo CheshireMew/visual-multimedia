@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "4e3fdf9ebce904e4a5c45ae2611dd02f40278591fa17186a733914e0665ec052",
+  "behavior_fingerprint": "de87c57b1f1f022f8bb6b1d6b16bd3207cd3b1a67ea872ab282de5471abf8f3f",
   "category": "typography",
   "id": "paper-title-card",
   "intent": {
@@ -34,12 +34,15 @@
       "id": "paper-title-card",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "paper-title-card",
       "status": "reference-only",
       "use": "章节转场/价值主张字卡；重要功能出场前的引导卡；全片呼吸位"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

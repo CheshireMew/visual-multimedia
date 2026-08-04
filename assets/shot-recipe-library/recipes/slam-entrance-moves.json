@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "be270db7556833922b2cdecbd9e3bd4f2d2fdf502a6727bd4ff07e9d24ea5258",
+  "behavior_fingerprint": "16724c8101e2d8b2a61fc3812a47927a20c47e0376e730fe6490c0340dddc59d",
   "category": "effects",
   "id": "slam-entrance-moves",
   "intent": {
@@ -37,7 +37,9 @@
       "id": "kanada-perspective-snap",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "kanada-perspective-snap",
       "status": "reference-only",
@@ -48,7 +50,9 @@
       "id": "score-slam",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "score-slam",
       "status": "reference-only",
@@ -59,12 +63,15 @@
       "id": "impact-burst-kit",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "impact-burst-kit",
       "status": "reference-only",
       "use": "页面上已有邻居时的\"全场震动\""
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

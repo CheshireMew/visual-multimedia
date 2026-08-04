@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "f3d1582e43ed1c43af45c66d5007f02a67a46cb696bf3a9076923d01c7394a88",
+  "behavior_fingerprint": "0bd0b59513c01ea3b387033a39eb11cad3fb38222927c3efed1f5b0ffe3bb62c",
   "category": "effects",
   "id": "brand-frame-snap",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "brand-frame-snap",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "brand-frame-snap",
       "status": "reference-only",
       "use": "双模式/双章节产品片的全片包装层（蓝=模式A、绿=模式B 颜色编码）；真实录屏素材的品牌化包裹"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

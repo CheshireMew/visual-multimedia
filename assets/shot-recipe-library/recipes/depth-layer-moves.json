@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "2773781be25ff04c181f78ff8f0a432f8f063537e99e83d6ccbf40eef42a2715",
+  "behavior_fingerprint": "837fefcb87c08cb8a6812315f97a113162092559829f226d7d893a21e2d9e101",
   "category": "camera",
   "id": "depth-layer-moves",
   "intent": {
@@ -34,7 +34,9 @@
       "id": "multiplane",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "multiplane",
       "status": "reference-only",
@@ -45,12 +47,15 @@
       "id": "dolly-zoom",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "dolly-zoom",
       "status": "reference-only",
       "use": "平面截图要\"有厚度\"的段落；戏剧性蓄力时刻用 dolly-zoom（一支片 ≤1 次）"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

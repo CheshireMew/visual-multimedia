@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "1bfdd9dbc2697ab8c01ec2d4b1aee70453bdf1130f26337d49dee0f49993773c",
+  "behavior_fingerprint": "339ef46775b29165ebdc464181b36bf7c5ac45970b931b3c644d3be1d855f0a4",
   "category": "rhythm",
   "id": "panel-grid-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "grid-flash-mosaic",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "grid-flash-mosaic",
       "status": "reference-only",
@@ -47,7 +49,9 @@
       "id": "flip-grid-reflow",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "flip-grid-reflow",
       "status": "reference-only",
@@ -58,12 +62,15 @@
       "id": "comic-panel-split",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "comic-panel-split",
       "status": "reference-only",
       "use": "同一主体多视角并列；漫画感段落"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

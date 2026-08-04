@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "ae228d5bb649001a00e5cbbfbb8df70b3ed1539e31c26f027b1fb6fcb9feb8c5",
+  "behavior_fingerprint": "18f2b3f511cdf18c473cc9ea19bc488da96766f8b19aad4a2974aac6d50f7dc7",
   "category": "camera",
   "id": "space-camera-moves",
   "intent": {
@@ -34,7 +34,9 @@
       "id": "exploded-view",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "exploded-view",
       "status": "reference-only",
@@ -45,12 +47,15 @@
       "id": "drone-dive-landing",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "drone-dive-landing",
       "status": "reference-only",
       "use": "开场定场→入题；全局地图砸进单点的章节启动"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

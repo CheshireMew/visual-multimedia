@@ -30,6 +30,11 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 使用 $visual-multimedia，把这份确认过的讲解稿做成可手动推进、也能连续导出的多场景 HTML 动画。
 ```
 
+```text
+使用 $visual-multimedia，把这段确认口播做成 16:9 视频。
+流程、时间线和因果段落自动选择解释型 B-roll；先在 Gallery Studio 里确认，再按真实配音时间接入 MediaFlow Pro。
+```
+
 如果只点名 Skill 并提供内容，却没有说明要样稿还是成品，默认流程会推荐一个首选载体、完成可确认的媒体文案，然后停下来等待决定。明确要求样稿或完整制作时，流程才会继续创建网页、处理素材或导出文件。
 
 为了减少来回确认，首次请求最好同时说明：
@@ -63,6 +68,7 @@ Visual Multimedia 负责把已经确认的内容和素材组织成可编辑的�
 | --- | --- | --- |
 | 社交卡、封面、轮播图、图表 | 已确认内容、尺寸与可用素材 | 可编辑网页真源、逐比例预览和指定图片 |
 | GIF、动态图解、代码动画 | 内容关系、语义步骤与播放方式 | 可定位关键状态的网页动画，以及指定 GIF 或视频 |
+| 解释型 B-roll 与视频包装 | 确认口播、内容关系、布局比例与真实声音时间 | 自动配方选择、十类可编辑活动模板、MediaFlow Pro 片段和 PNG/GIF/视频/透明输出 |
 | 多场景 HTML 演示 | 完整文案、场景顺序与手动/自动/混合播放要求 | 同一网页真源中的交互演示和连续导出路径 |
 | 实拍、访谈、讲课或录屏后期 | 原片、事实转写、片段范围与交付要求 | 可继续修改的时间线、字幕、混音和经过审阅的成片 |
 | 音频与播客 | 录音、节目结构、旁白与声音要求 | 音频时间线、混音成品和必要附属文件 |
@@ -137,7 +143,7 @@ node scripts/check-skill.mjs --browser
 node scripts/check-skill.mjs --full
 ```
 
-`--fast` 检查 Skill、README、许可证、schema、资源索引、真实案例静态合同与脚本语法；`--browser` 在此基础上验证 Playwright 网页包、确定性时间、文字动效和产品功能宣传片链路；`--full` 再运行全部 Node、Python 生产、消费与最终交付回归。Python 不在系统命令路径中时，可以通过 `VISUAL_MULTIMEDIA_PYTHON` 指向实际解释器。
+`--fast` 检查 Skill、README、许可证、schema、资源索引、真实案例静态合同与脚本语法；`--browser` 在此基础上验证 Playwright 网页包、确定性时间、十类解释型 B-roll、文字动效和产品功能宣传片链路；`--full` 再验证导演自动选模板、真实时间投影、MediaFlow Pro 时间线、五种 B-roll 导出及其它 Node、Python 生产消费与最终交付回归。Python 不在系统命令路径中时，可以通过 `VISUAL_MULTIMEDIA_PYTHON` 指向实际解释器。
 
 涉及 `editable-media`、网页 starter、素材表示、确定性时间边界或 MediaFlow Pro 公开消费合同的改动，需要同时沿生产者、同步边界、MediaFlow Pro 消费者和最终可见结果完成迁移。准确的联动范围与验证命令见 [AGENTS.md](AGENTS.md)；公开编辑器能力的实际入口见 [references/structured-media-editor-cli.md](references/structured-media-editor-cli.md)。
 

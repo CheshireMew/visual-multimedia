@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "c4860135b3696b4f75e919e4222415d9e5ad9010ae96c781c05081191fa3425b",
+  "behavior_fingerprint": "523cd6c08087763a2cc8cc9a837727ba55b356a64e738d2f19cc4508ae1d2a14",
   "category": "outro",
   "id": "edit-hook-moves",
   "intent": {
@@ -33,12 +33,15 @@
       "id": "logo-sting-button",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "logo-sting-button",
       "status": "reference-only",
       "use": "片尾；正片收束后再给一记"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

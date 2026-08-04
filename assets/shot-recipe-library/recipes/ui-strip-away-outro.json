@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "91db22cf0b4471591efc7394276adb6e280eba587c316a6a7ff3f76d3b41c7a5",
+  "behavior_fingerprint": "1909359a50c030f2dc89858253866dec6e475b897af8f57129a33370e06541b4",
   "category": "outro",
   "id": "ui-strip-away-outro",
   "intent": {
@@ -37,12 +37,15 @@
       "id": "ui-strip-away-outro",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "ui-strip-away-outro",
       "status": "reference-only",
       "use": "\"发布/完成\"语义的 outro；想讲\"一键之后一切复杂性消失\"的产品收尾"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

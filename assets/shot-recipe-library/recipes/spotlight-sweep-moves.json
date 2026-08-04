@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "7173cb0cee6077c7db52fc286d8123a3420ef6fcbb4ebbbfbc3f3080a28eb903",
+  "behavior_fingerprint": "9f6d920b08d4b6e08a5d11196419d8c6ad0ebdc289c19a51fadd435de33a159c",
   "category": "effects",
   "id": "spotlight-sweep-moves",
   "intent": {
@@ -36,7 +36,9 @@
       "id": "glow-wake-sleep-panel",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "glow-wake-sleep-panel",
       "status": "reference-only",
@@ -47,7 +49,9 @@
       "id": "slide-spotlight-pan",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "slide-spotlight-pan",
       "status": "reference-only",
@@ -58,12 +62,15 @@
       "id": "corner-spotlight-reveal",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "corner-spotlight-reveal",
       "status": "reference-only",
       "use": "黑场开场点亮界面登场；段落间光转场"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "5a4e0af103549ad8f8dcc970d5181faef5b1f77eecd6ba88e60a0890e6d564f6",
+  "behavior_fingerprint": "d5b0d001620359f70f949bab2cc18d2ce43644a263aa33ec198fe46965c582df",
   "category": "transition",
   "id": "wipe-transitions",
   "intent": {
@@ -35,7 +35,9 @@
       "id": "clock-wipe",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "clock-wipe",
       "status": "reference-only",
@@ -46,12 +48,15 @@
       "id": "blinds-slice",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "blinds-slice",
       "status": "reference-only",
       "use": "翻页/推进语义；横向阅读动线页面"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

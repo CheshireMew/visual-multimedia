@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "0f323a1ab161ac9b1f33e5d058467cca80dd6092c40fc46b5e8358b96b38d0b8",
+  "behavior_fingerprint": "f85be3964f24b9b921785780b345c4c95702b22ceb0c3be20c3adf9ce671991c",
   "category": "ui-entrance",
   "id": "page-waterfall-wall",
   "intent": {
@@ -34,12 +34,15 @@
       "id": "page-waterfall-wall",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "page-waterfall-wall",
       "status": "reference-only",
       "use": "\"多页面/多功能/多模板\"体量感段落；montage 中段铺陈或 intro 后的产品广度镜头"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

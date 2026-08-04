@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "f46a3b2202657d23b4d09cd276bf1e1249c6c27f1763cfeb56e055a266056847",
+  "behavior_fingerprint": "31d80dbee17af0d376437da3a71a4f3b94a756d16257c691187d720bfd615cd0",
   "category": "opening",
   "id": "stroke-segment-build",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "stroke-segment-build",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "stroke-segment-build",
       "status": "reference-only",
       "use": "开场吊悬念的产品名/大数字揭晓；一支片 ≤1 次；与 type-assembly/draw-svg-trace 分工：那些是\"看着字被组装/描画\"，本卡是\"意义延迟揭晓\""
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

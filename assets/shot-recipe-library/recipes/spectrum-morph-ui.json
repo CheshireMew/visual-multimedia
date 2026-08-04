@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "6f6962415625e041d70c55b3bcacf24af45af86015f596fceeefd9b6c914aecc",
+  "behavior_fingerprint": "2ad6332dd310b437b93fc462a3b91475a98bff26c3f61428bc8dcf4bdf2409c6",
   "category": "rhythm",
   "id": "spectrum-morph-ui",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "spectrum-morph-ui",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "spectrum-morph-ui",
       "status": "reference-only",
       "use": "有音轨片子的声画同步高光段（BGM 副歌起/鼓点密集段）；标题字卡、章节页的下划线/分隔线构件"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

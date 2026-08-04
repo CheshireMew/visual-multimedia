@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "21a4b0047867fa0521e4dd22dae70ea9a020eb34cb4b75742cf300343555bc92",
+  "behavior_fingerprint": "491f0a7cdf447e88bf316c39f91025d61a5c70f33e5e137c9bbf78354c16fb2f",
   "category": "camera",
   "id": "crash-zoom-punch",
   "intent": {
@@ -34,12 +34,15 @@
       "id": "crash-zoom-punch",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "crash-zoom-punch",
       "status": "reference-only",
       "use": "功能段\"点名\"镜头——把观众视线一拍按到目标卡/模块上；强调级用撞停"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

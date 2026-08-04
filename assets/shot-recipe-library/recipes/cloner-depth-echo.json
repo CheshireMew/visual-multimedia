@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "17d16d8da33e357394a41226f77135ce0d1f917806c7f36658cb1a749343006c",
+  "behavior_fingerprint": "4c64b680947bf9698b7bc26c76b139a7b5f03c27e20346b1a15b4008f1dd827b",
   "category": "ui-entrance",
   "id": "cloner-depth-echo",
   "intent": {
@@ -34,12 +34,15 @@
       "id": "cloner-depth-echo",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "cloner-depth-echo",
       "status": "reference-only",
       "use": "\"多副本/多租户/规模感/批量处理\"卖点；一镜讲完\"一个=很多\""
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

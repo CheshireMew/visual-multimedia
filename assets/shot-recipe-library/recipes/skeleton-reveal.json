@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "ccb8e3018c275a1c0550cee4e21ae1580fba1c7f50391e7a6c53ad9a01b2e976",
+  "behavior_fingerprint": "b8f0020f9535ac50304606f0f4e6a43b277929bcb5232327fba85654ddb82ea2",
   "category": "ui-entrance",
   "id": "skeleton-reveal",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "skeleton-reveal",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "skeleton-reveal",
       "status": "reference-only",
       "use": "产品 UI 的\"从无到有\"登场叙事；开场后第一次亮产品界面的段落"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

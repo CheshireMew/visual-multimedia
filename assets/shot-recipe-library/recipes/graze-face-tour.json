@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "dc4d912c2de380e0e45704d755b142fcdcc74fb50c4acd26b6fe8eb60d730cd1",
+  "behavior_fingerprint": "b8ff4b8adec3b8421e6a61ebcdb599cda707e84495e4827c59c62d2c0e28c051",
   "category": "camera",
   "id": "graze-face-tour",
   "intent": {
@@ -36,12 +36,15 @@
       "id": "graze-face-tour",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "graze-face-tour",
       "status": "reference-only",
       "use": "功能区巡礼（把 UI 当地景飞掠）；配合暗场+霓虹缘光做产品\"内部世界\"段落；界面内容逐区登场"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -1,0 +1,65 @@
+{
+  "protocol": "visual-multimedia-shot-recipe",
+  "version": 2,
+  "id": "explain-phase-timeline",
+  "name": "时间线与阶段演进",
+  "aliases": [
+    "phase-timeline",
+    "时间线与阶段演进"
+  ],
+  "status": "active",
+  "source_id": "visual-multimedia",
+  "category": "explanatory-broll",
+  "applicability": {
+    "visual_source_kinds": [
+      "explanatory-broll"
+    ],
+    "relationship_kinds": [
+      "phase-timeline"
+    ],
+    "placement_modes": [
+      "full-frame",
+      "presenter-split",
+      "transparent-overlay"
+    ],
+    "default_style_id": "semantic-phase-timeline"
+  },
+  "intent": {
+    "purpose": "把过去、现在、未来或多个发展阶段沿同一时间轴推进并保持可比较。",
+    "use": "阶段变化、历史演进、路线图、里程碑和趋势讲解。",
+    "duration": "由当前确认旁白或场景职责决定；内置 4.5 秒语义状态可以按真实声音重新定时。",
+    "energy": "中低到中等，关系变化优先于装饰性运动。",
+    "semantic_tags": [
+      "explanatory-broll",
+      "phase-timeline",
+      "editable-media"
+    ]
+  },
+  "styles": [
+    {
+      "id": "semantic-phase-timeline",
+      "label": "时间线与阶段演进",
+      "description": "使用 explanatory-broll-templates 中的 phase-timeline 场景，按开始、变化、结果三种确定性状态解释当前关系。",
+      "use": "阶段变化、历史演进、路线图、里程碑和趋势讲解。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/explanatory-broll-templates",
+        "scene_id": "phase-timeline",
+        "variant_profile_id": "explanatory-all"
+      }
+    }
+  ],
+  "known_pitfalls": [
+    "模板只固定关系和运动职责，条目数量、文字、数值、颜色和节奏必须读取当前内容。",
+    "物化后必须替换示例内容并重新验证，不能把目录预览直接交付。",
+    "持续阅读文字保持稳定；承担因果、推进或转折的对象变化必须直接可见。"
+  ],
+  "source_evidence": {
+    "source_card": "target-native:assets/explanatory-broll-templates",
+    "upstream_demo": null,
+    "upstream_preview_declared": false,
+    "notes": "目标原生独立实现，只吸收按内容关系组织解释型 B-roll 的能力结构，不复制外部模板造型、代码或素材。"
+  },
+  "behavior_fingerprint": "f693791c6d89836c795b3298ecfa307bbe4f9fb9ad9908e7d10b60f919e0e1ba"
+}

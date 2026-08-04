@@ -1,0 +1,224 @@
+{
+  "protocol": "editable-media",
+  "version": 5,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "hybrid",
+    "fps": 30,
+    "loop": "none",
+    "controls": {"keyboard": true, "wheel": true, "touch": true, "overview": true}
+  },
+  "accessibility": {
+    "title_data_field": "lead_label",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "progress-shell",
+      "name": "Progress shell",
+      "kind": "group",
+      "selector": "[data-editable-id='progress-shell']",
+      "default_bounds": {"x": 16, "y": 20, "width": 1888, "height": 64, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {}
+    },
+    {
+      "id": "lead-label",
+      "name": "Lead label",
+      "kind": "text",
+      "selector": "[data-editable-id='lead-label']",
+      "parent_id": "progress-shell",
+      "default_bounds": {"x": 16, "y": 20, "width": 220, "height": 64, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 16, "maximum": 48, "step": 1}}
+    },
+    {
+      "id": "progress-track",
+      "name": "Progress track",
+      "kind": "group",
+      "selector": "[data-editable-id='progress-track']",
+      "parent_id": "progress-shell",
+      "default_bounds": {"x": 16, "y": 80, "width": 1888, "height": 4, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "video-segmented-progress-rail",
+    "name": "Video segmented progress rail",
+    "category": "video-packaging",
+    "tags": ["progress", "chapter", "overlay", "transparent", "video"],
+    "description": "横向矩形分段组成的全片导航栏，底边进度和可替换游标与视频总时间同步。",
+    "preview_background": "#22232a",
+    "preview_accent": "#8b7cff",
+    "aspect_ratios": ["16:9", "9:16", "1:1"]
+  },
+  "theme_variables": [
+    {"id": "background", "name": "Background", "kind": "color", "css_variable": "--background", "default": "#00000000"},
+    {"id": "surface", "name": "Surface", "kind": "color", "css_variable": "--surface", "default": "#555760c9"},
+    {"id": "text", "name": "Text", "kind": "color", "css_variable": "--text", "default": "#f6f6f8"},
+    {"id": "muted", "name": "Muted", "kind": "color", "css_variable": "--muted", "default": "#d1d2d7"},
+    {"id": "line", "name": "Line", "kind": "color", "css_variable": "--line", "default": "#ffffff38"},
+    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#8b7cff"},
+    {"id": "font_family", "name": "Font family", "kind": "font", "css_variable": "--font-family", "default": "Inter, Segoe UI, Microsoft YaHei, system-ui, sans-serif"},
+    {"id": "radius", "name": "Corner radius", "kind": "string", "css_variable": "--radius", "default": "14px"},
+    {"id": "shadow", "name": "Panel shadow", "kind": "string", "css_variable": "--shadow", "default": "0 8px 22px rgb(0 0 0 / 22%)"}
+  ],
+  "parameters": [
+    {
+      "id": "track_thickness_px",
+      "name": "轨道粗细",
+      "description": "控制横向导航栏底边进度线的高度。",
+      "group": "进度条",
+      "kind": "integer",
+      "scope": "global",
+      "default": 4,
+      "animatable": false,
+      "unit": "px",
+      "control": "slider",
+      "css_variable": "--track-thickness-px",
+      "constraints": {"minimum": 2, "maximum": 12, "step": 1}
+    },
+    {
+      "id": "cursor_scale",
+      "name": "游标大小",
+      "description": "控制当前占位游标尺寸；以后的人物素材使用同一位置和倍率。",
+      "group": "进度条",
+      "kind": "number",
+      "scope": "global",
+      "default": 1,
+      "animatable": false,
+      "unit": "ratio",
+      "control": "slider",
+      "css_variable": "--cursor-scale",
+      "constraints": {"minimum": 0.7, "maximum": 1.6, "step": 0.05}
+    },
+    {
+      "id": "inactive_opacity",
+      "name": "未到章节透明度",
+      "description": "控制尚未播放章节的标签和轨道透明度。",
+      "group": "进度条",
+      "kind": "number",
+      "scope": "global",
+      "default": 0.62,
+      "animatable": false,
+      "unit": "ratio",
+      "control": "slider",
+      "css_variable": "--inactive-opacity",
+      "constraints": {"minimum": 0.25, "maximum": 0.9, "step": 0.01}
+    }
+  ],
+  "scenes": [
+    {
+      "id": "progress",
+      "name": "Video progress",
+      "page_role": "video-packaging",
+      "content_shape": "chapter-progress-overlay",
+      "layout_id": "edge-progress-overlay",
+      "duration_ms": 60000,
+      "primary_blocks": 4,
+      "steps": [
+        {"id": "chapter-1", "at_ms": 0, "label": "问题", "state_kind": "start", "review": true, "description": "从视频开始处显示第一个章节。"},
+        {"id": "chapter-2", "at_ms": 15000, "label": "方法", "state_kind": "change", "review": true, "description": "进度到达方法章节。"},
+        {"id": "chapter-3", "at_ms": 33000, "label": "演示", "state_kind": "change", "review": true, "description": "进度到达演示章节。"},
+        {"id": "chapter-4", "at_ms": 50000, "label": "结果", "state_kind": "result", "review": true, "description": "进度到达结果章节。"}
+      ],
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "让同一横向分段栏的底边进度和游标连续推进，并切换当前章节状态。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {
+        "lead_label": "内容导航",
+        "traveler_mode": "cursor",
+        "chapters": [
+          {"label": "问题", "start_ms": 0},
+          {"label": "方法", "start_ms": 15000},
+          {"label": "演示", "start_ms": 33000},
+          {"label": "结果", "start_ms": 50000}
+        ]
+      },
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "edge-progress-overlay",
+      "name": "Edge segmented progress rail",
+      "page_roles": ["video-packaging"],
+      "content_shapes": ["chapter-progress-overlay"],
+      "required_data_fields": ["lead_label", "traveler_mode", "chapters"],
+      "required_layer_ids": ["progress-shell", "lead-label", "progress-track"],
+      "title_layer_ids": ["lead-label"],
+      "content_layer_ids": ["progress-track"],
+      "capacity": {"maximum_primary_blocks": 24},
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "landscape",
+      "name": "Landscape",
+      "canvas": {"width": 1920, "height": 1080, "background_mode": "transparent", "background_color": "#00000000"},
+      "layers": {
+        "progress-shell": {"x": 16, "y": 20, "width": 1888, "height": 64},
+        "lead-label": {"x": 16, "y": 20, "width": 220, "height": 64, "font_size": 24},
+        "progress-track": {"x": 16, "y": 80, "width": 1888, "height": 4}
+      }
+    },
+    {
+      "id": "portrait",
+      "name": "Portrait",
+      "canvas": {"width": 1080, "height": 1920, "background_mode": "transparent", "background_color": "#00000000"},
+      "layers": {
+        "progress-shell": {"x": 12, "y": 24, "width": 1056, "height": 78},
+        "lead-label": {"x": 12, "y": 24, "width": 168, "height": 78, "font_size": 25},
+        "progress-track": {"x": 12, "y": 98, "width": 1056, "height": 4}
+      }
+    },
+    {
+      "id": "square",
+      "name": "Square",
+      "canvas": {"width": 1080, "height": 1080, "background_mode": "transparent", "background_color": "#00000000"},
+      "layers": {
+        "progress-shell": {"x": 12, "y": 18, "width": 1056, "height": 74},
+        "lead-label": {"x": 12, "y": 18, "width": 168, "height": 74, "font_size": 25},
+        "progress-track": {"x": 12, "y": 88, "width": 1056, "height": 4}
+      }
+    }
+  ],
+  "default_variant_id": "landscape",
+  "data_fields": [
+    {"id": "lead_label", "name": "导航栏首格", "kind": "string", "default": "内容导航"},
+    {"id": "traveler_mode", "name": "移动游标", "kind": "string", "default": "cursor"},
+    {
+      "id": "chapters",
+      "name": "章节",
+      "kind": "table",
+      "default": [
+        {"label": "问题", "start_ms": 0},
+        {"label": "方法", "start_ms": 15000},
+        {"label": "演示", "start_ms": 33000},
+        {"label": "结果", "start_ms": 50000}
+      ],
+      "columns": [
+        {"id": "label", "name": "章节名", "kind": "string"},
+        {"id": "start_ms", "name": "开始时间（毫秒）", "kind": "number"}
+      ]
+    }
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "lead_label", "layer_id": "lead-label"},
+    "required_layer_ids": ["progress-shell", "lead-label", "progress-track"],
+    "bounds_tolerance_px": 1,
+    "allow_overflow_layer_ids": ["progress-shell", "progress-track"],
+    "minimum_font_px": {"lead-label": 16}
+  },
+  "delivery": {"preview": "local-server", "remote_dependencies": "forbid"},
+  "resources": ["editable-media-runtime.js", "video-progress-bar-spec.json"]
+}

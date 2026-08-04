@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>解释型 B-roll 模板</title>
+  <link rel="stylesheet" href="variant-layout.css">
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: var(--font-family, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif);
+      --canvas-width: 1920;
+      --canvas-height: 1080;
+      --background: #11131a;
+      --surface: #202431;
+      --text: #f7f7fb;
+      --muted: #a8adbd;
+      --line: #4a5063;
+      --accent: #8b7cff;
+      --accent-secondary: #f4c95d;
+      --positive: #5fd7a5;
+      --radius: 24px;
+      --shadow: 0 24px 70px rgb(0 0 0 / 28%);
+      --semantic-progress: 0;
+      --motion-intensity: .72;
+      --stage-density: 1;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; margin: 0; }
+    body { background: #151822; color: var(--text); overflow: hidden; }
+    button, input, select { font: inherit; }
+    .app { display: grid; grid-template-rows: minmax(0, 1fr) auto; width: 100vw; height: 100vh; }
+    .viewport { display: grid; place-items: center; min-height: 0; padding: 26px; overflow: hidden; background: radial-gradient(circle at 50% 10%, #2a2e3b, #151822 58%); }
+    .canvas-shell { position: relative; overflow: hidden; border-radius: 18px; box-shadow: 0 30px 90px rgb(0 0 0 / 42%); }
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      transform-origin: top left;
+      background: var(--background);
+      isolation: isolate;
+    }
+    html[data-editable-variant*="presenter-split"] .media-canvas,
+    html[data-editable-variant*="transparent-overlay"] .media-canvas { background: transparent; }
+    [data-editable-id] { position: absolute; }
+    [data-editable-id="title"] {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      color: var(--text);
+      font-size: 56px;
+      font-weight: 760;
+      line-height: 1.08;
+      letter-spacing: -.035em;
+    }
+    [data-editable-id="subtitle"] {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 26px;
+      line-height: 1.35;
+    }
+    [data-editable-id="diagram-stage"] {
+      display: grid;
+      min-width: 1px;
+      min-height: 1px;
+      padding: calc(28px * var(--stage-density));
+      border: 1px solid color-mix(in srgb, var(--line), transparent 16%);
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--surface), transparent 5%);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    html[data-editable-variant*="transparent-overlay"] [data-editable-id="diagram-stage"] {
+      padding: 18px;
+      background: color-mix(in srgb, var(--surface), transparent 12%);
+      backdrop-filter: blur(14px);
+    }
+    [data-editable-id="presenter-slot"] { pointer-events: none; }
+    .diagram { width: 100%; height: 100%; display: grid; align-items: stretch; gap: 22px; }
+    .row { display: flex; min-width: 0; min-height: 0; align-items: stretch; justify-content: center; gap: 16px; }
+    .column { display: flex; min-width: 0; min-height: 0; flex-direction: column; justify-content: center; gap: 14px; }
+    .card {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      padding: 22px;
+      border: 1px solid color-mix(in srgb, var(--line), transparent 18%);
+      border-radius: calc(var(--radius) * .72);
+      background: color-mix(in srgb, var(--surface), white 2%);
+      opacity: calc(.2 + var(--reveal, 0) * .8);
+      transform: translateY(calc((1 - var(--reveal, 0)) * 26px * var(--motion-intensity))) scale(calc(.96 + var(--reveal, 0) * .04));
+      transition: none;
+    }
+    .card.active { border-color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent), transparent 45%), 0 18px 45px color-mix(in srgb, var(--accent), transparent 78%); }
+    .card.result { border-color: color-mix(in srgb, var(--positive), transparent 12%); }
+    .label { color: var(--text); font-size: clamp(18px, 2.15vw, 36px); font-weight: 730; line-height: 1.12; }
+    .detail { color: var(--muted); font-size: clamp(13px, 1.3vw, 23px); line-height: 1.35; }
+    .value { color: var(--accent-secondary); font-size: clamp(20px, 2.8vw, 48px); font-weight: 800; font-variant-numeric: tabular-nums; }
+    .arrow { flex: 0 0 auto; align-self: center; color: var(--accent); font-size: 34px; opacity: clamp(.12, var(--reveal, 0), 1); transform: scaleX(calc(.5 + var(--reveal, 0) * .5)); transform-origin: left center; }
+    .axis { position: absolute; left: 5%; right: 5%; top: 50%; height: 4px; border-radius: 99px; background: var(--line); overflow: hidden; }
+    .axis::after { content: ""; display: block; width: calc(var(--semantic-progress) * 100%); height: 100%; background: var(--accent); }
+    .timeline { position: relative; align-items: center; }
+    .timeline .card { z-index: 1; align-self: center; min-height: 48%; }
+    .layers { justify-content: end; }
+    .layers .card { flex: 0 1 auto; width: var(--layer-width, 100%); min-height: 18%; margin-inline: auto; transform: translateY(calc((1 - var(--reveal, 0)) * 34px * var(--motion-intensity))); }
+    .loop { position: relative; display: grid; grid-template: 1fr 1fr / 1fr 1fr; gap: 18%; padding: 3%; }
+    .loop::before { content: "↻"; position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%) rotate(calc(var(--semantic-progress) * 240deg)); color: var(--accent); font-size: min(14vw, 150px); opacity: .52; }
+    .loop .card { z-index: 1; }
+    .matrix { position: relative; display: grid; grid-template: 1fr 1fr / 1fr 1fr; gap: 16px; padding: 38px; }
+    .matrix::before, .matrix::after { content: ""; position: absolute; background: var(--line); }
+    .matrix::before { left: 50%; top: 0; bottom: 0; width: 2px; }
+    .matrix::after { top: 50%; left: 0; right: 0; height: 2px; }
+    .assembly { grid-template-rows: 1fr auto 1fr; }
+    .assembly .parts { display: flex; gap: 14px; }
+    .assembly .whole { width: 62%; margin: 0 auto; }
+    .dashboard { display: flex; flex-direction: column; justify-content: center; gap: 13px; }
+    .metric { display: grid; grid-template-columns: minmax(120px, .9fr) 3fr minmax(72px, auto); align-items: center; gap: 16px; opacity: calc(.2 + var(--reveal, 0) * .8); }
+    .metric-track { height: 16px; border-radius: 99px; background: color-mix(in srgb, var(--line), transparent 35%); overflow: hidden; }
+    .metric-fill { width: calc(var(--bar, 0) * var(--semantic-progress) * 1%); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-secondary)); }
+    .before-after { grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+    .before-after .divider { display: grid; place-items: center; width: 58px; color: var(--accent); font-size: 44px; }
+    .layout-options { align-items: stretch; }
+    .layout-options .card { min-height: 66%; }
+    .tag { align-self: flex-start; padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent), transparent 78%); color: color-mix(in srgb, var(--accent), white 30%); font-size: 14px; font-weight: 700; }
+    .controls { display: flex; gap: 10px; align-items: center; padding: 12px 18px; background: #0d0f15; border-top: 1px solid #2e3340; }
+    .controls button, .controls select { border: 1px solid #3b4150; border-radius: 9px; background: #202431; color: var(--text); padding: 8px 12px; }
+    .controls input { flex: 1; min-width: 80px; }
+    output { min-width: 92px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    body.capture { background: transparent; }
+    body.capture .app { display: block; }
+    body.capture .viewport { display: block; padding: 0; overflow: visible; background: transparent; }
+    body.capture .canvas-shell { width: auto !important; height: auto !important; border-radius: 0; box-shadow: none; }
+    body.capture .media-canvas { transform: none !important; }
+    body.capture .controls { display: none; }
+    html[data-editable-variant*="presenter-split"] .label,
+    html[data-editable-variant*="transparent-overlay"] .label { font-size: clamp(16px, 1.55vw, 28px); }
+    html[data-editable-variant*="presenter-split"] .detail,
+    html[data-editable-variant*="transparent-overlay"] .detail { font-size: clamp(12px, 1vw, 18px); }
+    html[data-editable-variant*="transparent-overlay"] .card { padding: 14px; }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="45"
+    data-width="1920"
+    data-height="1080"
+    data-fps="30"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="解释型 B-roll 可编辑画布">
+          <h1 data-editable-id="title" data-editable-data="title"></h1>
+          <p data-editable-id="subtitle" data-editable-data="subtitle"></p>
+          <div data-editable-id="diagram-stage" id="diagramStage"></div>
+          <div data-editable-id="presenter-slot" aria-label="真人底片预留区域"></div>
+        </section>
+      </div>
+    </div>
+    <div class="controls" aria-label="Preview controls">
+      <button id="previous" type="button">上一步</button>
+      <button id="play" type="button">播放</button>
+      <button id="pause" type="button">暂停</button>
+      <button id="next" type="button">下一步</button>
+      <button id="overview" type="button">场景总览</button>
+      <select id="variant" aria-label="输出布局"></select>
+      <input id="scrubber" type="range" min="0" max="45000" step="16" value="0">
+      <output id="time">0.00 s</output>
+      <output id="scene">1 / 10</output>
+    </div>
+  </main>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    const root = document.documentElement;
+    const viewport = document.querySelector("#viewport");
+    const shell = document.querySelector("#canvasShell");
+    const canvas = document.querySelector("#mediaCanvas");
+    const stage = document.querySelector("#diagramStage");
+    const scrubber = document.querySelector("#scrubber");
+    const timeOutput = document.querySelector("#time");
+    const sceneOutput = document.querySelector("#scene");
+    const variantSelect = document.querySelector("#variant");
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1";
+    let output = {width: 1, height: 1, durationMs: 1};
+    if (captureMode) document.body.classList.add("capture");
+
+    function clamp(value, minimum = 0, maximum = 1) {
+      return Math.max(minimum, Math.min(maximum, Number(value) || 0));
+    }
+
+    function reveal(index, count, progress) {
+      const start = index / Math.max(1, count) * .58;
+      return clamp((progress - start) / .28);
+    }
+
+    function element(tag, className = "", text = "") {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== "") node.textContent = String(text);
+      return node;
+    }
+
+    function card(item, index, count, progress, activeIndex, extra = "") {
+      const node = element("article", `card ${extra}`.trim());
+      const amount = reveal(index, count, progress);
+      node.style.setProperty("--reveal", amount.toFixed(6));
+      if (index === activeIndex && progress > .42) node.classList.add("active");
+      if (item.group === "output" || item.group === "result" || item.group === "after" || item.group === "whole") node.classList.add("result");
+      node.append(element("span", "tag", item.group || "item"));
+      node.append(element("strong", "label", item.label));
+      node.append(element("span", "detail", item.detail));
+      if (Number.isFinite(Number(item.value))) node.append(element("span", "value", item.value));
+      return node;
+    }
+
+    function arrow(index, count, progress) {
+      const node = element("span", "arrow", "→");
+      node.style.setProperty("--reveal", reveal(index + .5, count, progress).toFixed(6));
+      return node;
+    }
+
+    function renderLinear(items, progress, activeIndex, className = "row") {
+      const holder = element("div", `diagram ${className}`);
+      items.forEach((item, index) => {
+        holder.append(card(item, index, items.length, progress, activeIndex));
+        if (index < items.length - 1) holder.append(arrow(index, items.length, progress));
+      });
+      return holder;
+    }
+
+    function renderTimeline(items, progress, activeIndex) {
+      const holder = renderLinear(items, progress, activeIndex, "row timeline");
+      holder.prepend(element("div", "axis"));
+      return holder;
+    }
+
+    function renderLayers(items, progress, activeIndex) {
+      const holder = element("div", "diagram column layers");
+      items.forEach((item, index) => {
+        const node = card(item, index, items.length, progress, activeIndex);
+        node.style.setProperty("--layer-width", `${100 - index * 12}%`);
+        holder.append(node);
+      });
+      return holder;
+    }
+
+    function renderLoop(items, progress, activeIndex) {
+      const holder = element("div", "diagram loop");
+      items.slice(0, 4).forEach((item, index) => holder.append(card(item, index, 4, progress, activeIndex)));
+      return holder;
+    }
+
+    function renderMatrix(items, progress, activeIndex) {
+      const holder = element("div", "diagram matrix");
+      items.slice(0, 4).forEach((item, index) => holder.append(card(item, index, 4, progress, activeIndex)));
+      return holder;
+    }
+
+    function renderAssembly(items, progress, activeIndex) {
+      const holder = element("div", "diagram assembly");
+      const parts = element("div", "parts");
+      items.slice(0, -1).forEach((item, index) => parts.append(card(item, index, items.length, progress, activeIndex)));
+      const join = element("div", "arrow", "↓");
+      join.style.setProperty("--reveal", clamp(progress * 1.5 - .55).toFixed(6));
+      const whole = card(items.at(-1), items.length - 1, items.length, progress, activeIndex, "whole");
+      holder.append(parts, join, whole);
+      return holder;
+    }
+
+    function renderDashboard(items, progress, activeIndex) {
+      const holder = element("div", "diagram dashboard");
+      items.forEach((item, index) => {
+        const row = element("div", "metric");
+        row.style.setProperty("--reveal", reveal(index, items.length, progress).toFixed(6));
+        row.append(element("strong", "label", item.label));
+        const track = element("span", "metric-track");
+        const fill = element("span", "metric-fill");
+        fill.style.setProperty("--bar", clamp(item.value, 0, 100));
+        track.append(fill);
+        row.append(track, element("span", "value", item.detail || item.value));
+        if (index === activeIndex) row.classList.add("active");
+        holder.append(row);
+      });
+      return holder;
+    }
+
+    function renderBeforeAfter(items, progress, activeIndex) {
+      const holder = element("div", "diagram before-after");
+      holder.append(card(items[0], 0, 2, progress, activeIndex));
+      holder.append(element("div", "divider", "→"));
+      holder.append(card(items[1] || items[0], 1, 2, progress, activeIndex));
+      return holder;
+    }
+
+    function renderDiagram(playback) {
+      const state = editableMedia.getState();
+      const data = state.scenes?.[playback.sceneId]?.data || {};
+      const items = Array.isArray(data.items) ? data.items : [];
+      const progress = playback.sceneDurationMs > 0 ? clamp(playback.localTimeMs / playback.sceneDurationMs) : 0;
+      const activeIndex = Math.max(0, Math.min(items.length - 1, Number(data.highlight_index) || 0));
+      root.style.setProperty("--semantic-progress", progress.toFixed(6));
+      const renderers = {
+        "process-flow": () => renderLinear(items, progress, activeIndex),
+        "phase-timeline": () => renderTimeline(items, progress, activeIndex),
+        "layered-framework": () => renderLayers(items, progress, activeIndex),
+        "causal-loop": () => renderLoop(items, progress, activeIndex),
+        "input-output-toolchain": () => renderLinear(items, progress, activeIndex),
+        "comparison-matrix": () => renderMatrix(items, progress, activeIndex),
+        "decompose-assemble": () => renderAssembly(items, progress, activeIndex),
+        "metric-dashboard": () => renderDashboard(items, progress, activeIndex),
+        "evidence-before-after": () => renderBeforeAfter(items, progress, activeIndex),
+        "layout-shell": () => renderLinear(items, progress, activeIndex, "row layout-options")
+      };
+      const next = (renderers[playback.sceneId] || renderers["process-flow"])();
+      stage.replaceChildren(next);
+      scrubber.value = String(Math.round(playback.globalTimeMs));
+      timeOutput.value = `${(playback.globalTimeMs / 1000).toFixed(2)} s`;
+      sceneOutput.value = `${playback.sceneIndex + 1} / ${playback.sceneCount} · ${playback.stepId || "start"}`;
+    }
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(viewport.clientWidth / output.width, viewport.clientHeight / output.height, 1);
+      const fitted = Math.max(.08, scale);
+      shell.style.width = `${output.width * fitted}px`;
+      shell.style.height = `${output.height * fitted}px`;
+      canvas.style.transform = `scale(${fitted})`;
+    }
+
+    document.querySelector("#previous").addEventListener("click", () => editableMedia.previous());
+    document.querySelector("#play").addEventListener("click", () => editableMedia.play());
+    document.querySelector("#pause").addEventListener("click", () => editableMedia.pause());
+    document.querySelector("#next").addEventListener("click", () => editableMedia.next());
+    document.querySelector("#overview").addEventListener("click", () => editableMedia.toggleOverview());
+    scrubber.addEventListener("input", (event) => {
+      editableMedia.pause();
+      editableMedia.setTime(Number(event.target.value));
+    });
+    variantSelect.addEventListener("change", () => editableMedia.setVariant(variantSelect.value));
+    window.addEventListener("editablemediatime", (event) => renderDiagram(event.detail));
+    window.addEventListener("editablemediadata", () => renderDiagram(editableMedia.getPlayback()));
+    window.addEventListener("editablemediavariantchange", () => renderDiagram(editableMedia.getPlayback()));
+    window.addEventListener("editablemediascenechange", () => renderDiagram(editableMedia.getPlayback()));
+
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const requestedVariant = query.get("variant");
+      const requestedScene = query.get("scene");
+      if (requestedVariant && manifest.variants.some((item) => item.id === requestedVariant)) {
+        editableMedia.setVariant(requestedVariant);
+      }
+      if (requestedScene && manifest.scenes.some((item) => item.id === requestedScene)) {
+        editableMedia.setScene(requestedScene);
+      }
+      const state = editableMedia.getState();
+      variantSelect.replaceChildren(...manifest.variants.map((item) => new Option(item.name, item.id)));
+      variantSelect.value = state.variant.id;
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height),
+        durationMs: editableMedia.getPlayback().totalDurationMs
+      };
+      scrubber.max = String(output.durationMs);
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      renderDiagram(editableMedia.getPlayback());
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

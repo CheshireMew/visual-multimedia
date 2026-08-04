@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "0df8bbefd712cc3848ee22911ce604618a3d0f0b4cd628d9c24623f89665fcdc",
+  "behavior_fingerprint": "556c675b4163c84e92c7d54dbbbd5cda1bfdcc2234b19a03883e8253a0edf8ba",
   "category": "ui-entrance",
   "id": "neon-frame-forerun",
   "intent": {
@@ -35,12 +35,15 @@
       "id": "neon-frame-forerun",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "neon-frame-forerun",
       "status": "reference-only",
       "use": "暗场品牌片里给 UI 面板做\"登场仪式\"（框先到、内容后落）；功能区首次亮相；霓虹/赛博调性的段落开场"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }

@@ -88,17 +88,23 @@ export function migrateVideoShotcraft(sourceRoot) {
       description: String(style.description || card.summary || card.intention),
       use: String(style.use || card.use || "按当前功能职责和画面条件判断"),
       status: "reference-only",
-      implementation: {kind: "none", package: null},
+      implementation: {
+        kind: "none",
+        package: null,
+        scene_id: null,
+        variant_profile_id: null,
+      },
     }));
     const recipe = {
       protocol: "visual-multimedia-shot-recipe",
-      version: 1,
+      version: 2,
       id: normalizeTag(card.name),
       name: String(card.name),
       aliases: [],
       status: "reference-only",
       source_id: "video-shotcraft",
       category: String(card.category),
+      applicability: null,
       intent: {
         purpose: String(card.intention || card.summary || card.name),
         use: String(card.use || "按当前产品功能、镜头职责和制作条件判断"),

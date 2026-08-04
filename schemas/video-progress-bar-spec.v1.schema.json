@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visual-multimedia.local/schemas/video-progress-bar-spec.v1.schema.json",
+  "title": "Visual Multimedia Video Progress Bar Spec v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "lead_label",
+    "duration_ms",
+    "variant_id",
+    "placement",
+    "traveler_mode",
+    "chapters"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-video-progress-bar"},
+    "version": {"const": 1},
+    "lead_label": {"type": "string", "minLength": 1, "maxLength": 16},
+    "duration_ms": {"type": "integer", "minimum": 1000, "maximum": 86400000},
+    "variant_id": {"enum": ["landscape", "portrait", "square"]},
+    "placement": {"enum": ["top", "bottom"]},
+    "traveler_mode": {"enum": ["cursor", "none"]},
+    "chapters": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 24,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "start_ms"],
+        "properties": {
+          "label": {"type": "string", "minLength": 1, "maxLength": 24},
+          "start_ms": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}

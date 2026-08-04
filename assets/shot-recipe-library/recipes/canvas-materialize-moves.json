@@ -1,6 +1,6 @@
 {
   "aliases": [],
-  "behavior_fingerprint": "549ce8e4f4ff6544577a4e55e170c06ab07f0712c6b4629696b1d970a4868d39",
+  "behavior_fingerprint": "576ed19c7d63f73380cf89817e0ff843668e36298002e3f2f3d86fdaf066bd5b",
   "category": "interaction",
   "id": "canvas-materialize-moves",
   "intent": {
@@ -37,7 +37,9 @@
       "id": "panel-to-canvas",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "panel-to-canvas 行倒卡",
       "status": "reference-only",
@@ -48,12 +50,15 @@
       "id": "diagram-cascade",
       "implementation": {
         "kind": "none",
-        "package": null
+        "package": null,
+        "scene_id": null,
+        "variant_profile_id": null
       },
       "label": "diagram-cascade 级联生成树",
       "status": "reference-only",
       "use": "AI 生成结构图/脑图/ER 图：一句话长出一棵树"
     }
   ],
-  "version": 1
+  "version": 2,
+  "applicability": null
 }
