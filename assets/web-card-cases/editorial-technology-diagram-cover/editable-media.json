@@ -52,6 +52,15 @@
       "constraints": {"font_size": {"minimum": 12, "maximum": 24, "step": 1}}
     },
     {
+      "id": "folio",
+      "name": "Folio",
+      "kind": "text",
+      "selector": "[data-editable-id='folio']",
+      "default_bounds": {"x": 1416, "y": 538, "width": 28, "height": 20, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 10, "maximum": 18, "step": 1}}
+    },
+    {
       "id": "diagram-stage",
       "name": "Diagram stage",
       "kind": "group",
@@ -68,6 +77,16 @@
       "default_bounds": {"x": 810, "y": 82, "width": 360, "height": 24, "rotation": 0},
       "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
       "constraints": {"font_size": {"minimum": 12, "maximum": 24, "step": 1}}
+    },
+    {
+      "id": "micro-copy",
+      "name": "Diagram note",
+      "kind": "text",
+      "selector": "[data-editable-id='micro-copy']",
+      "parent_id": "diagram-stage",
+      "default_bounds": {"x": 812, "y": 502, "width": 360, "height": 20, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 10, "maximum": 18, "step": 1}}
     },
     {
       "id": "input-label",
@@ -143,8 +162,8 @@
       "name": "Wide diagram cover",
       "page_roles": ["cover"],
       "content_shapes": ["title-and-explanatory-diagram"],
-      "required_data_fields": ["kicker", "title", "deck", "metadata", "diagram_title", "input_label", "model_label", "result_label"],
-      "required_layer_ids": ["kicker", "title", "deck", "metadata", "diagram-stage", "diagram-title", "input-label", "model-label", "result-label"],
+      "required_data_fields": ["kicker", "title", "deck", "metadata", "folio", "diagram_title", "micro_copy", "input_label", "model_label", "result_label"],
+      "required_layer_ids": ["kicker", "title", "deck", "metadata", "folio", "diagram-stage", "diagram-title", "micro-copy", "input-label", "model-label", "result-label"],
       "title_layer_ids": ["title"],
       "content_layer_ids": ["deck", "diagram-stage"],
       "capacity": {"maximum_primary_blocks": 2},
@@ -161,24 +180,26 @@
   ],
   "default_variant_id": "wide-5x2",
   "data_fields": [
-    {"id": "kicker", "name": "Kicker", "kind": "string", "default": "RESEARCH NOTE / VISUAL SYSTEM"},
+    {"id": "kicker", "name": "Kicker", "kind": "string", "default": "研究札记 / 视觉系统"},
     {"id": "title", "name": "Title", "kind": "string", "default": "把抽象机制\n变成一张可读图解"},
     {"id": "deck", "name": "Deck", "kind": "string", "default": "准确文字留在网页里，右侧只负责展示输入、关系与结果。"},
-    {"id": "metadata", "name": "Metadata", "kind": "string", "default": "EDITORIAL TECHNOLOGY COVER · 2026"},
-    {"id": "diagram_title", "name": "Diagram title", "kind": "string", "default": "FROM SIGNAL TO STRUCTURE"},
-    {"id": "input_label", "name": "Input label", "kind": "string", "default": "输入 / SIGNAL"},
-    {"id": "model_label", "name": "Model label", "kind": "string", "default": "关系 / MODEL"},
-    {"id": "result_label", "name": "Result label", "kind": "string", "default": "结果 / FORM"}
+    {"id": "metadata", "name": "Metadata", "kind": "string", "default": "编辑科技图解封面 · 2026"},
+    {"id": "folio", "name": "Folio", "kind": "string", "default": "05"},
+    {"id": "diagram_title", "name": "Diagram title", "kind": "string", "default": "从信号到结构"},
+    {"id": "micro_copy", "name": "Diagram note", "kind": "string", "default": "开放路径 / 一条关系生效"},
+    {"id": "input_label", "name": "Input label", "kind": "string", "default": "输入"},
+    {"id": "model_label", "name": "Model label", "kind": "string", "default": "关系"},
+    {"id": "result_label", "name": "Result label", "kind": "string", "default": "结果"}
   ],
   "quality": {
     "canvas_selector": "#mediaCanvas",
     "roundtrip": {"data_field": "title", "layer_id": "title"},
-    "required_layer_ids": ["kicker", "title", "deck", "metadata", "diagram-stage", "diagram-title", "input-label", "model-label", "result-label"],
+    "required_layer_ids": ["kicker", "title", "deck", "metadata", "folio", "diagram-stage", "diagram-title", "micro-copy", "input-label", "model-label", "result-label"],
     "bounds_tolerance_px": 1,
     "safe_area": {"top": 42, "right": 54, "bottom": 42, "left": 54},
-    "content_bounds_layer_ids": ["kicker", "title", "deck", "metadata", "diagram-stage", "diagram-title", "input-label", "model-label", "result-label"],
+    "content_bounds_layer_ids": ["kicker", "title", "deck", "metadata", "folio", "diagram-stage", "diagram-title", "micro-copy", "input-label", "model-label", "result-label"],
     "minimum_content_span": 0.82,
-    "minimum_font_px": {"kicker": 14, "title": 48, "deck": 18, "metadata": 12, "diagram-title": 12, "input-label": 14, "model-label": 14, "result-label": 14},
+    "minimum_font_px": {"kicker": 14, "title": 48, "deck": 18, "metadata": 12, "folio": 10, "diagram-title": 12, "micro-copy": 10, "input-label": 14, "model-label": 14, "result-label": 14},
     "minimum_gaps": [
       {"above": "title", "below": "deck", "min_px": 28}
     ],
