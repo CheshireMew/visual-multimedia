@@ -1,3 +1,24 @@
+<!-- readme-header:start -->
+
+<p align="center">
+  <strong>中文</strong> · <a href="./README.en.md">English</a> · <a href="./README.ja.md">日本語</a> | <a href="./SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
+</p>
+
+<p align="center">
+  <a href="https://x.com/0xCheshire" title="X"><img src="https://img.shields.io/badge/X-%400xCheshire-000000?logo=x&amp;logoColor=white" alt="X：@0xCheshire"></a>
+  <a href="https://t.me/CheshireBTC" title="Telegram"><img src="https://img.shields.io/badge/Telegram-CheshireBTC-26A5E4?logo=telegram&amp;logoColor=white" alt="Telegram：CheshireBTC"></a>
+  <a href="https://blog.blacknico.com/" title="Blog"><img src="https://img.shields.io/badge/Blog-blog.blacknico.com-2E7D32?logo=rss&amp;logoColor=white" alt="博客：blog.blacknico.com"></a>
+  <a href="https://blacknico.com/" title="Homepage"><img src="https://img.shields.io/badge/Home-blacknico.com-1F6FEB?logo=googlechrome&amp;logoColor=white" alt="个人主页：blacknico.com"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/CheshireMew/visual-multimedia/stargazers"><img src="https://img.shields.io/github/stars/CheshireMew/visual-multimedia?style=flat" alt="GitHub Stars"></a>
+  <a href="https://github.com/CheshireMew/visual-multimedia/forks"><img src="https://img.shields.io/github/forks/CheshireMew/visual-multimedia?style=flat" alt="GitHub Forks"></a>
+  <a href="https://github.com/CheshireMew/visual-multimedia/blob/main/LICENSE"><img src="https://img.shields.io/github/license/CheshireMew/visual-multimedia?style=flat" alt="Repository License"></a>
+</p>
+
+<!-- readme-header:end -->
+
 # Visual Multimedia
 
 把已经确认的内容或现有素材交给 Codex，得到可继续修改、可以预览并能按需导出的视觉、视频或音频成品。
@@ -10,7 +31,7 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 
 它不会替用户研究主题、筛选长材料中的分享重点或编造事实，也不会默认安装工具、购买素材、上传或发布成品。
 
-如果目标是视频文件，还需要搭配实际的渲染或编辑工具：纯 HTML 动画优先交给 [HyperFrames](https://github.com/heygen-com/hyperframes) 确定性渲染为 MP4；需要原片、多轨时间线、字幕、混音、反复修改或最终质检时，交给 [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) 完成工程化制作。
+如果目标是视频文件，Skill 自带两条产品无关的正式制作链：代码视觉保留 `editable-media` v5 网页包，本地逐帧导出；已有素材、声音和字幕进入 `media-timeline` v1，本地完成可复现时间线与成片。已配置的 [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) 能力就绪时优先用它建立原生工程、精调和导出；[HyperFrames](https://github.com/heygen-com/hyperframes) 只在用户明确选择独立网页动画渲染时使用。
 
 ## 快速开始
 
@@ -32,7 +53,7 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 
 ```text
 使用 $visual-multimedia，把这段确认口播做成 16:9 视频。
-流程、时间线和因果段落自动选择解释型 B-roll；先在 Gallery Studio 里确认，再按真实配音时间接入 MediaFlow Pro。
+流程、时间线和因果段落自动选择解释型 B-roll；先确认样稿，再按真实配音时间进入活动时间线并导出。
 ```
 
 如果只点名 Skill 并提供内容，却没有说明要样稿还是成品，默认流程会推荐一个首选载体、完成可确认的媒体文案，然后停下来等待决定。明确要求样稿或完整制作时，流程才会继续创建网页、处理素材或导出文件。
@@ -45,21 +66,21 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 - 哪些图片、录音、视频、品牌资料或参考样本可以使用；
 - 是否允许调用外部模型、安装工具、下载素材或执行导出。
 
-## 制作视频时怎样搭配
+## 制作视频时怎样选择执行方
 
-Visual Multimedia 负责把已经确认的内容和素材组织成可编辑的网页包、时间线方案、字幕、声音设计与交付要求，但它不把某个视频工具写进通用媒体合同。根据成品链选择执行工具：
+Visual Multimedia 先判断本次活动真源是网页包、可移植时间线、原生编辑器工程还是音频源，再检查当前机器真正可用的能力。选择结果会写入交付合同；一个执行方已经选定后，失败不会触发静默换路。
 
-| 你要完成的结果 | 建议搭配 | 交付方式 |
+| 执行方 | 什么时候使用 | 活动真源与交付 |
 | --- | --- | --- |
-| 把 HTML、CSS、JavaScript 动画直接变成确定性的 MP4 | [HyperFrames](https://github.com/heygen-com/hyperframes) | 让 Visual Multimedia 先完成可定位时间的 HTML 动画，再由 HyperFrames 逐帧渲染 |
-| 把原片、网页动画、图片、音频和字幕放进同一个可继续修改的工程 | [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) | 让 Visual Multimedia 交付 `editable-media` 网页包或制作计划，再由 MediaFlow Pro 导入、剪辑、混音、质检和导出 |
-| 只需要静态卡片、封面、图表或可交互网页 | 不需要视频工具 | 直接交付网页真源和 PNG、SVG、GIF 等目标文件 |
+| 本地基础能力 | 没有 MediaFlow Pro，或只需自包含网页、MP4、GIF、现有素材剪辑、声音和字幕 | `editable-media` v5 或 `media-timeline` v1 继续作为可修改真源；Playwright、浏览器、FFmpeg 与 FFprobe 生成成品和回执 |
+| [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) | 已配置且本轮实际能力检查通过，需要原生工程、桌面精调、多轨制作、版本或交接 | 导入产品无关真源；成功后 `project.mfp` 成为唯一活动时间线，再从同一工程导出 |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) | 用户明确选择把独立、无声的代码网页动画确定性渲染为视频 | 读取同一 `editable-media` v5 时间边界；网页包仍是真源，渲染副本只是派生输入 |
 
-如果还没有决定工具，可以在请求中写明最终用途和素材类型，让 Skill 先推荐路径。例如：
+如果还没有决定执行方，只需说明最终用途、素材类型和是否需要原生工程，让 Skill 先检查环境并给出首选路径。例如：
 
 ```text
 使用 $visual-multimedia，把这份已经确认的产品介绍做成 45 秒视频。
-如果全程用 HTML 动画更合适，就交付给 HyperFrames；如果需要加入实拍和配音时间线，就按 MediaFlow Pro 工程准备。
+先判断网页包还是视频时间线更适合作为真源；MediaFlow Pro 能力就绪时优先使用，否则由本地完整制作链完成。
 ```
 
 ## 可以完成什么
@@ -69,7 +90,7 @@ Visual Multimedia 负责把已经确认的内容和素材组织成可编辑的�
 | 社交卡、封面、轮播图、图表 | 已确认内容、尺寸与可用素材 | 可编辑网页真源、逐比例预览和指定图片 |
 | 技术机制对比与系统流程图 | 已确认概念、节点关系、参考风格与静态/动态要求 | 可编辑机制图、稳定全貌动画、关键状态检查图和指定图片或视频 |
 | GIF、动态图解、代码动画 | 内容关系、语义步骤与播放方式 | 可定位关键状态的网页动画，以及指定 GIF 或视频 |
-| 解释型 B-roll 与视频包装 | 确认口播、内容关系、布局比例与真实声音时间 | 自动配方选择、十类可编辑活动模板、MediaFlow Pro 片段和 PNG/GIF/视频/透明输出 |
+| 解释型 B-roll 与视频包装 | 确认口播、内容关系、布局比例与真实声音时间 | 自动配方选择、十类可编辑活动模板、活动时间线片段和 PNG/GIF/视频/透明输出 |
 | 多场景 HTML 演示 | 完整文案、场景顺序与手动/自动/混合播放要求 | 同一网页真源中的交互演示和连续导出路径 |
 | 实拍、访谈、讲课或录屏后期 | 原片、事实转写、片段范围与交付要求 | 可继续修改的时间线、字幕、混音和经过审阅的成片 |
 | 音频与播客 | 录音、节目结构、旁白与声音要求 | 音频时间线、混音成品和必要附属文件 |
@@ -118,9 +139,9 @@ Visual Multimedia 负责把已经确认的内容和素材组织成可编辑的�
 
 ## 可编辑网页与媒体合同
 
-代码生成的卡片、图表和动画从 [assets/web-media-starter](assets/web-media-starter) 建立自包含网页包。`schemas/editable-media.v5.schema.json` 是网页清单的唯一结构真源；运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。结构化编辑器和逐帧渲染器都读取这一个边界。
+代码生成的卡片、图表和动画从 [assets/web-media-starter](assets/web-media-starter) 建立自包含网页包。`schemas/editable-media.v5.schema.json` 是网页清单的唯一结构真源；运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。本地渲染器、结构化编辑器和 HyperFrames 都读取这一个边界。
 
-图片、视频、音频和生成素材先进入带文件哈希、来源、权利、原片与代理关系的素材账本，再由网页、视频时间线或音频项目显式采用。导出的 PNG、GIF、MP4 或音频文件是派生结果，不会成为第二个编辑入口。
+图片、视频、音频和生成素材先进入带文件哈希、来源、权利、原片与代理关系的素材账本，再由网页、视频时间线或音频项目显式采用。`schemas/media-timeline.v1.schema.json` 定义本地与外部编辑器都能理解的可移植时间线，`schemas/media-delivery.v3.schema.json` 把实际提供方、真源文件、回执和 SHA-256 绑定到最终输出。导出的 PNG、GIF、MP4 或音频文件是派生结果，不会成为第二个编辑入口。
 
 ## 不适用的任务
 
@@ -157,11 +178,19 @@ node scripts/check-skill.mjs --browser
 node scripts/check-skill.mjs --full
 ```
 
-`--fast` 检查 Skill、README、许可证、schema、资源索引、真实案例静态合同与脚本语法；`--browser` 在此基础上验证 Playwright 网页包、确定性时间、十类解释型 B-roll、文字动效和产品功能宣传片链路；`--full` 再验证导演自动选模板、真实时间投影、MediaFlow Pro 时间线、五种 B-roll 导出及其它 Node、Python 生产消费与最终交付回归。Python 不在系统命令路径中时，可以通过 `VISUAL_MULTIMEDIA_PYTHON` 指向实际解释器。
+`--fast` 检查 Skill、README、许可证、schema、资源索引、真实案例静态合同与脚本语法；`--browser` 在此基础上验证 Playwright 网页包、确定性时间、十类解释型 B-roll、文字动效、本地网页视频和产品功能宣传片链路；`--full` 再验证导演自动选模板、真实时间投影、可移植时间线、提供方路由、五种 B-roll 导出及其它 Node、Python 生产消费与最终交付回归。Python 不在系统命令路径中时，可以通过 `VISUAL_MULTIMEDIA_PYTHON` 指向实际解释器。
 
 涉及 `editable-media`、网页 starter、素材表示、确定性时间边界或 MediaFlow Pro 公开消费合同的改动，需要同时沿生产者、同步边界、MediaFlow Pro 消费者和最终可见结果完成迁移。准确的联动范围与验证命令见 [AGENTS.md](AGENTS.md)；公开编辑器能力的实际入口见 [references/structured-media-editor-cli.md](references/structured-media-editor-cli.md)。
 
 本仓库的项目事实以活动源码、配置、schema、资源和测试为准。Project Steward 配置只记录采用的治理基线，不复制业务合同。
+
+## Star History
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history.svg">
+  <img alt="Visual Multimedia GitHub Star History" src="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history.svg">
+</picture>
 
 ## 许可证
 
@@ -177,11 +206,3 @@ node scripts/check-skill.mjs --full
 - `sakura-animate-text`：`assets/text-motion-library/text-motion-runtime.js` 的文字动效家族基于该项目确定性重写，采用 MIT License，Copyright 2026 Sakura；没有复制上游 WAAPI 播放循环、随机延迟、CDN 加载器、框架适配、示例文案、字体或站点视觉。完整声明见 [text motion notices](assets/text-motion-library/THIRD_PARTY_NOTICES.md)。
 - [Xiaolai（小赖字体）](https://github.com/lxgw/kose-font)：`assets/web-card-cases/handdrawn-system-collaboration-flow/assets/fonts/Xiaolai-Regular.ttf` 用于真实手绘中文案例，采用 SIL Open Font License 1.1；完整许可证随字体保存在案例目录。
 - [Lucide](https://github.com/lucide-icons/lucide)：同一手绘案例在 `index.html` 中内嵌 Lucide Static 1.28.0 的线性图标路径；Lucide 自有图标采用 ISC，Server、Monitor、Database 等 Feather 派生图标同时保留 Cole Bemis 的 MIT 条款。准确范围与完整许可证见 [case notices](assets/web-card-cases/handdrawn-system-collaboration-flow/THIRD_PARTY_NOTICES.md)。
-
-## Star History
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history.svg">
-  <img alt="Visual Multimedia GitHub Star History" src="https://raw.githubusercontent.com/CheshireMew/visual-multimedia/star-history/star-history.svg">
-</picture>
