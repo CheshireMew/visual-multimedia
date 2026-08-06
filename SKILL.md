@@ -98,7 +98,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 每类成品只保留一个活动制作入口：
 
 - **网页真源**：所有代码生成的图文卡片、封面、图表、概念图、GIF、动态图解、排版动画、可手动推进的多场景 HTML 和无实拍视觉画面。图文卡片也必须先在网页中完成；静态图片、交互演示和连续视频只是同一网页场景的不同播放或导出结果。
-- **视频时间线**：用户已有的实拍、讲课、访谈、录屏或多场景视频，以及需要声音装配的最终视频。
+- **视频时间线**：用户已有的实拍、讲课、访谈、录屏或多场景视频，以及需要声音装配的最终视频。先用产品无关的 `media-timeline` v1 建立可移植时间线；MediaFlow Pro 已配置且导入能力就绪时优先导入，成功后活动真源迁移为 `project.mfp`。没有可用 MediaFlow Pro 时，`media-timeline` v1 继续作为完整活动真源。
 - **音频时间线**：录音、访谈、旁白和播客。
 - **混合项目**：网页只负责代码生成的图形、字幕版式和动画；视频时间线只负责现有素材选择、剪切、定格、声音和最终装配。两者在装配处汇合，不互相借用生产规则。
 
@@ -134,6 +134,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 | 任务 | 读取资源 | 读取目的 |
 | --- | --- | --- |
+| 需要在本地基础制作、MediaFlow Pro 原生增强和 HyperFrames 网页渲染之间选择 | `references/production-providers.md` | 先按真源和交付要求选定提供方；没有 MediaFlow Pro 时仍使用完整本地能力，不在失败后静默换路 |
 | 已确认内容或旁白需要新视觉导演，或视频需要决定真人、无人物及其它已授权画面谁出镜 | `references/video-direction-contracts.md` | 绑定来源快照、确认画面职责、选择并验证出镜方式，保存机器可读方向计划但不复制剪辑时间线 |
 | 外部生成服务的素材尚未下载并进入本地素材账本 | `references/external-generation-jobs.md` | 在素材入账前管理规范化输入、费用授权、一次性提交锁、远程恢复、实际费用和本地化 |
 | 选择载体、确定媒体文案职责、分镜或节目结构 | `references/content-to-media.md` | 确定内容真源、受众称呼、媒体职责和文案合同 |
@@ -147,7 +148,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 图文卡片、封面、图表、GIF、代码动画、可手动推进的多场景 HTML 或无实拍视觉 | `references/web-visual-production.md` | 建立网页真源、场景合同、播放方式、样稿、确定性时间线和派生媒体 |
 | 技术概念、接口、工具或系统关系需要静态机制图、对比图，或保持全貌不变的动态流程图 | `references/technical-diagram-production.md` | 分配画面信息职责，建立可读机制、正交连接、稳定图层、同色流光和浏览器几何验收 |
 | 把已确认的网页、桌面应用或移动产品功能制作成有真实界面证据的宣传片 | `references/product-promo-production.md` | 使用正式 profile、页面采集、镜头配方状态、功能覆盖、计划确认与通用构建投影；拒绝把仅参考配方冒充已实现镜头 |
-| 口播需要流程、时间线、层级、因果、工具链、比较、拆解、指标、前后证据或真人分屏等解释型画面 | `references/explanatory-broll-production.md`、`references/structured-media-editor-cli.md` | 由导演计划自动选择活动模板，在 Gallery Studio 中编辑，并按真实声音时间投影接入 MediaFlow Pro 时间线和导出 |
+| 口播需要流程、时间线、层级、因果、工具链、比较、拆解、指标、前后证据或真人分屏等解释型画面 | `references/explanatory-broll-production.md` | 由导演计划自动选择活动模板；MediaFlow Pro 对应能力就绪时优先用它装配和导出，否则保留本地完整制作 |
 | 一段或几段话、单句观点、并列清单、名词解释、引文摘录或文字对照主要依靠文字本身成立 | `references/text-card-production.md` | 按真实阅读动作选择纯文字卡结构，分开处理原创署名、整理说明、制作水印和引用来源 |
 | 用户明确要求按参考视频复刻、匹配、逐帧对齐或比较候选成片 | `references/reference-video-alignment.md` | 确定真实参考区间、目标还原层级、精确回放或参数化重建路径，并建立资产、运行时和交付证据 |
 | 文字本身的进入、退出、替换、强调或逐字素、逐词、逐行构建承担主要表达职责 | `references/text-motion-production.md` | 从行为去重的正式目录选择效果，把分段和执行配方接入既有确定性时间线，并用当前真实文字审阅 |
@@ -158,7 +159,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 从最终旁白、最终合并视频或已复核转写生成可交付字幕 | `references/media-project-contracts.md`、`references/subtitle-production.md` | 以最终声音为时间真源，生成唯一字幕时间线、SRT、VTT 和短语级质检报告，再交给烧录、外挂字幕与画面提示共同消费 |
 | 把网页素材交给 MediaFlow Pro 继续精调、混剪、配音、字幕、外部转写，或导出透明覆盖层与普通视频 | `references/structured-media-editor-cli.md` | 从本机配置定位公开 CLI，只调用本轮声明的网页、透明媒体、Faster-Whisper XXL 或 GPT-SoVITS 操作 |
 | 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 v5 网页包建立渲染副本，调用 HyperFrames 并核对真实成片 |
-| 剪辑已有实拍、讲课、访谈、录屏或混合视频 | `references/video-post-production.md` | 先确认执行入口能读取并保存结构化项目时间线，再完成画面、字幕和声音装配；像素界面只承担受限操作 |
+| 剪辑已有实拍、讲课、访谈、录屏或混合视频 | `references/video-post-production.md` | 先建立产品无关时间线；MediaFlow Pro 对应能力就绪时优先迁移为原生工程，否则本地完成；像素界面只承担受限操作 |
 | 建立、采用或使用无需 Live2D 的二次元中文口播角色 | `references/anime-avatar-production.md` | 从母版和唯一校准视频建立 AI 视觉口型库，或按角色名采用注册资源；验证真实语音时间轴，经 plan → confirm-plan → render 生成中等尺寸分段角色轨、连续音频和可移交片段清单 |
 | 把二次元角色轨放入底片固定圆形或方形窗口 | `references/anime-avatar-production.md` | 用同一固定裁切、遮罩、坐标和音轨装配全片；无声区间继续消费角色轨中的动态闭嘴待机 |
 | 已经选定原声片段，并要用“可选原声钩子 → 必要背景 → 原声证据 → 紧接解释 → 独立总结”讲清访谈 | `references/interview-explainer-production.md` | 采用采访原声讲解型 profile，在 Skill 外项目中冻结计划、保留原声时间码、逐段渲染并分开记录机器、Agent 与用户审阅 |
@@ -179,4 +180,4 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 ## 实际制作与交付边界
 
-任务需要写文件、处理素材、维护私人库、调用外部工具、导出或交付时，必须读取 `references/media-production-runtime.md`。其中保存跨载体统一适用的动作边界、停止条件和交付检查；当前任务 reference 继续决定具体做法。使用 MediaFlow Pro、Faster-Whisper XXL、GPT-SoVITS v2Pro 或已注册全局声音时，先通过 `scripts/local-media-environment.mjs` 检查唯一的本机配置；点名声音按 id、名称或别名唯一解析，不暗选默认。随后只调用本轮 `mediaflow-cli describe` 声明的公开操作，并先用 `runtime.inspect` 确认对应组件可用。
+任务需要写文件、处理素材、维护私人库、调用外部工具、导出或交付时，必须读取 `references/media-production-runtime.md`，再用 `scripts/local-media-environment.mjs` 的 `inspect` 检查提供方。MediaFlow Pro 已配置且所需能力经本轮 `mediaflow-cli describe` 与 `runtime.inspect` 证实就绪时优先使用；否则本地完整能力继续工作。HyperFrames 只在明确选择时使用。点名声音按 id、名称或别名唯一解析，不暗选默认。

@@ -1,0 +1,20 @@
+{
+  "protocol": "visual-multimedia-local-environment",
+  "version": 2,
+  "providers": {
+    "local": {
+      "ffmpeg": "D:/Tools/ffmpeg/bin/ffmpeg.exe",
+      "ffprobe": "D:/Tools/ffmpeg/bin/ffprobe.exe",
+      "browser": "D:/Tools/Chromium/chrome.exe",
+      "playwright_node_modules": "D:/Tools/node-global/node_modules"
+    },
+    "mediaflow": null,
+    "hyperframes": null
+  },
+  "resources": {
+    "voice_reference_roots": []
+  },
+  "runtime": {
+    "cache_root": "D:/Tools/visual-multimedia-cache"
+  }
+}

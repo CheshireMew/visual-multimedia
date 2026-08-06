@@ -686,13 +686,18 @@ export function finalizeInterviewExplainer(options) {
   );
   const delivery = {
     protocol: "visual-multimedia-delivery",
-    version: 2,
+    version: 3,
     profile: "final",
     output: {file: relativeProjectPath(projectRoot, outputPath)},
+    production: {
+      provider: "local",
+      truth_kind: "flat-render",
+      truth_files: [],
+      render_receipt: null,
+    },
     editability: {
       classification: "flat_render",
-      project_file: null,
-      project_file_sha256: null,
+      native_project: null,
       limitations: [
         "最终 MP4 不能反向恢复独立原声卡、网页场景、旁白轨和逐段渲染参数；"
           + "继续编辑应使用项目内已哈希绑定的计划、网页包和素材合同。",

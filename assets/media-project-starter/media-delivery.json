@@ -1,14 +1,19 @@
 {
   "protocol": "visual-multimedia-delivery",
-  "version": 2,
+  "version": 3,
   "profile": "preview",
   "output": {
     "file": "renders/preview.mp4"
   },
+  "production": {
+    "provider": "local",
+    "truth_kind": "flat-render",
+    "truth_files": [],
+    "render_receipt": null
+  },
   "editability": {
     "classification": "flat_render",
-    "project_file": null,
-    "project_file_sha256": null,
+    "native_project": null,
     "limitations": [
       "交付文件只保留合成后的画面与声音，不能从 MP4 还原独立图层、轨道或可编辑动画参数。"
     ]

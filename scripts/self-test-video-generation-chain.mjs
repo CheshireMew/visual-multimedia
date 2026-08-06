@@ -561,18 +561,6 @@ function main() {
   const jobs = JSON.parse(fs.readFileSync(jobsPath, "utf8"));
   const importedSourceId = jobs.jobs[0].imported_source_id;
   const timelinePath = path.join(projectRoot, "video-timeline.json");
-  writeJson(timelinePath, {
-    protocol: "visual-multimedia-generation-case-timeline",
-    version: 1,
-    direction_plan: "video-direction-plan.json",
-    adopted_source_ids: [importedSourceId],
-    segments: plan.scenes.map((scene) => ({
-      segment_id: scene.segment_id,
-      source_id: scene.generation_job_ids.includes(jobs.jobs[0].id)
-        ? importedSourceId
-        : null,
-    })),
-  });
   const resolver = runJson(
     process.execPath,
     [
@@ -590,44 +578,94 @@ function main() {
   if (resolver.sha256 !== jobs.jobs[0].outputs[0].localized.sha256) {
     throw new Error("时间线解析的素材不是生成任务本地化的同一文件");
   }
+  const timelineSource = path.relative(projectRoot, resolver.file).replaceAll("\\", "/");
+  writeJson(timelinePath, {
+    protocol: "visual-multimedia-timeline",
+    version: 1,
+    project_id: "video-generation-real-chain",
+    profile: {
+      width: 640,
+      height: 360,
+      frame_rate: 24,
+      sample_rate: 48000,
+      channel_layout: "stereo",
+      background: "#101820",
+      duration_seconds: 3,
+    },
+    sources: [{
+      id: importedSourceId,
+      kind: "video",
+      file: timelineSource,
+      sha256: resolver.sha256,
+      duration_seconds: 3,
+    }],
+    tracks: [{
+      id: "generated-video",
+      kind: "video",
+      name: "生成视频",
+      muted: false,
+      clips: [{
+        id: "generated-scene",
+        type: "media",
+        source_id: importedSourceId,
+        timeline_start_seconds: 0,
+        source_in_seconds: 0,
+        duration_seconds: 3,
+        speed: 1,
+        placement: {fit: "cover", x: 0, y: 0, width: 640, height: 360},
+        opacity: 1,
+        audio_enabled: true,
+        fade_in: {kind: "none", duration_seconds: 0},
+        fade_out: {kind: "none", duration_seconds: 0},
+      }],
+    }],
+    subtitle_styles: [],
+    markers: plan.scenes.map((scene, index) => ({
+      id: scene.segment_id,
+      time_seconds: Math.min(index, 2),
+      label: scene.segment_id,
+    })),
+  });
   const finalOutput = path.join(projectRoot, "renders", "final.mp4");
   fs.mkdirSync(path.dirname(finalOutput), { recursive: true });
   run(
-    ffmpeg,
+    process.execPath,
     [
-      "-hide_banner",
-      "-loglevel",
-      "error",
-      "-i",
-      resolver.file,
-      "-vf",
-      "scale=640:360,format=yuv420p",
-      "-c:v",
-      "libx264",
-      "-r",
-      "24",
-      "-c:a",
-      "aac",
-      "-movflags",
-      "+faststart",
-      "-y",
-      finalOutput,
+      path.join(scriptDir, "media-timeline.mjs"),
+      "render",
+      "--timeline", timelinePath,
+      "--output", finalOutput,
+      "--ffmpeg", ffmpeg,
+      "--ffprobe", commandPath("ffprobe"),
     ],
-    "视频时间线消费正式 source id",
+    "可移植时间线消费正式 source id 并真实导出",
     projectRoot
   );
+  const renderReceiptPath = `${finalOutput}.render.json`;
   const deliveryPath = path.join(projectRoot, "media-delivery.json");
   writeJson(deliveryPath, {
     protocol: "visual-multimedia-delivery",
-    version: 2,
+    version: 3,
     profile: "preview",
     output: { file: "renders/final.mp4" },
+    production: {
+      provider: "local",
+      truth_kind: "portable-timeline",
+      truth_files: [{
+        role: "portable-timeline",
+        file: "video-timeline.json",
+        sha256: sha256File(timelinePath),
+      }],
+      render_receipt: {
+        file: "renders/final.mp4.render.json",
+        sha256: sha256File(renderReceiptPath),
+      },
+    },
     editability: {
-      classification: "flat_render",
-      project_file: null,
-      project_file_sha256: null,
+      classification: "source_bundle",
+      native_project: null,
       limitations: [
-        "能力案例 MP4 是合成结果，不能还原生成任务、素材账本和时间线的独立状态。"
+        "可移植时间线能继续调整素材和片段；外部供应方内部的生成过程仍不可逆。"
       ],
     },
     project_state: null,
@@ -697,38 +735,26 @@ function main() {
   );
   if (
     deliveryReport.summary.technical_ready !== true
-    || deliveryReport.editability.classification !== "flat_render"
+    || deliveryReport.editability.classification !== "source_bundle"
+    || deliveryReport.production.truth_files[0].actual_sha256 !== sha256File(timelinePath)
     || deliveryReport.output.sha256 !== sha256File(finalOutput)
-  ) throw new Error("交付报告没有证明真实成片、技术就绪和扁平化边界");
-  const nativeDelivery = JSON.parse(fs.readFileSync(deliveryPath, "utf8"));
-  nativeDelivery.editability = {
-    classification: "editable_native",
-    project_file: "video-timeline.json",
-    project_file_sha256: sha256File(timelinePath),
-    limitations: [
-      "原生时间线可继续调整素材采用与片段关系；外部供应方内部的生成过程仍不可逆。",
-    ],
-  };
-  nativeDelivery.report = "reports/native-media-delivery-report.json";
-  const nativeDeliveryPath = path.join(projectRoot, "native-media-delivery.json");
-  writeJson(nativeDeliveryPath, nativeDelivery);
+  ) throw new Error("交付报告没有证明真实成片、技术就绪和可继续修改的时间线真源");
+  const originalReceipt = fs.readFileSync(renderReceiptPath);
+  fs.appendFileSync(renderReceiptPath, "\n", "utf8");
   run(
     python,
-    [path.join(scriptDir, "verify-media-delivery.py"), nativeDeliveryPath],
-    "可编辑原生项目交付分类",
+    [path.join(scriptDir, "verify-media-delivery.py"), deliveryPath],
+    "交付消费者拒绝哈希已经变化的渲染回执",
+    projectRoot,
+    1
+  );
+  fs.writeFileSync(renderReceiptPath, originalReceipt);
+  run(
+    python,
+    [path.join(scriptDir, "verify-media-delivery.py"), deliveryPath],
+    "恢复原回执后重新闭合交付链路",
     projectRoot
   );
-  const nativeDeliveryReport = JSON.parse(
-    fs.readFileSync(
-      path.join(projectRoot, "reports", "native-media-delivery-report.json"),
-      "utf8"
-    )
-  );
-  if (
-    nativeDeliveryReport.summary.technical_ready !== true
-    || nativeDeliveryReport.editability.classification !== "editable_native"
-    || nativeDeliveryReport.editability.project_file_sha256 !== sha256File(timelinePath)
-  ) throw new Error("交付验证器没有读取真实原生项目文件及其哈希");
   const genericRoot = path.join(projectRoot, "generic-content-source-case");
   fs.mkdirSync(genericRoot, { recursive: true });
   fs.copyFileSync(source, path.join(genericRoot, "content-source.md"));
@@ -982,11 +1008,7 @@ function main() {
       bytes: fs.statSync(finalOutput).size,
     },
     delivery_report: path.join(projectRoot, "reports", "media-delivery-report.json"),
-    native_delivery_report: path.join(
-      projectRoot,
-      "reports",
-      "native-media-delivery-report.json"
-    ),
+    delivery_editability: "source_bundle",
     generic_content_intent_validated: true,
     paid_policies_validated: ["off:zero", "off:paid-blocked", "confirm", "auto"],
     presenter_routes_validated: ["none", "human"],

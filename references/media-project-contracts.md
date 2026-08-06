@@ -19,7 +19,7 @@
 
 网页的 `editable-media.json`、视频时间线或音频项目仍是素材采用与排列的真源。导入素材只说明候选文件可靠进入项目；消费者显式引用 source id 后，素材才算进入当前成品。语义片段图只描述叙事职责，不能复制一份事实转写；项目状态只索引合同和产物，不能复制时间线；评审只描述问题，不能变成第二个任务系统。
 
-外部生成任务只在实际使用外部供应方时建立，并以 `schemas/generation-jobs.v1.schema.json` 为唯一活动结构；已经本地化后，最终素材事实仍进入 `media-sources.json`。其余活动结构以 `schemas/media-sources.v3.schema.json`、`schemas/media-resource-adoptions.v1.schema.json`、`schemas/media-transcript.v1.schema.json`、`schemas/clip-selections.v2.schema.json`、`schemas/sound-production-profile.v1.schema.json`、`schemas/resource-promotion-candidates.v1.schema.json`、`schemas/media-project-state.v3.schema.json`、`schemas/media-stage-template.v1.schema.json`、`schemas/media-build-plan.v1.schema.json`、`schemas/media-build-report.v2.schema.json`、`schemas/media-review.v3.schema.json` 和 `schemas/media-delivery.v2.schema.json` 为准。注册资源的建立、采用与晋升另读取 `reusable-media-resources.md`，声音档案另读取 `sound-production-profiles.md`。新项目从 `assets/media-project-starter/` 开始，不创建平行的生成状态、素材清单、转写、交付状态或审核记录。
+外部生成任务只在实际使用外部供应方时建立，并以 `schemas/generation-jobs.v1.schema.json` 为唯一活动结构；已经本地化后，最终素材事实仍进入 `media-sources.json`。其余活动结构以 `schemas/media-sources.v3.schema.json`、`schemas/media-resource-adoptions.v1.schema.json`、`schemas/media-transcript.v1.schema.json`、`schemas/clip-selections.v2.schema.json`、`schemas/sound-production-profile.v1.schema.json`、`schemas/resource-promotion-candidates.v1.schema.json`、`schemas/media-project-state.v3.schema.json`、`schemas/media-stage-template.v1.schema.json`、`schemas/media-build-plan.v1.schema.json`、`schemas/media-build-report.v2.schema.json`、`schemas/media-review.v3.schema.json`、`schemas/media-delivery.v3.schema.json` 和 `schemas/media-timeline.v1.schema.json` 为准。注册资源的建立、采用与晋升另读取 `reusable-media-resources.md`，声音档案另读取 `sound-production-profiles.md`。新项目从 `assets/media-project-starter/` 开始，不创建平行的生成状态、素材清单、转写、交付状态或审核记录。
 
 具体视频类型可以在这些基础合同之上增加自己的 draft、不可变计划和确认，但不能再定义一份专用构建报告。例如采访原声讲解型使用 `interview-explainer-draft.json`、`narration-bundle.json`、`interview-explainer-plan.json` 和独立确认：draft 负责当前内容、样式及与事实转写边界一致的原声分段译文字幕，旁白包绑定真实音频，计划冻结 profile 输入；随后投影为通用 `media-build-plan.json`，统一的 v2 构建报告证明每个单元实际生成或复用了什么、连续音频如何处理、最终如何装配。最终审阅、项目状态和交付仍回到上述通用合同，并绑定同一个成片 SHA-256。
 
@@ -149,14 +149,17 @@ node scripts/validate-media-review.mjs <项目目录>/media-review.json
 
 ## 八、分级交付
 
-`media-delivery.json` v2 是单个实际输出的验收合同。它必须指向素材账本，并按实际项目指向转写、选段和评审；跨多轮项目再指向项目状态，短任务使用 `null`。结构化评审同样只在存在项目状态时反向绑定它。这些入口必须彼此读取同一个账本和同一份事实转写。所有尺寸、帧率、时长、响度、允许静音和允许黑场来自当前用户、项目或平台规格，不成为跨项目默认值。
+`media-delivery.json` v3 是单个实际输出的验收合同。它必须指向素材账本，并按实际项目指向转写、选段和评审；跨多轮项目再指向项目状态，短任务使用 `null`。结构化评审同样只在存在项目状态时反向绑定它。这些入口必须彼此读取同一个账本和同一份事实转写。所有尺寸、帧率、时长、响度、允许静音和允许黑场来自当前用户、项目或平台规格，不成为跨项目默认值。
+
+每个交付记录实际 `production.provider`、`truth_kind`、真源文件及 SHA-256，以及导出回执的路径和 SHA-256。验证器必须从交付合同重新读取真源与回执，不能把“路径存在”冒充回执未被替换；`native_project` 和 `source_bundle` 必须有已绑定哈希的回执。`truth_kind` 区分 `editable-web-package`、`portable-timeline`、`mediaflow-project`、`audio-source` 与 `flat-render`；提供方只说明谁执行，本身不能代替真源证明。
 
 每个交付必须同时声明可编辑性：
 
-- `editable_native` 表示交付中确有可继续编辑的原生项目文件，合同保存它的路径和 SHA-256，验证器检查真实文件。
-- `flat_render` 表示 MP4、音频或其它输出只保留合成结果，项目文件字段必须为 `null`，并明确列出无法反向恢复的图层、轨道、动画参数或其它限制。
+- `native_project` 表示交付中确有可继续编辑的原生应用工程，合同保存项目路径、SHA-256、工程标识和内容修订；MediaFlow Pro 工程必须真实存在并能重新读取。
+- `source_bundle` 表示保留了可编辑网页包、产品无关 `media-timeline` v1、音频源或其它可复现源文件，并逐项绑定路径与 SHA-256；没有原生编辑器工程不等于扁平交付。
+- `flat_render` 表示 MP4、音频或其它输出只保留合成结果，真源和项目字段必须为空，并明确列出无法反向恢复的图层、轨道、动画参数或其它限制。
 
-扁平成片不能因为项目曾经有可编辑真源就声称自身可编辑；原生项目文件也不能只靠扩展名声明，必须真实存在并通过哈希绑定。
+扁平成片不能因为项目曾经有可编辑真源就声称自身可编辑；源文件包和原生项目也不能只靠名称或扩展名声明，必须真实存在、通过哈希绑定并与当前导出回执闭合。
 
 | 档位 | 使用时机 | 自动检查 |
 | --- | --- | --- |

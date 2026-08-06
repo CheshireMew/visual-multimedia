@@ -17,7 +17,7 @@ from typing import Any
 
 
 PROTOCOL = "visual-multimedia-delivery"
-VERSION = 2
+VERSION = 3
 PROFILES = {"preview", "review", "final"}
 REVIEW_STATUSES = {"pending", "passed", "failed"}
 RIGHTS_STATUSES = {"confirmed", "not-required"}
@@ -133,6 +133,7 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
             "version",
             "profile",
             "output",
+            "production",
             "editability",
             "project_state",
             "media_sources",
@@ -150,6 +151,7 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
             "version",
             "profile",
             "output",
+            "production",
             "editability",
             "project_state",
             "media_sources",
@@ -168,37 +170,83 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
     )
     if not isinstance(output["file"], str) or not output["file"]:
         raise DeliveryError("output.file 必须是非空字符串")
+    production = contract_object(
+        spec["production"],
+        "production",
+        {"provider", "truth_kind", "truth_files", "render_receipt"},
+        {"provider", "truth_kind", "truth_files", "render_receipt"},
+    )
+    if production["provider"] not in {
+        "local", "mediaflow", "hyperframes", "external"
+    }:
+        raise DeliveryError("production.provider 无效")
+    if production["truth_kind"] not in {
+        "editable-web-package",
+        "portable-timeline",
+        "mediaflow-project",
+        "audio-source",
+        "flat-render",
+    }:
+        raise DeliveryError("production.truth_kind 无效")
+    if not isinstance(production["truth_files"], list):
+        raise DeliveryError("production.truth_files 必须是数组")
+    truth_keys: set[tuple[str, str]] = set()
+    for index, item in enumerate(production["truth_files"]):
+        record = contract_object(
+            item,
+            f"production.truth_files[{index}]",
+            {"role", "file", "sha256"},
+            {"role", "file", "sha256"},
+        )
+        if not isinstance(record["role"], str) or not record["role"]:
+            raise DeliveryError(f"production.truth_files[{index}].role 不能为空")
+        if not isinstance(record["file"], str) or not record["file"]:
+            raise DeliveryError(f"production.truth_files[{index}].file 不能为空")
+        if (
+            not isinstance(record["sha256"], str)
+            or re.fullmatch(r"[a-f0-9]{64}", record["sha256"]) is None
+        ):
+            raise DeliveryError(
+                f"production.truth_files[{index}].sha256 必须是 SHA-256"
+            )
+        key = (record["role"], record["file"])
+        if key in truth_keys:
+            raise DeliveryError("production.truth_files 不能重复")
+        truth_keys.add(key)
+    render_receipt = production["render_receipt"]
+    if render_receipt is not None:
+        render_receipt = contract_object(
+            render_receipt,
+            "production.render_receipt",
+            {"file", "sha256"},
+            {"file", "sha256"},
+        )
+        if not isinstance(render_receipt["file"], str) or not render_receipt["file"]:
+            raise DeliveryError("production.render_receipt.file 不能为空")
+        if (
+            not isinstance(render_receipt["sha256"], str)
+            or re.fullmatch(r"[a-f0-9]{64}", render_receipt["sha256"]) is None
+        ):
+            raise DeliveryError("production.render_receipt.sha256 必须是 SHA-256")
     editability = contract_object(
         spec["editability"],
         "editability",
         {
             "classification",
-            "project_file",
-            "project_file_sha256",
+            "native_project",
             "limitations",
         },
         {
             "classification",
-            "project_file",
-            "project_file_sha256",
+            "native_project",
             "limitations",
         },
     )
-    if editability["classification"] not in {"editable_native", "flat_render"}:
+    if editability["classification"] not in {
+        "native_project", "source_bundle", "flat_render"
+    }:
         raise DeliveryError(
-            "editability.classification 必须是 editable_native 或 flat_render"
-        )
-    if editability["project_file"] is not None and (
-        not isinstance(editability["project_file"], str)
-        or not editability["project_file"]
-    ):
-        raise DeliveryError("editability.project_file 必须是非空字符串或 null")
-    if editability["project_file_sha256"] is not None and (
-        not isinstance(editability["project_file_sha256"], str)
-        or re.fullmatch(r"[a-f0-9]{64}", editability["project_file_sha256"]) is None
-    ):
-        raise DeliveryError(
-            "editability.project_file_sha256 必须是 SHA-256 或 null"
+            "editability.classification 必须是 native_project、source_bundle 或 flat_render"
         )
     if (
         not isinstance(editability["limitations"], list)
@@ -209,21 +257,62 @@ def validate_spec_contract(spec: dict[str, Any]) -> None:
         or len(set(editability["limitations"])) != len(editability["limitations"])
     ):
         raise DeliveryError("editability.limitations 必须是不重复的非空字符串数组")
-    if editability["classification"] == "editable_native":
+    native_project = editability["native_project"]
+    if native_project is not None:
+        native_project = contract_object(
+            native_project,
+            "editability.native_project",
+            {"file", "sha256", "project_id", "content_revision"},
+            {"file", "sha256", "project_id", "content_revision"},
+        )
+        if not isinstance(native_project["file"], str) or not native_project["file"]:
+            raise DeliveryError("editability.native_project.file 不能为空")
         if (
-            editability["project_file"] is None
-            or editability["project_file_sha256"] is None
+            not isinstance(native_project["sha256"], str)
+            or re.fullmatch(r"[a-f0-9]{64}", native_project["sha256"]) is None
+        ):
+            raise DeliveryError("editability.native_project.sha256 必须是 SHA-256")
+        if (
+            not isinstance(native_project["project_id"], str)
+            or not native_project["project_id"]
+        ):
+            raise DeliveryError("editability.native_project.project_id 不能为空")
+        if (
+            not isinstance(native_project["content_revision"], int)
+            or isinstance(native_project["content_revision"], bool)
+            or native_project["content_revision"] < 0
         ):
             raise DeliveryError(
-                "editable_native 必须提供 project_file 与 project_file_sha256"
+                "editability.native_project.content_revision 必须是非负整数"
+            )
+    classification = editability["classification"]
+    if classification == "native_project":
+        if native_project is None:
+            raise DeliveryError("native_project 交付必须绑定真实原生工程")
+        if (
+            production["provider"] != "mediaflow"
+            or production["truth_kind"] != "mediaflow-project"
+            or len(production["truth_files"]) == 0
+            or render_receipt is None
+        ):
+            raise DeliveryError(
+                "native_project 交付必须以 MediaFlow project.mfp 为制作真源并绑定导出回执"
+            )
+    elif classification == "source_bundle":
+        if native_project is not None or production["truth_kind"] not in {
+            "editable-web-package", "portable-timeline", "audio-source"
+        } or len(production["truth_files"]) == 0 or render_receipt is None:
+            raise DeliveryError(
+                "source_bundle 必须绑定非空网页包、可移植时间线或音频真源及导出回执"
             )
     elif (
-        editability["project_file"] is not None
-        or editability["project_file_sha256"] is not None
+        native_project is not None
+        or production["truth_kind"] != "flat-render"
+        or len(production["truth_files"]) != 0
         or len(editability["limitations"]) == 0
     ):
         raise DeliveryError(
-            "flat_render 必须把项目文件字段设为 null，并明确说明不可逆限制"
+            "flat_render 必须没有可编辑真源，并明确说明不可逆限制"
         )
     if not isinstance(spec["media_sources"], str) or not spec["media_sources"]:
         raise DeliveryError("media_sources 必须是非空字符串")
@@ -1253,6 +1342,119 @@ def expected_checks(
         )
 
 
+def production_evidence(
+    project_root: Path,
+    spec: dict[str, Any],
+    node: str,
+    checks: list[dict[str, Any]],
+) -> dict[str, Any]:
+    production = spec["production"]
+    verified_files: list[dict[str, Any]] = []
+    truth_ready = True
+    for item in production["truth_files"]:
+        truth_path = project_path(
+            project_root,
+            item["file"],
+            f"production.truth_files[{item['role']}].file",
+        )
+        exists = truth_path.exists() and truth_path.is_file() and truth_path.stat().st_size > 0
+        actual_hash = sha256_file(truth_path) if exists else None
+        matches = exists and actual_hash == item["sha256"]
+        truth_ready = truth_ready and matches
+        verified_files.append(
+            {
+                "role": item["role"],
+                "file": str(truth_path),
+                "expected_sha256": item["sha256"],
+                "actual_sha256": actual_hash,
+                "verified": matches,
+            }
+        )
+    receipt_value = production["render_receipt"]
+    receipt_path = None
+    receipt_exists = receipt_value is None
+    receipt_expected_hash = None
+    receipt_actual_hash = None
+    receipt_verified = receipt_value is None
+    if receipt_value is not None:
+        receipt_path = project_path(
+            project_root,
+            receipt_value["file"],
+            "production.render_receipt.file",
+        )
+        receipt_exists = (
+            receipt_path.exists()
+            and receipt_path.is_file()
+            and receipt_path.stat().st_size > 0
+        )
+        receipt_expected_hash = receipt_value["sha256"]
+        receipt_actual_hash = sha256_file(receipt_path) if receipt_exists else None
+        receipt_verified = receipt_actual_hash == receipt_expected_hash
+    passed = truth_ready and receipt_verified
+    semantic_validation: dict[str, Any] | None = None
+    if passed and production["truth_kind"] == "portable-timeline":
+        timeline_records = [
+            item for item in verified_files if item["role"] == "portable-timeline"
+        ]
+        if len(timeline_records) != 1:
+            passed = False
+            semantic_validation = {
+                "passed": False,
+                "reason": "portable-timeline 必须有且只有一个 portable-timeline 角色",
+            }
+        else:
+            validator = Path(__file__).with_name("media-timeline.mjs")
+            result = subprocess.run(
+                [
+                    node,
+                    str(validator),
+                    "validate",
+                    "--timeline",
+                    timeline_records[0]["file"],
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+            passed = result.returncode == 0
+            semantic_validation = {
+                "passed": passed,
+                "stdout": result.stdout.strip(),
+                "stderr": result.stderr.strip(),
+            }
+    add_check(
+        checks,
+        "production-truth",
+        passed,
+        "制作真源和渲染回执均存在且重新计算的哈希一致"
+        if passed
+        else "制作真源或渲染回执缺失，或重新计算的哈希不一致",
+        {
+            "provider": production["provider"],
+            "truth_kind": production["truth_kind"],
+            "truth_files": verified_files,
+            "render_receipt": str(receipt_path) if receipt_path else None,
+            "render_receipt_exists": receipt_exists,
+            "render_receipt_expected_sha256": receipt_expected_hash,
+            "render_receipt_actual_sha256": receipt_actual_hash,
+            "render_receipt_verified": receipt_verified,
+            "semantic_validation": semantic_validation,
+        },
+    )
+    return {
+        "provider": production["provider"],
+        "truth_kind": production["truth_kind"],
+        "truth_files": verified_files,
+        "render_receipt": str(receipt_path) if receipt_path else None,
+        "render_receipt_expected_sha256": receipt_expected_hash,
+        "render_receipt_actual_sha256": receipt_actual_hash,
+        "render_receipt_verified": receipt_verified,
+        "semantic_validation": semantic_validation,
+    }
+
+
 def editability_evidence(
     project_root: Path,
     output_path: Path,
@@ -1275,16 +1477,33 @@ def editability_evidence(
         )
         return {
             "classification": classification,
-            "project_file": None,
-            "project_file_sha256": None,
+            "native_project": None,
             "limitations": limitations,
         }
+    if classification == "source_bundle":
+        add_check(
+            checks,
+            "editability-classification",
+            True,
+            "交付物绑定了可由 Codex 继续修改的制作真源",
+            {
+                "classification": classification,
+                "truth_kind": spec["production"]["truth_kind"],
+                "limitations": limitations,
+            },
+        )
+        return {
+            "classification": classification,
+            "native_project": None,
+            "limitations": limitations,
+        }
+    native_project = editability["native_project"]
     native_path = project_path(
         project_root,
-        editability["project_file"],
-        "editability.project_file",
+        native_project["file"],
+        "editability.native_project.file",
     )
-    expected_hash = editability["project_file_sha256"]
+    expected_hash = native_project["sha256"]
     exists = (
         native_path.exists()
         and native_path.is_file()
@@ -1308,13 +1527,19 @@ def editability_evidence(
             "project_file": str(native_path),
             "expected_sha256": expected_hash,
             "actual_sha256": actual_hash,
+            "project_id": native_project["project_id"],
+            "content_revision": native_project["content_revision"],
             "limitations": limitations,
         },
     )
     return {
         "classification": classification,
-        "project_file": str(native_path),
-        "project_file_sha256": actual_hash,
+        "native_project": {
+            "file": str(native_path),
+            "sha256": actual_hash,
+            "project_id": native_project["project_id"],
+            "content_revision": native_project["content_revision"],
+        },
         "limitations": limitations,
     }
 
@@ -1535,6 +1760,7 @@ def main() -> int:
             }
             add_check(checks, "probe", False, "FFprobe 读取失败", str(error))
     expected_checks(spec, probe, checks)
+    production = production_evidence(project_root, spec, node, checks)
     editability = editability_evidence(
         project_root,
         output_path,
@@ -1764,6 +1990,7 @@ def main() -> int:
         },
         "probe": probe,
         "adopted_sources": adopted_sources,
+        "production": production,
         "editability": editability,
         "evidence": {
             **evidence,

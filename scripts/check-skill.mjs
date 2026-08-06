@@ -380,7 +380,8 @@ for (const schema of [
   "schemas/media-stage-template.v1.schema.json",
   "schemas/media-project-state.v3.schema.json",
   "schemas/media-review.v3.schema.json",
-  "schemas/media-delivery.v2.schema.json",
+  "schemas/media-delivery.v3.schema.json",
+  "schemas/media-timeline.v1.schema.json",
   "schemas/video-direction-plan.v2.schema.json",
   "schemas/video-direction-timing-projection.v1.schema.json",
   "schemas/explanatory-broll-studio.v1.schema.json",
@@ -443,6 +444,18 @@ for (const stagedMediaResource of [
   "scripts/self-test-media-project-stages.mjs",
 ]) {
   ensurePath(stagedMediaResource);
+}
+for (const localMediaResource of [
+  "references/production-providers.md",
+  "assets/local-media-environment.example.json",
+  "scripts/local-media-environment.mjs",
+  "scripts/media-timeline.mjs",
+  "scripts/render-web-media-local.mjs",
+  "scripts/self-test-media-timeline.mjs",
+  "scripts/self-test-local-web-render.mjs",
+  "scripts/self-test-production-providers.mjs",
+]) {
+  ensurePath(localMediaResource);
 }
 for (const mediaBuildResource of [
   "scripts/media_build_contract.mjs",
@@ -591,11 +604,12 @@ const starterDelivery = readJson(
   ensurePath("assets/media-project-starter/media-delivery.json")
 );
 if (
-  !["editable_native", "flat_render"].includes(
+  starterDelivery?.version !== 3
+  || !["native_project", "source_bundle", "flat_render"].includes(
     starterDelivery?.editability?.classification
   )
 ) {
-  fail("媒体项目 starter 没有声明 editable_native 或 flat_render");
+  fail("媒体项目 starter 没有使用 v3 的 native_project、source_bundle 或 flat_render");
 }
 const mediaStarterValidation = validateMediaSources(
   ensurePath("assets/media-project-starter/media-sources.json")
@@ -884,6 +898,14 @@ if (!videoProfileValidation.ok) {
   videoProfileValidation.errors.forEach((message) => fail(`视频生产 profile：${message}`));
 }
 
+if (failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-production-providers.mjs")],
+    "MediaFlow Pro 优先—本地完整能力—HyperFrames 明确选择路由检查",
+  );
+}
+
 if (runBrowserChecks && failures.length === 0) {
   runChecked(
     process.execPath,
@@ -935,6 +957,14 @@ if (runBrowserChecks && failures.length === 0) {
   );
 }
 
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-local-web-render.mjs")],
+    "editable-media 网页真源—本地浏览器逐帧—MP4/GIF 真实导出检查",
+  );
+}
+
 if (runFullChecks && failures.length === 0) {
   runChecked(
     process.execPath,
@@ -955,6 +985,11 @@ for (const token of [
 }
 
 if (runFullChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-media-timeline.mjs")],
+    "可移植时间线—画面—定格—音频—双语字幕—改真源再导出检查",
+  );
   const mediaCaseSource = ensurePath("assets/media-delivery-case");
   const mediaCase = fs.mkdtempSync(
     path.join(os.tmpdir(), "visual-multimedia-media-delivery-case-")

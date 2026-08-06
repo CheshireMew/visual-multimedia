@@ -335,15 +335,20 @@ function main() {
   });
   writeGeneratedContract("media-delivery.json", {
     protocol: "visual-multimedia-delivery",
-    version: 2,
+    version: 3,
     profile: "final",
     output: {
       file: proxyRelative,
     },
+    production: {
+      provider: "local",
+      truth_kind: "flat-render",
+      truth_files: [],
+      render_receipt: null,
+    },
     editability: {
       classification: "flat_render",
-      project_file: null,
-      project_file_sha256: null,
+      native_project: null,
       limitations: [
         "自检 MP4 是扁平化成片，不能恢复为独立原片与代理表示。",
       ],

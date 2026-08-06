@@ -1,7 +1,7 @@
 {
   "protocol": "visual-multimedia-delivery-report",
   "version": 1,
-  "generated_at": "2026-08-03T02:04:33.824146+00:00",
+  "generated_at": "2026-08-06T03:31:22.110052+00:00",
   "spec": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-delivery.json",
   "profile": "final",
   "output": {
@@ -288,10 +288,19 @@
       "representation_source_id": null
     }
   ],
+  "production": {
+    "provider": "local",
+    "truth_kind": "flat-render",
+    "truth_files": [],
+    "render_receipt": null,
+    "render_receipt_expected_sha256": null,
+    "render_receipt_actual_sha256": null,
+    "render_receipt_verified": true,
+    "semantic_validation": null
+  },
   "editability": {
     "classification": "flat_render",
-    "project_file": null,
-    "project_file_sha256": null,
+    "native_project": null,
     "limitations": [
       "这个 MP4 是扁平化成片，无法反向恢复头像、声音、版式和编码前的独立制作层。"
     ]
@@ -554,7 +563,7 @@
       "project_state": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-project-state.json",
       "reviewed_media": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
       "reviewed_media_sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873",
-      "review_basis_sha256": "22b06fa5c9363780af53adbbe7ffde3a781f4abfd552f4c1adaba80e22098f1f",
+      "review_basis_sha256": "fd31ef50d0b3c5f2b69205ea91c6b4b658167373ddd04917ccc4f018fe626335",
       "status": "passed",
       "machine_review_passed": true,
       "agent_review_completed": true,
@@ -692,6 +701,23 @@
       "required": true,
       "summary": "输出包含必需音轨",
       "details": null
+    },
+    {
+      "id": "production-truth",
+      "status": "passed",
+      "required": true,
+      "summary": "制作真源和渲染回执均存在且重新计算的哈希一致",
+      "details": {
+        "provider": "local",
+        "truth_kind": "flat-render",
+        "truth_files": [],
+        "render_receipt": null,
+        "render_receipt_exists": true,
+        "render_receipt_expected_sha256": null,
+        "render_receipt_actual_sha256": null,
+        "render_receipt_verified": true,
+        "semantic_validation": null
+      }
     },
     {
       "id": "editability-classification",
@@ -1168,7 +1194,7 @@
         "project_state": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\media-project-state.json",
         "reviewed_media": "E:\\Work\\BaiduSyncdisk\\Code\\Cheshire-skill\\visual-multimedia\\assets\\media-delivery-case\\renders\\final.mp4",
         "reviewed_media_sha256": "2daf95fe564ce26053dff159ec570520b2717aad3ef0e107e913247264764873",
-        "review_basis_sha256": "22b06fa5c9363780af53adbbe7ffde3a781f4abfd552f4c1adaba80e22098f1f",
+        "review_basis_sha256": "fd31ef50d0b3c5f2b69205ea91c6b4b658167373ddd04917ccc4f018fe626335",
         "status": "passed",
         "machine_review_passed": true,
         "agent_review_completed": true,
@@ -1286,8 +1312,8 @@
     }
   ],
   "summary": {
-    "required_checks": 25,
-    "passed_required_checks": 25,
+    "required_checks": 26,
+    "passed_required_checks": 26,
     "failed_required_check_ids": [],
     "technical_ready": true,
     "human_review_passed": true,

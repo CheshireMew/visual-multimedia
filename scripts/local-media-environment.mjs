@@ -1,12 +1,15 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import {spawnSync} from "node:child_process";
+import {createRequire} from "node:module";
 import {fileURLToPath} from "node:url";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SKILL_ROOT = path.resolve(path.dirname(SCRIPT_PATH), "..");
+const require = createRequire(import.meta.url);
 const DEFAULT_CONFIG_PATH = path.join(
   SKILL_ROOT,
   ".env.visual-multimedia.local.json",
@@ -43,6 +46,70 @@ function existingDirectory(value, label) {
     fail(`${label} 不存在或不是目录：${candidate}`);
   }
   return candidate;
+}
+
+function optionalFile(value, label) {
+  return value == null ? null : existingFile(value, label);
+}
+
+function optionalDirectory(value, label) {
+  return value == null ? null : existingDirectory(value, label);
+}
+
+function discoverCommand(name) {
+  const finder = process.platform === "win32" ? "where.exe" : "which";
+  const result = spawnSync(finder, [name], {
+    encoding: "utf8",
+    windowsHide: true,
+  });
+  if (result.status !== 0) return null;
+  const candidate = (result.stdout || "")
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .find(Boolean);
+  return candidate && fs.existsSync(candidate) ? path.normalize(candidate) : null;
+}
+
+function defaultCacheRoot() {
+  if (process.platform === "win32" && fs.existsSync("D:\\Tools")) {
+    return "D:\\Tools\\visual-multimedia-cache";
+  }
+  return path.join(os.tmpdir(), "visual-multimedia-cache");
+}
+
+function detectPlaywright(configuredRoot = null) {
+  const candidates = [
+    configuredRoot,
+    SKILL_ROOT,
+    process.cwd(),
+    process.env.NODE_PATH,
+    process.env.PLAYWRIGHT_NODE_MODULES,
+    process.platform === "win32" ? "D:\\Tools\\NodeJS\\node_modules" : null,
+    process.platform === "win32" ? "D:\\Tools\\npm-global\\node_modules" : null,
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    try {
+      const modulePath = require.resolve("playwright", {paths: [candidate]});
+      const playwright = require(modulePath);
+      const browserExecutable = playwright.chromium?.executablePath?.() || null;
+      return {
+        available: true,
+        module: modulePath,
+        search_root: candidate,
+        browser_executable: browserExecutable && fs.existsSync(browserExecutable)
+          ? browserExecutable
+          : null,
+      };
+    } catch {
+      // Continue through configured and common local dependency roots.
+    }
+  }
+  return {
+    available: false,
+    module: null,
+    search_root: configuredRoot,
+    browser_executable: null,
+  };
 }
 
 function sha256File(filePath) {
@@ -97,35 +164,78 @@ export function loadLocalMediaEnvironment(configOverride = null) {
   const configPath = configOverride
     ? path.resolve(configOverride)
     : DEFAULT_CONFIG_PATH;
-  if (!fs.existsSync(configPath) || !fs.statSync(configPath).isFile()) {
-    fail(
-      `缺少 visual-multimedia 本机配置：${configPath}。`
-      + "不依赖本机工具的任务可以继续；MediaFlow、外部转写和全局声音任务在这里停止。",
-    );
-  }
-  const document = readJson(configPath, "本机配置");
+  const hasConfig = fs.existsSync(configPath) && fs.statSync(configPath).isFile();
+  const document = hasConfig
+    ? readJson(configPath, "本机配置")
+    : {
+      protocol: "visual-multimedia-local-environment",
+      version: 2,
+      providers: {local: {}},
+      resources: {voice_reference_roots: []},
+      runtime: {cache_root: defaultCacheRoot()},
+    };
   if (
     document.protocol !== "visual-multimedia-local-environment"
-    || document.version !== 1
+    || document.version !== 2
   ) {
-    fail("本机配置必须使用 visual-multimedia-local-environment v1");
+    fail("本机配置必须使用 visual-multimedia-local-environment v2");
   }
-  if (!document.mediaflow || typeof document.mediaflow !== "object") {
-    fail("本机配置缺少 mediaflow");
+  if (!document.providers || typeof document.providers !== "object") {
+    fail("本机配置缺少 providers");
   }
-  const python = existingFile(document.mediaflow.python, "mediaflow.python");
-  const sourceRoot = existingDirectory(
-    document.mediaflow.source_root,
-    "mediaflow.source_root",
-  );
-  const serviceSettingsPath = existingFile(
-    document.mediaflow.service_settings_path,
-    "mediaflow.service_settings_path",
-  );
-  const cliModule = path.join(sourceRoot, "mediaflow", "cli.py");
-  if (!fs.existsSync(cliModule) || !fs.statSync(cliModule).isFile()) {
-    fail(`mediaflow.source_root 中没有正式 CLI：${cliModule}`);
+  const localDocument = document.providers.local || {};
+  if (typeof localDocument !== "object") fail("providers.local 必须是对象");
+  const local = {
+    ffmpeg: optionalFile(localDocument.ffmpeg, "providers.local.ffmpeg")
+      || discoverCommand("ffmpeg"),
+    ffprobe: optionalFile(localDocument.ffprobe, "providers.local.ffprobe")
+      || discoverCommand("ffprobe"),
+    browser: optionalFile(localDocument.browser, "providers.local.browser")
+      || optionalFile(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH"),
+    playwrightNodeModules: optionalDirectory(
+      localDocument.playwright_node_modules,
+      "providers.local.playwright_node_modules",
+    ),
+  };
+  local.playwright = detectPlaywright(local.playwrightNodeModules);
+
+  let mediaflow = null;
+  if (document.providers.mediaflow != null) {
+    if (typeof document.providers.mediaflow !== "object") {
+      fail("providers.mediaflow 必须是对象或 null");
+    }
+    const python = existingFile(
+      document.providers.mediaflow.python,
+      "providers.mediaflow.python",
+    );
+    const sourceRoot = existingDirectory(
+      document.providers.mediaflow.source_root,
+      "providers.mediaflow.source_root",
+    );
+    const serviceSettingsPath = existingFile(
+      document.providers.mediaflow.service_settings_path,
+      "providers.mediaflow.service_settings_path",
+    );
+    const cliModule = path.join(sourceRoot, "mediaflow", "cli.py");
+    if (!fs.existsSync(cliModule) || !fs.statSync(cliModule).isFile()) {
+      fail(`providers.mediaflow.source_root 中没有正式 CLI：${cliModule}`);
+    }
+    mediaflow = {python, sourceRoot, serviceSettingsPath, cliModule};
   }
+
+  let hyperframes = null;
+  if (document.providers.hyperframes != null) {
+    if (typeof document.providers.hyperframes !== "object") {
+      fail("providers.hyperframes 必须是对象或 null");
+    }
+    hyperframes = {
+      command: existingFile(
+        document.providers.hyperframes.command,
+        "providers.hyperframes.command",
+      ),
+    };
+  }
+
   const roots = document.resources?.voice_reference_roots ?? [];
   if (!Array.isArray(roots)) fail("resources.voice_reference_roots 必须是数组");
   const voiceReferenceRoots = roots.map((root, index) => existingDirectory(
@@ -135,32 +245,38 @@ export function loadLocalMediaEnvironment(configOverride = null) {
   if (new Set(voiceReferenceRoots.map((item) => item.toLowerCase())).size !== voiceReferenceRoots.length) {
     fail("resources.voice_reference_roots 不能重复");
   }
-  if (!document.runtime || typeof document.runtime !== "object") {
-    fail("本机配置缺少 runtime");
-  }
-  const cacheRoot = existingDirectory(
-    document.runtime.cache_root,
-    "runtime.cache_root",
-  );
+  if (!document.runtime || typeof document.runtime !== "object") fail("本机配置缺少 runtime");
+  const cacheRoot = hasConfig
+    ? existingDirectory(document.runtime.cache_root, "runtime.cache_root")
+    : absolutePath(document.runtime.cache_root, "runtime.cache_root");
   return {
-    configPath,
+    configPath: hasConfig ? configPath : null,
     protocol: document.protocol,
     version: document.version,
-    mediaflow: {python, sourceRoot, serviceSettingsPath},
+    providers: {local, mediaflow, hyperframes},
     voiceReferenceRoots,
     runtime: {cacheRoot},
   };
 }
 
+function requireMediaFlow(environment) {
+  const provider = environment.providers?.mediaflow;
+  if (!provider) {
+    fail("当前本机配置没有启用 MediaFlow Pro；本地制作能力仍可继续使用");
+  }
+  return provider;
+}
+
 function mediaFlowResult(environment, args, input = undefined) {
+  const provider = requireMediaFlow(environment);
   const result = run(
-    environment.mediaflow.python,
+    provider.python,
     ["-m", "mediaflow.cli", ...args],
     {
-      cwd: environment.mediaflow.sourceRoot,
+      cwd: provider.sourceRoot,
       env: {
         ...process.env,
-        MEDIAFLOW_SERVICE_SETTINGS_PATH: environment.mediaflow.serviceSettingsPath,
+        MEDIAFLOW_SERVICE_SETTINGS_PATH: provider.serviceSettingsPath,
       },
       input,
     },
@@ -411,6 +527,195 @@ export function resolveVoiceReference(environment, selector) {
   };
 }
 
+export function inspectLocalMediaCapabilities(environment) {
+  const local = environment.providers.local;
+  const mediaflow = environment.providers.mediaflow;
+  const hyperframes = environment.providers.hyperframes;
+  const localBrowser = local.browser || local.playwright.browser_executable;
+  let mediaFlowProbe = null;
+  let mediaFlowProbeError = null;
+  if (mediaflow) {
+    try {
+      if (mediaflow.probe) {
+        mediaFlowProbe = mediaflow.probe;
+      } else {
+        const contract = mediaFlowProDescribe(environment);
+        const runtime = mediaFlowProExecute(
+          environment,
+          null,
+          "runtime.inspect",
+          {},
+        );
+        mediaFlowProbe = {
+          operations: (contract.operations || []).map((item) => item.name),
+          built_in_capabilities: (contract.capabilities || [])
+            .filter((item) => item.availability === "built-in")
+            .map((item) => item.id),
+          runtime_capabilities: (runtime.capabilities || [])
+            .filter((item) => item.status === "ready")
+            .map((item) => item.id),
+        };
+      }
+    } catch (error) {
+      mediaFlowProbeError = error.message;
+    }
+  }
+  const mediaFlowOperations = new Set(mediaFlowProbe?.operations || []);
+  const mediaFlowCapabilities = new Set([
+    ...(mediaFlowProbe?.built_in_capabilities || []),
+    ...(mediaFlowProbe?.runtime_capabilities || []),
+  ]);
+  const hasMediaFlowOperations = (...names) => (
+    names.every((name) => mediaFlowOperations.has(name))
+  );
+  const hasMediaFlowCapabilities = (...names) => (
+    names.every((name) => mediaFlowCapabilities.has(name))
+  );
+  const providers = {
+    local: {
+      available: Boolean(local.ffmpeg || local.ffprobe || local.playwright.available),
+      ffmpeg: local.ffmpeg,
+      ffprobe: local.ffprobe,
+      playwright: local.playwright,
+      browser: localBrowser,
+      capabilities: {
+        portable_timeline_render: Boolean(local.ffmpeg && local.ffprobe),
+        deterministic_web_render: Boolean(
+          local.ffmpeg && local.playwright.available && localBrowser
+        ),
+      },
+    },
+    mediaflow: {
+      available: Boolean(mediaflow),
+      source_root: mediaflow?.sourceRoot ?? null,
+      cli_module: mediaflow?.cliModule ?? null,
+      probe_error: mediaFlowProbeError,
+      ready_operations: [...mediaFlowOperations].sort(),
+      ready_capabilities: [...mediaFlowCapabilities].sort(),
+      capabilities: {
+        native_project: hasMediaFlowOperations(
+          "project.create",
+          "project.inspect",
+          "timeline.get",
+        ) && hasMediaFlowCapabilities("project-editing"),
+        desktop_handoff: hasMediaFlowOperations(
+          "project.version.create",
+          "project.changes.list",
+          "project.handoff.inspect",
+        ) && hasMediaFlowCapabilities("asynchronous-project-handoff"),
+        timeline_edit: hasMediaFlowOperations(
+          "timeline.get",
+          "timeline.clip.add",
+          "timeline.clip.move",
+          "timeline.clip.split",
+          "timeline.clip.delete",
+        ) && hasMediaFlowCapabilities("project-editing"),
+        timeline_render: hasMediaFlowOperations(
+          "timeline.portable.inspect",
+          "timeline.portable.import",
+          "export.sequence",
+        ) && hasMediaFlowCapabilities(
+          "portable-timeline-import",
+          "ffmpeg",
+          "mlt",
+        ),
+        deterministic_web_render: hasMediaFlowOperations(
+          "web.import",
+          "web.clip.render",
+          "web.clip.export",
+        ) && hasMediaFlowCapabilities(
+          "editable-web-media",
+          "web-multi-format-export",
+          "ffmpeg",
+          "chromium",
+        ),
+        subtitle_edit: hasMediaFlowOperations(
+          "subtitle.list",
+          "subtitle.segment.update",
+          "subtitle.track.style.update",
+        ),
+        audio_edit: hasMediaFlowOperations(
+          "audio.inspect",
+          "audio.bus.update",
+          "timeline.clip.audio",
+        ),
+        speech_transcribe: hasMediaFlowOperations("speech.transcribe")
+          && hasMediaFlowCapabilities("faster-whisper-xxl"),
+        speech_synthesize: hasMediaFlowOperations("speech.synthesize")
+          && hasMediaFlowCapabilities("gpt-sovits-v2pro"),
+        preview: hasMediaFlowOperations("preview.render")
+          && hasMediaFlowCapabilities("mlt", "native-preview"),
+        export: hasMediaFlowOperations("export.sequence")
+          && hasMediaFlowCapabilities("ffmpeg", "mlt"),
+        reference_compare: hasMediaFlowOperations("quality.reference.compare")
+          && hasMediaFlowCapabilities("reference-video-comparison", "ffmpeg"),
+      },
+    },
+    hyperframes: {
+      available: Boolean(hyperframes),
+      command: hyperframes?.command ?? null,
+      capabilities: {
+        deterministic_web_render: Boolean(hyperframes),
+      },
+    },
+  };
+  return {
+    protocol: "visual-multimedia-provider-capabilities",
+    version: 1,
+    config_path: environment.configPath,
+    cache_root: environment.runtime.cacheRoot,
+    providers,
+  };
+}
+
+export function resolveProviderNeed(environment, need) {
+  const inspection = inspectLocalMediaCapabilities(environment);
+  const candidates = [];
+  if (need === "timeline-render") {
+    if (inspection.providers.mediaflow.capabilities.timeline_render) candidates.push("mediaflow");
+    if (inspection.providers.local.capabilities.portable_timeline_render) candidates.push("local");
+  } else if (need === "timeline-edit") {
+    if (inspection.providers.mediaflow.capabilities.timeline_edit) candidates.push("mediaflow");
+    if (inspection.providers.local.capabilities.portable_timeline_render) candidates.push("local");
+  } else if (need === "web-render") {
+    if (inspection.providers.mediaflow.capabilities.deterministic_web_render) candidates.push("mediaflow");
+    if (inspection.providers.local.capabilities.deterministic_web_render) candidates.push("local");
+    if (inspection.providers.hyperframes.capabilities.deterministic_web_render) candidates.push("hyperframes");
+  } else if (need === "subtitle-edit" || need === "audio-edit") {
+    if (inspection.providers.mediaflow.capabilities[need.replace("-", "_")]) {
+      candidates.push("mediaflow");
+    }
+    if (inspection.providers.local.capabilities.portable_timeline_render) candidates.push("local");
+  } else if (
+    need === "speech-transcribe"
+    || need === "speech-synthesize"
+    || need === "preview"
+    || need === "export"
+    || need === "reference-compare"
+  ) {
+    const capability = need.replaceAll("-", "_");
+    if (inspection.providers.mediaflow.capabilities[capability]) candidates.push("mediaflow");
+    if (
+      (need === "preview" || need === "export")
+      && inspection.providers.local.capabilities.portable_timeline_render
+    ) candidates.push("local");
+  } else if (need === "native-project" || need === "desktop-handoff") {
+    const capability = need.replace("-", "_");
+    if (inspection.providers.mediaflow.capabilities[capability]) candidates.push("mediaflow");
+  } else {
+    fail(`未知能力需求：${need}`);
+  }
+  return {
+    protocol: "visual-multimedia-provider-candidates",
+    version: 1,
+    need,
+    candidates,
+    available: candidates.length > 0,
+    preferred_provider: candidates[0] || null,
+    selection_policy: "MediaFlow Pro 可用时优先；否则使用完整本地能力；HyperFrames 仅在明确选择时使用。选定后失败不会静默换路",
+  };
+}
+
 function parseOptions(argv) {
   const options = {_: []};
   for (let index = 0; index < argv.length; index += 1) {
@@ -431,6 +736,7 @@ function parseOptions(argv) {
 function printHelp() {
   process.stdout.write(`用法：
 node scripts/local-media-environment.mjs inspect [--config <路径>]
+node scripts/local-media-environment.mjs resolve --need timeline-edit|timeline-render|web-render|subtitle-edit|audio-edit|speech-transcribe|speech-synthesize|preview|export|reference-compare|native-project|desktop-handoff [--config <路径>]
 node scripts/local-media-environment.mjs cache-root [--config <路径>]
 node scripts/local-media-environment.mjs voice-list [--config <路径>]
 node scripts/local-media-environment.mjs voice-resolve --voice <id或名称> [--config <路径>]
@@ -452,24 +758,26 @@ function main(argv) {
   const [command, subcommand] = options._;
   const environment = loadLocalMediaEnvironment(options.config || null);
   if (command === "inspect") {
-    const version = run(environment.mediaflow.python, ["--version"]);
-    if (version.status !== 0) fail("配置的 MediaFlow Python 无法启动");
     const voices = listVoiceReferences(environment);
-    printJson({
-      protocol: "visual-multimedia-local-environment-inspection",
-      version: 1,
-      config_path: environment.configPath,
-      mediaflow: {
-        python: environment.mediaflow.python,
-        python_version: (version.stdout || version.stderr || "").trim(),
-        source_root: environment.mediaflow.sourceRoot,
-        service_settings_path: environment.mediaflow.serviceSettingsPath,
-        cli_module: path.join(environment.mediaflow.sourceRoot, "mediaflow", "cli.py"),
-      },
-      voice_reference_roots: environment.voiceReferenceRoots,
-      registered_voice_count: voices.length,
-      cache_root: environment.runtime.cacheRoot,
-    });
+    const inspection = inspectLocalMediaCapabilities(environment);
+    inspection.voice_reference_roots = environment.voiceReferenceRoots;
+    inspection.registered_voice_count = voices.length;
+    if (environment.providers.mediaflow) {
+      const version = run(environment.providers.mediaflow.python, ["--version"]);
+      if (version.status !== 0) fail("配置的 MediaFlow Python 无法启动");
+      inspection.providers.mediaflow.python = environment.providers.mediaflow.python;
+      inspection.providers.mediaflow.python_version = (
+        version.stdout || version.stderr || ""
+      ).trim();
+      inspection.providers.mediaflow.service_settings_path = (
+        environment.providers.mediaflow.serviceSettingsPath
+      );
+    }
+    printJson(inspection);
+    return;
+  }
+  if (command === "resolve") {
+    printJson(resolveProviderNeed(environment, requiredString(options.need, "need")));
     return;
   }
   if (command === "cache-root") {

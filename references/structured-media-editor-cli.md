@@ -13,13 +13,17 @@ node scripts/local-media-environment.mjs inspect
 node scripts/local-media-environment.mjs mediaflow describe
 ```
 
-`.env.visual-multimedia.local.json` 是当前机器上 MediaFlow Pro Python、源码根目录、设置入口和全局声音根目录的唯一定位文件，实际值不随 Skill 发布。读取器只用它启动公开 CLI，并把设置入口交给 MediaFlow Pro；XXL、GPT-SoVITS、模型和设备路径仍由 MediaFlow Pro 自己的设置管理，单个声音的音频、准确文本、哈希和审核状态仍由 `voice-reference.json` 管理。配置缺失或路径失效时只停止依赖 MediaFlow Pro 的分支，不回退到旧环境变量、PATH 中的同名 CLI 或硬编码安装位置。
+`.env.visual-multimedia.local.json` v2 是当前机器的可选提供方与资源定位文件，实际值不随 Skill 发布；公开结构见 `assets/local-media-environment.example.json`。其中 `providers.mediaflow` 只定位 MediaFlow Pro Python、源码根目录和设置入口，`resources.voice_reference_roots` 单独定位全局声音。读取器只用这些值启动公开 CLI 并解析声音；XXL、GPT-SoVITS、模型和设备路径仍由 MediaFlow Pro 自己的设置管理，单个声音的音频、准确文本、哈希和审核状态仍由 `voice-reference.json` 管理。MediaFlow Pro 配置缺失或路径失效时只停止这个增强分支，本地基础制作仍可继续；不能回退到旧环境变量、PATH 中的同名 CLI 或硬编码安装位置。
 
 先确认 `describe` 返回的 `product` 精确等于 `MediaFlow Pro`，再根据 `protocol`、`version`、`default_project_root`、`capabilities`、`operations` 以及每项操作的 `project_access`、`execution_mode`、`idempotency`、`required_capabilities`、`arguments_schema` 和 `result_schema` 组装请求。需要网页协作时确认当前所需的 `web.*` 操作；需要外部转写或声音克隆时分别确认 `speech.transcribe` 或 `speech.synthesize`。随后通过同一读取器提交 `runtime.inspect`，确认操作依赖的 `runtime-inspected` 能力当前为 `ready`；缺少任一必要能力时保留当前真源并说明缺口，不猜测内部字段，也不直接改 `project.mfp`。文档里的操作名只说明当前工作流，实际可用性、参数和结果仍以本次 `describe` 为准。
 
 新建工程时，`project.create` 提交合同声明的目录名、显示名称和完整工程 `profile`，不传 `project` 路径。`profile` 是输出尺寸、分数帧率、色彩、位深、48 kHz 音频和声道数的唯一创建边界；时间型生产者必须让它与已经确认的制作计划一致，不能创建默认工程后再把计划帧当成另一种帧率。MediaFlow Pro 在 `default_project_root` 下创建工程并返回绝对 `path`；后续操作只使用这个返回值。自动化调用端不得另设工程根目录，也不得先在媒体项目、缓存或临时目录建立工程后再移动或复制。桌面端只有在用户主动选择其它目录时才偏离默认根目录，自动化不能把这种人工选择推断成自己的权限。
 
-CLI 是一次请求一个进程的 JSON 客户端。请求使用它声明的 `mediaflow-editor` 协议版本，从文件或标准输入交给 `execute --request`；响应只从标准输出读取并检查 `ok`、稳定错误码和结果。CLI 和可选的 stdio MCP 转接器都只连接同一个常驻 Editor Service，不打开项目数据库，也不复制任务实现。Skill 的正式批处理继续使用 CLI；需要 MCP 的宿主可以使用编辑器公开的 `mediaflow-mcp`，但两条入口必须消费同一份 `describe` 合同。
+CLI 是一次请求一个进程的 JSON 客户端。请求使用它声明的 `mediaflow-editor` 协议版本，从文件或标准输入交给 `execute --request`；响应只从标准输出读取并检查 `ok`、稳定错误码和结果。CLI 和可选的 stdio MCP 转接器都只连接同一个常驻 Editor Service，不打开项目数据库，也不复制任务实现。Skill 的正式批处理继续使用 CLI；需要 MCP 的宿主可以使用编辑器公开的 `mediaflow-mcp`，但两条入口必须消费同一份 `describe` 合同。MCP 只是另一种传输入口，不是实时人机协作的前提。
+
+产品无关的混合时间线先按 `schemas/media-timeline.v1.schema.json` 建立。MediaFlow Pro 的导入能力经本轮检查确认就绪时，默认先用 `timeline.portable.inspect` 检查合同、相对素材、哈希、轨道和字幕，再在空工程中调用 `timeline.portable.import`；MediaFlow Pro 把视频、音频、图片、定格、画面位置、声音、语义标记和字幕样式映射为原生工程内容。导入成功后 `project.mfp` 成为唯一活动时间线，本地 portable timeline 只保留为迁移输入，不能继续双向修改。没有可用 MediaFlow Pro 时，portable timeline 继续作为完整活动真源。
+
+常用交接是异步的：AI 完成一轮后调用 `project.version.create` 建立命名版本，用户在桌面端继续修改，下一轮 AI 先调用 `project.changes.list` 读取版本之后的人工事件，再用 `project.handoff.inspect` 检查离线素材、当前修订、最后导出和工程是否可继续交接。多项关联修改用 CLI 的 `batch --request` 作为同一个 Editor Service 事务提交；任一操作失败时整批不落盘。这个流程不要求双方同时在线，也不要求 MCP。
 
 MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官方 GPT-SoVITS 子进程；这仍属于一次公开操作，不授权 Skill 自己常驻 `api_v2.py`、探测端口或保存第二套进程状态。
 
@@ -43,7 +47,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - 用户需要把网页动效导出为可在目标剪辑软件中叠加的透明视频或覆盖层。
 - 最终需要统一的视频时间线、短视频派生序列或批量导出任务。
 
-只需要 PNG、GIF 或独立网页时可以继续从网页真源直接导出。独立无声代码动画只有在用户明确选择 HyperFrames 时才走 `hyperframes-rendering.md`；否则 MediaFlow Pro 可以直接用 `web.clip.export` 生成视频。不要因为 CLI 可用就增加无意义的项目步骤。
+只需要 PNG、GIF、视频或独立网页时仍以网页包为内容真源；MediaFlow Pro 的网页导出能力就绪时优先用 `web.clip.export`，没有可用 MediaFlow Pro 时才从同一网页真源本地导出。独立无声代码动画只有在用户明确选择 HyperFrames 时才走 `hyperframes-rendering.md`。提供方只负责读取同一真源和导出，不能因此增加与成品无关的项目步骤。
 
 ## 四、典型请求顺序
 
@@ -67,7 +71,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - 用户明确要求参考视频复刻、匹配或逐帧对齐，并且 `describe` 声明 `quality.reference.compare` 时，用该操作比较最终参考文件和候选文件；它不依赖项目数据库，也不改变网页或时间线。
 - 执行大范围自动修改前可用 `project.version.create` 建立命名恢复版本；`project.version.list/restore` 负责查看和恢复，不把项目版本塞进网页清单。
 
-如果 `capabilities` 声明内置能力 `cooperative-desktop-updates`，桌面界面保持项目打开时也可以运行短进程 CLI 或 stdio MCP 客户端。请求提交后，常驻 Editor Service 先持久化事件，再把同一结果实时投影到桌面端；双方仍需使用 `base_revision`，不相交的过期写入由服务自动重放，同一路径冲突则重新读取并交给用户决定。任何调用方都不直接操作项目数据库。
+桌面界面保持项目打开时也可以运行短进程 CLI 或 stdio MCP 客户端，但这只是同一 Editor Service 的可选即时投影，不是正式工作流的依赖。所有调用方仍使用 `base_revision`、持久事件和命名版本；冲突时重新读取并交给用户决定，任何调用方都不直接操作项目数据库。
 
 需要把可保真的时间线交给 Final Cut Pro 时，只在 `describe` 声明 `export.fcpxml` 与 `fcpxml-export` 后调用该操作。它会先检查转场、音频总线、网页缓存等语义能否可靠交接；拒绝结果表示当前时间线不能无损映射，调用端不得绕过预检另写一份低保真 XML。
 

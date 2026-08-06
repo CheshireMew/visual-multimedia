@@ -4,13 +4,13 @@
   "project_state": "media-project-state.json",
   "review_basis": {
     "created_at": "2026-07-27T00:00:00.000Z",
-    "basis_sha256": "22b06fa5c9363780af53adbbe7ffde3a781f4abfd552f4c1adaba80e22098f1f",
+    "basis_sha256": "fd31ef50d0b3c5f2b69205ea91c6b4b658167373ddd04917ccc4f018fe626335",
     "artifacts": [
       {
         "id": "delivery-contract",
         "role": "delivery-contract",
         "file": "media-delivery.json",
-        "sha256": "4cdbbfa13936df15cda71d369fb851e9040e0a287cad7e511e6315cd3e85f5fe"
+        "sha256": "de05e4fd855c84eec263a5bb3f945f1458c0294e5d85dc8319b99751f68ae117"
       },
       {
         "id": "machine-report",

@@ -10,7 +10,7 @@
 
 先按 `visual-production-profiles.md` 继承或选择制作配方。项目已有风格档案时，HTML 视觉变量、字体、素材处理和基础图形读取共享视觉核心；静态画布结构只读取静态构图实现，场景主时间线只读取时间运动实现，手动或混合播放控件只读取交互实现。目标载体没有适用实现层时，根据当前内容建立该层，不从其它层猜测。不能只在说明文字里写了配方，网页仍然临场使用另一套颜色、材质、构图或动作。
 
-`schemas/editable-media.v5.schema.json` 是 `editable-media.json` v5 的唯一结构合同，`scripts/editable-media-contract.mjs` 负责执行它和包边界；校验器、HyperFrames 工作副本和 MediaFlow Pro 消费端都只能读取这份合同，不得另写一套宽松字段表。`editable-media.json` 是当前网页包的权威配置。入口 HTML 负责 DOM 结构、CSS 关系、数据怎样投影成画面以及确定性动画算法，不保存另一份场景、尺寸、主题、参数或默认文案。清单中的职责固定为：
+`schemas/editable-media.v5.schema.json` 是 `editable-media.json` v5 的唯一结构合同，`scripts/editable-media-contract.mjs` 负责执行它和包边界；校验器、本地渲染器、HyperFrames 工作副本和 MediaFlow Pro 消费端都只能读取这份合同，不得另写一套宽松字段表。`editable-media.json` 是当前网页包的权威配置。入口 HTML 负责 DOM 结构、CSS 关系、数据怎样投影成画面以及确定性动画算法，不保存另一份场景、尺寸、主题、参数或默认文案。清单中的职责固定为：
 
 - `scenes` 保存有序语义场景；每个场景声明页面职责、内容形态、内容版式、时长、语义步骤、`motion`、数据覆盖和素材槽位绑定。每个步骤都要说明它是开始、变化、结果还是保持状态，是否进入关键状态审阅，以及该状态实际表达什么。
 - `playback` 保存 `manual`、`autoplay` 或 `hybrid` 播放方式、帧率、循环和导航能力。手动表示由用户推进；自动表示时钟连续推进；混合表示场景内自动运动、场景边界等待用户。
@@ -157,13 +157,13 @@ PNG、WebP、GIF、视频封面、帧序列和从同一网页时间线捕获的�
 
 `setState` 接受清单允许的各场景覆盖值，`setTime` 使用整条时间线的毫秒位置，`setScene` 使用场景 ID 和可选步骤。`ready` 必须等待清单、字体和图片完成；`getPlayback` 返回当前模式、场景、步骤、场景时间和全局时间；`getBounds` 返回清单图层的当前像素边界。相同网页源摘要、场景状态、输出变体和时间必须产生相同画面。
 
-网页的第一个可见包装节点必须唯一标记 `data-editable-media-root`，并声明 `data-composition-id="editable-media"`、`data-no-timeline`、总时长秒数、默认输出变体的宽高和帧率；媒体画布和预览控件都放在这个包装节点内，捕获模式隐藏画布外控件。运行时同时暴露 `window.__hf.duration` 和 `window.__hf.seek(seconds)`：它只是 `window.editableMedia.setTime(milliseconds)` 的秒级逐帧入口，不保存第二份时间线。MediaFlow Pro 自有渲染器与 HyperFrames 直接渲染都从这个入口定位，因此同一秒数必须得到同一场景状态和画面。运行时为 HyperFrames 注册的 timeline adapter 也只转发到这个入口，不能重写动画算法。
+网页的第一个可见包装节点必须唯一标记 `data-editable-media-root`，并声明 `data-composition-id="editable-media"`、`data-no-timeline`、总时长秒数、默认输出变体的宽高和帧率；媒体画布和预览控件都放在这个包装节点内，捕获模式隐藏画布外控件。运行时同时暴露 `window.__hf.duration` 和 `window.__hf.seek(seconds)`：它只是 `window.editableMedia.setTime(milliseconds)` 的秒级逐帧入口，不保存第二份时间线。本地渲染器、MediaFlow Pro 与 HyperFrames 都从这个入口定位，因此同一秒数必须得到同一场景状态和画面。timeline adapter 也只转发到这个入口，不能重写动画算法。
 
 手动模式不启动自动时钟，前进和后退依次经过步骤与场景。自动模式连续经过全部场景。混合模式只自动推进当前场景，在场景边界停下。键盘、滚轮和触摸导航不接管输入框、按钮、链接、编辑状态或标记为 `data-editable-interactive` 的交互区域；查询参数能够直接打开指定输出变体、场景、步骤和时间。
 
 ## 六、从网页派生媒体
 
-先使用网页已有导出能力；没有时再使用能够读取同一画布和时间线的浏览器截图、逐帧捕获或录制方式。导出工具只负责捕获和编码，不重新实现内容。网页视频只有两条明确路径：需要编辑、声音、混剪或项目续改时交给 MediaFlow Pro；用户明确选择 HyperFrames 的独立无声代码动画按 `hyperframes-rendering.md` 直接渲染。不要同时运行两条路径，也不要在失败后静默换路。
+先使用网页已有导出能力；没有时再使用能够读取同一画布和时间线的浏览器截图、逐帧捕获或录制方式。导出工具只负责捕获和编码，不重新实现内容。网页视频有三条明确路径：MediaFlow Pro 已配置且网页渲染能力就绪时优先由它完成；没有可用 MediaFlow Pro 时由 `scripts/render-web-media-local.mjs` 完成本地基础导出；用户明确选择 HyperFrames 的独立代码动画按 `hyperframes-rendering.md` 渲染。一次只运行选定路径，不在执行失败后静默换路。
 
 - 静态图在指定时间或静态状态捕获目标画布。
 - GIF 按固定帧率采样一个短而完整的循环，减少无意义帧和大面积随机变化。
@@ -172,7 +172,7 @@ PNG、WebP、GIF、视频封面、帧序列和从同一网页时间线捕获的�
 
 当前环境无法稳定导出目标格式时，保留已经验证的网页真源并说明具体阻断，不另写一套平行绘图程序。
 
-需要时间线混剪、声音、字幕或用户希望在编辑器中手动精调时，读取 `structured-media-editor-cli.md`。独立无声代码动画明确选用 HyperFrames 时读取 `hyperframes-rendering.md`。静态卡片、GIF 和独立网页仍可从网页真源直接导出，不要为了使用某个产品而强制导入。
+MediaFlow Pro 可用时读取 `structured-media-editor-cli.md` 并优先使用它的网页渲染、原生工程和导出；不可用时，普通网页视频和 GIF 仍从网页真源本地导出。独立代码动画明确选用 HyperFrames 时读取 `hyperframes-rendering.md`。
 
 ## 七、完成条件
 

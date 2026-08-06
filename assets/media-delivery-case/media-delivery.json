@@ -1,14 +1,19 @@
 {
   "protocol": "visual-multimedia-delivery",
-  "version": 2,
+  "version": 3,
   "profile": "final",
   "output": {
     "file": "renders/final.mp4"
   },
+  "production": {
+    "provider": "local",
+    "truth_kind": "flat-render",
+    "truth_files": [],
+    "render_receipt": null
+  },
   "editability": {
     "classification": "flat_render",
-    "project_file": null,
-    "project_file_sha256": null,
+    "native_project": null,
     "limitations": [
       "这个 MP4 是扁平化成片，无法反向恢复头像、声音、版式和编码前的独立制作层。"
     ]

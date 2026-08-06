@@ -1,4 +1,4 @@
 interface:
   display_name: "Visual Multimedia"
-  short_description: "制作可编辑视觉、解释型 B-roll、视频、音频、播客与产品宣传片"
-  default_prompt: "使用 $visual-multimedia 把已确认内容制作成可编辑媒体；需要流程、因果、时间线等解释画面时，自动选择活动 B-roll 模板并接入真实视频时间线。"
+  short_description: "制作可编辑视觉、网页动画、视频、音频与播客，支持本地和外部增强"
+  default_prompt: "使用 $visual-multimedia 把已确认内容制作成可编辑媒体；MediaFlow Pro 可用且能力就绪时优先使用，否则由本地完整能力完成，HyperFrames 仅在明确选择时使用。"

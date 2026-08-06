@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-delivery.v3",
+  "title": "Visual Multimedia Media Delivery v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "profile",
+    "output",
+    "production",
+    "editability",
+    "project_state",
+    "media_sources",
+    "transcript",
+    "clip_selections",
+    "media_review",
+    "adopted_source_ids",
+    "expected",
+    "analysis",
+    "evidence",
+    "report"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-delivery"},
+    "version": {"const": 3},
+    "profile": {"enum": ["preview", "review", "final"]},
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1}
+      }
+    },
+    "production": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "truth_kind", "truth_files", "render_receipt"],
+      "properties": {
+        "provider": {"enum": ["local", "mediaflow", "hyperframes", "external"]},
+        "truth_kind": {
+          "enum": [
+            "editable-web-package",
+            "portable-timeline",
+            "mediaflow-project",
+            "audio-source",
+            "flat-render"
+          ]
+        },
+        "truth_files": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/truthFile"}
+        },
+        "render_receipt": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/renderReceipt"}
+          ]
+        }
+      }
+    },
+    "editability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "native_project", "limitations"],
+      "properties": {
+        "classification": {"enum": ["native_project", "source_bundle", "flat_render"]},
+        "native_project": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/nativeProject"}
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "project_state": {"type": ["string", "null"], "minLength": 1},
+    "media_sources": {"type": "string", "minLength": 1},
+    "transcript": {"type": ["string", "null"]},
+    "clip_selections": {"type": ["string", "null"]},
+    "media_review": {"type": ["string", "null"]},
+    "adopted_source_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["media_kind", "audio_required"],
+      "properties": {
+        "media_kind": {"enum": ["video", "audio"]},
+        "audio_required": {"type": "boolean"},
+        "duration_seconds": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "duration_tolerance_seconds": {"type": "number", "minimum": 0},
+        "width": {"type": ["integer", "null"], "minimum": 1},
+        "height": {"type": ["integer", "null"], "minimum": 1},
+        "frame_rate": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "frame_rate_tolerance": {"type": "number", "minimum": 0}
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["loudness", "silence", "black_frames"],
+      "properties": {
+        "loudness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["target_lufs", "tolerance_lu", "true_peak_ceiling_dbfs"],
+          "properties": {
+            "target_lufs": {"type": ["number", "null"]},
+            "tolerance_lu": {"type": ["number", "null"], "minimum": 0},
+            "true_peak_ceiling_dbfs": {"type": ["number", "null"]}
+          }
+        },
+        "silence": {"$ref": "#/$defs/rangeAnalysis"},
+        "black_frames": {"$ref": "#/$defs/blackAnalysis"}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["captions", "contact_sheet", "rights_review"],
+      "properties": {
+        "captions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "file", "font_status"],
+          "properties": {
+            "required": {"type": "boolean"},
+            "file": {"type": "string"},
+            "font_status": {"enum": ["not-applicable", "pending", "verified"]}
+          }
+        },
+        "contact_sheet": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file", "frames", "columns"],
+          "properties": {
+            "file": {"type": "string"},
+            "frames": {"type": "integer", "minimum": 2},
+            "columns": {"type": "integer", "minimum": 1}
+          }
+        },
+        "rights_review": {"$ref": "#/$defs/review"}
+      }
+    },
+    "report": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "truthFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "file", "sha256"],
+      "properties": {
+        "role": {"type": "string", "minLength": 1},
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "nativeProject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "project_id", "content_revision"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "project_id": {"type": "string", "minLength": 1},
+        "content_revision": {"type": "integer", "minimum": 0}
+      }
+    },
+    "renderReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_seconds", "end_seconds", "reason"],
+      "properties": {
+        "start_seconds": {"type": "number", "minimum": 0},
+        "end_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "rangeAnalysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "noise_db",
+        "minimum_duration_seconds",
+        "maximum_unacknowledged_seconds",
+        "allowed_ranges"
+      ],
+      "properties": {
+        "noise_db": {"type": "number"},
+        "minimum_duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "maximum_unacknowledged_seconds": {"type": ["number", "null"], "minimum": 0},
+        "allowed_ranges": {"type": "array", "items": {"$ref": "#/$defs/range"}}
+      }
+    },
+    "blackAnalysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "picture_black_ratio",
+        "pixel_threshold",
+        "minimum_duration_seconds",
+        "maximum_unacknowledged_seconds",
+        "allowed_ranges"
+      ],
+      "properties": {
+        "picture_black_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "pixel_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimum_duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "maximum_unacknowledged_seconds": {"type": ["number", "null"], "minimum": 0},
+        "allowed_ranges": {"type": "array", "items": {"$ref": "#/$defs/range"}}
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "notes"],
+      "properties": {
+        "status": {"enum": ["pending", "passed", "failed"]},
+        "notes": {"type": "string"}
+      }
+    }
+  }
+}

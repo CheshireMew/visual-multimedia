@@ -37,7 +37,7 @@ $hyperframes = (Get-Command hyperframes -CommandType Application -ErrorAction St
   -o <输出视频>
 ```
 
-工作目录根部的 `index.html` 是默认 composition，不另传 composition 参数。命令只解析已经安装并进入 PATH 的 HyperFrames，不通过 `npx` 临时下载；浏览器、临时目录和帧缓存都必须先指向用户允许的位置。实际参数以已安装版本声明为准。没有安装、没有可用浏览器或命令能力不一致时停止，保留已验证的 v3 网页包并报告缺口；不自动安装、不切换 MediaFlow Pro，也不增加第二套捕获脚本。
+工作目录根部的 `index.html` 是默认 composition，不另传 composition 参数。命令只解析已经安装并进入 PATH 的 HyperFrames，不通过 `npx` 临时下载；浏览器、临时目录和帧缓存都必须先指向用户允许的位置。实际参数以已安装版本声明为准。没有安装、没有可用浏览器或命令能力不一致时停止，保留已验证的 v5 网页包并报告当前所选提供方的缺口；不自动安装，也不静默切换到 MediaFlow Pro 或本地渲染。只有用户或已确认计划明确改选本地提供方时，才调用现有的 `scripts/render-web-media-local.mjs`，不能临时另写捕获脚本。
 
 ## 四、真实结果检查
 
@@ -48,4 +48,4 @@ $hyperframes = (Get-Command hyperframes -CommandType Application -ErrorAction St
 - 非循环动画到达确认的结束状态；循环动画首尾关系连续。
 - 没有字体替换、空白帧、错误裁切、捕获控件、加载失败或意外音轨。
 
-完成后交付原 v3 网页真源、所选变体、真实视频和检查结果。工作副本与帧缓存保持为可归档的派生产物；未经用户同意不删除。
+完成后交付原 v5 网页真源、所选变体、真实视频和检查结果。工作副本与帧缓存保持为可归档的派生产物；未经用户同意不删除。
