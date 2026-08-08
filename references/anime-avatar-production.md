@@ -248,7 +248,7 @@ python scripts/synthesize-avatar-speech.py `
 
 脚本会同时保存供应方的原始 `WordBoundary`。当一个供应方边界包含多个汉字时，它只在该真实边界内部依据音频低能量点细分，不把整句平均切开。新时间轴故意以 `timing.reviewed=false` 写出；试听并确认逐字边界后改为 `true`，再把音频以同一个 source id 导入 `media-sources.json`。精确声音不存在时停止，不能静默换声。
 
-用户明确要求使用已授权参考音频克隆声音时，按 `speech-synthesis.md` 和 `structured-media-editor-cli.md` 调用 MediaFlow Pro 本轮公开的 `speech.synthesize`，生成并验证真实 WAV，再用返回的参考音频哈希建立稳定声音身份并导入同一个 v3 素材账本。`scripts/synthesize-avatar-speech.py` 仍只负责 EdgeTTS 的供应方边界，不包装 GPT-SoVITS，也不伪造它没有返回的逐字时间。GPT-SoVITS 音频必须以准确目标文本完成音频对齐和逐字听音复核后，才能写入正式 `speech-timeline.json`。
+用户明确要求使用已授权参考音频克隆声音时，通过 MediaFlow Pro 本轮公开的 `speech.synthesize` 生成并验证真实 WAV，再用返回的参考音频哈希建立稳定声音身份并导入同一个 v3 素材账本。`scripts/synthesize-avatar-speech.py` 仍只负责 EdgeTTS 的供应方边界，不包装 GPT-SoVITS，也不伪造它没有返回的逐字时间。GPT-SoVITS 音频必须以准确目标文本完成音频对齐和逐字听音复核后，才能写入正式 `speech-timeline.json`。
 
 如果其它供应方只返回句级或词级时间，不要把整句平均分给每个字然后直接正式交付。可以用音频对齐工具细化，但必须以确切合成文本为准，并听音复核明显边界。
 

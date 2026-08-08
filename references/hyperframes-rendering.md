@@ -1,10 +1,10 @@
 # HyperFrames 直接渲染
 
-仅用于用户明确选择 HyperFrames，把独立、无声、完全由代码网页生成的动画直接渲染成视频。需要 MediaFlow Pro 手动精调、项目续改、旁白、音乐、字幕、实拍、录屏或其它时间线轨道时不读取本文件，改走 `structured-media-editor-cli.md`。
+仅用于用户明确选择 HyperFrames，把独立、无声、完全由代码网页生成的动画直接渲染成视频。需要 MediaFlow Pro 手动精调、项目续改、旁白、音乐、字幕、实拍、录屏或其它时间线轨道时不使用本流程，回到主入口选择结构化编辑与时间线制作路径。
 
 ## 一、输入边界
 
-输入必须是已经通过 `schemas/editable-media.v5.schema.json`、包闭包检查和 `scripts/validate-editable-media.mjs` 的自包含 `editable-media` v5 网页包。入口、运行时、素材账本及账本引用的媒体都在包内；任何 `..`、盘符、绝对路径、URL、反斜杠、符号链接或缺失文件都会在启动 HyperFrames 前被拒绝。入口页只有一个 `data-editable-media-root`，运行时暴露 `window.__hf.duration` 与 `window.__hf.seek(seconds)`；这个接口转发到同一 `window.editableMedia` 毫秒时间线，不保存另一份动画或参数状态。
+输入必须是已经通过 `schemas/editable-media.v6.schema.json`、包闭包检查和 `scripts/validate-editable-media.mjs` 的自包含 `editable-media` v6 网页包。入口、运行时、素材账本及账本引用的媒体都在包内；任何 `..`、盘符、绝对路径、URL、反斜杠、符号链接或缺失文件都会在启动 HyperFrames 前被拒绝。入口页只有一个 `data-editable-media-root`，运行时暴露 `window.__hf.duration` 与 `window.__hf.seek(seconds)`；这个接口转发到同一 `window.editableMedia` 毫秒时间线，不保存另一份动画或参数状态。
 
 HyperFrames 只消费原网页包的结构和默认场景状态。MediaFlow Pro 项目里的文字、位置、主题、关键帧或其它片段覆盖值不在原网页包中，不能把 HyperFrames 输出说成包含 MediaFlow Pro 修改。需要这些修改时从 MediaFlow Pro 项目导出。
 

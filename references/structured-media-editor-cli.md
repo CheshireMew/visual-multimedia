@@ -2,7 +2,7 @@
 
 用于把通用可编辑网页包交给 MediaFlow Pro 继续精调、混剪、配音、加字幕和导出，也用于调用它公开的 Faster-Whisper XXL 转写与 GPT-SoVITS v2Pro 声音克隆能力。网页包和媒体项目保持产品无关：它们不包含 MediaFlow Pro 专用代码，Skill 只使用公开 CLI，不读取或写入编辑器内部数据库。MediaFlow Pro 自己负责外部语音进程、浏览器逐帧、缓存、MLT 时间线、编码和最终输出，不调用 HyperFrames。
 
-导入对象必须是已经由 `schemas/editable-media.v5.schema.json` 和包闭包检查共同通过的自包含网页包。MediaFlow Pro 使用由 visual-multimedia 单向同步的同一份 schema 消费清单；它不能接受旧 `image` 数据类型、包外路径或缺字段后再自行补成另一种格式。`data_fields.default`、场景数据覆盖、局部变体图层、`visible`、类型化 `parameters`、语义步骤、条件式镜头与运动、完整质量规则和 `production` 元数据都按 v5 原义进入项目。包内 media-sources v4 素材账本的每个 source 还必须明确声明 `browser`、`native-underlay` 或 `native-audio` 管线。
+导入对象必须是已经由 `schemas/editable-media.v6.schema.json` 和包闭包检查共同通过的自包含网页包。MediaFlow Pro 使用由 visual-multimedia 单向同步的同一份 schema 消费清单；它不能接受旧 `image` 数据类型、包外路径或缺字段后再自行补成另一种格式。`data_fields.default`、场景数据覆盖、局部变体图层、`visible`、类型化 `parameters`、语义步骤、条件式镜头与运动、完整质量规则和 `production` 元数据都按 v6 原义进入项目。包内 media-sources v4 素材账本的每个 source 还必须明确声明 `browser`、`native-underlay` 或 `native-audio` 管线。
 
 ## 一、先读取能力合同
 
@@ -47,7 +47,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - 用户需要把网页动效导出为可在目标剪辑软件中叠加的透明视频或覆盖层。
 - 最终需要统一的视频时间线、短视频派生序列或批量导出任务。
 
-只需要 PNG、GIF、视频或独立网页时仍以网页包为内容真源；MediaFlow Pro 的网页导出能力就绪时优先用 `web.clip.export`，没有可用 MediaFlow Pro 时才从同一网页真源本地导出。独立无声代码动画只有在用户明确选择 HyperFrames 时才走 `hyperframes-rendering.md`。提供方只负责读取同一真源和导出，不能因此增加与成品无关的项目步骤。
+只需要 PNG、GIF、视频或独立网页时仍以网页包为内容真源；MediaFlow Pro 的网页导出能力就绪时优先用 `web.clip.export`，没有可用 MediaFlow Pro 时才从同一网页真源本地导出。独立无声代码动画只有在用户明确选择 HyperFrames 时才进入对应的直接渲染路径。提供方只负责读取同一真源和导出，不能因此增加与成品无关的项目步骤。
 
 ## 四、典型请求顺序
 
@@ -66,7 +66,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - `web.clip.theme.update` 替换品牌变量，`web.clip.variant.select` 选择输出变体；不存在 `web.clip.layout.select`。
 - `web.clip.data.update` 写入内联数据，`web.clip.data.snapshot` 从本地 JSON/CSV 固化一次性快照；不要把远程 API 变成运行依赖。
 - `web.batch.create` 从记录和显式字段绑定生成多个短序列，不复制或改写 HTML。
-- 带 `component` 元数据的共享网页包先按 `reusable-media-resources.md` 从不可变 `web-components` 注册版本采用到当前项目，再通过 `web.import` 把采用后的完整包交给编辑器；当前公开合同没有 `web.component.*` 操作，编辑器内部目录也不成为第二份组件注册表。
+- 带 `component` 元数据的共享网页包先从不可变 `web-components` 注册版本采用到当前项目，再通过 `web.import` 把采用后的完整包交给编辑器；当前公开合同没有 `web.component.*` 操作，编辑器内部目录也不成为第二份组件注册表。
 - `web.clip.export` 从同一组场景状态派生 PNG、GIF、透明视频、普通视频或时间线覆盖层。透明输出只在本轮 `describe` 明确声明相应格式时使用；所选输出变体必须声明透明画布，HTML 的 body 与媒体画布也要真实透明。容器、编码和像素格式服从当前操作合同与目标剪辑软件，不能照搬固定格式。完成后检查实际文件的透明通道，并在目标软件中叠加到明、暗底片上观看。
 - 用户明确要求参考视频复刻、匹配或逐帧对齐，并且 `describe` 声明 `quality.reference.compare` 时，用该操作比较最终参考文件和候选文件；它不依赖项目数据库，也不改变网页或时间线。
 - 执行大范围自动修改前可用 `project.version.create` 建立命名恢复版本；`project.version.list/restore` 负责查看和恢复，不把项目版本塞进网页清单。
@@ -83,7 +83,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 
 ## 五、外部转写与声音克隆
 
-需要 Faster-Whisper XXL 转写时，先确认 `speech.transcribe` 及其依赖的 `faster-whisper-xxl` 能力可用，再严格按返回 schema 提交真实音视频输入、SRT 输出位置和本次需要覆盖的语言、模型、设备、计算类型或覆盖选项。操作返回的引擎版本、输入与输出哈希、语言、实际时长和分段结果必须与真实 SRT 一起保存；随后按 `media-project-contracts.md` 用 `scripts/import-media-transcript.mjs --kind asr` 把 SRT 绑定到原始 source id 与哈希。自动转写仍从待复核状态开始，完整听音和纠错不能由引擎成功代替。
+需要 Faster-Whisper XXL 转写时，先确认 `speech.transcribe` 及其依赖的 `faster-whisper-xxl` 能力可用，再严格按返回 schema 提交真实音视频输入、SRT 输出位置和本次需要覆盖的语言、模型、设备、计算类型或覆盖选项。操作返回的引擎版本、输入与输出哈希、语言、实际时长和分段结果必须与真实 SRT 一起保存；随后用 `scripts/import-media-transcript.mjs --kind asr` 把 SRT 绑定到原始 source id 与哈希。自动转写仍从待复核状态开始，完整听音和纠错不能由引擎成功代替。
 
 需要 GPT-SoVITS v2Pro 时，先确认用户已经授权声音克隆和参考音频，再确认 `speech.synthesize` 及其依赖的 `gpt-sovits-v2pro` 能力可用。按返回 schema 提交确认目标文本与语言、真实参考音频、参考音频的准确文本与语言、WAV 输出位置及必要的可选参数。响应中的输出哈希、实际时长、采样率、声道、参考音频哈希、引擎版本和设备是本次私有生成回执；WAV 只有经实际试听并由素材导入器写入 `media-sources.json` 后，才成为时间线可消费的声音 source。操作成功不等于声音身份、读音或情绪已经通过。
 
@@ -95,7 +95,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 
 `quality.reference.compare` 是通用文件比较操作，不是 editable-media 字段，也不把参考素材写进 `project.mfp`。调用前先从 `describe` 确认 `reference-video-comparison`、`ffmpeg` 和 `ffprobe` 能力可用，再严格按返回的参数 schema 提交参考文件、候选文件、各自起始帧、可选比较帧数、邻帧搜索半径、边界帧数量、联系表行数、输出目录、可选验收条件和显式覆盖选择。
 
-不提供验收条件时，操作只返回 `measured` 和真实测量结果；提供条件时才返回 `passed` 或 `failed`。验收条件可以约束剩余帧数一致、完全一致帧比例、平均绝对误差、边界误差、最低 PSNR 和时间错位数量，它们由当前还原目标决定，不从 MediaFlow Pro 或某个示例继承固定阈值。操作产出的报告、最差帧和联系表都从最终候选文件解码，调用端必须打开这些证据并按 `reference-video-alignment.md` 完成视觉与风格层人工检查。
+不提供验收条件时，操作只返回 `measured` 和真实测量结果；提供条件时才返回 `passed` 或 `failed`。验收条件可以约束剩余帧数一致、完全一致帧比例、平均绝对误差、边界误差、最低 PSNR 和时间错位数量，它们由当前还原目标决定，不从 MediaFlow Pro 或某个示例继承固定阈值。操作产出的报告、最差帧和联系表都从最终候选文件解码，调用端必须打开这些证据并完成参考对齐所需的视觉与风格层人工检查。
 
 ## 七、真实链路验收
 

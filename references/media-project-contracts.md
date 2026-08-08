@@ -19,11 +19,11 @@
 
 网页的 `editable-media.json`、视频时间线或音频项目仍是素材采用与排列的真源。导入素材只说明候选文件可靠进入项目；消费者显式引用 source id 后，素材才算进入当前成品。语义片段图只描述叙事职责，不能复制一份事实转写；项目状态只索引合同和产物，不能复制时间线；评审只描述问题，不能变成第二个任务系统。
 
-外部生成任务只在实际使用外部供应方时建立，并以 `schemas/generation-jobs.v1.schema.json` 为唯一活动结构；已经本地化后，最终素材事实仍进入 `media-sources.json`。其余活动结构以 `schemas/media-sources.v3.schema.json`、`schemas/media-resource-adoptions.v1.schema.json`、`schemas/media-transcript.v1.schema.json`、`schemas/clip-selections.v2.schema.json`、`schemas/sound-production-profile.v1.schema.json`、`schemas/resource-promotion-candidates.v1.schema.json`、`schemas/media-project-state.v3.schema.json`、`schemas/media-stage-template.v1.schema.json`、`schemas/media-build-plan.v1.schema.json`、`schemas/media-build-report.v2.schema.json`、`schemas/media-review.v3.schema.json`、`schemas/media-delivery.v3.schema.json` 和 `schemas/media-timeline.v1.schema.json` 为准。注册资源的建立、采用与晋升另读取 `reusable-media-resources.md`，声音档案另读取 `sound-production-profiles.md`。新项目从 `assets/media-project-starter/` 开始，不创建平行的生成状态、素材清单、转写、交付状态或审核记录。
+外部生成任务只在实际使用外部供应方时建立，并以 `schemas/generation-jobs.v1.schema.json` 为唯一活动结构；已经本地化后，最终素材事实仍进入 `media-sources.json`。其余活动结构以 `schemas/media-sources.v3.schema.json`、`schemas/media-resource-adoptions.v1.schema.json`、`schemas/media-transcript.v1.schema.json`、`schemas/clip-selections.v2.schema.json`、`schemas/sound-production-profile.v1.schema.json`、`schemas/resource-promotion-candidates.v1.schema.json`、`schemas/media-project-state.v3.schema.json`、`schemas/media-stage-template.v1.schema.json`、`schemas/media-build-plan.v1.schema.json`、`schemas/media-build-report.v2.schema.json`、`schemas/media-review.v3.schema.json`、`schemas/media-delivery.v3.schema.json` 和 `schemas/media-timeline.v1.schema.json` 为准。注册资源的建立、采用与晋升以及独立声音档案各自沿主入口选择的正式边界执行。新项目从 `assets/media-project-starter/` 开始，不创建平行的生成状态、素材清单、转写、交付状态或审核记录。
 
 具体视频类型可以在这些基础合同之上增加自己的 draft、不可变计划和确认，但不能再定义一份专用构建报告。例如采访原声讲解型使用 `interview-explainer-draft.json`、`narration-bundle.json`、`interview-explainer-plan.json` 和独立确认：draft 负责当前内容、样式及与事实转写边界一致的原声分段译文字幕，旁白包绑定真实音频，计划冻结 profile 输入；随后投影为通用 `media-build-plan.json`，统一的 v2 构建报告证明每个单元实际生成或复用了什么、连续音频如何处理、最终如何装配。最终审阅、项目状态和交付仍回到上述通用合同，并绑定同一个成片 SHA-256。
 
-产品功能宣传片同样只增加 `product-promo-brief.json`、页面采集报告、镜头配方选择、`product-promo-plan.json` 与独立确认。brief 冻结主张、必选功能、真实 source id、声音和输出；采集报告把真实浏览器截图送入通用素材账本；镜头选择绑定目标原生网页包；计划冻结功能覆盖、场景、语义状态和连续帧范围。确认后由 `scripts/product-promo.mjs build-plan` 投影为同一个通用 `media-build-plan.json`，渲染、构建报告、审阅、项目状态和交付不增加产品宣传片专用替代合同。具体方法读取 `product-promo-production.md`。
+产品功能宣传片同样只增加 `product-promo-brief.json`、页面采集报告、镜头配方选择、`product-promo-plan.json` 与独立确认。brief 冻结主张、必选功能、真实 source id、声音和输出；采集报告把真实浏览器截图送入通用素材账本；镜头选择绑定目标原生网页包；计划冻结功能覆盖、场景、语义状态和连续帧范围。确认后由 `scripts/product-promo.mjs build-plan` 投影为同一个通用 `media-build-plan.json`，渲染、构建报告、审阅、项目状态和交付不增加产品宣传片专用替代合同。具体制作方法由主入口同时加载的产品功能宣传片流程负责。
 
 ## 二、素材、原片与代理
 
@@ -88,7 +88,7 @@ node scripts/import-media-transcript.mjs `
   --kind user-subtitles
 ```
 
-需要 Faster-Whisper XXL 生产 SRT 时，先读取 `structured-media-editor-cli.md`，由本轮 `mediaflow-cli describe` 声明的 `speech.transcribe` 生成真实 SRT、输入输出哈希和分段结果；Skill 不直接调用引擎可执行文件，也不把 MediaFlow Pro 设置路径写入项目。ASR 结果使用 `--kind asr`。自动转写一律从 `pending` 开始；实际听过并处理完专有名词、数字和不确定词后，才可用 `--reviewed` 与说明写入通过状态。校验命令：
+需要 Faster-Whisper XXL 生产 SRT 时，由本轮 `mediaflow-cli describe` 声明的 `speech.transcribe` 生成真实 SRT、输入输出哈希和分段结果；Skill 不直接调用引擎可执行文件，也不把 MediaFlow Pro 设置路径写入项目。ASR 结果使用 `--kind asr`。自动转写一律从 `pending` 开始；实际听过并处理完专有名词、数字和不确定词后，才可用 `--reviewed` 与说明写入通过状态。校验命令：
 
 ```powershell
 node scripts/validate-media-transcript.mjs <项目目录>/transcript.json
@@ -98,17 +98,17 @@ node scripts/validate-media-transcript.mjs <项目目录>/transcript.json
 
 ## 四、音频与播客制作
 
-先确认听众、节目形式、预期时长、核心主张、说话人、现有录音、音乐与音效授权，以及是否需要章节、转写、节目说明和封面；再检查实际音频的时长、采样率、声道、编码、静音、削波、背景噪声、混响、音量差和可理解度。没有录音时，只有用户明确要求合成旁白或指定声音生产方式后才读取 `speech-synthesis.md`。需要从长录音选择区间时建立 `clip-selections.json`，转写只帮助定位，最终剪切和修复必须回到真实声音核对。
+先确认听众、节目形式、预期时长、核心主张、说话人、现有录音、音乐与音效授权，以及是否需要章节、转写、节目说明和封面；再检查实际音频的时长、采样率、声道、编码、静音、削波、背景噪声、混响、音量差和可理解度。没有录音时，只有用户明确要求合成旁白或指定声音生产方式后才进入声音合成流程。需要从长录音选择区间时建立 `clip-selections.json`，转写只帮助定位，最终剪切和修复必须回到真实声音核对。
 
 每个项目只有一个活动音频时间线，统一保存源录音与选择范围、说话人和同步关系、章节与剪切点、旁白与音乐、清理和混音处理、目标编码及导出设置。转写稿、波形预览和最终音频都是派生结果；修改回到时间线完成，不直接拼接已压缩成品建立第二个正式版本。
 
-内容剪辑先按 `content-to-media.md` 确认节目承诺、开场、章节和收束。保留理解主张所需的提问、回答、故事、理由与转折，删除不增加含义的重复、口误、设备中断和过长空白，同时保留承担思考、节奏和情绪的停顿；章节连接语只补足无画面收听所需的人物、对象和问题语境。片头片尾服务识别与收束，不拖延进入正文，也不重复整期内容。
+内容剪辑先从活动内容真源确认节目承诺、开场、章节和收束。保留理解主张所需的提问、回答、故事、理由与转折，删除不增加含义的重复、口误、设备中断和过长空白，同时保留承担思考、节奏和情绪的停顿；章节连接语只补足无画面收听所需的人物、对象和问题语境。片头片尾服务识别与收束，不拖延进入正文，也不重复整期内容。
 
 声音处理以可理解度为先：先清理明显故障和不可用片段，再控制稳定噪声与低频干扰、校正严重音量差，最后进行均衡、动态、响度和必要空间处理。处理不能产生明显失真、抽吸、金属噪声或人声距离突变；不同说话人保留自然差异，音乐与音效低于关键人声。严重削波、混响、串音或缺失内容无法可靠恢复时说明限制，不用合成内容冒充原声。
 
-合成旁白从已经确认的媒体文案派生，并按 `speech-synthesis.md` 保存供应方式、声音、输入文本哈希、原始音频与实际时间信息；声音身份仍是高影响且未确认的变量时先生成短试听。生成后以实际音频时长更新章节、停顿和其它声音关系。EdgeTTS 只是用户点名或当前条件适合时的在线选择，不等同于声音克隆；GPT-SoVITS 克隆必须有合法参考声音、准确参考文本和明确使用授权。
+合成旁白从已经确认的媒体文案派生，保存供应方式、声音、输入文本哈希、原始音频与实际时间信息；声音身份仍是高影响且未确认的变量时先生成短试听。生成后以实际音频时长更新章节、停顿和其它声音关系。EdgeTTS 只是用户点名或当前条件适合时的在线选择，不等同于声音克隆；GPT-SoVITS 克隆必须有合法参考声音、准确参考文本和明确使用授权。
 
-转写和字幕从最终时间线生成或校正，章节标题与节目说明只能反映成品。播客封面、章节卡、波形动画和宣传卡片属于代码生成视觉时按 `web-visual-production.md` 建立网页真源。导出前完整试听章节连接、关键名字与数字、人声可懂度、响度变化、音乐遮挡、静音和结尾；合成旁白逐句检查专有名词、数字、停顿、重音和尾句完整性，不能只看波形或字幕。最后建立 `media-delivery.json`，用真实播放器核对文件，并按当前档位运行交付验证。
+转写和字幕从最终时间线生成或校正，章节标题与节目说明只能反映成品。播客封面、章节卡、波形动画和宣传卡片属于代码生成视觉时建立独立网页真源。导出前完整试听章节连接、关键名字与数字、人声可懂度、响度变化、音乐遮挡、静音和结尾；合成旁白逐句检查专有名词、数字、停顿、重音和尾句完整性，不能只看波形或字幕。最后建立 `media-delivery.json`，用真实播放器核对文件，并按当前档位运行交付验证。
 
 ## 五、真实片段选择
 
@@ -124,7 +124,7 @@ node scripts/validate-clip-selections.mjs <项目目录>/clip-selections.json
 
 ## 六、长任务状态与阶段确认
 
-新的或实质重做的长视频、混合视频、音频和播客使用 `media-project-state.json` v3，并读取 `staged-media-production.md`。通用阶段固定为内容与声音、导演与制作方向、综合样片、全量代理或预览、最终母版与交付；具体视频 profile 只能生产这些阶段的成果，不能建立平行批准状态。默认每阶段提交真实文件后等待用户确认，只有用户明确授权全自动时才连续推进。短小且确定的单点修改不为形式完整经过全部阶段。
+新的或实质重做的长视频、混合视频、音频和播客使用 `media-project-state.json` v3，并进入主入口已经选择的通用分阶段制作。阶段固定为内容与声音、导演与制作方向、综合样片、全量代理或预览、最终母版与交付；具体视频 profile 只能生产这些阶段的成果，不能建立平行批准状态。默认每阶段提交真实文件后等待用户确认，只有用户明确授权全自动时才连续推进。短小且确定的单点修改不为形式完整经过全部阶段。
 
 状态保存阶段、成果集合哈希、确认依据、合同入口、活动制作决策、阻塞项和下一步；内容和时间线继续留在各自真源。制作决策只记录会改变后续脚本、画面、声音、技术规格或交付的选择，必须写明影响范围、依据产物、决策主体和时间；选择被推翻时形成无环替代链，不覆盖历史，也不让已替代决定继续生效。项目采用过注册资源、建立声音档案或产生晋升候选时，分别填写相应合同入口，没有时为 `null`。
 

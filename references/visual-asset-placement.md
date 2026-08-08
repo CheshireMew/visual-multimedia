@@ -4,11 +4,11 @@
 
 ## 一、先确认能否使用
 
-只使用用户提供、项目已有或用户明确允许获取的素材。每项外部、用户提供或生成素材都按 `media-project-contracts.md` 记录到项目唯一的 `media-sources.json`；完全由 HTML、CSS 或内联 SVG 在项目中生成的图形也记录为 `generated-in-project`，但完整性为 `null`，不虚构外部文件或来源。
+只使用用户提供、项目已有或用户明确允许获取的素材。每项外部、用户提供或生成素材都记录到项目唯一的 `media-sources.json`；完全由 HTML、CSS 或内联 SVG 在项目中生成的图形也记录为 `generated-in-project`，但完整性为 `null`，不虚构外部文件或来源。
 
 用户提供、项目自有、外部下载或已经在项目内确定性生成的独立文件使用 `scripts/import-media-asset.mjs` 导入。需要调用外部生成服务时，先在 `generation-jobs.json` 完成规范化输入、费用授权、提交锁、远程任务、回执和下载校验，再由任务管理器调用同一导入器本地化。导入器按内容哈希保存文件并记录取得方式、权利、实际字节数、MIME、SHA-256、生成信息与回执；合成声音再记录声音身份和实际输入文本哈希。导入完成只表示候选素材已进入项目，不能自动写入网页场景、视频时间线或音频项目。
 
-向 editable-media v5 网页包的 media-sources v4 素材账本导入文件时，必须额外传入 `--pipeline browser|native-underlay|native-audio`。普通图片和 DOM 内媒体使用 `browser`；MediaFlow Pro 需要在网页透明层下方原生合成的视频使用 `native-underlay`；独立音轨使用 `native-audio`。导入器不会根据扩展名猜测视觉职责，也不会把通用 media-sources v3 素材账本升级成网页账本。
+向 editable-media v6 网页包的 media-sources v4 素材账本导入文件时，必须额外传入 `--pipeline browser|native-underlay|native-audio`。普通图片和 DOM 内媒体使用 `browser`；MediaFlow Pro 需要在网页透明层下方原生合成的视频使用 `native-underlay`；独立音轨使用 `native-audio`。导入器不会根据扩展名猜测视觉职责，也不会把通用 media-sources v3 素材账本升级成网页账本。
 
 坐标使用原素材中的归一化位置，具体输出变体裁切保存在 `crops` 对应变体项中。`media-sources.json` 负责来源、唯一文件路径和素材级判断；网页清单的 `media-source` 数据字段只保存 source id，负责该素材进入哪个场景槽位和图层。文件路径变化时只修改来源记录，采用关系变化时只修改 source id；HTML 和 `resources` 不再保存同一媒体路径。
 

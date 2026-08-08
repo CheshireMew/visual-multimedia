@@ -1,6 +1,6 @@
 # 文字动效制作
 
-只有文字本身的进入、退出、替换、强调或逐字、逐词、逐行构建承担主要表达职责时，才使用本流程。普通标题淡入、整个场景的对象运动或镜头推进继续由视觉配方与 `web-visual-production.md` 处理，不为每段文字套用效果。
+只有文字本身的进入、退出、替换、强调或逐字、逐词、逐行构建承担主要表达职责时，才使用本流程。普通标题淡入、整个场景的对象运动或镜头推进继续由已经确定的视觉配方与网页时间线处理，不为每段文字套用效果。
 
 ## 唯一真源
 
@@ -26,7 +26,7 @@ node scripts/text-motion-library.mjs materialize per-character-rise --project <e
 
 `text-motion-runtime.js` 不启动定时器、WAAPI 动画或第二条时间线。生产网页把场景局部毫秒数直接传给 `player.renderAt(milliseconds, operation)`；同一文字、效果、操作和时间必须得到同一组样式。播放、暂停和逐帧捕获仍全部经过 `window.editableMedia.setTime(milliseconds)` 与 `window.__hf.seek(seconds)`。
 
-效果选择属于制作阶段。使用 `materialize` 把选中的效果记录、确定性运行时、正式绑定器、来源与许可记录，以及绑定来源哈希的 `text-motion/selection.json` 复制进当前自包含网页包，并登记到该包的 `editable-media.json.resources`。网页入口加载包内 `text-motion/text-motion-binding.js`，再用 `await TextMotionBinding.attach({host, textField, previousTextField})` 连接动画内层；绑定器会核对效果哈希、加载运行时，并把 editable-media 的场景局部毫秒数交给 `renderAt`。消费者仍只需要读取既有 editable-media v5 边界。只有当正式消费者也必须查看或更换 effect ID、分段或错峰方式时，才修改产品无关的 editable-media 合同，并同时迁移 MediaFlow Pro；不能把编辑器专用字段藏进入口 HTML。
+效果选择属于制作阶段。使用 `materialize` 把选中的效果记录、确定性运行时、正式绑定器、来源与许可记录，以及绑定来源哈希的 `text-motion/selection.json` 复制进当前自包含网页包，并登记到该包的 `editable-media.json.resources`。网页入口加载包内 `text-motion/text-motion-binding.js`，再用 `await TextMotionBinding.attach({host, textField, previousTextField})` 连接动画内层；绑定器会核对效果哈希、加载运行时，并把 editable-media 的场景局部毫秒数交给 `renderAt`。消费者仍只需要读取既有 editable-media v6 边界。只有当正式消费者也必须查看或更换 effect ID、分段或错峰方式时，才修改产品无关的 editable-media 合同，并同时迁移 MediaFlow Pro；不能把编辑器专用字段藏进入口 HTML。
 
 ## 审阅
 
@@ -39,4 +39,4 @@ node scripts/text-motion-library.mjs materialize per-character-rise --project <e
 - 降低运动时只保留必要淡入淡出或静态结果；
 - 长文、过多行或高强度效果超出当前记录的建议范围时重新选型，不靠压缩字号掩盖问题。
 
-`assets/text-motion-library/` 本身是由正式记录、正式运行时和现有 editable-media 通用运行时组成的真实画廊消费者。修改效果、运行时或目录生成逻辑后，先运行 `node scripts/text-motion-library.mjs build`，再运行 `node scripts/check-skill.mjs --browser`；该档位已经包含文字动效的确定性浏览器消费者检查，不重复单独运行同一 self-test。实际用于交付时继续按 `review-and-export.md` 检查关键状态和最终媒体。
+`assets/text-motion-library/` 本身是由正式记录、正式运行时和现有 editable-media 通用运行时组成的真实画廊消费者。修改效果、运行时或目录生成逻辑后，先运行 `node scripts/text-motion-library.mjs build`，再运行 `node scripts/check-skill.mjs --browser`；该档位已经包含文字动效的确定性浏览器消费者检查，不重复单独运行同一 self-test。实际用于交付时继续按主入口已经加载的交付规则检查关键状态和最终媒体。
