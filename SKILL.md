@@ -49,7 +49,9 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 6. **授权层级**：当前是否允许写文案、创建网页、处理素材、调用外部模型、安装工具、导出文件或发布。
 7. **复用来源**：当前项目是否已有确认的视觉档案、独立声音档案或显式采用的注册媒体资源，用户是否提供品牌与参考；都没有时由内容关系和载体自动选择视觉配方，声音和素材仍按各自真实输入决定。
 
-用户已经说清时直接执行。缺失信息只影响局部时从现有内容采用保守且可逆的选择；缺口会改变大部分文案、载体、构图、剪辑或保存位置时，先读取材料和项目规则，仍无法确定再询问一个关键问题。
+默认模式下，用户已经说清时直接执行；缺失信息只影响局部时从现有内容采用保守且可逆的选择。缺口会改变大部分文案、载体、构图、剪辑或保存位置时，先读取材料和项目规则，仍无法确定再询问一个关键问题。
+
+当前请求处于 Plan 模式时，无论上述信息是否已经完整，都先读取 `references/plan-mode-creative-interview.md`；本 Skill 不自动开启或关闭 Plan 模式。
 
 内容真源不完整时，只补齐媒体表达所需的结构，不自行发明事实、第一人称经历、来源或作者立场。需要外部研究或事实核查时，先说明缺口并取得对应授权；未获得授权时停在现有材料能够支持的范围。
 
@@ -174,9 +176,9 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 用户要求合成旁白、点名 EdgeTTS 或 GPT-SoVITS，或需要为视频、动画、播客生成语音 | `references/speech-synthesis.md` | 选择声音入口，派生合成文本，生成原始语音和时间信息，并按真实时长交给媒体时间线 |
 | 实际导出或交付媒体 | `references/review-and-export.md` | 沿真实链路检查源文件、预览、编码和成品 |
 
-需要实际处理媒体文案时，先按“先完成媒体文案”选定动作，再用 `references/content-to-media.md` 确定真源、受众、渠道职责和文案合同。新写、扩写、实质重组、审查或审查后改写完整口播时，读取 `references/voiceover-reference-library.md` 与 `references/voiceover-hook-library.md`：声音候选按语境和资格查找，完整案例与独立钩子按任务和语境分别浏览，再把多份原文共同交给 `references/voiceover-writing.md`。库未配置或没有合适参考时普通写作继续，不初始化、不凑数；用户明确要求贴近个人声音但没有可靠证据时返回缺口。轻量媒体文字和确定性派生直接进入 `references/media-writing.md`，不读取私人库。长内容转视频的确认旁白，以及采访原声讲解型中的背景、逐段解释和总结，也必须先完成对应完整口播路径，再进入导演计划、旁白包和渲染合同。
+处理媒体文案时，先按“先完成媒体文案”选定动作，再确定真源、受众、渠道职责和文案合同。完整口播依次读取表中的声音与案例库、独立钩子和口播写作说明，把多份完整原文共同交给成文；库不可用时继续，不初始化、不凑数，用户明确要求贴近个人声音但没有可靠证据时返回缺口。轻量媒体文字和确定性派生不读取私人库。长内容转视频的确认旁白，以及采访原声讲解型的背景、逐段解释和总结，先完成完整口播再进入导演与渲染。
 
-代码生成视觉同时读取 `references/content-to-media.md`、`references/visual-production-profiles.md` 和 `references/web-visual-production.md`。已有项目视觉档案时先继承共享视觉核心，再按本次载体读取适用实现层；卡片主要依靠一段或几段文字、单句、并列清单、名词解释、引文或文字对照成立时再读取 `references/text-card-production.md`，先确定阅读结构和内容归属。只有文字自身承担主要运动表达时再读取 `references/text-motion-production.md`，由 `scripts/text-motion-library.mjs` 选择效果，并把 `assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js` 物化到当前网页包。项目确实存在可复用声音语言时另读 `references/sound-production-profiles.md`。社交卡、平台封面、轮播图或静态卡式短动态图再读取 `references/social-card-production.md`；实际使用照片、截图、生成图或视频帧时读取 `references/visual-asset-placement.md`。需要供剪辑软件叠加的透明动效时再读取 `references/structured-media-editor-cli.md`。共享素材或网页组件的注册、采用与晋升读取 `references/reusable-media-resources.md`。
+代码生成视觉共同读取表中的载体、视觉配方和网页制作说明；已有项目先继承共享视觉核心，再按当前载体使用对应实现层。纯文字卡、文字动效、声音档案、社交卡、视觉素材、透明叠加和可复用资源只在实际需要时读取各自说明；文字动效仍由 `scripts/text-motion-library.mjs` 选择效果，并把 `assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js` 物化到当前网页包。
 
 新的或实质重做的长视频、混合视频、音频和播客先读取 `references/staged-media-production.md`，再读取 `references/media-project-contracts.md` 并从 `assets/media-project-starter/` 建立项目。综合样片后的多场景或高成本视频按同一通用构建计划拆成可缓存单元，普通视频和 profile 都不得回到整片粗粒度重渲染。真实人物素材先建立绑定原片哈希并经过听音复核的事实转写，再选择片段。带声音的无实拍视频另读 `references/video-post-production.md`。二次元口播角色或固定角色窗读取 `references/anime-avatar-production.md`。已经选定真实访谈片段并明确采用“背景—原声—解释—总结”结构时，额外读取 `references/interview-explainer-production.md` 并只通过 `scripts/interview-explainer.mjs` 运行；它仍提交到通用阶段，不建立自己的批准系统。普通访谈剪辑、纯混剪、人物故事、录屏或其它视频不得自动变成这种类型。长视频或关键区间不明确时先用 `scripts/make-video-contact-sheet.py` 检查代表帧，再用 `scripts/validate-clip-selections.mjs` 检查真实选段。
 
