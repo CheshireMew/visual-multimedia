@@ -410,8 +410,8 @@ export function materializeTextMotion({ projectRoot, effectId, operation }) {
     throw new Error(`目标目录缺少 editable-media.json：${resolvedProject}`);
   }
   const manifest = readJson(manifestPath);
-  if (manifest.protocol !== "editable-media" || manifest.version !== 5) {
-    throw new Error("文字动效只能物化到 editable-media v5 网页包");
+  if (manifest.protocol !== "editable-media" || manifest.version !== 6) {
+    throw new Error("文字动效只能物化到 editable-media v6 网页包");
   }
   const library = loadTextMotionLibrary();
   const match = loadEffects().find(({ document }) => document.id === effectId);

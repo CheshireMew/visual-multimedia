@@ -11,7 +11,7 @@
       "license": "Repository license",
       "copyright": "Visual Multimedia contributors",
       "source_reference": "assets/web-media-starter/ and assets/video-progress-bar/",
-      "adaptation": "目标原生配方使用 editable-media v5 完整网页包和现有唯一时间边界；全片进度组件由真实时长与章节参数生成。"
+      "adaptation": "目标原生配方使用 editable-media v6 完整网页包和现有唯一时间边界；全片进度组件由真实时长与章节参数生成。"
     },
     {
       "id": "video-shotcraft",

@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editable Media Canvas</title>
+  <style>
+    @font-face {
+      font-family: "Microsoft YaHei";
+      src: local("Microsoft YaHei");
+      font-style: normal;
+      font-weight: 100 900;
+    }
+
+    @font-face {
+      font-family: "Segoe UI";
+      src: local("Segoe UI");
+      font-style: normal;
+      font-weight: 100 900;
+    }
+
+    :root {
+      --canvas-width: 1;
+      --canvas-height: 1;
+      --background: #f4f3ef;
+      --surface: #ffffff;
+      --text: #202124;
+      --muted: #6b7075;
+      --line: #d8d9dc;
+      --accent: #315efb;
+      --radius: 28px;
+      --space: 56px;
+      --shadow: 0 24px 64px rgb(23 29 39 / 10%);
+      --font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      font-family: var(--font-family);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #dedfdf;
+      color: var(--text);
+    }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 20px;
+      padding: 24px;
+    }
+
+    .viewport {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      transform-origin: top left;
+      overflow: hidden;
+      background: var(--background);
+      isolation: isolate;
+    }
+
+    .media-canvas::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent 49.9%, rgb(32 33 36 / 4%) 50%, transparent 50.1%),
+        linear-gradient(transparent 49.9%, rgb(32 33 36 / 4%) 50%, transparent 50.1%);
+      background-size: 96px 96px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .eyebrow {
+      position: absolute;
+      margin: 0;
+      color: var(--accent);
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      position: absolute;
+      margin: 0;
+      font-size: 78px;
+      line-height: 1.06;
+      letter-spacing: -.035em;
+    }
+
+    .summary {
+      position: absolute;
+      margin: 0;
+      color: var(--muted);
+      font-size: 34px;
+      line-height: 1.45;
+    }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      transform-origin: center;
+    }
+
+    .camera-depth {
+      position: absolute;
+      transform-origin: center;
+    }
+
+    .panel {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      min-height: 0;
+      padding: 34px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      opacity: var(--panel-opacity);
+      transform: translateY(var(--panel-offset));
+    }
+
+    [data-editable-id="left-panel"] {
+      transform: translate(
+        calc(-1 * var(--panel-orbit-offset, 0px)),
+        var(--panel-offset)
+      );
+    }
+
+    [data-editable-id="right-panel"] {
+      opacity: var(--right-panel-opacity, var(--panel-opacity));
+      transform: translate(
+        var(--panel-orbit-offset, 0px),
+        var(--right-panel-offset, var(--panel-offset))
+      );
+    }
+
+    html[data-editable-variant="square"] .eyebrow { left: 56px; top: 56px; width: 968px; height: 38px; }
+    html[data-editable-variant="square"] h1 { left: 56px; top: 118px; width: 900px; height: 176px; }
+    html[data-editable-variant="square"] .summary { left: 56px; top: 322px; width: 850px; height: 148px; }
+    html[data-editable-variant="square"] [data-editable-id="left-depth"] { left: 56px; top: 740px; width: 472px; height: 302px; }
+    html[data-editable-variant="square"] [data-editable-id="right-depth"] { left: 552px; top: 740px; width: 472px; height: 302px; }
+    html[data-editable-variant="square"] .panel { height: 274px; }
+
+    html[data-editable-variant="portrait"] .eyebrow { left: 64px; top: 120px; width: 952px; height: 44px; }
+    html[data-editable-variant="portrait"] h1 { left: 64px; top: 210px; width: 920px; height: 270px; }
+    html[data-editable-variant="portrait"] .summary { left: 64px; top: 540px; width: 900px; height: 190px; }
+    html[data-editable-variant="portrait"] [data-editable-id="left-depth"] { left: 64px; top: 1130px; width: 952px; height: 318px; }
+    html[data-editable-variant="portrait"] [data-editable-id="right-depth"] { left: 64px; top: 1470px; width: 952px; height: 318px; }
+    html[data-editable-variant="portrait"] .panel { height: 290px; }
+
+    html[data-editable-variant="landscape"] .eyebrow { left: 96px; top: 72px; width: 1728px; height: 42px; }
+    html[data-editable-variant="landscape"] h1 { left: 96px; top: 148px; width: 1250px; height: 190px; }
+    html[data-editable-variant="landscape"] .summary { left: 96px; top: 390px; width: 1100px; height: 150px; }
+    html[data-editable-variant="landscape"] [data-editable-id="left-depth"] { left: 1120px; top: 630px; width: 330px; height: 328px; }
+    html[data-editable-variant="landscape"] [data-editable-id="right-depth"] { left: 1490px; top: 630px; width: 330px; height: 328px; }
+    html[data-editable-variant="landscape"] .panel { height: 300px; }
+
+    .panel-label {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .panel-value {
+      margin: 0;
+      font-size: 44px;
+      font-weight: 750;
+      line-height: 1.2;
+    }
+
+    .mini-chart {
+      display: grid;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 44px 1fr 52px;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chart-track {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--line);
+    }
+
+    .chart-bar {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+    }
+
+    .progress {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 10px;
+      background: var(--line);
+    }
+
+    .progress > span {
+      display: block;
+      width: var(--progress-percent);
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: rgb(255 255 255 / 88%);
+      box-shadow: 0 10px 32px rgb(0 0 0 / 10%);
+      backdrop-filter: blur(12px);
+    }
+
+    button {
+      border: 1px solid #c7c9cd;
+      border-radius: 10px;
+      padding: 10px 16px;
+      background: white;
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+
+    input[type="range"] { width: min(520px, 45vw); }
+    output { min-width: 82px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    body.capture .app { display: block; padding: 0; }
+    body.capture .viewport { display: block; overflow: visible; }
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+    }
+    body.capture .media-canvas { transform: none !important; }
+    body.capture .controls { display: none; }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="6"
+    data-width="1080"
+    data-height="1080"
+    data-fps="30"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section
+          class="media-canvas"
+          id="mediaCanvas"
+          aria-label="Editable media canvas"
+        >
+          <p class="eyebrow" data-editable-data="eyebrow" data-editable-id="eyebrow"></p>
+          <h1 data-editable-data="title" data-editable-id="title"></h1>
+          <p class="summary" data-editable-data="summary" data-editable-id="summary"></p>
+          <div class="stage" data-editable-id="camera-stage">
+            <div class="camera-depth" data-editable-id="left-depth">
+              <article class="panel" data-editable-id="left-panel">
+                <p class="panel-label" data-editable-data="left_label"></p>
+                <p class="panel-value" data-editable-data="left_value"></p>
+                <div class="mini-chart" id="dataChart" aria-label="Editable data chart"></div>
+              </article>
+            </div>
+            <div class="camera-depth" data-editable-id="right-depth">
+              <article class="panel" data-editable-id="right-panel">
+                <p class="panel-label" data-editable-data="right_label"></p>
+                <p class="panel-value" data-editable-data="right_value"></p>
+              </article>
+            </div>
+          </div>
+          <div class="progress" aria-hidden="true"><span></span></div>
+        </section>
+      </div>
+    </div>
+    <div class="controls" aria-label="Preview controls">
+      <button id="previous" type="button">上一步</button>
+      <button id="play" type="button">播放</button>
+      <button id="pause" type="button">暂停</button>
+      <button id="next" type="button">下一步</button>
+      <button id="overview" type="button">场景总览</button>
+      <input id="scrubber" type="range" min="0" max="6000" step="16" value="0">
+      <output id="time">0.00 s</output>
+      <output id="scene">1 / 2</output>
+    </div>
+  </main>
+
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    const root = document.documentElement;
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+    const scrubber = document.querySelector("#scrubber");
+    const timeOutput = document.querySelector("#time");
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1"
+      || document.body.classList.contains("capture");
+    let output = { width: 1, height: 1, durationMs: 1 };
+
+    if (captureMode) document.body.classList.add("capture");
+
+    function parameterEase(value, strength) {
+      const bounded = Math.max(0, Math.min(1, value));
+      const base = 1 - Math.pow(1 - bounded, 2 + strength * 4);
+      const rebound = Math.sin(bounded * Math.PI * 2)
+        * (1 - bounded) * strength * 0.08;
+      return Math.max(0, Math.min(1, base + rebound));
+    }
+
+    function renderTime(playback) {
+      const parameters = editableMedia.getParameters();
+      const progress = playback.sceneDurationMs > 0
+        ? playback.localTimeMs / playback.sceneDurationMs
+        : 0;
+      const threshold = Math.max(0.05, Number(parameters.trigger_threshold || 0.35));
+      const strength = Math.max(0, Math.min(1, Number(parameters.spring_strength || 0)));
+      const stagger = Math.max(0, Number(parameters.stagger_interval_ms || 0));
+      const reveal = parameterEase(progress / threshold, strength);
+      const rightProgress = playback.sceneDurationMs > 0
+        ? Math.max(0, playback.localTimeMs - stagger) / playback.sceneDurationMs
+        : 0;
+      const rightReveal = parameterEase(rightProgress / threshold, strength);
+      const orbitRadius = Math.max(0, Number(parameters.orbit_radius_px || 0));
+      const amplitude = Math.max(0, Number(parameters.camera_amplitude || 0));
+      const orbitOffset = Math.sin(progress * Math.PI * 2)
+        * orbitRadius * amplitude * (1 - reveal * 0.75);
+      root.style.setProperty("--progress-percent", `${(progress * 100).toFixed(4)}%`);
+      root.style.setProperty("--panel-opacity", (.35 + reveal * .65).toFixed(6));
+      root.style.setProperty("--panel-offset", `${((1 - reveal) * 28).toFixed(4)}px`);
+      root.style.setProperty("--right-panel-opacity", (.35 + rightReveal * .65).toFixed(6));
+      root.style.setProperty("--right-panel-offset", `${((1 - rightReveal) * 28).toFixed(4)}px`);
+      root.style.setProperty("--panel-orbit-offset", `${orbitOffset.toFixed(4)}px`);
+      scrubber.value = String(Math.round(playback.globalTimeMs));
+      timeOutput.value = `${(playback.globalTimeMs / 1000).toFixed(2)} s`;
+      document.querySelector("#scene").value =
+        `${playback.sceneIndex + 1} / ${playback.sceneCount} · ${playback.stepId || "start"}`;
+    }
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(
+        viewport.clientWidth / output.width,
+        viewport.clientHeight / output.height,
+        1
+      );
+      const fittedScale = Math.max(scale, 0.1);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+
+    document.querySelector("#previous").addEventListener("click", () => editableMedia.previous());
+    document.querySelector("#play").addEventListener("click", () => editableMedia.play());
+    document.querySelector("#pause").addEventListener("click", () => editableMedia.pause());
+    document.querySelector("#next").addEventListener("click", () => editableMedia.next());
+    document.querySelector("#overview").addEventListener(
+      "click",
+      () => editableMedia.toggleOverview()
+    );
+    scrubber.addEventListener("input", (event) => {
+      editableMedia.pause();
+      editableMedia.setTime(event.target.value);
+    });
+
+    window.addEventListener("editablemediatime", (event) => renderTime(event.detail));
+    window.addEventListener("editablemediadata", (event) => {
+      const data = event.detail.data;
+      const chart = document.querySelector("#dataChart");
+      const rows = Array.isArray(data.chart_data) ? data.chart_data : [];
+      const maximum = Math.max(1, ...rows.map((row) => Number(row.value) || 0));
+      chart.replaceChildren(...rows.map((row) => {
+        const item = document.createElement("div");
+        item.className = "chart-row";
+        const label = document.createElement("span");
+        label.textContent = String(row.label ?? "");
+        const track = document.createElement("span");
+        track.className = "chart-track";
+        const bar = document.createElement("span");
+        bar.className = "chart-bar";
+        bar.style.display = "block";
+        bar.style.width = `${Math.max(0, Math.min(100, (Number(row.value) || 0) / maximum * 100))}%`;
+        track.append(bar);
+        const value = document.createElement("span");
+        value.textContent = String(row.value ?? "");
+        item.append(label, track, value);
+        return item;
+      }));
+    });
+
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants?.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height),
+        durationMs: editableMedia.getPlayback().totalDurationMs
+      };
+      scrubber.max = String(output.durationMs);
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      renderTime(editableMedia.getPlayback());
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

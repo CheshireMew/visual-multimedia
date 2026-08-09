@@ -25,7 +25,7 @@ function usage() {
 node scripts/create-video-progress-bar.mjs --spec <进度条参数.json> --output <新网页包目录>
 
 输出目录必须不存在。脚本会生成与真实视频总时长、章节起点、画布比例和上下位置一致的
-editable-media v5 透明网页包，不会覆盖已有成品。`);
+editable-media v6 透明网页包，不会覆盖已有成品。`);
 }
 
 function parseArgs(argv) {
@@ -164,7 +164,7 @@ function writeGeneratedPackage(candidate, spec) {
 
   const schemaErrors = validateEditableMediaSchema(manifest);
   if (schemaErrors.length) {
-    throw new Error(`生成清单没有通过 editable-media v5：\n- ${schemaErrors.join("\n- ")}`);
+    throw new Error(`生成清单没有通过 editable-media v6：\n- ${schemaErrors.join("\n- ")}`);
   }
   fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   fs.writeFileSync(path.join(candidate, "video-progress-bar-spec.json"), stableText(spec), "utf8");

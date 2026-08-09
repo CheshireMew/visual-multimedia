@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用 AI 用抑郁了，咋办？</title>
+  <style>
+    :root {
+      --canvas-width: 1;
+      --canvas-height: 1;
+      --paper: #f2efe6;
+      --ink: #151a20;
+      --muted: #5b6570;
+      --line: #aeb5b5;
+      --blue: #2450e6;
+      --orange: #ff6042;
+      --acid: #ccec48;
+      --font-sans: "Microsoft YaHei UI", "Noto Sans SC", "PingFang SC", "Segoe UI", sans-serif;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background: #24272c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { overflow: hidden; background: #24272c; }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 18px;
+      padding: 28px;
+    }
+
+    .viewport {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      isolation: isolate;
+      transform-origin: top left;
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(rgb(21 26 32 / 3.4%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(21 26 32 / 3.4%) 1px, transparent 1px);
+      background-size: 48px 48px;
+      box-shadow: 0 42px 110px rgb(0 0 0 / 35%);
+    }
+
+    .media-canvas::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 48px;
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .media-canvas::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 1px rgb(21 26 32 / 8%);
+    }
+
+    .side-rail {
+      position: absolute;
+      left: 9px;
+      top: 618px;
+      width: 30px;
+      height: 720px;
+      margin: 0;
+      color: #f7f4eb;
+      font-size: 17px;
+      font-weight: 760;
+      line-height: 30px;
+      letter-spacing: .25em;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      white-space: nowrap;
+    }
+
+    .eyebrow {
+      position: absolute;
+      left: 94px;
+      top: 72px;
+      width: 620px;
+      height: 32px;
+      margin: 0;
+      color: var(--blue);
+      font-size: 21px;
+      font-weight: 820;
+      line-height: 32px;
+      letter-spacing: .18em;
+      white-space: nowrap;
+    }
+
+    .title {
+      position: absolute;
+      left: 94px;
+      top: 108px;
+      width: 1000px;
+      height: 116px;
+      margin: 0;
+      color: var(--ink);
+      font-size: 92px;
+      font-weight: 820;
+      line-height: 116px;
+      letter-spacing: -.065em;
+      white-space: nowrap;
+    }
+
+    .intro {
+      position: absolute;
+      left: 94px;
+      top: 244px;
+      width: 930px;
+      height: 90px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 32px;
+      font-weight: 520;
+      line-height: 1.4;
+      letter-spacing: -.022em;
+      text-wrap: pretty;
+      white-space: pre-line;
+    }
+
+    .header-callout {
+      position: absolute;
+      left: 1108px;
+      top: 62px;
+      width: 250px;
+      height: 226px;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      padding: 28px 24px;
+      color: var(--ink);
+      background: var(--orange);
+      clip-path: polygon(11% 0, 100% 8%, 89% 100%, 0 88%);
+      font-size: 33px;
+      font-weight: 820;
+      line-height: 1.25;
+      letter-spacing: -.035em;
+      text-align: center;
+      white-space: pre-line;
+      transform: rotate(2deg);
+    }
+
+    .header-callout::before {
+      content: "";
+      position: absolute;
+      inset: 28px;
+      border: 2px solid rgb(21 26 32 / 38%);
+      border-radius: 50%;
+      transform: rotate(-8deg);
+    }
+
+    .header-rule {
+      position: absolute;
+      left: 94px;
+      top: 360px;
+      width: 1264px;
+      height: 10px;
+      background: linear-gradient(90deg, var(--ink) 0 26%, var(--blue) 26% 59%, var(--acid) 59% 82%, var(--orange) 82% 100%);
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: 66px minmax(0, 1fr);
+      gap: 16px;
+      align-items: baseline;
+      height: 56px;
+    }
+
+    .section-no {
+      margin: 0;
+      color: var(--orange);
+      font-size: 21px;
+      font-weight: 850;
+      line-height: 1;
+      letter-spacing: .09em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 42px;
+      font-weight: 800;
+      line-height: 1.22;
+      letter-spacing: -.045em;
+    }
+
+    .boundary-section {
+      position: absolute;
+      left: 94px;
+      top: 398px;
+      width: 1264px;
+      height: 360px;
+    }
+
+    .boundary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 298px);
+      gap: 24px;
+      margin-top: 18px;
+    }
+
+    .boundary-card {
+      position: relative;
+      height: 254px;
+      padding: 25px 22px 22px;
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      overflow: hidden;
+    }
+
+    .boundary-card::before {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      background: var(--tone);
+      opacity: .95;
+    }
+
+    .boundary-card:nth-child(1) { --tone: var(--acid); }
+    .boundary-card:nth-child(2) { --tone: #62c7ff; }
+    .boundary-card:nth-child(3) { --tone: var(--orange); }
+    .boundary-card:nth-child(4) { --tone: #9c8bf2; }
+
+    .boundary-tag {
+      margin: 0;
+      color: var(--tone-text, var(--blue));
+      font-size: 18px;
+      font-weight: 820;
+      line-height: 1;
+      letter-spacing: .13em;
+    }
+
+    .boundary-card:nth-child(3) .boundary-tag { color: #d8432d; }
+    .boundary-card:nth-child(4) .boundary-tag { color: #6754ca; }
+
+    .boundary-label {
+      margin: 18px 0 0;
+      color: var(--ink);
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -.04em;
+    }
+
+    .boundary-example {
+      height: 58px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 21px;
+      font-weight: 500;
+      line-height: 1.43;
+      letter-spacing: -.014em;
+      text-wrap: pretty;
+    }
+
+    .boundary-action {
+      margin: 12px 0 0;
+      padding-top: 11px;
+      border-top: 2px solid var(--ink);
+      color: var(--ink);
+      font-size: 21px;
+      font-weight: 780;
+      line-height: 1.25;
+      letter-spacing: -.018em;
+    }
+
+    .methods-section {
+      position: absolute;
+      left: 94px;
+      top: 786px;
+      width: 1264px;
+      height: 650px;
+    }
+
+    .methods-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 596px);
+      gap: 72px;
+      margin-top: 18px;
+    }
+
+    .method-column {
+      display: grid;
+      grid-template-rows: repeat(3, 190px);
+    }
+
+    .method-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+      border-top: 2px solid var(--ink);
+    }
+
+    .method-row:last-child { border-bottom: 2px solid var(--ink); }
+
+    .method-no {
+      width: 66px;
+      height: 66px;
+      display: grid;
+      place-items: center;
+      margin: 22px 0 0;
+      color: var(--paper);
+      background: var(--tone);
+      font-size: 32px;
+      font-weight: 840;
+      line-height: 1;
+      letter-spacing: -.04em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .method-row:nth-child(1) { --tone: var(--blue); }
+    .method-row:nth-child(2) { --tone: var(--orange); }
+    .method-row:nth-child(3) { --tone: var(--ink); }
+
+    .method-copy {
+      min-width: 0;
+      padding: 19px 0 14px;
+    }
+
+    .method-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: -.035em;
+    }
+
+    .method-action {
+      margin: 7px 0 0;
+      color: var(--blue);
+      font-size: 22px;
+      font-weight: 760;
+      line-height: 1.42;
+      letter-spacing: -.017em;
+      text-wrap: pretty;
+    }
+
+    .method-row:nth-child(2) .method-action { color: #dc482f; }
+    .method-row:nth-child(3) .method-action { color: var(--ink); }
+
+    .method-note {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.38;
+      letter-spacing: -.012em;
+      text-wrap: pretty;
+    }
+
+    .decision-section {
+      position: absolute;
+      left: 94px;
+      top: 1478px;
+      width: 1264px;
+      height: 377px;
+    }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 614px);
+      gap: 36px;
+      margin-top: 18px;
+    }
+
+    .decision-block {
+      position: relative;
+      height: 302px;
+      padding: 29px 32px 26px;
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    .decision-block.continue { background: var(--acid); }
+    .decision-block.stop { background: var(--orange); }
+
+    .decision-block::after {
+      content: "";
+      position: absolute;
+      right: 24px;
+      bottom: 20px;
+      width: 142px;
+      height: 142px;
+      border: 3px solid rgb(21 26 32 / 28%);
+      border-radius: 50%;
+    }
+
+    .decision-label {
+      margin: 0;
+      font-size: 49px;
+      font-weight: 850;
+      line-height: 1;
+      letter-spacing: -.055em;
+    }
+
+    .decision-title {
+      width: 550px;
+      margin: 19px 0 0;
+      color: var(--ink);
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.4;
+      letter-spacing: -.032em;
+      text-wrap: balance;
+    }
+
+    .decision-body {
+      width: 550px;
+      margin: 15px 0 0;
+      color: rgb(21 26 32 / 76%);
+      font-size: 21px;
+      font-weight: 560;
+      line-height: 1.48;
+      letter-spacing: -.012em;
+      text-wrap: pretty;
+    }
+
+    .agency {
+      position: absolute;
+      left: 94px;
+      top: 1897px;
+      width: 1264px;
+      height: 173px;
+      display: grid;
+      grid-template-columns: 430px minmax(0, 1fr);
+      gap: 44px;
+      align-items: center;
+      padding: 28px 36px;
+      color: var(--paper);
+      background: var(--ink);
+    }
+
+    .agency-title {
+      margin: 0;
+      color: var(--paper);
+      font-size: 43px;
+      font-weight: 820;
+      line-height: 1.25;
+      letter-spacing: -.05em;
+      text-wrap: balance;
+      white-space: pre-line;
+    }
+
+    .agency-copy { min-width: 0; }
+
+    .agency-body {
+      margin: 0;
+      color: var(--paper);
+      font-size: 25px;
+      font-weight: 640;
+      line-height: 1.45;
+      letter-spacing: -.02em;
+    }
+
+    .agency-goal {
+      margin: 10px 0 0;
+      color: var(--acid);
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1.4;
+      letter-spacing: -.012em;
+    }
+
+    .production-watermark {
+      position: absolute;
+      right: 82px;
+      top: 2104px;
+      width: 286px;
+      height: 30px;
+      margin: 0;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 650;
+      line-height: 30px;
+      letter-spacing: .02em;
+      text-align: right;
+      opacity: .3;
+      white-space: nowrap;
+    }
+
+    .preview-note {
+      margin: 0;
+      padding: 10px 16px;
+      border: 1px solid rgb(255 255 255 / 10%);
+      border-radius: 999px;
+      color: #dedede;
+      background: rgb(35 38 43 / 88%);
+      font-size: 13px;
+    }
+
+    body.capture {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body.capture .app {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      padding: 0;
+    }
+
+    body.capture .viewport {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: visible;
+    }
+
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+    }
+
+    body.capture .media-canvas {
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    body.capture .preview-note { display: none; }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="1"
+    data-width="1440"
+    data-height="2160"
+    data-fps="1"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="AI 使用失控感的自救海报">
+          <p class="side-rail" data-editable-data="side_rail" data-editable-id="side-rail"></p>
+          <p class="eyebrow" data-editable-data="eyebrow" data-editable-id="eyebrow"></p>
+          <h1 class="title" data-editable-data="title" data-editable-id="title"></h1>
+          <p class="intro" data-editable-data="intro" data-editable-id="intro"></p>
+          <p class="header-callout" data-editable-data="header_callout" data-editable-id="header-callout"></p>
+          <div class="header-rule" data-editable-id="header-rule" aria-hidden="true"></div>
+
+          <section class="boundary-section" data-editable-id="boundary-section">
+            <div class="section-heading">
+              <p class="section-no" data-editable-data="boundary_section_no"></p>
+              <h2 class="section-title" data-editable-data="boundary_section_title"></h2>
+            </div>
+            <div class="boundary-grid">
+              <article class="boundary-card" data-editable-id="boundary-1">
+                <p class="boundary-tag" data-editable-data="boundary_1_tag"></p>
+                <h3 class="boundary-label" data-editable-data="boundary_1_label"></h3>
+                <p class="boundary-example" data-editable-data="boundary_1_example"></p>
+                <p class="boundary-action" data-editable-data="boundary_1_action"></p>
+              </article>
+              <article class="boundary-card" data-editable-id="boundary-2">
+                <p class="boundary-tag" data-editable-data="boundary_2_tag"></p>
+                <h3 class="boundary-label" data-editable-data="boundary_2_label"></h3>
+                <p class="boundary-example" data-editable-data="boundary_2_example"></p>
+                <p class="boundary-action" data-editable-data="boundary_2_action"></p>
+              </article>
+              <article class="boundary-card" data-editable-id="boundary-3">
+                <p class="boundary-tag" data-editable-data="boundary_3_tag"></p>
+                <h3 class="boundary-label" data-editable-data="boundary_3_label"></h3>
+                <p class="boundary-example" data-editable-data="boundary_3_example"></p>
+                <p class="boundary-action" data-editable-data="boundary_3_action"></p>
+              </article>
+              <article class="boundary-card" data-editable-id="boundary-4">
+                <p class="boundary-tag" data-editable-data="boundary_4_tag"></p>
+                <h3 class="boundary-label" data-editable-data="boundary_4_label"></h3>
+                <p class="boundary-example" data-editable-data="boundary_4_example"></p>
+                <p class="boundary-action" data-editable-data="boundary_4_action"></p>
+              </article>
+            </div>
+          </section>
+
+          <section class="methods-section" data-editable-id="methods-section">
+            <div class="section-heading">
+              <p class="section-no" data-editable-data="methods_section_no"></p>
+              <h2 class="section-title" data-editable-data="methods_section_title"></h2>
+            </div>
+            <div class="methods-grid">
+              <div class="method-column">
+                <article class="method-row" data-editable-id="method-1">
+                  <p class="method-no" data-editable-data="method_1_no"></p>
+                  <div class="method-copy">
+                    <h3 class="method-title" data-editable-data="method_1_title"></h3>
+                    <p class="method-action" data-editable-data="method_1_action"></p>
+                    <p class="method-note" data-editable-data="method_1_note"></p>
+                  </div>
+                </article>
+                <article class="method-row" data-editable-id="method-2">
+                  <p class="method-no" data-editable-data="method_2_no"></p>
+                  <div class="method-copy">
+                    <h3 class="method-title" data-editable-data="method_2_title"></h3>
+                    <p class="method-action" data-editable-data="method_2_action"></p>
+                    <p class="method-note" data-editable-data="method_2_note"></p>
+                  </div>
+                </article>
+                <article class="method-row" data-editable-id="method-3">
+                  <p class="method-no" data-editable-data="method_3_no"></p>
+                  <div class="method-copy">
+                    <h3 class="method-title" data-editable-data="method_3_title"></h3>
+                    <p class="method-action" data-editable-data="method_3_action"></p>
+                    <p class="method-note" data-editable-data="method_3_note"></p>
+                  </div>
+                </article>
+              </div>
+              <div class="method-column">
+                <article class="method-row" data-editable-id="method-4">
+                  <p class="method-no" data-editable-data="method_4_no"></p>
+                  <div class="method-copy">
+                    <h3 class="method-title" data-editable-data="method_4_title"></h3>
+                    <p class="method-action" data-editable-data="method_4_action"></p>
+                    <p class="method-note" data-editable-data="method_4_note"></p>
+                  </div>
+                </article>
+                <article class="method-row" data-editable-id="method-5">
+                  <p class="method-no" data-editable-data="method_5_no"></p>
+                  <div class="method-copy">
+                    <h3 class="method-title" data-editable-data="method_5_title"></h3>
+                    <p class="method-action" data-editable-data="method_5_action"></p>
+                    <p class="method-note" data-editable-data="method_5_note"></p>
+                  </div>
+                </article>
+                <article class="method-row" data-editable-id="method-6">
+                  <p class="method-no" data-editable-data="method_6_no"></p>
+                  <div class="method-copy">
+                    <h3 class="method-title" data-editable-data="method_6_title"></h3>
+                    <p class="method-action" data-editable-data="method_6_action"></p>
+                    <p class="method-note" data-editable-data="method_6_note"></p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="decision-section" data-editable-id="decision-section">
+            <div class="section-heading">
+              <p class="section-no" data-editable-data="decision_section_no"></p>
+              <h2 class="section-title" data-editable-data="decision_section_title"></h2>
+            </div>
+            <div class="decision-grid">
+              <article class="decision-block continue" data-editable-id="decision-continue">
+                <p class="decision-label" data-editable-data="continue_label"></p>
+                <h3 class="decision-title" data-editable-data="continue_title"></h3>
+                <p class="decision-body" data-editable-data="continue_body"></p>
+              </article>
+              <article class="decision-block stop" data-editable-id="decision-stop">
+                <p class="decision-label" data-editable-data="stop_label"></p>
+                <h3 class="decision-title" data-editable-data="stop_title"></h3>
+                <p class="decision-body" data-editable-data="stop_body"></p>
+              </article>
+            </div>
+          </section>
+
+          <section class="agency" data-editable-id="agency">
+            <h2 class="agency-title" data-editable-data="agency_title"></h2>
+            <div class="agency-copy">
+              <p class="agency-body" data-editable-data="agency_body"></p>
+              <p class="agency-goal" data-editable-data="agency_goal"></p>
+            </div>
+          </section>
+
+          <p class="production-watermark" data-editable-data="production_watermark" data-editable-id="production-watermark"></p>
+        </section>
+      </div>
+    </div>
+    <p class="preview-note" id="previewNote"></p>
+  </main>
+
+  <script>
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1";
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+    let output = { width: 1, height: 1 };
+    if (captureMode) document.body.classList.add("capture");
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(viewport.clientWidth / output.width, viewport.clientHeight / output.height, 1);
+      const fittedScale = Math.max(.1, scale);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+  </script>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = { width: Number(variant.canvas.width), height: Number(variant.canvas.height) };
+      document.querySelector("#previewNote").textContent =
+        `固定画布 ${output.width} × ${output.height} · 网页为可编辑制作源`;
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

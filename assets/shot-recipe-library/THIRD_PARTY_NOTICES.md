@@ -13,7 +13,7 @@ Copyright 2026 Wei Yihao
 
 本资源不包含来源项目的 Remotion TSX、产品截图、音频文件、动态预览 MP4 或
 Gallery 源文件副本。上游 demo 路径和预览声明只作为来源证据，不能被目标消费者
-当成可执行实现。只有 `status: active` 且绑定了通过验证的 editable-media v5
+当成可执行实现。只有 `status: active` 且绑定了通过验证的 editable-media v6
 完整包时，配方才能被 `materialize` 采用。
 
 `source_id: visual-multimedia` 的实现来自本仓库现有网页包，并继续服从本仓库许可。

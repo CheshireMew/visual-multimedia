@@ -1,6 +1,6 @@
 {
   "protocol": "editable-media",
-  "version": 5,
+  "version": 6,
   "entry": "index.html",
   "media_sources": "media-sources.json",
   "playback": {
@@ -28,53 +28,187 @@
       "name": "Eyebrow",
       "kind": "text",
       "selector": "[data-editable-id='eyebrow']",
-      "default_bounds": {"x": 64, "y": 56, "width": 700, "height": 32, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 18, "maximum": 44, "step": 1}}
+      "default_bounds": {
+        "x": 64,
+        "y": 56,
+        "width": 700,
+        "height": 32,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 18,
+          "maximum": 44,
+          "step": 1
+        }
+      }
     },
     {
       "id": "issue",
       "name": "Issue",
       "kind": "text",
       "selector": "[data-editable-id='issue']",
-      "default_bounds": {"x": 900, "y": 54, "width": 116, "height": 64, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 18, "maximum": 44, "step": 1}}
+      "default_bounds": {
+        "x": 900,
+        "y": 54,
+        "width": 116,
+        "height": 64,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 18,
+          "maximum": 44,
+          "step": 1
+        }
+      }
     },
     {
       "id": "title",
       "name": "Full title",
       "kind": "text",
       "selector": "[data-editable-id='title']",
-      "default_bounds": {"x": 64, "y": 130, "width": 880, "height": 200, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 56, "maximum": 132, "step": 1}}
+      "default_bounds": {
+        "x": 64,
+        "y": 130,
+        "width": 880,
+        "height": 200,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 56,
+          "maximum": 132,
+          "step": 1
+        }
+      }
     },
     {
       "id": "short-title",
       "name": "Square short title",
       "kind": "text",
       "selector": "[data-editable-id='short-title']",
-      "default_bounds": {"x": 64, "y": 130, "width": 880, "height": 220, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 64, "maximum": 160, "step": 1}}
+      "default_bounds": {
+        "x": 64,
+        "y": 130,
+        "width": 880,
+        "height": 220,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 64,
+          "maximum": 160,
+          "step": 1
+        }
+      }
     },
     {
       "id": "deck",
       "name": "Deck",
       "kind": "text",
       "selector": "[data-editable-id='deck']",
-      "default_bounds": {"x": 64, "y": 390, "width": 880, "height": 100, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 24, "maximum": 48, "step": 1}}
+      "default_bounds": {
+        "x": 64,
+        "y": 390,
+        "width": 880,
+        "height": 100,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 24,
+          "maximum": 48,
+          "step": 1
+        }
+      }
     },
     {
       "id": "evidence-stage",
       "name": "Evidence stage",
       "kind": "group",
       "selector": "[data-editable-id='evidence-stage']",
-      "default_bounds": {"x": 64, "y": 532, "width": 952, "height": 580, "rotation": 0},
-      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "default_bounds": {
+        "x": 64,
+        "y": 532,
+        "width": 952,
+        "height": 580,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
       "constraints": {}
     },
     {
@@ -82,8 +216,22 @@
       "name": "Takeaway",
       "kind": "group",
       "selector": "[data-editable-id='takeaway']",
-      "default_bounds": {"x": 64, "y": 1156, "width": 952, "height": 154, "rotation": 0},
-      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "default_bounds": {
+        "x": 64,
+        "y": 1156,
+        "width": 952,
+        "height": 154,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
       "constraints": {}
     },
     {
@@ -91,8 +239,24 @@
       "name": "Creator avatar",
       "kind": "image",
       "selector": "[data-editable-id='creator-avatar']",
-      "default_bounds": {"x": 64, "y": 1350, "width": 44, "height": 44, "rotation": 0},
-      "editable": ["image", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "default_bounds": {
+        "x": 64,
+        "y": 1350,
+        "width": 44,
+        "height": 44,
+        "rotation": 0
+      },
+      "editable": [
+        "image",
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
       "constraints": {}
     },
     {
@@ -100,27 +264,110 @@
       "name": "Creator name",
       "kind": "text",
       "selector": "[data-editable-id='creator-name']",
-      "default_bounds": {"x": 122, "y": 1354, "width": 360, "height": 34, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 16, "maximum": 32, "step": 1}}
+      "default_bounds": {
+        "x": 122,
+        "y": 1354,
+        "width": 360,
+        "height": 34,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 16,
+          "maximum": 32,
+          "step": 1
+        }
+      }
     }
   ],
   "component": {
     "id": "social-evidence-variants",
     "name": "Social evidence variants",
     "category": "cards",
-    "tags": ["social-card", "editorial", "evidence", "multi-ratio"]
+    "tags": [
+      "social-card",
+      "editorial",
+      "evidence",
+      "multi-ratio"
+    ]
   },
   "theme_variables": [
-    {"id": "paper", "name": "Paper", "kind": "color", "css_variable": "--paper", "default": "#eee9df"},
-    {"id": "ink", "name": "Ink", "kind": "color", "css_variable": "--ink", "default": "#171915"},
-    {"id": "muted", "name": "Muted", "kind": "color", "css_variable": "--muted", "default": "#5f625b"},
-    {"id": "line", "name": "Line", "kind": "color", "css_variable": "--line", "default": "#c9c1b4"},
-    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#b43d29"},
-    {"id": "evidence", "name": "Evidence blue", "kind": "color", "css_variable": "--evidence", "default": "#234d69"},
-    {"id": "font_serif", "name": "Serif", "kind": "font", "css_variable": "--font-serif", "default": "Noto Serif SC, Source Han Serif SC, SimSun, serif"},
-    {"id": "font_sans", "name": "Sans", "kind": "font", "css_variable": "--font-sans", "default": "Noto Sans SC, Microsoft YaHei UI, PingFang SC, sans-serif"},
-    {"id": "font_mono", "name": "Mono", "kind": "font", "css_variable": "--font-mono", "default": "Cascadia Mono, Consolas, monospace"}
+    {
+      "id": "paper",
+      "name": "Paper",
+      "kind": "color",
+      "css_variable": "--paper",
+      "default": "#eee9df"
+    },
+    {
+      "id": "ink",
+      "name": "Ink",
+      "kind": "color",
+      "css_variable": "--ink",
+      "default": "#171915"
+    },
+    {
+      "id": "muted",
+      "name": "Muted",
+      "kind": "color",
+      "css_variable": "--muted",
+      "default": "#5f625b"
+    },
+    {
+      "id": "line",
+      "name": "Line",
+      "kind": "color",
+      "css_variable": "--line",
+      "default": "#c9c1b4"
+    },
+    {
+      "id": "accent",
+      "name": "Accent",
+      "kind": "color",
+      "css_variable": "--accent",
+      "default": "#b43d29"
+    },
+    {
+      "id": "evidence",
+      "name": "Evidence blue",
+      "kind": "color",
+      "css_variable": "--evidence",
+      "default": "#234d69"
+    },
+    {
+      "id": "font_serif",
+      "name": "Serif",
+      "kind": "font",
+      "css_variable": "--font-serif",
+      "default": "Noto Serif SC, Source Han Serif SC, SimSun, serif"
+    },
+    {
+      "id": "font_sans",
+      "name": "Sans",
+      "kind": "font",
+      "css_variable": "--font-sans",
+      "default": "Noto Sans SC, Microsoft YaHei UI, PingFang SC, sans-serif"
+    },
+    {
+      "id": "font_mono",
+      "name": "Mono",
+      "kind": "font",
+      "css_variable": "--font-mono",
+      "default": "Cascadia Mono, Consolas, monospace"
+    }
   ],
   "parameters": [],
   "scenes": [
@@ -133,7 +380,14 @@
       "duration_ms": 1000,
       "primary_blocks": 3,
       "steps": [
-        {"id": "page", "at_ms": 0, "label": "Page", "state_kind": "start", "review": false, "description": "静态证据卡在唯一状态完整呈现主张、证据和结论。"}
+        {
+          "id": "page",
+          "at_ms": 0,
+          "label": "Page",
+          "state_kind": "start",
+          "review": false,
+          "description": "静态证据卡在唯一状态完整呈现主张、证据和结论。"
+        }
       ],
       "motion": {
         "complexity": "static",
@@ -145,7 +399,9 @@
       "parameters": {},
       "data": {},
       "asset_slots": {
-        "creator-avatar": {"data_field": "creator_avatar"}
+        "creator-avatar": {
+          "data_field": "creator_avatar"
+        }
       }
     },
     {
@@ -157,10 +413,38 @@
       "duration_ms": 5200,
       "primary_blocks": 3,
       "steps": [
-        {"id": "separated", "at_ms": 0, "label": "Separated", "state_kind": "start", "review": true, "description": "三个证据步骤保持错位和断开的初始关系，说明内容尚未形成可读链路。"},
-        {"id": "aligning", "at_ms": 1700, "label": "Aligning", "state_kind": "change", "review": true, "description": "步骤依次回到共享列和共同基线，主张开始获得清楚的版式关系。"},
-        {"id": "resolved", "at_ms": 3400, "label": "Resolved", "state_kind": "result", "review": true, "description": "主体、版式和结果完成一条连续证据链，结论线同步建立。"},
-        {"id": "reading-hold", "at_ms": 4600, "label": "Reading hold", "state_kind": "hold", "review": false, "description": "完整证据链和结论保持稳定，留出最终阅读时间。"}
+        {
+          "id": "separated",
+          "at_ms": 0,
+          "label": "Separated",
+          "state_kind": "start",
+          "review": true,
+          "description": "三个证据步骤保持错位和断开的初始关系，说明内容尚未形成可读链路。"
+        },
+        {
+          "id": "aligning",
+          "at_ms": 1700,
+          "label": "Aligning",
+          "state_kind": "change",
+          "review": true,
+          "description": "步骤依次回到共享列和共同基线，主张开始获得清楚的版式关系。"
+        },
+        {
+          "id": "resolved",
+          "at_ms": 3400,
+          "label": "Resolved",
+          "state_kind": "result",
+          "review": true,
+          "description": "主体、版式和结果完成一条连续证据链，结论线同步建立。"
+        },
+        {
+          "id": "reading-hold",
+          "at_ms": 4600,
+          "label": "Reading hold",
+          "state_kind": "hold",
+          "review": false,
+          "description": "完整证据链和结论保持稳定，留出最终阅读时间。"
+        }
       ],
       "motion": {
         "complexity": "complex",
@@ -172,7 +456,9 @@
       "parameters": {},
       "data": {},
       "asset_slots": {
-        "creator-avatar": {"data_field": "creator_avatar"}
+        "creator-avatar": {
+          "data_field": "creator_avatar"
+        }
       }
     }
   ],
@@ -180,8 +466,13 @@
     {
       "id": "editorial-evidence",
       "name": "Editorial evidence",
-      "page_roles": ["explanation", "evidence"],
-      "content_shapes": ["editorial-evidence"],
+      "page_roles": [
+        "explanation",
+        "evidence"
+      ],
+      "content_shapes": [
+        "editorial-evidence"
+      ],
       "required_data_fields": [
         "eyebrow",
         "title",
@@ -200,9 +491,18 @@
         "creator-avatar",
         "creator-name"
       ],
-      "title_layer_ids": ["title", "short-title"],
-      "content_layer_ids": ["deck", "evidence-stage", "takeaway"],
-      "capacity": {"maximum_primary_blocks": 3},
+      "title_layer_ids": [
+        "title",
+        "short-title"
+      ],
+      "content_layer_ids": [
+        "deck",
+        "evidence-stage",
+        "takeaway"
+      ],
+      "capacity": {
+        "maximum_primary_blocks": 3
+      },
       "asset_slots": [
         {
           "id": "creator-avatar",
@@ -218,77 +518,331 @@
     {
       "id": "portrait-3x4",
       "name": "Portrait 3:4",
-      "canvas": {"width": 1080, "height": 1440, "background_mode": "opaque", "background_color": "#eee9df"},
+      "canvas": {
+        "width": 1080,
+        "height": 1440,
+        "background_mode": "opaque",
+        "background_color": "#eee9df"
+      },
       "layers": {
-        "eyebrow": {"x": 64, "y": 56, "width": 700, "height": 32},
-        "issue": {"x": 900, "y": 54, "width": 116, "height": 64},
-        "title": {"x": 64, "y": 130, "width": 880, "height": 200, "visible": true},
-        "short-title": {"x": 64, "y": 130, "width": 880, "height": 200, "visible": false},
-        "deck": {"x": 64, "y": 390, "width": 880, "height": 100},
-        "evidence-stage": {"x": 64, "y": 532, "width": 952, "height": 580},
-        "takeaway": {"x": 64, "y": 1156, "width": 952, "height": 154},
-        "creator-avatar": {"x": 64, "y": 1350, "width": 44, "height": 44},
-        "creator-name": {"x": 122, "y": 1354, "width": 360, "height": 34}
+        "eyebrow": {
+          "x": 64,
+          "y": 56,
+          "width": 700,
+          "height": 32
+        },
+        "issue": {
+          "x": 900,
+          "y": 54,
+          "width": 116,
+          "height": 64
+        },
+        "title": {
+          "x": 64,
+          "y": 130,
+          "width": 880,
+          "height": 200,
+          "visible": true
+        },
+        "short-title": {
+          "x": 64,
+          "y": 130,
+          "width": 880,
+          "height": 200,
+          "visible": false
+        },
+        "deck": {
+          "x": 64,
+          "y": 390,
+          "width": 880,
+          "height": 100
+        },
+        "evidence-stage": {
+          "x": 64,
+          "y": 532,
+          "width": 952,
+          "height": 580
+        },
+        "takeaway": {
+          "x": 64,
+          "y": 1156,
+          "width": 952,
+          "height": 154
+        },
+        "creator-avatar": {
+          "x": 64,
+          "y": 1350,
+          "width": 44,
+          "height": 44
+        },
+        "creator-name": {
+          "x": 122,
+          "y": 1354,
+          "width": 360,
+          "height": 34
+        }
       }
     },
     {
       "id": "landscape-21x9",
       "name": "Landscape 21:9",
-      "canvas": {"width": 2100, "height": 900, "background_mode": "opaque", "background_color": "#eee9df"},
+      "canvas": {
+        "width": 2100,
+        "height": 900,
+        "background_mode": "opaque",
+        "background_color": "#eee9df"
+      },
       "layers": {
-        "eyebrow": {"x": 84, "y": 60, "width": 700, "height": 32},
-        "issue": {"x": 1880, "y": 60, "width": 140, "height": 64},
-        "title": {"x": 84, "y": 142, "width": 790, "height": 200, "visible": true},
-        "short-title": {"x": 84, "y": 142, "width": 790, "height": 200, "visible": false},
-        "deck": {"x": 84, "y": 395, "width": 760, "height": 100},
-        "evidence-stage": {"x": 960, "y": 120, "width": 1056, "height": 580},
-        "takeaway": {"x": 84, "y": 620, "width": 760, "height": 144},
-        "creator-avatar": {"x": 84, "y": 822, "width": 42, "height": 42},
-        "creator-name": {"x": 140, "y": 826, "width": 360, "height": 34}
+        "eyebrow": {
+          "x": 84,
+          "y": 60,
+          "width": 700,
+          "height": 32
+        },
+        "issue": {
+          "x": 1880,
+          "y": 60,
+          "width": 140,
+          "height": 64
+        },
+        "title": {
+          "x": 84,
+          "y": 142,
+          "width": 790,
+          "height": 200,
+          "visible": true
+        },
+        "short-title": {
+          "x": 84,
+          "y": 142,
+          "width": 790,
+          "height": 200,
+          "visible": false
+        },
+        "deck": {
+          "x": 84,
+          "y": 395,
+          "width": 760,
+          "height": 100
+        },
+        "evidence-stage": {
+          "x": 960,
+          "y": 120,
+          "width": 1056,
+          "height": 580
+        },
+        "takeaway": {
+          "x": 84,
+          "y": 620,
+          "width": 760,
+          "height": 144
+        },
+        "creator-avatar": {
+          "x": 84,
+          "y": 822,
+          "width": 42,
+          "height": 42
+        },
+        "creator-name": {
+          "x": 140,
+          "y": 826,
+          "width": 360,
+          "height": 34
+        }
       }
     },
     {
       "id": "square-1x1",
       "name": "Square 1:1",
-      "canvas": {"width": 1080, "height": 1080, "background_mode": "opaque", "background_color": "#eee9df"},
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background_mode": "opaque",
+        "background_color": "#eee9df"
+      },
       "layers": {
-        "eyebrow": {"x": 56, "y": 50, "width": 700, "height": 32},
-        "issue": {"x": 900, "y": 50, "width": 124, "height": 64},
-        "title": {"x": 56, "y": 132, "width": 850, "height": 190, "visible": false},
-        "short-title": {"x": 56, "y": 132, "width": 850, "height": 194, "visible": true},
-        "deck": {"x": 56, "y": 350, "width": 850, "height": 90},
-        "evidence-stage": {"x": 56, "y": 490, "width": 968, "height": 370},
-        "takeaway": {"x": 56, "y": 900, "width": 968, "height": 100},
-        "creator-avatar": {"x": 56, "y": 1006, "width": 38, "height": 38},
-        "creator-name": {"x": 108, "y": 1008, "width": 320, "height": 30}
+        "eyebrow": {
+          "x": 56,
+          "y": 50,
+          "width": 700,
+          "height": 32
+        },
+        "issue": {
+          "x": 900,
+          "y": 50,
+          "width": 124,
+          "height": 64
+        },
+        "title": {
+          "x": 56,
+          "y": 132,
+          "width": 850,
+          "height": 190,
+          "visible": false
+        },
+        "short-title": {
+          "x": 56,
+          "y": 132,
+          "width": 850,
+          "height": 194,
+          "visible": true
+        },
+        "deck": {
+          "x": 56,
+          "y": 350,
+          "width": 850,
+          "height": 90
+        },
+        "evidence-stage": {
+          "x": 56,
+          "y": 490,
+          "width": 968,
+          "height": 370
+        },
+        "takeaway": {
+          "x": 56,
+          "y": 900,
+          "width": 968,
+          "height": 100
+        },
+        "creator-avatar": {
+          "x": 56,
+          "y": 1006,
+          "width": 38,
+          "height": 38
+        },
+        "creator-name": {
+          "x": 108,
+          "y": 1008,
+          "width": 320,
+          "height": 30
+        }
       }
     }
   ],
   "default_variant_id": "portrait-3x4",
   "data_fields": [
-    {"id": "eyebrow", "name": "Eyebrow", "kind": "string", "default": "VISUAL EVIDENCE / 01"},
-    {"id": "issue", "name": "Issue", "kind": "string", "default": "FIELD NOTE"},
-    {"id": "title", "name": "Full title", "kind": "string", "default": "好卡片不是塞满内容\n而是让证据站对位置"},
-    {"id": "short_title", "name": "Square short title", "kind": "string", "default": "让证据\n站对位置"},
-    {"id": "deck", "name": "Deck", "kind": "string", "default": "先确认观众要看什么，再决定素材、裁切和文字；蒙版不是第一反应。"},
-    {"id": "evidence_label", "name": "Evidence label", "kind": "string", "default": "从素材到结果"},
-    {"id": "evidence_quote", "name": "Evidence quote", "kind": "string", "default": "图片是证据，\n版式让它被看见。"},
-    {"id": "evidence_source", "name": "Evidence source", "kind": "string", "default": "制作原则 / ORIGINAL DEMO"},
-    {"id": "diagram_kicker", "name": "Diagram kicker", "kind": "string", "default": "SUBJECT → LAYOUT → RESULT"},
-    {"id": "step_1", "name": "Step 1", "kind": "string", "default": "标出主体与关键界面"},
-    {"id": "step_2", "name": "Step 2", "kind": "string", "default": "为每个比例重新构图"},
-    {"id": "step_3", "name": "Step 3", "kind": "string", "default": "缩小后再检查可读性"},
-    {"id": "takeaway_label", "name": "Takeaway label", "kind": "string", "default": "TAKEAWAY"},
-    {"id": "takeaway", "name": "Takeaway", "kind": "string", "default": "先换图、换位置、换版式；局部压暗留到最后。"},
-    {"id": "creator_name", "name": "Creator name", "kind": "string", "default": "柴郡@0xCheshire"},
-    {"id": "creator_avatar", "name": "Creator avatar", "kind": "media-source", "default": "creator-avatar"}
+    {
+      "id": "eyebrow",
+      "name": "Eyebrow",
+      "kind": "string",
+      "default": "VISUAL EVIDENCE / 01"
+    },
+    {
+      "id": "issue",
+      "name": "Issue",
+      "kind": "string",
+      "default": "FIELD NOTE"
+    },
+    {
+      "id": "title",
+      "name": "Full title",
+      "kind": "string",
+      "default": "好卡片不是塞满内容\n而是让证据站对位置"
+    },
+    {
+      "id": "short_title",
+      "name": "Square short title",
+      "kind": "string",
+      "default": "让证据\n站对位置"
+    },
+    {
+      "id": "deck",
+      "name": "Deck",
+      "kind": "string",
+      "default": "先确认观众要看什么，再决定素材、裁切和文字；蒙版不是第一反应。"
+    },
+    {
+      "id": "evidence_label",
+      "name": "Evidence label",
+      "kind": "string",
+      "default": "从素材到结果"
+    },
+    {
+      "id": "evidence_quote",
+      "name": "Evidence quote",
+      "kind": "string",
+      "default": "图片是证据，\n版式让它被看见。"
+    },
+    {
+      "id": "evidence_source",
+      "name": "Evidence source",
+      "kind": "string",
+      "default": "制作原则 / ORIGINAL DEMO"
+    },
+    {
+      "id": "diagram_kicker",
+      "name": "Diagram kicker",
+      "kind": "string",
+      "default": "SUBJECT → LAYOUT → RESULT"
+    },
+    {
+      "id": "step_1",
+      "name": "Step 1",
+      "kind": "string",
+      "default": "标出主体与关键界面"
+    },
+    {
+      "id": "step_2",
+      "name": "Step 2",
+      "kind": "string",
+      "default": "为每个比例重新构图"
+    },
+    {
+      "id": "step_3",
+      "name": "Step 3",
+      "kind": "string",
+      "default": "缩小后再检查可读性"
+    },
+    {
+      "id": "takeaway_label",
+      "name": "Takeaway label",
+      "kind": "string",
+      "default": "TAKEAWAY"
+    },
+    {
+      "id": "takeaway",
+      "name": "Takeaway",
+      "kind": "string",
+      "default": "先换图、换位置、换版式；局部压暗留到最后。"
+    },
+    {
+      "id": "creator_name",
+      "name": "Creator name",
+      "kind": "string",
+      "default": "柴郡@0xCheshire"
+    },
+    {
+      "id": "creator_avatar",
+      "name": "Creator avatar",
+      "kind": "media-source",
+      "default": "creator-avatar"
+    }
   ],
   "quality": {
     "canvas_selector": "#mediaCanvas",
-    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "roundtrip": {
+      "data_field": "title",
+      "layer_id": "title"
+    },
     "bounds_tolerance_px": 1,
-    "safe_area": {"top": 44, "right": 44, "bottom": 36, "left": 44},
-    "content_bounds_layer_ids": ["eyebrow", "issue", "title", "short-title", "deck", "evidence-stage", "takeaway", "creator-avatar", "creator-name"],
+    "safe_area": {
+      "top": 44,
+      "right": 44,
+      "bottom": 36,
+      "left": 44
+    },
+    "content_bounds_layer_ids": [
+      "eyebrow",
+      "issue",
+      "title",
+      "short-title",
+      "deck",
+      "evidence-stage",
+      "takeaway",
+      "creator-avatar",
+      "creator-name"
+    ],
     "minimum_content_span": 0.9,
     "minimum_font_px": {
       "eyebrow": 18,
@@ -301,36 +855,131 @@
     "thumbnail": {
       "width": 360,
       "minimum_text_px": 8,
-      "text_layer_ids": ["title", "short-title", "deck"]
+      "text_layer_ids": [
+        "title",
+        "short-title",
+        "deck"
+      ]
     },
     "variant_overrides": {
       "portrait-3x4": {
-        "required_layer_ids": ["eyebrow", "issue", "title", "deck", "evidence-stage", "takeaway", "creator-avatar", "creator-name"],
-        "safe_area_layer_ids": ["eyebrow", "issue", "title", "deck", "evidence-stage", "takeaway", "creator-avatar", "creator-name"],
-        "minimum_gaps": [
-          {"above": "title", "below": "deck", "min_px": 30},
-          {"above": "deck", "below": "evidence-stage", "min_px": 36}
+        "required_layer_ids": [
+          "eyebrow",
+          "issue",
+          "title",
+          "deck",
+          "evidence-stage",
+          "takeaway",
+          "creator-avatar",
+          "creator-name"
         ],
-        "band_occupancy": {"bands": 4, "minimum_fill": 0.55, "maximum_underfilled_bands": 0}
+        "safe_area_layer_ids": [
+          "eyebrow",
+          "issue",
+          "title",
+          "deck",
+          "evidence-stage",
+          "takeaway",
+          "creator-avatar",
+          "creator-name"
+        ],
+        "minimum_gaps": [
+          {
+            "above": "title",
+            "below": "deck",
+            "min_px": 30
+          },
+          {
+            "above": "deck",
+            "below": "evidence-stage",
+            "min_px": 36
+          }
+        ],
+        "band_occupancy": {
+          "bands": 4,
+          "minimum_fill": 0.55,
+          "maximum_underfilled_bands": 0
+        }
       },
       "landscape-21x9": {
-        "required_layer_ids": ["eyebrow", "issue", "title", "deck", "evidence-stage", "takeaway", "creator-avatar", "creator-name"],
-        "safe_area_layer_ids": ["eyebrow", "issue", "title", "deck", "evidence-stage", "takeaway", "creator-avatar", "creator-name"],
+        "required_layer_ids": [
+          "eyebrow",
+          "issue",
+          "title",
+          "deck",
+          "evidence-stage",
+          "takeaway",
+          "creator-avatar",
+          "creator-name"
+        ],
+        "safe_area_layer_ids": [
+          "eyebrow",
+          "issue",
+          "title",
+          "deck",
+          "evidence-stage",
+          "takeaway",
+          "creator-avatar",
+          "creator-name"
+        ],
         "minimum_gaps": [
-          {"above": "title", "below": "deck", "min_px": 24},
-          {"above": "deck", "below": "takeaway", "min_px": 80}
+          {
+            "above": "title",
+            "below": "deck",
+            "min_px": 24
+          },
+          {
+            "above": "deck",
+            "below": "takeaway",
+            "min_px": 80
+          }
         ],
         "band_occupancy": null,
         "minimum_content_span": 0.88,
-        "thumbnail": {"width": 360, "minimum_text_px": 8, "text_layer_ids": ["title"]}
+        "thumbnail": {
+          "width": 360,
+          "minimum_text_px": 8,
+          "text_layer_ids": [
+            "title"
+          ]
+        }
       },
       "square-1x1": {
-        "roundtrip": {"data_field": "short_title", "layer_id": "short-title"},
-        "required_layer_ids": ["eyebrow", "issue", "short-title", "deck", "evidence-stage", "takeaway", "creator-avatar", "creator-name"],
-        "safe_area_layer_ids": ["eyebrow", "issue", "short-title", "deck", "evidence-stage", "takeaway", "creator-avatar", "creator-name"],
+        "roundtrip": {
+          "data_field": "short_title",
+          "layer_id": "short-title"
+        },
+        "required_layer_ids": [
+          "eyebrow",
+          "issue",
+          "short-title",
+          "deck",
+          "evidence-stage",
+          "takeaway",
+          "creator-avatar",
+          "creator-name"
+        ],
+        "safe_area_layer_ids": [
+          "eyebrow",
+          "issue",
+          "short-title",
+          "deck",
+          "evidence-stage",
+          "takeaway",
+          "creator-avatar",
+          "creator-name"
+        ],
         "minimum_gaps": [
-          {"above": "short-title", "below": "deck", "min_px": 24},
-          {"above": "deck", "below": "evidence-stage", "min_px": 34}
+          {
+            "above": "short-title",
+            "below": "deck",
+            "min_px": 24
+          },
+          {
+            "above": "deck",
+            "below": "evidence-stage",
+            "min_px": 34
+          }
         ],
         "band_occupancy": null
       }
@@ -343,5 +992,10 @@
   "resources": [
     "editable-media-runtime.js",
     "style-profile.json"
-  ]
+  ],
+  "frame_readiness": {
+    "default_timeout_ms": 10000,
+    "maximum_timeout_ms": 30000,
+    "retry_limit": 1
+  }
 }

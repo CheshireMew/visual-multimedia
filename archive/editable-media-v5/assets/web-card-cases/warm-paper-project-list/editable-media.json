@@ -1,0 +1,305 @@
+{
+  "protocol": "editable-media",
+  "version": 5,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "manual",
+    "fps": 1,
+    "loop": "none",
+    "controls": {
+      "keyboard": false,
+      "wheel": false,
+      "touch": false,
+      "overview": false
+    }
+  },
+  "accessibility": {
+    "title_data_field": "title",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "kicker",
+      "name": "Kicker",
+      "kind": "text",
+      "selector": "[data-editable-id='kicker']",
+      "default_bounds": {"x": 72, "y": 64, "width": 1456, "height": 22, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 12, "maximum": 40, "step": 1}}
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {"x": 72, "y": 114, "width": 1080, "height": 172, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 44, "maximum": 110, "step": 1}}
+    },
+    {
+      "id": "summary",
+      "name": "Summary",
+      "kind": "text",
+      "selector": "[data-editable-id='summary']",
+      "default_bounds": {"x": 72, "y": 341, "width": 943, "height": 40, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 18, "maximum": 52, "step": 1}}
+    },
+    {
+      "id": "issue-number",
+      "name": "Issue number",
+      "kind": "text",
+      "selector": "[data-editable-id='issue-number']",
+      "default_bounds": {"x": 1309, "y": 25, "width": 219, "height": 235, "rotation": -3},
+      "editable": ["content", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "curator-avatar",
+      "name": "Curator avatar",
+      "kind": "image",
+      "selector": "[data-editable-id='curator-avatar']",
+      "default_bounds": {"x": 1250, "y": 433, "width": 58, "height": 58, "rotation": 0},
+      "editable": ["image", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "curator-name",
+      "name": "Curator name",
+      "kind": "text",
+      "selector": "[data-editable-id='curator-name']",
+      "default_bounds": {"x": 1320, "y": 457, "width": 198, "height": 30, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 12, "maximum": 36, "step": 1}}
+    },
+    {
+      "id": "list-panel",
+      "name": "Project list panel",
+      "kind": "group",
+      "selector": "[data-editable-id='list-panel']",
+      "default_bounds": {"x": 72, "y": 418, "width": 1456, "height": 1524, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "project-1",
+      "name": "Project 1",
+      "kind": "group",
+      "selector": "[data-editable-id='project-1']",
+      "default_bounds": {"x": 72, "y": 502, "width": 1456, "height": 206, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "project-2",
+      "name": "Project 2",
+      "kind": "group",
+      "selector": "[data-editable-id='project-2']",
+      "default_bounds": {"x": 72, "y": 708, "width": 1456, "height": 206, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "project-3",
+      "name": "Project 3",
+      "kind": "group",
+      "selector": "[data-editable-id='project-3']",
+      "default_bounds": {"x": 72, "y": 913, "width": 1456, "height": 206, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "project-4",
+      "name": "Project 4",
+      "kind": "group",
+      "selector": "[data-editable-id='project-4']",
+      "default_bounds": {"x": 72, "y": 1119, "width": 1456, "height": 206, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "project-5",
+      "name": "Project 5",
+      "kind": "group",
+      "selector": "[data-editable-id='project-5']",
+      "default_bounds": {"x": 72, "y": 1325, "width": 1456, "height": 206, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "project-6",
+      "name": "Project 6",
+      "kind": "group",
+      "selector": "[data-editable-id='project-6']",
+      "default_bounds": {"x": 72, "y": 1531, "width": 1456, "height": 206, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "project-7",
+      "name": "Project 7",
+      "kind": "group",
+      "selector": "[data-editable-id='project-7']",
+      "default_bounds": {"x": 72, "y": 1736, "width": 1456, "height": 206, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "de-ai-github-index-card",
+    "name": "De-AI GitHub Index Card",
+    "category": "cards",
+    "tags": ["github", "writing", "list", "fixed-canvas"]
+  },
+  "theme_variables": [
+    {"id": "paper", "name": "Paper", "kind": "color", "css_variable": "--paper", "default": "#f3efe6"},
+    {"id": "ink", "name": "Ink", "kind": "color", "css_variable": "--ink", "default": "#171611"},
+    {"id": "panel", "name": "Panel", "kind": "color", "css_variable": "--panel", "default": "#e7dfd1"},
+    {"id": "panel_raised", "name": "Raised panel", "kind": "color", "css_variable": "--panel-raised", "default": "#f8f4eb"},
+    {"id": "cream", "name": "Primary panel text", "kind": "color", "css_variable": "--cream", "default": "#1c1b17"},
+    {"id": "muted", "name": "Muted text", "kind": "color", "css_variable": "--muted", "default": "#5f5b52"},
+    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#f2b21b"},
+    {"id": "font_sans", "name": "Sans font", "kind": "font", "css_variable": "--font-sans", "default": "Noto Sans SC, Microsoft YaHei UI, PingFang SC, Segoe UI, sans-serif"},
+    {"id": "font_mono", "name": "Mono font", "kind": "font", "css_variable": "--font-mono", "default": "Cascadia Mono, Consolas, monospace"}
+  ],
+  "parameters": [],
+  "scenes": [
+    {
+      "id": "project-index",
+      "name": "Project index",
+      "page_role": "index",
+      "content_shape": "ranked-resource-list",
+      "layout_id": "ranked-list",
+      "duration_ms": 1000,
+      "primary_blocks": 7,
+      "steps": [
+        {"id": "page", "at_ms": 0, "label": "Page", "state_kind": "start", "review": false, "description": "静态项目索引在唯一状态完整呈现全部条目。"}
+      ],
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "保持清单的共同对齐与一次性扫描，不为装饰引入运动。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {},
+      "asset_slots": {
+        "curator-avatar": {"data_field": "curator_avatar"}
+      }
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "ranked-list",
+      "name": "Ranked resource list",
+      "page_roles": ["index"],
+      "content_shapes": ["ranked-resource-list"],
+      "required_data_fields": [
+        "kicker",
+        "title",
+        "summary",
+        "items",
+        "curator_label",
+        "curator_name",
+        "curator_avatar"
+      ],
+      "required_layer_ids": [
+        "kicker",
+        "title",
+        "summary",
+        "curator-avatar",
+        "curator-name",
+        "list-panel"
+      ],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": ["summary", "list-panel"],
+      "capacity": {"maximum_primary_blocks": 7},
+      "asset_slots": [
+        {
+          "id": "curator-avatar",
+          "required": true,
+          "ratio": "1:1",
+          "fit": "cover",
+          "preserve_full_frame": false
+        }
+      ]
+    }
+  ],
+  "variants": [
+    {
+      "id": "fixed-1600x2000",
+      "name": "Fixed 1600 × 2000",
+      "canvas": {
+        "width": 1600,
+        "height": 2000,
+        "background_mode": "opaque",
+        "background_color": "#f3efe6"
+      },
+      "layers": {}
+    }
+  ],
+  "default_variant_id": "fixed-1600x2000",
+  "data_fields": [
+    {"id": "kicker", "name": "Kicker", "kind": "string", "default": "GITHUB / WRITING SKILLS"},
+    {"id": "title", "name": "Title", "kind": "string", "default": "盘点 7 个去 AI 味的\nGitHub 项目"},
+    {"id": "summary", "name": "Summary", "kind": "string", "default": "中文改稿、英文改稿、技术写作和完整写作流程，都有对应选择。"},
+    {"id": "issue_number", "name": "Issue number", "kind": "string", "default": "07"},
+    {"id": "curator_name", "name": "Curator name", "kind": "string", "default": "柴郡@0xCheshire"},
+    {"id": "curator_avatar", "name": "Curator avatar", "kind": "media-source", "default": "curator-avatar"},
+    {"id": "curator_label", "name": "Curator label", "kind": "string", "default": "整理"},
+    {"id": "index_label", "name": "Index label", "kind": "string", "default": "OPEN-SOURCE INDEX / 01—07"},
+    {"id": "legend_items", "name": "Legend items", "kind": "list", "default": ["中文改稿", "English", "技术写作", "完整流程"]},
+    {
+      "id": "items",
+      "name": "GitHub projects",
+      "kind": "table",
+      "default": [
+        {"name": "qu-ai-wei", "stars": "299 star", "description": "中文去 AI 味 Skill，会一起处理套话、抽象表达、句子节奏和语体，改稿时也不会凭空补充事实。", "url": "https://github.com/LifelongLazyLearner/qu-ai-wei"},
+        {"name": "说人话", "stars": "818 star", "description": "写 README、开发进度和技术文章很合适，版本号、命令和责任归属都能保住，改完更自然，也不耽误正事。", "url": "https://github.com/MrGeDiao/shuorenhua"},
+        {"name": "De-AI Prompt Enhancer", "stars": "566 star", "description": "它把 7 篇真实文章做成了风格参考，可以换成自己的旧文章，让 AI 熟悉你的写法，再清掉残留的机器痕迹。", "url": "https://github.com/OUBIGFA/De-AI-Prompt-Enhancer-Writer-Booster-SKILL"},
+        {"name": "Humanizer", "stars": "3.1 万 star", "description": "英文去 AI 味的基础款，专门清理固定开场、空洞强调和模板式收尾，规则简单，接进各种 Agent 都方便。", "url": "https://github.com/blader/humanizer"},
+        {"name": "Stop-Slop", "stars": "1.4 万 star", "description": "适合已经成稿的英文内容，专门收拾无用铺垫、商业黑话、结构套话和故作深沉的碎句。", "url": "https://github.com/hardikpandya/stop-slop"},
+        {"name": "no-ai-slop", "stars": "2696 star", "description": "原稿已经有个人语气时很适合用它，既能只检测，也能按最小幅度修改，尽量不把作者自己的声音一起抹掉。", "url": "https://github.com/petergyang/no-ai-slop"},
+        {"name": "Writing Agent", "stars": "335 star", "description": "想从选题、搜集证据一路做到审稿和导出，可以直接使用这套完整写作流程，去 AI 味只是其中一环。", "url": "https://github.com/dongbeixiaohuo/writing-agent"}
+      ],
+      "columns": [
+        {"id": "name", "name": "Project name", "kind": "string"},
+        {"id": "stars", "name": "Stars", "kind": "string"},
+        {"id": "description", "name": "Description", "kind": "string"},
+        {"id": "url", "name": "Repository URL", "kind": "string"}
+      ]
+    }
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "required_layer_ids": ["kicker", "title", "summary", "curator-avatar", "curator-name", "list-panel"],
+    "bounds_tolerance_px": 1,
+    "minimum_font_px": {
+      "kicker": 12,
+      "title": 44,
+      "summary": 18,
+      "curator-name": 12
+    },
+    "minimum_gaps": [
+      {"above": "title", "below": "summary", "min_px": 24}
+    ],
+    "content_bounds_layer_ids": ["kicker", "title", "summary", "list-panel"],
+    "minimum_content_span": 0.9,
+    "thumbnail": {
+      "width": 360,
+      "minimum_text_px": 8,
+      "text_layer_ids": ["title"]
+    }
+  },
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": [
+    "editable-media-runtime.js",
+    "style-profile.json"
+  ]
+}

@@ -8,7 +8,7 @@ visual-multimedia 自己负责内容到媒体的制作方法、产品无关的�
 
 只要环境中有 FFmpeg、FFprobe、浏览器和 Playwright，Skill 就可以独立完成两类正式制作：
 
-- `editable-media` v5 网页包继续作为代码视觉真源，由 `scripts/render-web-media-local.mjs` 按 `window.__hf.seek(seconds)` 逐帧导出 MP4 或 GIF。
+- `editable-media` v6 网页包继续作为代码视觉真源，由 `scripts/render-web-media-local.mjs` 按 `window.__hf.seek(seconds)` 逐帧导出 MP4 或 GIF。
 - `media-timeline` v1 作为产品无关的视频、音频与字幕时间线，由 `scripts/media-timeline.mjs` 校验、检查并渲染。它支持现有素材剪切、定格、画面位置与缩放、声音、淡入淡出、标记和中英双语字幕。
 
 本地时间线和网页包都是可继续修改的 `source_bundle`，不是因为没有编辑器工程就退化成只能观看的扁平成片。新用户没有安装 MediaFlow Pro 时仍应得到完整、可复现、可修改的制作结果。
@@ -21,7 +21,7 @@ MediaFlow Pro 是覆盖网页动画渲染、原生混合时间线、素材管理
 
 ### HyperFrames 渲染
 
-HyperFrames 只用于用户明确选择的独立代码网页动画渲染。它读取从同一 `editable-media` v5 网页真源建立的工作副本，不保存混合时间线，也不消费 MediaFlow Pro 工程中的人工调整。它不是 MediaFlow Pro 的替代项目编辑器，更不能成为本地基础能力的必装依赖。
+HyperFrames 只用于用户明确选择的独立代码网页动画渲染。它读取从同一 `editable-media` v6 网页真源建立的工作副本，不保存混合时间线，也不消费 MediaFlow Pro 工程中的人工调整。它不是 MediaFlow Pro 的替代项目编辑器，更不能成为本地基础能力的必装依赖。
 
 ## 二、选择顺序
 

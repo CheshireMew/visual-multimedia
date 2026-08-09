@@ -1,0 +1,187 @@
+{
+  "protocol": "editable-media",
+  "version": 5,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "manual",
+    "fps": 1,
+    "loop": "none",
+    "controls": {
+      "keyboard": false,
+      "wheel": false,
+      "touch": false,
+      "overview": false
+    }
+  },
+  "accessibility": {
+    "title_data_field": "title",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "title",
+      "name": "Title",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {"x": 90, "y": 92, "width": 1320, "height": 108, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 56, "maximum": 112, "step": 1}}
+    },
+    {
+      "id": "list-panel",
+      "name": "Glossary list",
+      "kind": "group",
+      "selector": "[data-editable-id='list-panel']",
+      "default_bounds": {"x": 90, "y": 280, "width": 1320, "height": 1596, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "production-watermark",
+      "name": "Production watermark",
+      "kind": "text",
+      "selector": "[data-editable-id='production-watermark']",
+      "default_bounds": {"x": 1090, "y": 1922, "width": 320, "height": 36, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 20, "maximum": 42, "step": 1}}
+    },
+    {"id": "term-row-1", "name": "Term row 1", "kind": "group", "selector": "[data-editable-id='term-row-1']", "default_bounds": {"x": 90, "y": 280, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-2", "name": "Term row 2", "kind": "group", "selector": "[data-editable-id='term-row-2']", "default_bounds": {"x": 90, "y": 394, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-3", "name": "Term row 3", "kind": "group", "selector": "[data-editable-id='term-row-3']", "default_bounds": {"x": 90, "y": 508, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-4", "name": "Term row 4", "kind": "group", "selector": "[data-editable-id='term-row-4']", "default_bounds": {"x": 90, "y": 622, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-5", "name": "Term row 5", "kind": "group", "selector": "[data-editable-id='term-row-5']", "default_bounds": {"x": 90, "y": 736, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-6", "name": "Term row 6", "kind": "group", "selector": "[data-editable-id='term-row-6']", "default_bounds": {"x": 90, "y": 850, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-7", "name": "Term row 7", "kind": "group", "selector": "[data-editable-id='term-row-7']", "default_bounds": {"x": 90, "y": 964, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-8", "name": "Term row 8", "kind": "group", "selector": "[data-editable-id='term-row-8']", "default_bounds": {"x": 90, "y": 1078, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-9", "name": "Term row 9", "kind": "group", "selector": "[data-editable-id='term-row-9']", "default_bounds": {"x": 90, "y": 1192, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-10", "name": "Term row 10", "kind": "group", "selector": "[data-editable-id='term-row-10']", "default_bounds": {"x": 90, "y": 1306, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-11", "name": "Term row 11", "kind": "group", "selector": "[data-editable-id='term-row-11']", "default_bounds": {"x": 90, "y": 1420, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-12", "name": "Term row 12", "kind": "group", "selector": "[data-editable-id='term-row-12']", "default_bounds": {"x": 90, "y": 1534, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-13", "name": "Term row 13", "kind": "group", "selector": "[data-editable-id='term-row-13']", "default_bounds": {"x": 90, "y": 1648, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "term-row-14", "name": "Term row 14", "kind": "group", "selector": "[data-editable-id='term-row-14']", "default_bounds": {"x": 90, "y": 1762, "width": 1320, "height": 114, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}}
+  ],
+  "component": {
+    "id": "ai-glossary-text-card",
+    "name": "AI Glossary Text Card",
+    "category": "cards",
+    "tags": ["ai", "glossary", "humor", "text-card", "portrait"]
+  },
+  "theme_variables": [
+    {"id": "paper", "name": "Paper", "kind": "color", "css_variable": "--paper", "default": "#f7f7f4"},
+    {"id": "ink", "name": "Ink", "kind": "color", "css_variable": "--ink", "default": "#161616"},
+    {"id": "muted", "name": "Definition text", "kind": "color", "css_variable": "--muted", "default": "#4f4f4c"},
+    {"id": "line", "name": "Rules", "kind": "color", "css_variable": "--line", "default": "#d7d7d2"},
+    {"id": "font_sans", "name": "Sans font", "kind": "font", "css_variable": "--font-sans", "default": "Noto Sans SC, Microsoft YaHei UI, PingFang SC, Segoe UI, sans-serif"}
+  ],
+  "parameters": [],
+  "scenes": [
+    {
+      "id": "ai-glossary",
+      "name": "AI glossary",
+      "page_role": "index",
+      "content_shape": "single-column-glossary",
+      "layout_id": "text-glossary-list",
+      "duration_ms": 1000,
+      "primary_blocks": 14,
+      "steps": [
+        {"id": "page", "at_ms": 0, "label": "Page", "state_kind": "start", "review": false, "description": "静态单栏文字卡一次性呈现全部名词与释义。"}
+      ],
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "只保留名词和释义的阅读关系。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {},
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "text-glossary-list",
+      "name": "Single-column glossary text card",
+      "page_roles": ["index"],
+      "content_shapes": ["single-column-glossary"],
+      "required_data_fields": ["title", "terms", "production_watermark"],
+      "required_layer_ids": ["title", "list-panel", "production-watermark"],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": ["list-panel"],
+      "capacity": {"maximum_primary_blocks": 14},
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "portrait-3x4",
+      "name": "Portrait 3:4",
+      "canvas": {
+        "width": 1500,
+        "height": 2000,
+        "background_mode": "opaque",
+        "background_color": "#f7f7f4"
+      },
+      "layers": {}
+    }
+  ],
+  "default_variant_id": "portrait-3x4",
+  "data_fields": [
+    {"id": "title", "name": "Title", "kind": "string", "default": "AI 名词解析："},
+    {"id": "production_watermark", "name": "Production watermark", "kind": "string", "default": "𝕏@0xCheshire"},
+    {
+      "id": "terms",
+      "name": "Glossary terms",
+      "kind": "table",
+      "default": [
+        {"term": "FDE", "definition": "外包"},
+        {"term": "OPC", "definition": "无业游民"},
+        {"term": "数字游民", "definition": "换个地方失业"},
+        {"term": "vibe coder", "definition": "新时代网吧青年"},
+        {"term": "独立开发者", "definition": "独自开发、独自使用、独自嗨，且没其他用户"},
+        {"term": "全栈工程师", "definition": "样样通，样样松"},
+        {"term": "架构师", "definition": "PPT画图选手"},
+        {"term": "产品经理", "definition": "需求永动机"},
+        {"term": "AI工程师", "definition": "调包侠 + 咒语师"},
+        {"term": "Prompt工程师", "definition": "新时代法师"},
+        {"term": "自由职业者", "definition": "自己给自己发工资（发得出去另说）"},
+        {"term": "远程办公", "definition": "换个地方摸鱼"},
+        {"term": "技术博主", "definition": "教别人赚钱，自己吃土"},
+        {"term": "开源维护者", "definition": "免费劳动力 + 精神股东"}
+      ],
+      "columns": [
+        {"id": "term", "name": "Term", "kind": "string"},
+        {"id": "definition", "name": "Definition", "kind": "string"}
+      ]
+    }
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "required_layer_ids": ["title", "list-panel", "production-watermark"],
+    "bounds_tolerance_px": 2,
+    "minimum_font_px": {
+      "title": 56,
+      "production-watermark": 20
+    },
+    "minimum_gaps": [
+      {"above": "title", "below": "list-panel", "min_px": 56}
+    ],
+    "content_bounds_layer_ids": ["title", "list-panel", "production-watermark"],
+    "minimum_content_span": 0.89,
+    "thumbnail": {
+      "width": 360,
+      "minimum_text_px": 8,
+      "text_layer_ids": ["title"]
+    }
+  },
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": [
+    "editable-media-runtime.js",
+    "style-profile.json"
+  ]
+}

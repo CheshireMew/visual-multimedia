@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "shared-axis-x",
+  "name": "横轴整段替换",
+  "aliases": ["横向共享轴", "shared axis x"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "replace",
+    "purpose": "沿同一横向关系替换整段内容，表达前后步骤或左右推进。",
+    "energy": "moderate",
+    "semantic_tags": ["whole", "axis-x", "replace", "directional"]
+  },
+  "segmentation": {
+    "unit": "whole",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 500, "stagger_ms": 0, "easing": "ease-out"},
+    "exit": {"duration_ms": 360, "stagger_ms": 0, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 120, "micro_delay_ms": 20},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "x_px": 24, "scale": 0.98}},
+        {"offset": 1, "values": {"opacity": 1, "x_px": 0, "scale": 1}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "x_px": 0, "scale": 1}},
+        {"offset": 1, "values": {"opacity": 0, "x_px": -20, "scale": 0.98}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 64,
+    "recommended_max_lines": 4,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 160},
+    "notes": ["横向方向必须与内容的前后关系一致。", "不能与同一节点的编辑位移互相覆盖。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "replace", "id": "old-axis", "at": 0, "meaning": "旧内容位于共享横轴。"},
+      {"operation": "replace", "id": "axis-transition", "at": 0.5, "meaning": "旧内容左退，新内容从右侧进入。"},
+      {"operation": "replace", "id": "new-axis", "at": 1, "meaning": "新内容回到同一横轴。"}
+    ]
+  }
+}

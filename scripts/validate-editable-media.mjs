@@ -209,7 +209,7 @@ function structuralChecks(manifest, manifestPath) {
     fail("S0", error.message);
   }
   if (manifest.protocol !== "editable-media") fail("S1", "protocol 必须是 editable-media");
-  if (manifest.version !== 5) fail("S1", "version 必须是 5");
+  if (manifest.version !== 6) fail("S1", "version 必须是 6");
   if (typeof manifest.entry !== "string" || !manifest.entry) {
     fail("S2", "entry 必须指向入口 HTML");
   }
@@ -386,21 +386,23 @@ function structuralChecks(manifest, manifestPath) {
     if (
       Array.isArray(constraints.choices)
       && constraints.choices.length
-      && !constraints.choices.some((candidate) => Object.is(candidate, value))
+      && !constraints.choices.some((candidate) => Object.is(candidate.value, value))
     ) {
       fail("S13", `${label} 不在 parameters.constraints.choices 中`);
     }
   };
   parameterDefinitions.forEach((parameter, index) => {
-    if (!parameter?.id || typeof parameter.id !== "string") {
+    const descriptor = parameter?.descriptor;
+    const binding = parameter?.binding;
+    if (!descriptor?.id || typeof descriptor.id !== "string") {
       fail("S13", `parameters[${index}] 缺少稳定 id`);
       return;
     }
-    if (parameterById.has(parameter.id)) {
-      fail("S13", `自定义参数 id 重复：${parameter.id}`);
+    if (parameterById.has(descriptor.id)) {
+      fail("S13", `自定义参数 id 重复：${descriptor.id}`);
       return;
     }
-    parameterById.set(parameter.id, parameter);
+    parameterById.set(descriptor.id, { ...descriptor, scope: binding?.scope });
     const controls = {
       number: ["slider", "number"],
       integer: ["slider", "number"],
@@ -408,48 +410,48 @@ function structuralChecks(manifest, manifestPath) {
       string: ["text"],
       color: ["color"],
       choice: ["select"],
-    }[parameter.kind] || [];
-    if (!controls.includes(parameter.control)) {
+    }[descriptor.kind] || [];
+    if (!controls.includes(descriptor.control)) {
       fail(
         "S13",
-        `自定义参数 ${parameter.id} 的 control=${parameter.control || "空"}`
-          + ` 不适用于 ${parameter.kind || "未知类型"}`
+        `自定义参数 ${descriptor.id} 的 control=${descriptor.control || "空"}`
+          + ` 不适用于 ${descriptor.kind || "未知类型"}`
       );
     }
-    const constraints = parameter.constraints || {};
+    const constraints = descriptor.constraints || {};
     if (
       constraints.minimum != null
       && constraints.maximum != null
       && Number(constraints.minimum) > Number(constraints.maximum)
     ) {
-      fail("S13", `自定义参数 ${parameter.id} 的 minimum 不能大于 maximum`);
+      fail("S13", `自定义参数 ${descriptor.id} 的 minimum 不能大于 maximum`);
     }
     if (
-      parameter.kind === "choice"
+      descriptor.kind === "choice"
       && (!Array.isArray(constraints.choices) || constraints.choices.length === 0)
     ) {
-      fail("S13", `choice 参数 ${parameter.id} 必须声明非空 choices`);
+      fail("S13", `choice 参数 ${descriptor.id} 必须声明非空 choices`);
     }
     if (
-      parameter.kind !== "choice"
+      descriptor.kind !== "choice"
       && Array.isArray(constraints.choices)
       && constraints.choices.length
     ) {
-      fail("S13", `只有 choice 参数可以声明 choices：${parameter.id}`);
+      fail("S13", `只有 choice 参数可以声明 choices：${descriptor.id}`);
     }
     parameterValueWithinConstraints(
-      parameter,
-      parameter.default,
-      `自定义参数 ${parameter.id} 的 default`
+      descriptor,
+      descriptor.default,
+      `自定义参数 ${descriptor.id} 的 default`
     );
-    if (parameter.css_variable) {
+    if (binding?.css_variable) {
       if (
-        parameterCssVariables.has(parameter.css_variable)
-        || themeCssVariables.has(parameter.css_variable)
+        parameterCssVariables.has(binding.css_variable)
+        || themeCssVariables.has(binding.css_variable)
       ) {
-        fail("S13", `自定义参数 CSS 变量重复：${parameter.css_variable}`);
+        fail("S13", `自定义参数 CSS 变量重复：${binding.css_variable}`);
       }
-      parameterCssVariables.add(parameter.css_variable);
+      parameterCssVariables.add(binding.css_variable);
     }
   });
 
@@ -974,16 +976,17 @@ async function inspectTarget(
     (item) => item.id === manifest.default_variant_id
   );
   const seekProbeSeconds = Math.min(0.5, expectedDurationSeconds / 2);
-  const frameProtocol = await page.evaluate((probe) => {
+  const frameProtocol = await page.evaluate(async (probe) => {
     const roots = Array.from(document.querySelectorAll("[data-editable-media-root]"));
     const root = roots[0] || null;
     const compositionId = root?.dataset.compositionId || "";
     const timeline = window.__timelines?.[compositionId];
     const hasSeek = typeof window.__hf?.seek === "function";
-    if (hasSeek) window.__hf.seek(probe.seekSeconds);
+    const hasReadiness = ["registerRenderer", "deferFrame", "resolveFrame", "rejectFrame"]
+      .every((name) => typeof window.__hf?.[name] === "function");
+    const seekResult = hasSeek ? await window.__hf.seek(probe.seekSeconds) : null;
     const seekTimeMs = window.editableMedia.getPlayback().globalTimeMs;
-    window.editableMedia.setScene(probe.sceneId);
-    window.editableMedia.setTime(probe.restoreTimeMs);
+    if (hasSeek) await window.__hf.seek(probe.restoreTimeMs / 1000);
     return {
       rootCount: roots.length,
       compositionRootCount: document.querySelectorAll("[data-composition-id]").length,
@@ -1000,6 +1003,8 @@ async function inspectTarget(
         : null,
       hfDuration: Number(window.__hf?.duration),
       hasSeek,
+      hasReadiness,
+      seekResult,
       seekTimeMs,
       timelineDuration: typeof timeline?.duration === "function"
         ? Number(timeline.duration())
@@ -1037,8 +1042,13 @@ async function inspectTarget(
   }
   if (
     !frameProtocol.hasSeek
+    || !frameProtocol.hasReadiness
     || Math.abs(frameProtocol.hfDuration - expectedDurationSeconds) > 1e-9
     || Math.abs(frameProtocol.seekTimeMs - seekProbeSeconds * 1000) > 0.5
+    || Math.abs(frameProtocol.seekResult?.seconds - seekProbeSeconds) > 1e-9
+    || !(frameProtocol.seekResult?.generation > 0)
+    || !(frameProtocol.seekResult?.wait_ms >= 0)
+    || !Array.isArray(frameProtocol.seekResult?.tasks)
   ) {
     fail("B8", "window.__hf 没有用秒级 seek 驱动同一条 editable-media 时间线");
   }

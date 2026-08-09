@@ -1,0 +1,57 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 4,
+  "sources": [
+    {
+      "id": "curator-avatar",
+      "media_type": "photo",
+      "file": "assets/creator-avatar.png",
+      "binding": {
+        "pipeline": "browser"
+      },
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
+      "acquisition": {
+        "method": "project-owned",
+        "source_url": "",
+        "captured_at": "2026-07-27T00:00:00.000Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "project-owned",
+        "attribution": "柴郡@0xCheshire",
+        "terms_url": ""
+      },
+      "usage": "curator credit",
+      "integrity": {
+        "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+        "bytes": 902095,
+        "mime_type": "image/png"
+      },
+      "generation": null,
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-07-27T00:00:00.000Z",
+          "provider": "local-project",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "crops": {
+        "fixed-1600x2000": {
+          "object_position": "50% 50%"
+        }
+      },
+      "notes": "本案例已经确认由柴郡筛选和整理，头像只用于明确的整理贡献说明，不表示列表中的项目或原始内容由其创作。"
+    }
+  ]
+}

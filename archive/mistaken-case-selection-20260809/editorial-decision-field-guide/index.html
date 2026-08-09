@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用 AI 用抑郁了，咋办？</title>
+  <style>
+    @font-face {
+      font-family: "Microsoft YaHei UI";
+      src: local("Microsoft YaHei UI");
+      font-style: normal;
+      font-weight: 100 900;
+    }
+
+    @font-face {
+      font-family: "KaiTi";
+      src: local("KaiTi");
+      font-style: normal;
+      font-weight: 400 700;
+    }
+
+    :root {
+      --canvas-width: 1;
+      --canvas-height: 1;
+      --paper: #f3eee3;
+      --ink: #191c1a;
+      --muted: #50544f;
+      --line: #a8aa9f;
+      --accent: #e6552d;
+      --teal: #1f736b;
+      --wash: #f5d84f;
+      --font-sans: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+      --font-note: "KaiTi", "STKaiti", serif;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background: #2c2e2b;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      background: #2c2e2b;
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 18px;
+      padding: 28px;
+    }
+
+    .viewport {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      isolation: isolate;
+      transform-origin: top left;
+      background: var(--paper);
+      box-shadow: 0 40px 120px rgb(0 0 0 / 38%);
+    }
+
+    .media-canvas::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        linear-gradient(rgb(25 28 26 / 4%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(25 28 26 / 4%) 1px, transparent 1px),
+        radial-gradient(circle at 10% 14%, rgb(255 255 255 / 34%) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 82% 66%, rgb(25 28 26 / 10%) 0 .7px, transparent 1.4px);
+      background-size: 40px 40px, 40px 40px, 23px 29px, 31px 27px;
+      opacity: .78;
+    }
+
+    .media-canvas::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background: linear-gradient(90deg, rgb(255 255 255 / 18%), transparent 25%, transparent 76%, rgb(25 28 26 / 3%));
+      mix-blend-mode: multiply;
+    }
+
+    p,
+    h1,
+    h2,
+    h3,
+    ol,
+    ul {
+      margin: 0;
+    }
+
+    .eyebrow {
+      position: absolute;
+      left: 110px;
+      top: 86px;
+      width: 1680px;
+      height: 42px;
+      color: var(--teal);
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 42px;
+      letter-spacing: .08em;
+    }
+
+    .title {
+      position: absolute;
+      left: 110px;
+      top: 133px;
+      width: 1680px;
+      height: 160px;
+      color: var(--ink);
+      font-size: 124px;
+      font-weight: 900;
+      line-height: 160px;
+      letter-spacing: -.055em;
+      text-wrap: balance;
+    }
+
+    .title-mark {
+      position: absolute;
+      left: 1118px;
+      top: 251px;
+      width: 462px;
+      height: 19px;
+      border-top: 8px solid var(--accent);
+      border-radius: 50%;
+      transform: rotate(-1.6deg);
+      opacity: .9;
+    }
+
+    .dek {
+      position: absolute;
+      left: 110px;
+      top: 320px;
+      width: 1190px;
+      height: 200px;
+      color: var(--muted);
+      font-size: 43px;
+      font-weight: 560;
+      line-height: 1.48;
+      letter-spacing: -.012em;
+      text-wrap: pretty;
+    }
+
+    .context-note {
+      position: absolute;
+      left: 1360px;
+      top: 328px;
+      width: 430px;
+      height: 185px;
+      display: grid;
+      place-items: center;
+      padding: 19px 30px 16px;
+      border: 3px solid var(--accent);
+      color: var(--accent);
+      font-family: var(--font-note);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.32;
+      text-align: center;
+      transform: rotate(-1.2deg);
+    }
+
+    .context-note::before {
+      content: "";
+      position: absolute;
+      inset: -8px 6px 5px -6px;
+      border: 2px solid rgb(230 85 45 / 55%);
+      transform: rotate(1.9deg);
+    }
+
+    .header-rule {
+      position: absolute;
+      left: 110px;
+      top: 560px;
+      width: 1680px;
+      height: 5px;
+      background: var(--ink);
+    }
+
+    .failure-table {
+      position: absolute;
+      left: 110px;
+      top: 610px;
+      width: 1680px;
+      height: 1220px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      color: var(--ink);
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.16;
+      letter-spacing: -.035em;
+    }
+
+    .section-number {
+      flex: 0 0 auto;
+      color: var(--accent);
+      font-family: var(--font-note);
+      font-size: 62px;
+      font-weight: 700;
+      letter-spacing: -.06em;
+    }
+
+    .failure-table > .section-heading {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1680px;
+      height: 66px;
+    }
+
+    .column-heads {
+      position: absolute;
+      left: 0;
+      top: 79px;
+      width: 1680px;
+      height: 47px;
+      display: grid;
+      grid-template-columns: 365px 555px minmax(0, 1fr);
+      gap: 32px;
+      padding: 0 22px;
+      border-bottom: 2px solid var(--ink);
+      color: var(--muted);
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 38px;
+      letter-spacing: .08em;
+    }
+
+    .layer-list {
+      position: absolute;
+      left: 0;
+      top: 140px;
+      width: 1680px;
+      height: 1080px;
+    }
+
+    .layer-row {
+      position: relative;
+      width: 1680px;
+      height: 270px;
+      display: grid;
+      grid-template-columns: 365px 555px minmax(0, 1fr);
+      gap: 32px;
+      align-items: center;
+      padding: 24px 22px;
+      border-bottom: 1.5px solid var(--line);
+    }
+
+    .layer-row:first-child {
+      border-top: 1.5px solid var(--line);
+    }
+
+    .layer-row::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 25px;
+      bottom: 25px;
+      width: 7px;
+      background: var(--row-color, var(--accent));
+    }
+
+    .layer-label-wrap {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .layer-number {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border: 3px solid var(--row-color, var(--accent));
+      border-radius: 50%;
+      color: var(--row-color, var(--accent));
+      font-family: var(--font-note);
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1;
+      transform: rotate(var(--number-rotation, -2deg));
+    }
+
+    .layer-label {
+      color: var(--ink);
+      font-size: 44px;
+      font-weight: 850;
+      line-height: 1.26;
+      letter-spacing: -.025em;
+    }
+
+    .layer-clue,
+    .layer-action {
+      font-size: 40px;
+      line-height: 1.45;
+      letter-spacing: -.015em;
+      text-wrap: pretty;
+    }
+
+    .layer-clue {
+      color: var(--muted);
+      font-weight: 520;
+    }
+
+    .layer-action {
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    .layer-row:nth-child(2n) {
+      background: rgb(255 255 255 / 23%);
+    }
+
+    .split-panel {
+      position: absolute;
+      top: 1890px;
+      height: 820px;
+      border-top: 5px solid var(--ink);
+      padding-top: 25px;
+    }
+
+    .tactics {
+      left: 110px;
+      width: 800px;
+    }
+
+    .stop-rules {
+      left: 980px;
+      width: 810px;
+    }
+
+    .split-panel .section-heading {
+      min-height: 62px;
+      padding-right: 8px;
+      font-size: 44px;
+    }
+
+    .split-panel .section-number {
+      font-size: 55px;
+    }
+
+    .tactic-list,
+    .stop-list {
+      margin-top: 15px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tactic-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 164px minmax(0, 1fr);
+      gap: 18px;
+      min-height: 210px;
+      align-items: start;
+      padding: 20px 0 18px;
+      border-bottom: 1.5px solid var(--line);
+    }
+
+    .tactic-label {
+      display: inline-block;
+      width: fit-content;
+      padding: 3px 8px 2px;
+      color: var(--ink);
+      background: linear-gradient(transparent 34%, rgb(245 216 79 / 76%) 34% 89%, transparent 89%);
+      font-size: 40px;
+      font-weight: 850;
+      line-height: 1.24;
+    }
+
+    .tactic-body {
+      color: var(--muted);
+      font-size: 40px;
+      font-weight: 560;
+      line-height: 1.46;
+      text-wrap: pretty;
+    }
+
+    .stop-list {
+      counter-reset: stop;
+    }
+
+    .stop-item {
+      counter-increment: stop;
+      position: relative;
+      min-height: 104px;
+      padding: 16px 0 15px 64px;
+      border-bottom: 1.5px solid var(--line);
+      color: var(--muted);
+      font-size: 40px;
+      font-weight: 580;
+      line-height: 1.42;
+      text-wrap: pretty;
+    }
+
+    .stop-item::before {
+      content: counter(stop, decimal-leading-zero);
+      position: absolute;
+      left: 0;
+      top: 20px;
+      width: 46px;
+      color: var(--accent);
+      font-family: var(--font-note);
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stop-item:nth-child(2),
+    .stop-item:nth-child(3) {
+      color: var(--ink);
+      font-weight: 720;
+    }
+
+    .reframing {
+      position: absolute;
+      left: 110px;
+      top: 2770px;
+      width: 1680px;
+      height: 530px;
+      border-top: 5px solid var(--ink);
+      padding-top: 25px;
+    }
+
+    .reframing .section-heading {
+      height: 62px;
+      font-size: 44px;
+    }
+
+    .reframing .section-number {
+      font-size: 55px;
+    }
+
+    .reframe-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 34px;
+      margin-top: 16px;
+    }
+
+    .reframe-item {
+      position: relative;
+      min-height: 390px;
+      padding: 26px 28px 24px;
+      border: 2px solid var(--ink);
+      background: rgb(255 255 255 / 22%);
+      box-shadow: 8px 8px 0 rgb(25 28 26 / 11%);
+    }
+
+    .reframe-item:nth-child(2) {
+      border-color: var(--teal);
+      box-shadow: 8px 8px 0 rgb(31 115 107 / 18%);
+    }
+
+    .reframe-item:nth-child(3) {
+      border-color: var(--accent);
+      box-shadow: 8px 8px 0 rgb(230 85 45 / 16%);
+    }
+
+    .reframe-label {
+      margin-bottom: 11px;
+      color: var(--ink);
+      font-size: 42px;
+      font-weight: 880;
+      line-height: 1.24;
+    }
+
+    .reframe-body {
+      color: var(--muted);
+      font-size: 40px;
+      font-weight: 560;
+      line-height: 1.42;
+      text-wrap: pretty;
+    }
+
+    .action-strip {
+      position: absolute;
+      left: 110px;
+      top: 3360px;
+      width: 1680px;
+      height: 250px;
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      column-gap: 22px;
+      align-content: center;
+      padding: 20px 28px 18px;
+      color: var(--paper);
+      background: var(--ink);
+    }
+
+    .action-label {
+      grid-row: 1 / span 2;
+      align-self: center;
+      color: var(--wash);
+      font-family: var(--font-note);
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1;
+      transform: rotate(-2deg);
+    }
+
+    .action-steps {
+      align-self: end;
+      color: #f7f1e6;
+      font-size: 38px;
+      font-weight: 650;
+      line-height: 1.3;
+      letter-spacing: -.01em;
+      white-space: normal;
+    }
+
+    .closing {
+      align-self: start;
+      color: #fff;
+      font-size: 38px;
+      font-weight: 850;
+      line-height: 1.32;
+      letter-spacing: -.025em;
+    }
+
+    .production-watermark {
+      position: absolute;
+      left: 1450px;
+      top: 3650px;
+      width: 340px;
+      height: 32px;
+      color: var(--ink);
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 32px;
+      letter-spacing: .02em;
+      text-align: right;
+      opacity: .22;
+    }
+
+    .preview-note {
+      margin: 0;
+      padding: 10px 16px;
+      border: 1px solid rgb(255 255 255 / 12%);
+      border-radius: 999px;
+      color: #e2e2de;
+      background: rgb(44 46 43 / 90%);
+      font-size: 13px;
+    }
+
+    body.capture {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body.capture .app {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      padding: 0;
+    }
+
+    body.capture .viewport {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: visible;
+    }
+
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+    }
+
+    body.capture .media-canvas {
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    body.capture .preview-note { display: none; }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="1"
+    data-width="1900"
+    data-height="3700"
+    data-fps="1"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="用 AI 用抑郁了咋办文字卡">
+          <p class="eyebrow" data-editable-data="eyebrow" data-editable-id="eyebrow"></p>
+          <h1 class="title" data-editable-data="title" data-editable-id="title"></h1>
+          <span class="title-mark" aria-hidden="true"></span>
+          <p class="dek" data-editable-data="dek" data-editable-id="dek"></p>
+          <p class="context-note" data-editable-data="context_note" data-editable-id="context-note"></p>
+          <span class="header-rule" aria-hidden="true"></span>
+
+          <section class="failure-table" data-editable-id="failure-table" aria-label="失败分层">
+            <h2 class="section-heading">
+              <span class="section-number" aria-hidden="true">01</span>
+              <span data-editable-data="failure_heading"></span>
+            </h2>
+            <div class="column-heads" aria-hidden="true">
+              <span>问题属于哪一层</span>
+              <span>你会看到什么</span>
+              <span>接下来怎么做</span>
+            </div>
+            <div class="layer-list" id="layerList">
+              <article class="layer-row" data-editable-id="layer-row-1"></article>
+              <article class="layer-row" data-editable-id="layer-row-2"></article>
+              <article class="layer-row" data-editable-id="layer-row-3"></article>
+              <article class="layer-row" data-editable-id="layer-row-4"></article>
+            </div>
+          </section>
+
+          <section class="split-panel tactics" data-editable-id="tactics" aria-label="换打法">
+            <h2 class="section-heading">
+              <span class="section-number" aria-hidden="true">02</span>
+              <span data-editable-data="tactics_heading"></span>
+            </h2>
+            <div class="tactic-list" id="tacticList"></div>
+          </section>
+
+          <section class="split-panel stop-rules" data-editable-id="stop-rules" aria-label="停止规则">
+            <h2 class="section-heading">
+              <span class="section-number" aria-hidden="true">03</span>
+              <span data-editable-data="stop_heading"></span>
+            </h2>
+            <ol class="stop-list" id="stopList"></ol>
+          </section>
+
+          <section class="reframing" data-editable-id="reframing" aria-label="重写成功标准">
+            <h2 class="section-heading">
+              <span class="section-number" aria-hidden="true">04</span>
+              <span data-editable-data="reframe_heading"></span>
+            </h2>
+            <div class="reframe-grid" id="reframeGrid"></div>
+          </section>
+
+          <section class="action-strip" data-editable-id="action-strip" aria-label="立即行动">
+            <p class="action-label" data-editable-data="action_label"></p>
+            <p class="action-steps" data-editable-data="action_steps"></p>
+            <p class="closing" data-editable-data="closing"></p>
+          </section>
+
+          <p class="production-watermark" data-editable-data="production_watermark" data-editable-id="production-watermark" aria-label="卡片制作水印"></p>
+        </section>
+      </div>
+    </div>
+    <p class="preview-note" id="previewNote"></p>
+  </main>
+
+  <script>
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1";
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+    const layerRows = [...document.querySelectorAll(".layer-row")];
+    const rowColors = ["#1f736b", "#e6552d", "#7656a8", "#7a6038"];
+    const rowRotations = ["-3deg", "2deg", "-1deg", "3deg"];
+    let output = { width: 1, height: 1 };
+
+    if (captureMode) document.body.classList.add("capture");
+
+    function text(value) {
+      return String(value ?? "");
+    }
+
+    function fillLayerRows(rows) {
+      layerRows.forEach((row, index) => {
+        const item = rows[index] || {};
+        row.style.setProperty("--row-color", rowColors[index]);
+        row.style.setProperty("--number-rotation", rowRotations[index]);
+        row.replaceChildren();
+
+        const labelWrap = document.createElement("div");
+        labelWrap.className = "layer-label-wrap";
+        const number = document.createElement("span");
+        number.className = "layer-number";
+        number.textContent = text(item.number || index + 1);
+        const label = document.createElement("h3");
+        label.className = "layer-label";
+        label.textContent = text(item.label);
+        labelWrap.append(number, label);
+
+        const clue = document.createElement("p");
+        clue.className = "layer-clue";
+        clue.textContent = text(item.clue);
+        const action = document.createElement("p");
+        action.className = "layer-action";
+        action.textContent = text(item.action);
+        row.append(labelWrap, clue, action);
+      });
+    }
+
+    function fillTactics(rows) {
+      const list = document.querySelector("#tacticList");
+      const items = Array.isArray(rows) ? rows : [];
+      list.replaceChildren(...items.map((item) => {
+        const article = document.createElement("article");
+        article.className = "tactic-item";
+        const label = document.createElement("h3");
+        label.className = "tactic-label";
+        label.textContent = text(item.label);
+        const body = document.createElement("p");
+        body.className = "tactic-body";
+        body.textContent = text(item.body);
+        article.append(label, body);
+        return article;
+      }));
+    }
+
+    function fillStopRules(rows) {
+      const list = document.querySelector("#stopList");
+      const items = Array.isArray(rows) ? rows : [];
+      list.replaceChildren(...items.map((item) => {
+        const li = document.createElement("li");
+        li.className = "stop-item";
+        li.textContent = text(item);
+        return li;
+      }));
+    }
+
+    function fillReframes(rows) {
+      const grid = document.querySelector("#reframeGrid");
+      const items = Array.isArray(rows) ? rows : [];
+      grid.replaceChildren(...items.map((item) => {
+        const article = document.createElement("article");
+        article.className = "reframe-item";
+        const label = document.createElement("h3");
+        label.className = "reframe-label";
+        label.textContent = text(item.label);
+        const body = document.createElement("p");
+        body.className = "reframe-body";
+        body.textContent = text(item.body);
+        article.append(label, body);
+        return article;
+      }));
+    }
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(
+        viewport.clientWidth / output.width,
+        viewport.clientHeight / output.height,
+        1
+      );
+      const fittedScale = Math.max(.1, scale);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+
+    window.addEventListener("editablemediadata", (event) => {
+      const data = event.detail.data || {};
+      fillLayerRows(Array.isArray(data.failure_layers) ? data.failure_layers : []);
+      fillTactics(data.tactics);
+      fillStopRules(data.stop_rules);
+      fillReframes(data.reframes);
+    });
+  </script>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height)
+      };
+      document.querySelector("#previewNote").textContent =
+        `宽竖版单图 ${output.width} × ${output.height} · 网页为唯一可编辑制作源`;
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

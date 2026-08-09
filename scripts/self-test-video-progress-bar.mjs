@@ -145,8 +145,8 @@ async function main() {
     await page.goto(service.url, {waitUntil: "load"});
     await page.evaluate(() => window.editableMedia.ready);
 
-    const snapshotAt = (seconds) => page.evaluate((time) => {
-      window.__hf.seek(time);
+    const snapshotAt = (seconds) => page.evaluate(async (time) => {
+      await window.__hf.seek(time);
       const shell = window.editableMedia.getBounds()["progress-shell"];
       const lead = window.editableMedia.getBounds()["lead-label"];
       const track = window.editableMedia.getBounds()["progress-track"];

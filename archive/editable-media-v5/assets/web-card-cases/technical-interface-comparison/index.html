@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP / CLI / API：同一能力，三种连接方式</title>
+  <style>
+    :root {
+      --canvas-width: 1920;
+      --canvas-height: 1080;
+      --bg: #071018;
+      --surface: #0c1823;
+      --surface-2: #101f2c;
+      --line: #263a48;
+      --text: #f3f8fb;
+      --muted: #8ca3b2;
+      --mcp: #7ee7ff;
+      --cli: #ffc66d;
+      --api: #a9f58c;
+      --font-sans: "Microsoft YaHei UI", "Noto Sans SC", "PingFang SC", "Segoe UI", sans-serif;
+      --font-mono: "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+      font-family: var(--font-sans);
+      color: var(--text);
+      background: #202830;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { overflow: hidden; background: #202830; }
+    .app { width: 100vw; height: 100vh; display: grid; grid-template-rows: minmax(0,1fr) auto; gap: 14px; padding: 22px; }
+    .viewport { min-height: 0; display: grid; place-items: center; overflow: auto; }
+    .canvas-shell { width: calc(var(--canvas-width) * 1px); height: calc(var(--canvas-height) * 1px); flex: 0 0 auto; }
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      transform-origin: top left;
+      isolation: isolate;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgb(126 231 255 / 4%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(126 231 255 / 4%) 1px, transparent 1px),
+        radial-gradient(circle at 50% -20%, #153041 0, transparent 48%);
+      background-size: 40px 40px, 40px 40px, auto;
+      box-shadow: 0 34px 100px rgb(0 0 0 / 45%);
+    }
+    .media-canvas::before { content:""; position:absolute; inset:0; border:1px solid #345062; pointer-events:none; }
+    .title-primary, .creator-name, .creator-role { position:absolute; margin:0; }
+    .title-primary { left:54px; top:36px; width:1050px; height:88px; font:760 64px/82px var(--font-sans); letter-spacing:-.04em; white-space:nowrap; }
+
+    .reading-key { position:absolute; right:54px; top:54px; width:560px; height:84px; display:flex; align-items:center; justify-content:flex-end; gap:12px; }
+    .key-label { color:var(--muted); font:700 15px/22px var(--font-mono); letter-spacing:.08em; margin-right:8px; }
+    .key-chip { display:flex; align-items:center; gap:8px; height:38px; padding:0 13px; border:1px solid var(--line); background:#0a151f; color:#cfe0e8; font:650 16px/1 var(--font-sans); }
+    .key-dot { width:10px; height:10px; border-radius:50%; background:currentColor; box-shadow:0 0 16px currentColor; }
+    .key-chip:nth-of-type(2) { color:var(--mcp); }
+    .key-chip:nth-of-type(3) { color:var(--cli); }
+    .key-chip:nth-of-type(4) { color:var(--api); }
+
+    .panel {
+      position:absolute;
+      top:184px;
+      width:584px;
+      height:744px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgb(255 255 255 / 3.5%), transparent 22%), var(--surface);
+      overflow:hidden;
+    }
+    .panel::before { content:""; position:absolute; left:0; right:0; top:0; height:5px; background:var(--panel-color); }
+    .panel::after { content:""; position:absolute; left:32px; right:32px; top:104px; height:1px; background:linear-gradient(90deg,var(--panel-color),transparent); opacity:.55; }
+    .panel-mcp { left:54px; --panel-color:var(--mcp); }
+    .panel-cli { left:668px; --panel-color:var(--cli); }
+    .panel-api { left:1282px; --panel-color:var(--api); }
+    .panel-index { position:absolute; right:24px; top:20px; color:#567082; font:700 28px/1 var(--font-mono); }
+    .panel-title { position:absolute; left:30px; top:22px; margin:0; color:var(--panel-color); font:780 36px/42px var(--font-mono); letter-spacing:-.02em; }
+    .panel-expansion { position:absolute; left:30px; top:68px; margin:0; color:var(--muted); font:700 14px/20px var(--font-mono); letter-spacing:.08em; }
+    .diagram { position:absolute; left:22px; top:124px; width:540px; height:512px; }
+    .diagram text { font-family:var(--font-mono); }
+    .diagram .cn { font-family:var(--font-sans); }
+    .diagram .node { fill:#0a141e; stroke:#466273; stroke-width:1.5; }
+    .diagram .node-soft { fill:#102331; stroke:#466273; stroke-width:1.5; }
+    .diagram .node-title { fill:#f3f8fb; font-size:17px; font-weight:750; }
+    .diagram .node-copy { fill:#91a8b6; font-size:14px; font-weight:600; }
+    .diagram .micro { fill:#78909f; font-size:12px; font-weight:700; letter-spacing:.04em; }
+    .diagram .route { fill:none; stroke:#7896a8; stroke-width:2; }
+    .diagram .route-dash { fill:none; stroke:#7896a8; stroke-width:2; stroke-dasharray:7 6; }
+    .diagram .bus { fill:#101d28; stroke:#2f4655; stroke-width:1.5; }
+    .diagram .mcp-stroke { stroke:var(--mcp); }
+    .diagram .cli-stroke { stroke:var(--cli); }
+    .diagram .api-stroke { stroke:var(--api); }
+    .diagram .mcp-fill { fill:var(--mcp); }
+    .diagram .cli-fill { fill:var(--cli); }
+    .diagram .api-fill { fill:var(--api); }
+    .diagram .accent-dark { fill:#071018; }
+    .panel-caption { position:absolute; left:30px; right:30px; bottom:26px; min-height:54px; margin:0; padding:14px 16px 12px 18px; border-left:4px solid var(--panel-color); background:#09131c; color:#d9e5eb; font:650 19px/27px var(--font-sans); }
+
+    .core-rail { position:absolute; left:54px; top:950px; width:1500px; height:82px; border:1px solid #365162; background:#0b1721; display:grid; grid-template-columns:245px 1fr; align-items:center; }
+    .rail-label { padding-left:28px; color:#94aebc; font:700 15px/22px var(--font-mono); letter-spacing:.08em; }
+    .rail-flow { display:flex; align-items:center; gap:18px; color:#edf6fa; font:680 22px/1 var(--font-sans); }
+    .rail-entry { color:var(--mcp); font-family:var(--font-mono); }
+    .rail-entry.cli { color:var(--cli); }
+    .rail-entry.api { color:var(--api); }
+    .rail-arrow { color:#648092; }
+    .rail-core { display:flex; align-items:center; gap:14px; height:48px; padding:0 20px; border:1px solid #506979; background:#111f2a; }
+    .rail-core strong { font:750 19px/1 var(--font-mono); }
+    .rail-core span { color:#a8bdc8; font-size:18px; }
+
+    .creator-avatar { position:absolute; left:1622px; top:970px; width:58px; height:58px; object-fit:contain; border-radius:50%; border:2px solid #8da5b3; background:#111b23; }
+    .creator-name { left:1696px; top:974px; width:190px; height:28px; color:#f3f8fb; font:700 19px/26px var(--font-sans); white-space:nowrap; }
+    .creator-role { left:1696px; top:1004px; width:190px; height:22px; color:#8199a8; font:700 12px/18px var(--font-mono); letter-spacing:.05em; white-space:nowrap; }
+
+    .preview-note { margin:0; color:#d9e2e8; text-align:center; font:600 13px/1.3 var(--font-sans); }
+    body.capture .app { display:block; width:calc(var(--canvas-width) * 1px); height:calc(var(--canvas-height) * 1px); padding:0; }
+    body.capture .viewport { display:block; width:calc(var(--canvas-width) * 1px); height:calc(var(--canvas-height) * 1px); overflow:visible; }
+    body.capture .canvas-shell { width:calc(var(--canvas-width) * 1px) !important; height:calc(var(--canvas-height) * 1px) !important; }
+    body.capture .media-canvas { transform:none !important; }
+    body.capture .preview-note { display:none; }
+  </style>
+</head>
+<body>
+  <main class="app" data-editable-media-root data-composition-id="editable-media" data-no-timeline data-start="0" data-duration="1" data-width="1920" data-height="1080" data-fps="1">
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="MCP CLI API 横版视觉解释图">
+          <h1 class="title-primary" data-editable-data="title_primary" data-editable-id="title-primary"></h1>
+
+          <div class="reading-key" aria-label="颜色图例">
+            <span class="key-label">读图顺序</span>
+            <span class="key-chip"><i class="key-dot"></i>AI 调工具</span>
+            <span class="key-chip"><i class="key-dot"></i>终端命令</span>
+            <span class="key-chip"><i class="key-dot"></i>程序集成</span>
+          </div>
+
+          <article class="panel panel-mcp" data-editable-id="mcp-panel" aria-label="MCP 工作方式示意图">
+            <span class="panel-index">01</span>
+            <h2 class="panel-title" data-editable-data="mcp_name"></h2>
+            <p class="panel-expansion" data-editable-data="mcp_expansion"></p>
+            <svg class="diagram" viewBox="0 0 540 512" role="img" aria-label="AI 宿主通过 MCP 发现并调用工具">
+              <defs><marker id="mcpArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" class="mcp-fill"/></marker></defs>
+              <rect x="18" y="50" width="126" height="116" rx="3" class="node"/>
+              <rect x="34" y="68" width="94" height="58" rx="3" fill="#112a38" stroke="#7ee7ff" stroke-width="1.5"/>
+              <path d="M52 90h58M52 103h38" class="route mcp-stroke"/>
+              <circle cx="111" cy="118" r="9" class="mcp-fill"/>
+              <text x="81" y="147" text-anchor="middle" class="node-title cn">AI 宿主</text>
+              <text x="81" y="184" text-anchor="middle" class="micro">理解任务</text>
+
+              <path d="M145 107H163" class="route mcp-stroke" marker-end="url(#mcpArrow)"/>
+              <rect x="168" y="50" width="124" height="116" rx="3" class="node-soft mcp-stroke"/>
+              <path d="M193 84h18v-13h38v13h18v42h-18v13h-38v-13h-18z" fill="none" stroke="#7ee7ff" stroke-width="2"/>
+              <text x="230" y="151" text-anchor="middle" class="node-title cn">MCP 客户端</text>
+
+              <path d="M293 75H397" class="route-dash mcp-stroke" marker-end="url(#mcpArrow)"/>
+              <text x="345" y="65" text-anchor="middle" class="micro mcp-fill cn">发现工具</text>
+              <path d="M293 104H397" class="route mcp-stroke" marker-end="url(#mcpArrow)"/>
+              <text x="345" y="96" text-anchor="middle" class="micro mcp-fill cn">调用工具</text>
+              <path d="M397 133H293" class="route mcp-stroke" marker-end="url(#mcpArrow)"/>
+              <text x="345" y="126" text-anchor="middle" class="micro mcp-fill cn">返回结果</text>
+              <rect x="404" y="50" width="118" height="116" rx="3" class="node-soft mcp-stroke"/>
+              <path d="M426 77h72v42h-72zM437 88h34M437 99h48M437 110h26" fill="none" stroke="#7ee7ff" stroke-width="1.8"/>
+              <text x="463" y="151" text-anchor="middle" class="node-title cn">MCP 服务端</text>
+
+              <path d="M463 167V214M92 214H463" class="route mcp-stroke"/>
+              <circle cx="92" cy="214" r="4" class="mcp-fill"/><circle cx="270" cy="214" r="4" class="mcp-fill"/><circle cx="463" cy="214" r="4" class="mcp-fill"/>
+              <path d="M92 214v25M270 214v25M463 214v25" class="route mcp-stroke" marker-end="url(#mcpArrow)"/>
+              <rect x="22" y="246" width="140" height="82" rx="3" class="node"/>
+              <path d="M48 272h32l9 10h28v25H48z" fill="none" stroke="#7ee7ff" stroke-width="2"/>
+              <text x="126" y="293" class="node-title cn">文件</text>
+              <rect x="200" y="246" width="140" height="82" rx="3" class="node"/>
+              <rect x="220" y="266" width="48" height="37" rx="2" fill="none" stroke="#7ee7ff" stroke-width="2"/>
+              <path d="M220 276h48M229 270h2M236 270h2" class="route mcp-stroke"/>
+              <text x="282" y="293" class="node-title cn">浏览器</text>
+              <rect x="378" y="246" width="140" height="82" rx="3" class="node"/>
+              <ellipse cx="416" cy="271" rx="22" ry="8" fill="none" stroke="#7ee7ff" stroke-width="2"/>
+              <path d="M394 271v27c0 10 44 10 44 0v-27M394 284c0 10 44 10 44 0" fill="none" stroke="#7ee7ff" stroke-width="2"/>
+              <text x="451" y="293" class="node-title cn">数据</text>
+
+              <path d="M92 329v38M270 329v38M448 329v38" class="route"/>
+              <path d="M92 367H448" class="route"/>
+              <path d="M270 367v30" class="route mcp-stroke" marker-end="url(#mcpArrow)"/>
+              <rect x="92" y="404" width="356" height="72" rx="3" class="bus"/>
+              <text x="270" y="432" text-anchor="middle" class="micro mcp-fill cn">已有能力</text>
+              <text x="270" y="459" text-anchor="middle" class="node-title cn">已有 API / 业务能力</text>
+            </svg>
+            <p class="panel-caption" data-editable-data="mcp_caption"></p>
+          </article>
+
+          <article class="panel panel-cli" data-editable-id="cli-panel" aria-label="CLI 工作方式示意图">
+            <span class="panel-index">02</span>
+            <h2 class="panel-title" data-editable-data="cli_name"></h2>
+            <p class="panel-expansion" data-editable-data="cli_expansion"></p>
+            <svg class="diagram" viewBox="0 0 540 512" role="img" aria-label="人或脚本通过命令启动进程并读取输出">
+              <defs><marker id="cliArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" class="cli-fill"/></marker></defs>
+              <rect x="20" y="42" width="120" height="62" rx="3" class="node"/>
+              <circle cx="45" cy="66" r="9" fill="none" stroke="#ffc66d" stroke-width="2"/><path d="M30 91c3-14 27-14 30 0" fill="none" stroke="#ffc66d" stroke-width="2"/>
+              <text x="74" y="74" class="node-title cn">人</text>
+              <rect x="20" y="118" width="120" height="62" rx="3" class="node"/>
+              <path d="M34 139h20l10 10-10 10H34z" fill="none" stroke="#ffc66d" stroke-width="2"/>
+              <text x="74" y="155" class="node-title cn">脚本</text>
+              <path d="M141 74h42M141 149h42" class="route cli-stroke" marker-end="url(#cliArrow)"/>
+
+              <rect x="190" y="42" width="330" height="168" rx="4" class="node-soft cli-stroke"/>
+              <rect x="190" y="42" width="330" height="30" class="cli-fill"/>
+              <circle cx="207" cy="57" r="4" class="accent-dark"/><circle cx="221" cy="57" r="4" class="accent-dark"/><circle cx="235" cy="57" r="4" class="accent-dark"/>
+              <text x="355" y="61" text-anchor="middle" class="micro accent-dark cn">终端</text>
+              <text x="214" y="103" class="node-title cli-fill">$ tool run</text>
+              <text x="214" y="132" class="node-copy">--input data.json</text>
+              <text x="214" y="157" class="node-copy">--mode batch</text>
+              <rect x="211" y="175" width="89" height="20" rx="2" fill="#2a2418" stroke="#ffc66d"/>
+              <text x="255" y="189" text-anchor="middle" class="micro cli-fill cn">参数 argv</text>
+              <rect x="308" y="175" width="89" height="20" rx="2" fill="#2a2418" stroke="#ffc66d"/>
+              <text x="352" y="189" text-anchor="middle" class="micro cli-fill cn">输入 stdin</text>
+
+              <path d="M355 211v36" class="route cli-stroke" marker-end="url(#cliArrow)"/>
+              <rect x="145" y="254" width="420" height="104" rx="4" class="node-soft cli-stroke" transform="translate(-84 0)"/>
+              <circle cx="101" cy="306" r="25" fill="none" stroke="#ffc66d" stroke-width="2"/>
+              <path d="M101 274v12M101 326v12M69 306h12M121 306h12M78 283l9 9M115 320l9 9M124 283l-9 9M87 320l-9 9" class="route cli-stroke"/>
+              <text x="284" y="293" text-anchor="middle" class="micro cli-fill cn">一条命令 → 一个进程</text>
+              <text x="284" y="328" text-anchor="middle" class="node-title cn">CLI 适配器调用业务核心</text>
+
+              <path d="M284 359v30M90 389H478" class="route cli-stroke"/>
+              <path d="M90 389v27M284 389v27M478 389v27" class="route cli-stroke" marker-end="url(#cliArrow)"/>
+              <rect x="20" y="423" width="140" height="68" rx="3" class="node"/>
+              <path d="M42 446h38v28H42zM49 440h24v6" fill="none" stroke="#ffc66d" stroke-width="2"/>
+              <text x="96" y="464" class="node-title cn">文件</text>
+              <rect x="214" y="423" width="140" height="68" rx="3" class="node"/>
+              <text x="284" y="450" text-anchor="middle" class="micro cli-fill cn">标准输出 stdout</text>
+              <text x="284" y="474" text-anchor="middle" class="node-copy cn">任务完成</text>
+              <rect x="408" y="423" width="112" height="68" rx="3" class="node"/>
+              <text x="464" y="451" text-anchor="middle" class="micro cli-fill cn">退出码</text>
+              <text x="464" y="478" text-anchor="middle" class="node-title">0</text>
+            </svg>
+            <p class="panel-caption" data-editable-data="cli_caption"></p>
+          </article>
+
+          <article class="panel panel-api" data-editable-id="api-panel" aria-label="API 工作方式示意图">
+            <span class="panel-index">03</span>
+            <h2 class="panel-title" data-editable-data="api_name"></h2>
+            <p class="panel-expansion" data-editable-data="api_expansion"></p>
+            <svg class="diagram" viewBox="0 0 540 512" role="img" aria-label="应用通过本地函数或网络请求调用 API 并持续读写状态">
+              <defs><marker id="apiArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" class="api-fill"/></marker></defs>
+              <rect x="18" y="42" width="128" height="72" rx="3" class="node"/>
+              <rect x="36" y="58" width="40" height="37" rx="2" fill="none" stroke="#a9f58c" stroke-width="2"/>
+              <path d="M36 68h40" class="route api-stroke"/>
+              <text x="86" y="84" class="node-title cn">应用</text>
+              <rect x="18" y="130" width="128" height="72" rx="3" class="node"/>
+              <path d="M36 148h32v36H36zM42 157h20M42 165h20M42 173h13" fill="none" stroke="#a9f58c" stroke-width="2"/>
+              <text x="78" y="174" class="node-title cn">服务</text>
+
+              <path d="M147 78h49M147 166h49" class="route api-stroke" marker-end="url(#apiArrow)"/>
+              <rect x="202" y="42" width="132" height="72" rx="3" class="node-soft api-stroke"/>
+              <text x="268" y="71" text-anchor="middle" class="micro api-fill cn">本地函数</text>
+              <text x="268" y="94" text-anchor="middle" class="node-title">sdk.execute()</text>
+              <rect x="202" y="130" width="132" height="72" rx="3" class="node-soft api-stroke"/>
+              <text x="268" y="159" text-anchor="middle" class="micro api-fill">HTTP / RPC</text>
+              <text x="268" y="183" text-anchor="middle" class="node-title">POST /action</text>
+
+              <path d="M335 78h34M335 166h34M369 78v88" class="route api-stroke"/>
+              <path d="M369 122h31" class="route api-stroke" marker-end="url(#apiArrow)"/>
+              <rect x="406" y="64" width="116" height="116" rx="3" class="api-fill"/>
+              <path d="M432 90h64v47h-64zM442 101h43M442 113h33M442 125h38" fill="none" stroke="#071018" stroke-width="2"/>
+              <text x="464" y="158" text-anchor="middle" class="node-title accent-dark">API</text>
+
+              <path d="M464 181v38" class="route api-stroke" marker-end="url(#apiArrow)"/>
+              <rect x="112" y="226" width="352" height="84" rx="3" class="bus"/>
+              <text x="288" y="255" text-anchor="middle" class="micro api-fill cn">稳定能力契约</text>
+              <text x="288" y="285" text-anchor="middle" class="node-title cn">参数 · 结果 · 错误 · 版本</text>
+
+              <path d="M288 311v35" class="route api-stroke" marker-end="url(#apiArrow)"/>
+              <rect x="112" y="353" width="220" height="88" rx="3" class="node-soft api-stroke"/>
+              <text x="222" y="385" text-anchor="middle" class="micro api-fill cn">常驻业务核心</text>
+              <text x="222" y="415" text-anchor="middle" class="node-title cn">业务服务 / 应用核心</text>
+              <ellipse cx="427" cy="368" rx="56" ry="16" fill="#10261d" stroke="#a9f58c" stroke-width="2"/>
+              <path d="M371 368v54c0 19 112 19 112 0v-54M371 395c0 19 112 19 112 0" fill="#10261d" stroke="#a9f58c" stroke-width="2"/>
+              <text x="427" y="402" text-anchor="middle" class="node-title cn">状态</text>
+              <path d="M333 397h35" class="route api-stroke" marker-end="url(#apiArrow)"/>
+              <path d="M427 442v38H87V168H146" class="route-dash api-stroke" marker-end="url(#apiArrow)"/>
+              <text x="251" y="473" text-anchor="middle" class="micro api-fill cn">返回值 / 事件 / 实时状态</text>
+            </svg>
+            <p class="panel-caption" data-editable-data="api_caption"></p>
+          </article>
+
+          <section class="core-rail" data-editable-id="core-rail" aria-label="三种入口连接共同业务核心">
+            <div class="rail-label">三种入口<br>同一业务核心</div>
+            <div class="rail-flow">
+              <span class="rail-entry">MCP</span><span class="rail-entry cli">CLI</span><span class="rail-entry api">API</span>
+              <span class="rail-arrow">→</span>
+              <div class="rail-core"><strong>业务核心</strong><span>规则 · 数据 · 操作 · 结果</span></div>
+            </div>
+          </section>
+
+          <img class="creator-avatar" data-editable-image="creator_avatar" data-editable-id="creator-avatar" src="" alt="柴郡头像" draggable="false">
+          <p class="creator-name" data-editable-data="creator_name" data-editable-id="creator-name"></p>
+          <p class="creator-role" data-editable-data="creator_role" data-editable-id="creator-role"></p>
+        </section>
+      </div>
+    </div>
+    <p class="preview-note" id="previewNote"></p>
+  </main>
+
+  <script>
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1";
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+    let output = { width: 1920, height: 1080 };
+    if (captureMode) document.body.classList.add("capture");
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(viewport.clientWidth / output.width, viewport.clientHeight / output.height, 1);
+      const fittedScale = Math.max(.1, scale);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+  </script>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = { width: Number(variant.canvas.width), height: Number(variant.canvas.height) };
+      document.querySelector("#previewNote").textContent = `固定画布 ${output.width} × ${output.height} · 网页为可编辑制作源`;
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

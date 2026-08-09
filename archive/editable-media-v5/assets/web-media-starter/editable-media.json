@@ -1,0 +1,382 @@
+{
+  "protocol": "editable-media",
+  "version": 5,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "hybrid",
+    "fps": 30,
+    "loop": "none",
+    "controls": {
+      "keyboard": true,
+      "wheel": true,
+      "touch": true,
+      "overview": true
+    }
+  },
+  "accessibility": {
+    "title_data_field": "title",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "eyebrow",
+      "name": "Eyebrow",
+      "kind": "text",
+      "selector": "[data-editable-id='eyebrow']",
+      "default_bounds": {"x": 56, "y": 56, "width": 968, "height": 38, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {"font_size": {"minimum": 12, "maximum": 120, "step": 1}}
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {"x": 56, "y": 118, "width": 900, "height": 176, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {"font_size": {"minimum": 24, "maximum": 160, "step": 1}}
+    },
+    {
+      "id": "summary",
+      "name": "Summary",
+      "kind": "text",
+      "selector": "[data-editable-id='summary']",
+      "default_bounds": {"x": 56, "y": 322, "width": 850, "height": 148, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {"font_size": {"minimum": 14, "maximum": 96, "step": 1}}
+    },
+    {
+      "id": "camera-stage",
+      "name": "Camera stage",
+      "kind": "group",
+      "selector": "[data-editable-id='camera-stage']",
+      "default_bounds": {"x": 0, "y": 0, "width": 1080, "height": 1080, "rotation": 0},
+      "editable": [],
+      "constraints": {}
+    },
+    {
+      "id": "left-depth",
+      "name": "Left camera depth",
+      "kind": "group",
+      "selector": "[data-editable-id='left-depth']",
+      "parent_id": "camera-stage",
+      "default_bounds": {"x": 56, "y": 740, "width": 472, "height": 302, "rotation": 0},
+      "editable": [],
+      "constraints": {}
+    },
+    {
+      "id": "right-depth",
+      "name": "Right camera depth",
+      "kind": "group",
+      "selector": "[data-editable-id='right-depth']",
+      "parent_id": "camera-stage",
+      "default_bounds": {"x": 552, "y": 740, "width": 472, "height": 302, "rotation": 0},
+      "editable": [],
+      "constraints": {}
+    },
+    {
+      "id": "left-panel",
+      "name": "Left panel",
+      "kind": "group",
+      "selector": "[data-editable-id='left-panel']",
+      "parent_id": "left-depth",
+      "default_bounds": {"x": 56, "y": 740, "width": 472, "height": 274, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {}
+    },
+    {
+      "id": "right-panel",
+      "name": "Right panel",
+      "kind": "group",
+      "selector": "[data-editable-id='right-panel']",
+      "parent_id": "right-depth",
+      "default_bounds": {"x": 552, "y": 740, "width": 472, "height": 274, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "editable-card",
+    "name": "Editable card",
+    "category": "cards",
+    "tags": ["title", "data", "responsive"]
+  },
+  "theme_variables": [
+    {"id": "background", "name": "Background", "kind": "color", "css_variable": "--background", "default": "#f4f3ef"},
+    {"id": "surface", "name": "Surface", "kind": "color", "css_variable": "--surface", "default": "#ffffff"},
+    {"id": "text", "name": "Text", "kind": "color", "css_variable": "--text", "default": "#202124"},
+    {"id": "muted", "name": "Muted", "kind": "color", "css_variable": "--muted", "default": "#6b7075"},
+    {"id": "line", "name": "Line", "kind": "color", "css_variable": "--line", "default": "#d8d9dc"},
+    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#315efb"},
+    {"id": "font_family", "name": "Font family", "kind": "font", "css_variable": "--font-family", "default": "Inter, Segoe UI, Microsoft YaHei, system-ui, sans-serif"},
+    {"id": "radius", "name": "Corner radius", "kind": "string", "css_variable": "--radius", "default": "28px"},
+    {"id": "spacing", "name": "Canvas spacing", "kind": "string", "css_variable": "--space", "default": "56px"},
+    {"id": "shadow", "name": "Panel shadow", "kind": "string", "css_variable": "--shadow", "default": "0 24px 64px rgb(23 29 39 / 10%)"}
+  ],
+  "parameters": [
+    {
+      "id": "spring_strength",
+      "name": "回弹强度",
+      "description": "控制进入运动接近目标时的回弹感。",
+      "group": "运动",
+      "kind": "number",
+      "scope": "global",
+      "default": 0.72,
+      "animatable": true,
+      "unit": "ratio",
+      "control": "slider",
+      "css_variable": "--motion-spring-strength",
+      "constraints": {"minimum": 0, "maximum": 1, "step": 0.01}
+    },
+    {
+      "id": "stagger_interval_ms",
+      "name": "错峰间隔",
+      "description": "控制相邻元素开始运动的时间差。",
+      "group": "运动",
+      "kind": "integer",
+      "scope": "scene",
+      "default": 120,
+      "animatable": true,
+      "unit": "ms",
+      "control": "slider",
+      "css_variable": "--motion-stagger-interval-ms",
+      "constraints": {"minimum": 0, "maximum": 800, "step": 10}
+    },
+    {
+      "id": "orbit_radius_px",
+      "name": "轨道半径",
+      "description": "控制围绕视觉中心运动时的最大空间偏移。",
+      "group": "空间",
+      "kind": "number",
+      "scope": "scene",
+      "default": 28,
+      "animatable": true,
+      "unit": "px",
+      "control": "slider",
+      "css_variable": "--motion-orbit-radius-px",
+      "constraints": {"minimum": 0, "maximum": 240, "step": 1}
+    },
+    {
+      "id": "camera_amplitude",
+      "name": "镜头幅度",
+      "description": "控制镜头或整体视图运动的幅度倍率。",
+      "group": "镜头",
+      "kind": "number",
+      "scope": "global",
+      "default": 1,
+      "animatable": true,
+      "unit": "ratio",
+      "control": "slider",
+      "css_variable": "--motion-camera-amplitude",
+      "constraints": {"minimum": 0, "maximum": 2, "step": 0.05}
+    },
+    {
+      "id": "trigger_threshold",
+      "name": "触发阈值",
+      "description": "控制场景进度达到什么位置时进入完整展示状态。",
+      "group": "运动",
+      "kind": "number",
+      "scope": "scene",
+      "default": 0.35,
+      "animatable": true,
+      "unit": "ratio",
+      "control": "slider",
+      "css_variable": "--motion-trigger-threshold",
+      "constraints": {"minimum": 0.05, "maximum": 1, "step": 0.01}
+    }
+  ],
+  "scenes": [
+    {
+      "id": "opening",
+      "name": "Opening",
+      "page_role": "opening",
+      "content_shape": "claim-with-two-supports",
+      "layout_id": "title-two-panels",
+      "duration_ms": 3000,
+      "primary_blocks": 2,
+      "steps": [
+        {"id": "claim", "at_ms": 0, "label": "Claim", "state_kind": "start", "review": true, "description": "先建立唯一网页真源的主张，支持面板保持完整可读。"},
+        {"id": "context", "at_ms": 900, "label": "Context", "state_kind": "change", "review": true, "description": "镜头向支持信息轻推并改变焦点，解释三种播放方式共享同一内容模型。"},
+        {"id": "result", "at_ms": 1800, "label": "Result", "state_kind": "result", "review": true, "description": "镜头在结果状态稳定，两个支持面板仍能同时辨认。"}
+      ],
+      "motion": {
+        "complexity": "complex",
+        "driver": "mixed",
+        "semantic_purpose": "用空间推进把主张、上下文和结果连接成一条可检查的解释链。",
+        "key_state_review": "required",
+        "camera": {
+          "root_layer_id": "camera-stage",
+          "depth_layers": [
+            {"layer_id": "left-depth", "depth": -0.2},
+            {"layer_id": "right-depth", "depth": 0.55}
+          ],
+          "readability_layer_ids": ["eyebrow", "title", "summary"],
+          "keyframes": [
+            {"step_id": "claim", "x": 0, "y": 0, "zoom": 1, "focus_depth": 0, "aperture": 0, "easing": "ease_in_out"},
+            {"step_id": "context", "x": -14, "y": -10, "zoom": 1.035, "focus_depth": -0.2, "aperture": 0.7, "easing": "ease_in_out"},
+            {"step_id": "result", "x": 12, "y": -16, "zoom": 1.06, "focus_depth": 0.55, "aperture": 0.45, "easing": "ease_out"}
+          ]
+        }
+      },
+      "parameters": {
+        "stagger_interval_ms": 140,
+        "orbit_radius_px": 32,
+        "trigger_threshold": 0.35
+      },
+      "data": {
+        "eyebrow": "ONE EDITABLE SOURCE",
+        "title": "One source, three ways to play",
+        "summary": "The clock may advance automatically or wait for the presenter. The content model does not split.",
+        "left_label": "Scene",
+        "left_value": "One idea",
+        "right_label": "Playback",
+        "right_value": "Manual, automatic or hybrid"
+      },
+      "asset_slots": {}
+    },
+    {
+      "id": "delivery",
+      "name": "Delivery",
+      "page_role": "explanation",
+      "content_shape": "state-transition",
+      "layout_id": "title-two-panels",
+      "duration_ms": 3000,
+      "primary_blocks": 2,
+      "steps": [
+        {"id": "source", "at_ms": 0, "label": "Source", "state_kind": "start", "review": false, "description": "显示可编辑网页真源。"},
+        {"id": "interaction", "at_ms": 900, "label": "Interaction", "state_kind": "change", "review": false, "description": "显示交互播放与状态修改。"},
+        {"id": "export", "at_ms": 1800, "label": "Export", "state_kind": "result", "review": false, "description": "显示同一时间线进入渲染消费者后的结果。"}
+      ],
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "让两个交付结果随时间显现，不改变内容空间关系。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "stagger_interval_ms": 90,
+        "orbit_radius_px": 18,
+        "trigger_threshold": 0.28
+      },
+      "data": {
+        "eyebrow": "ONE PRODUCTION CHAIN",
+        "title": "The same scenes can become a deck or a video",
+        "summary": "Interactive playback uses navigation. Export playback uses the same deterministic timeline.",
+        "left_label": "Interactive result",
+        "left_value": "HTML presentation",
+        "right_label": "Rendered result",
+        "right_value": "Animation, GIF or video"
+      },
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "title-two-panels",
+      "name": "Title with two supporting panels",
+      "page_roles": ["opening", "explanation"],
+      "content_shapes": ["claim-with-two-supports", "state-transition"],
+      "required_data_fields": [
+        "eyebrow",
+        "title",
+        "summary",
+        "left_label",
+        "left_value",
+        "right_label",
+        "right_value"
+      ],
+      "required_layer_ids": ["eyebrow", "title", "summary", "left-panel", "right-panel"],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": ["summary", "left-panel", "right-panel"],
+      "capacity": {"maximum_primary_blocks": 2},
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "square", "name": "Square", "canvas": {"width": 1080, "height": 1080, "background_mode": "opaque", "background_color": "#f4f3ef"},
+      "layers": {
+        "camera-stage": {"x": 0, "y": 0, "width": 1080, "height": 1080},
+        "left-depth": {"x": 56, "y": 740, "width": 472, "height": 302},
+        "right-depth": {"x": 552, "y": 740, "width": 472, "height": 302},
+        "eyebrow": {"x": 56, "y": 56, "width": 968, "height": 38},
+        "title": {"x": 56, "y": 118, "width": 900, "height": 176},
+        "summary": {"x": 56, "y": 322, "width": 850, "height": 148},
+        "left-panel": {"x": 56, "y": 740, "width": 472, "height": 274},
+        "right-panel": {"x": 552, "y": 740, "width": 472, "height": 274}
+      }
+    },
+    {
+      "id": "portrait", "name": "Portrait", "canvas": {"width": 1080, "height": 1920, "background_mode": "opaque", "background_color": "#f4f3ef"},
+      "layers": {
+        "camera-stage": {"x": 0, "y": 0, "width": 1080, "height": 1920},
+        "left-depth": {"x": 64, "y": 1130, "width": 952, "height": 318},
+        "right-depth": {"x": 64, "y": 1470, "width": 952, "height": 318},
+        "eyebrow": {"x": 64, "y": 120, "width": 952, "height": 44},
+        "title": {"x": 64, "y": 210, "width": 920, "height": 270},
+        "summary": {"x": 64, "y": 540, "width": 900, "height": 190},
+        "left-panel": {"x": 64, "y": 1130, "width": 952, "height": 290},
+        "right-panel": {"x": 64, "y": 1470, "width": 952, "height": 290}
+      }
+    },
+    {
+      "id": "landscape", "name": "Landscape", "canvas": {"width": 1920, "height": 1080, "background_mode": "opaque", "background_color": "#f4f3ef"},
+      "layers": {
+        "camera-stage": {"x": 0, "y": 0, "width": 1920, "height": 1080},
+        "left-depth": {"x": 1120, "y": 630, "width": 330, "height": 328},
+        "right-depth": {"x": 1490, "y": 630, "width": 330, "height": 328},
+        "eyebrow": {"x": 96, "y": 72, "width": 1728, "height": 42},
+        "title": {"x": 96, "y": 148, "width": 1250, "height": 190},
+        "summary": {"x": 96, "y": 390, "width": 1100, "height": 150},
+        "left-panel": {"x": 1120, "y": 630, "width": 330, "height": 300},
+        "right-panel": {"x": 1490, "y": 630, "width": 330, "height": 300}
+      }
+    }
+  ],
+  "default_variant_id": "square",
+  "data_fields": [
+    {"id": "eyebrow", "name": "Eyebrow", "kind": "string", "default": "Topic"},
+    {"id": "title", "name": "Title", "kind": "string", "default": "Editable media canvas"},
+    {"id": "summary", "name": "Summary", "kind": "string", "default": "Replace the content, structure and visual language for the current task."},
+    {"id": "left_label", "name": "Left label", "kind": "string", "default": "Context"},
+    {"id": "left_value", "name": "Left value", "kind": "string", "default": "One clear relationship"},
+    {"id": "right_label", "name": "Right label", "kind": "string", "default": "Result"},
+    {"id": "right_value", "name": "Right value", "kind": "string", "default": "A source that stays editable"},
+    {"id": "chart_data", "name": "Chart data", "kind": "table", "default": [{"label": "A", "value": 35}, {"label": "B", "value": 68}], "columns": [{"id": "label", "name": "Label", "kind": "string"}, {"id": "value", "name": "Value", "kind": "number"}]}
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "required_layer_ids": ["eyebrow", "title", "summary", "left-panel", "right-panel"],
+    "bounds_tolerance_px": 1,
+    "minimum_font_px": {
+      "eyebrow": 12,
+      "title": 24,
+      "summary": 14
+    },
+    "minimum_gaps": [
+      {"above": "eyebrow", "below": "title", "min_px": 12},
+      {"above": "title", "below": "summary", "min_px": 12}
+    ],
+    "navigation_safe_area": {
+      "bottom": 24,
+      "layer_ids": ["eyebrow", "title", "summary", "left-panel", "right-panel"]
+    },
+    "title_to_content": {
+      "title_layer_id": "title",
+      "content_layer_ids": ["summary", "left-panel", "right-panel"],
+      "minimum_px": 12
+    },
+    "bottom_whitespace": {
+      "content_layer_ids": ["eyebrow", "title", "summary", "left-panel", "right-panel"],
+      "maximum_ratio": 0.15
+    }
+  },
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": ["editable-media-runtime.js"]
+}

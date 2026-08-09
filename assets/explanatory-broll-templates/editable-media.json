@@ -1,13 +1,18 @@
 {
   "protocol": "editable-media",
-  "version": 5,
+  "version": 6,
   "entry": "index.html",
   "media_sources": "media-sources.json",
   "playback": {
     "mode": "hybrid",
     "fps": 30,
     "loop": "none",
-    "controls": {"keyboard": true, "wheel": true, "touch": true, "overview": true}
+    "controls": {
+      "keyboard": true,
+      "wheel": true,
+      "touch": true,
+      "overview": true
+    }
   },
   "accessibility": {
     "title_data_field": "title",
@@ -19,26 +24,104 @@
       "name": "Title",
       "kind": "text",
       "selector": "[data-editable-id='title']",
-      "default_bounds": {"x": 96, "y": 72, "width": 1728, "height": 92, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
-      "constraints": {"font_size": {"minimum": 26, "maximum": 112, "step": 1}}
+      "default_bounds": {
+        "x": 96,
+        "y": 72,
+        "width": 1728,
+        "height": 92,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "opacity",
+        "z_index",
+        "visible",
+        "enter_ms",
+        "exit_ms",
+        "delay_ms",
+        "duration_ms"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 26,
+          "maximum": 112,
+          "step": 1
+        }
+      }
     },
     {
       "id": "subtitle",
       "name": "Subtitle",
       "kind": "text",
       "selector": "[data-editable-id='subtitle']",
-      "default_bounds": {"x": 96, "y": 174, "width": 1500, "height": 62, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
-      "constraints": {"font_size": {"minimum": 18, "maximum": 64, "step": 1}}
+      "default_bounds": {
+        "x": 96,
+        "y": 174,
+        "width": 1500,
+        "height": 62,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "opacity",
+        "z_index",
+        "visible",
+        "enter_ms",
+        "exit_ms",
+        "delay_ms",
+        "duration_ms"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 18,
+          "maximum": 64,
+          "step": 1
+        }
+      }
     },
     {
       "id": "diagram-stage",
       "name": "Diagram stage",
       "kind": "group",
       "selector": "[data-editable-id='diagram-stage']",
-      "default_bounds": {"x": 96, "y": 272, "width": 1728, "height": 710, "rotation": 0},
-      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible", "enter_ms", "exit_ms", "delay_ms", "duration_ms"],
+      "default_bounds": {
+        "x": 96,
+        "y": 272,
+        "width": 1728,
+        "height": 710,
+        "rotation": 0
+      },
+      "editable": [
+        "color",
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "opacity",
+        "z_index",
+        "visible",
+        "enter_ms",
+        "exit_ms",
+        "delay_ms",
+        "duration_ms"
+      ],
       "constraints": {}
     },
     {
@@ -46,8 +129,22 @@
       "name": "Presenter slot",
       "kind": "group",
       "selector": "[data-editable-id='presenter-slot']",
-      "default_bounds": {"x": 0, "y": 0, "width": 1, "height": 1, "rotation": 0},
-      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "default_bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
       "constraints": {}
     }
   ],
@@ -55,67 +152,171 @@
     "id": "explanatory-broll-templates",
     "name": "Explanatory B-roll templates",
     "category": "explanatory-broll",
-    "tags": ["process", "timeline", "framework", "causal", "comparison", "evidence"],
+    "tags": [
+      "process",
+      "timeline",
+      "framework",
+      "causal",
+      "comparison",
+      "evidence"
+    ],
     "description": "按内容关系选择的十类可编辑动态图解，用同一确定性时间线派生预览、图片、GIF、视频或透明覆盖层。",
     "preview_background": "#161923",
     "preview_accent": "#8b7cff",
-    "aspect_ratios": ["16:9", "9:16", "1:1"]
+    "aspect_ratios": [
+      "16:9",
+      "9:16",
+      "1:1"
+    ]
   },
   "theme_variables": [
-    {"id": "background", "name": "Background", "kind": "color", "css_variable": "--background", "default": "#11131a"},
-    {"id": "surface", "name": "Surface", "kind": "color", "css_variable": "--surface", "default": "#202431"},
-    {"id": "text", "name": "Text", "kind": "color", "css_variable": "--text", "default": "#f7f7fb"},
-    {"id": "muted", "name": "Muted", "kind": "color", "css_variable": "--muted", "default": "#a8adbd"},
-    {"id": "line", "name": "Line", "kind": "color", "css_variable": "--line", "default": "#4a5063"},
-    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#8b7cff"},
-    {"id": "accent_secondary", "name": "Secondary accent", "kind": "color", "css_variable": "--accent-secondary", "default": "#f4c95d"},
-    {"id": "positive", "name": "Positive", "kind": "color", "css_variable": "--positive", "default": "#5fd7a5"},
-    {"id": "font_family", "name": "Font family", "kind": "font", "css_variable": "--font-family", "default": "Inter, Segoe UI, Microsoft YaHei, system-ui, sans-serif"},
-    {"id": "radius", "name": "Corner radius", "kind": "string", "css_variable": "--radius", "default": "24px"},
-    {"id": "shadow", "name": "Panel shadow", "kind": "string", "css_variable": "--shadow", "default": "0 24px 70px rgb(0 0 0 / 28%)"}
+    {
+      "id": "background",
+      "name": "Background",
+      "kind": "color",
+      "css_variable": "--background",
+      "default": "#11131a"
+    },
+    {
+      "id": "surface",
+      "name": "Surface",
+      "kind": "color",
+      "css_variable": "--surface",
+      "default": "#202431"
+    },
+    {
+      "id": "text",
+      "name": "Text",
+      "kind": "color",
+      "css_variable": "--text",
+      "default": "#f7f7fb"
+    },
+    {
+      "id": "muted",
+      "name": "Muted",
+      "kind": "color",
+      "css_variable": "--muted",
+      "default": "#a8adbd"
+    },
+    {
+      "id": "line",
+      "name": "Line",
+      "kind": "color",
+      "css_variable": "--line",
+      "default": "#4a5063"
+    },
+    {
+      "id": "accent",
+      "name": "Accent",
+      "kind": "color",
+      "css_variable": "--accent",
+      "default": "#8b7cff"
+    },
+    {
+      "id": "accent_secondary",
+      "name": "Secondary accent",
+      "kind": "color",
+      "css_variable": "--accent-secondary",
+      "default": "#f4c95d"
+    },
+    {
+      "id": "positive",
+      "name": "Positive",
+      "kind": "color",
+      "css_variable": "--positive",
+      "default": "#5fd7a5"
+    },
+    {
+      "id": "font_family",
+      "name": "Font family",
+      "kind": "font",
+      "css_variable": "--font-family",
+      "default": "Inter, Segoe UI, Microsoft YaHei, system-ui, sans-serif"
+    },
+    {
+      "id": "radius",
+      "name": "Corner radius",
+      "kind": "string",
+      "css_variable": "--radius",
+      "default": "24px"
+    },
+    {
+      "id": "shadow",
+      "name": "Panel shadow",
+      "kind": "string",
+      "css_variable": "--shadow",
+      "default": "0 24px 70px rgb(0 0 0 / 28%)"
+    }
   ],
   "parameters": [
     {
-      "id": "motion_intensity",
-      "name": "运动强度",
-      "description": "控制语义对象的位移和缩放幅度，不改变状态顺序。",
-      "group": "运动",
-      "kind": "number",
-      "scope": "global",
-      "default": 0.72,
-      "animatable": true,
-      "unit": "ratio",
-      "control": "slider",
-      "css_variable": "--motion-intensity",
-      "constraints": {"minimum": 0, "maximum": 1.5, "step": 0.01}
+      "descriptor": {
+        "id": "motion_intensity",
+        "label": "运动强度",
+        "description": "控制语义对象的位移和缩放幅度，不改变状态顺序。",
+        "group": "运动",
+        "kind": "number",
+        "control": "slider",
+        "default": 0.72,
+        "unit": "ratio",
+        "constraints": {
+          "minimum": 0,
+          "maximum": 1.5,
+          "step": 0.01
+        },
+        "options_source": null,
+        "timeline": "keyframe"
+      },
+      "binding": {
+        "scope": "global",
+        "css_variable": "--motion-intensity"
+      }
     },
     {
-      "id": "connector_speed",
-      "name": "关系线速度",
-      "description": "控制流程、时间线和因果关系的绘制推进速度。",
-      "group": "运动",
-      "kind": "number",
-      "scope": "scene",
-      "default": 1,
-      "animatable": true,
-      "unit": "ratio",
-      "control": "slider",
-      "css_variable": "--connector-speed",
-      "constraints": {"minimum": 0.5, "maximum": 2, "step": 0.05}
+      "descriptor": {
+        "id": "connector_speed",
+        "label": "关系线速度",
+        "description": "控制流程、时间线和因果关系的绘制推进速度。",
+        "group": "运动",
+        "kind": "number",
+        "control": "slider",
+        "default": 1,
+        "unit": "ratio",
+        "constraints": {
+          "minimum": 0.5,
+          "maximum": 2,
+          "step": 0.05
+        },
+        "options_source": null,
+        "timeline": "keyframe"
+      },
+      "binding": {
+        "scope": "scene",
+        "css_variable": "--connector-speed"
+      }
     },
     {
-      "id": "stage_density",
-      "name": "舞台密度",
-      "description": "控制卡片间距和留白密度。",
-      "group": "布局",
-      "kind": "number",
-      "scope": "global",
-      "default": 1,
-      "animatable": false,
-      "unit": "ratio",
-      "control": "slider",
-      "css_variable": "--stage-density",
-      "constraints": {"minimum": 0.75, "maximum": 1.25, "step": 0.05}
+      "descriptor": {
+        "id": "stage_density",
+        "label": "舞台密度",
+        "description": "控制卡片间距和留白密度。",
+        "group": "布局",
+        "kind": "number",
+        "control": "slider",
+        "default": 1,
+        "unit": "ratio",
+        "constraints": {
+          "minimum": 0.75,
+          "maximum": 1.25,
+          "step": 0.05
+        },
+        "options_source": null,
+        "timeline": "none"
+      },
+      "binding": {
+        "scope": "global",
+        "css_variable": "--stage-density"
+      }
     }
   ],
   "scenes": [
@@ -128,12 +329,41 @@
       "duration_ms": 4500,
       "primary_blocks": 5,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "输入", "state_kind": "start", "review": true, "description": "先建立输入和流程起点。"},
-        {"id": "progress", "at_ms": 1500, "label": "执行", "state_kind": "change", "review": true, "description": "步骤按顺序接通，当前动作成为视觉焦点。"},
-        {"id": "result", "at_ms": 3000, "label": "结果", "state_kind": "result", "review": true, "description": "完整流程保持可读并停在输出结果。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "输入",
+          "state_kind": "start",
+          "review": true,
+          "description": "先建立输入和流程起点。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "执行",
+          "state_kind": "change",
+          "review": true,
+          "description": "步骤按顺序接通，当前动作成为视觉焦点。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "结果",
+          "state_kind": "result",
+          "review": true,
+          "description": "完整流程保持可读并停在输出结果。"
+        }
       ],
-      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "把步骤顺序、当前执行点和最终输出变成一条连续可读的流程。", "key_state_review": "none", "camera": null},
-      "parameters": {"connector_speed": 1},
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "把步骤顺序、当前执行点和最终输出变成一条连续可读的流程。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 1
+      },
       "data": {
         "title": "把混乱流程交给 AI",
         "subtitle": "每一步都有输入、动作和可观察输出",
@@ -141,11 +371,36 @@
         "right_title": "输出",
         "highlight_index": 3,
         "items": [
-          {"label": "收集", "detail": "材料", "value": 20, "group": "input"},
-          {"label": "理解", "detail": "目标", "value": 40, "group": "work"},
-          {"label": "执行", "detail": "任务", "value": 60, "group": "work"},
-          {"label": "检查", "detail": "结果", "value": 80, "group": "work"},
-          {"label": "交付", "detail": "成品", "value": 100, "group": "output"}
+          {
+            "label": "收集",
+            "detail": "材料",
+            "value": 20,
+            "group": "input"
+          },
+          {
+            "label": "理解",
+            "detail": "目标",
+            "value": 40,
+            "group": "work"
+          },
+          {
+            "label": "执行",
+            "detail": "任务",
+            "value": 60,
+            "group": "work"
+          },
+          {
+            "label": "检查",
+            "detail": "结果",
+            "value": 80,
+            "group": "work"
+          },
+          {
+            "label": "交付",
+            "detail": "成品",
+            "value": 100,
+            "group": "output"
+          }
         ],
         "links": []
       },
@@ -160,12 +415,41 @@
       "duration_ms": 4500,
       "primary_blocks": 4,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "过去", "state_kind": "start", "review": true, "description": "建立时间轴和起始阶段。"},
-        {"id": "progress", "at_ms": 1500, "label": "现在", "state_kind": "change", "review": true, "description": "时间游标推进到当前阶段。"},
-        {"id": "result", "at_ms": 3000, "label": "未来", "state_kind": "result", "review": true, "description": "全部阶段保持可比较，未来状态成为落点。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "过去",
+          "state_kind": "start",
+          "review": true,
+          "description": "建立时间轴和起始阶段。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "现在",
+          "state_kind": "change",
+          "review": true,
+          "description": "时间游标推进到当前阶段。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "未来",
+          "state_kind": "result",
+          "review": true,
+          "description": "全部阶段保持可比较，未来状态成为落点。"
+        }
       ],
-      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "让过去、现在和未来的结构变化沿同一时间轴发生。", "key_state_review": "none", "camera": null},
-      "parameters": {"connector_speed": 1.1},
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "让过去、现在和未来的结构变化沿同一时间轴发生。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 1.1
+      },
       "data": {
         "title": "从零散工具到可复用系统",
         "subtitle": "能力不是突然出现，而是一层层积累",
@@ -173,10 +457,30 @@
         "right_title": "未来",
         "highlight_index": 2,
         "items": [
-          {"label": "手工", "detail": "重复操作", "value": 15, "group": "past"},
-          {"label": "自动化", "detail": "单点提速", "value": 42, "group": "past"},
-          {"label": "工作流", "detail": "稳定复用", "value": 72, "group": "present"},
-          {"label": "系统", "detail": "持续进化", "value": 100, "group": "future"}
+          {
+            "label": "手工",
+            "detail": "重复操作",
+            "value": 15,
+            "group": "past"
+          },
+          {
+            "label": "自动化",
+            "detail": "单点提速",
+            "value": 42,
+            "group": "past"
+          },
+          {
+            "label": "工作流",
+            "detail": "稳定复用",
+            "value": 72,
+            "group": "present"
+          },
+          {
+            "label": "系统",
+            "detail": "持续进化",
+            "value": 100,
+            "group": "future"
+          }
         ],
         "links": []
       },
@@ -191,12 +495,41 @@
       "duration_ms": 4500,
       "primary_blocks": 4,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "底座", "state_kind": "start", "review": true, "description": "先显示最底层基础。"},
-        {"id": "progress", "at_ms": 1500, "label": "能力", "state_kind": "change", "review": true, "description": "工具和工作流依赖底座逐层建立。"},
-        {"id": "result", "at_ms": 3000, "label": "结果", "state_kind": "result", "review": true, "description": "全部层级稳定，顶层结果可追溯到底座。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "底座",
+          "state_kind": "start",
+          "review": true,
+          "description": "先显示最底层基础。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "能力",
+          "state_kind": "change",
+          "review": true,
+          "description": "工具和工作流依赖底座逐层建立。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "结果",
+          "state_kind": "result",
+          "review": true,
+          "description": "全部层级稳定，顶层结果可追溯到底座。"
+        }
       ],
-      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "把底层能力、工具、工作流和最终结果的依赖关系逐层建立。", "key_state_review": "none", "camera": null},
-      "parameters": {"connector_speed": 0.9},
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "把底层能力、工具、工作流和最终结果的依赖关系逐层建立。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 0.9
+      },
       "data": {
         "title": "真正的系统自由有四层",
         "subtitle": "越往上越接近结果，越往下越决定稳定性",
@@ -204,10 +537,30 @@
         "right_title": "结果",
         "highlight_index": 3,
         "items": [
-          {"label": "底层能力", "detail": "理解与判断", "value": 100, "group": "foundation"},
-          {"label": "工具", "detail": "可替换执行器", "value": 84, "group": "tool"},
-          {"label": "工作流", "detail": "稳定生产", "value": 68, "group": "workflow"},
-          {"label": "结果", "detail": "持续交付", "value": 52, "group": "result"}
+          {
+            "label": "底层能力",
+            "detail": "理解与判断",
+            "value": 100,
+            "group": "foundation"
+          },
+          {
+            "label": "工具",
+            "detail": "可替换执行器",
+            "value": 84,
+            "group": "tool"
+          },
+          {
+            "label": "工作流",
+            "detail": "稳定生产",
+            "value": 68,
+            "group": "workflow"
+          },
+          {
+            "label": "结果",
+            "detail": "持续交付",
+            "value": 52,
+            "group": "result"
+          }
         ],
         "links": []
       },
@@ -222,12 +575,41 @@
       "duration_ms": 4500,
       "primary_blocks": 4,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "原因", "state_kind": "start", "review": true, "description": "先显示最早原因。"},
-        {"id": "progress", "at_ms": 1500, "label": "传导", "state_kind": "change", "review": true, "description": "影响沿因果链传播并形成结果。"},
-        {"id": "result", "at_ms": 3000, "label": "反馈", "state_kind": "result", "review": true, "description": "结果返回起点，完整反馈循环保持可读。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "原因",
+          "state_kind": "start",
+          "review": true,
+          "description": "先显示最早原因。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "传导",
+          "state_kind": "change",
+          "review": true,
+          "description": "影响沿因果链传播并形成结果。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "反馈",
+          "state_kind": "result",
+          "review": true,
+          "description": "结果返回起点，完整反馈循环保持可读。"
+        }
       ],
-      "motion": {"complexity": "complex", "driver": "object", "semantic_purpose": "让原因、行动、结果与反馈之间的方向和累积关系可见。", "key_state_review": "required", "camera": null},
-      "parameters": {"connector_speed": 1.15},
+      "motion": {
+        "complexity": "complex",
+        "driver": "object",
+        "semantic_purpose": "让原因、行动、结果与反馈之间的方向和累积关系可见。",
+        "key_state_review": "required",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 1.15
+      },
       "data": {
         "title": "工具焦虑为什么会越用越重",
         "subtitle": "问题不在工具数量，而在反馈没有进入系统",
@@ -235,10 +617,30 @@
         "right_title": "反馈",
         "highlight_index": 3,
         "items": [
-          {"label": "追新工具", "detail": "短期兴奋", "value": 20, "group": "cause"},
-          {"label": "流程变化", "detail": "重新适应", "value": 45, "group": "action"},
-          {"label": "结果波动", "detail": "难以复用", "value": 70, "group": "result"},
-          {"label": "继续追新", "detail": "焦虑增强", "value": 100, "group": "feedback"}
+          {
+            "label": "追新工具",
+            "detail": "短期兴奋",
+            "value": 20,
+            "group": "cause"
+          },
+          {
+            "label": "流程变化",
+            "detail": "重新适应",
+            "value": 45,
+            "group": "action"
+          },
+          {
+            "label": "结果波动",
+            "detail": "难以复用",
+            "value": 70,
+            "group": "result"
+          },
+          {
+            "label": "继续追新",
+            "detail": "焦虑增强",
+            "value": 100,
+            "group": "feedback"
+          }
         ],
         "links": []
       },
@@ -253,12 +655,41 @@
       "duration_ms": 4500,
       "primary_blocks": 5,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "输入", "state_kind": "start", "review": true, "description": "建立真实输入。"},
-        {"id": "progress", "at_ms": 1500, "label": "工具链", "state_kind": "change", "review": true, "description": "工具依次处理输入但不改变内容真源。"},
-        {"id": "result", "at_ms": 3000, "label": "输出", "state_kind": "result", "review": true, "description": "输出成品和可编辑真源同时成立。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "输入",
+          "state_kind": "start",
+          "review": true,
+          "description": "建立真实输入。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "工具链",
+          "state_kind": "change",
+          "review": true,
+          "description": "工具依次处理输入但不改变内容真源。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "输出",
+          "state_kind": "result",
+          "review": true,
+          "description": "输出成品和可编辑真源同时成立。"
+        }
       ],
-      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "把输入经过多个工具仍保持来源和职责清楚的转换链展示出来。", "key_state_review": "none", "camera": null},
-      "parameters": {"connector_speed": 1},
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "把输入经过多个工具仍保持来源和职责清楚的转换链展示出来。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 1
+      },
       "data": {
         "title": "一条生产线，不是一堆工具",
         "subtitle": "输入经过不同执行器，最终仍回到同一个可编辑结果",
@@ -266,11 +697,36 @@
         "right_title": "输出",
         "highlight_index": 4,
         "items": [
-          {"label": "确认内容", "detail": "唯一真源", "value": 20, "group": "input"},
-          {"label": "导演", "detail": "画面职责", "value": 40, "group": "tool"},
-          {"label": "模板", "detail": "关系可视化", "value": 60, "group": "tool"},
-          {"label": "编辑器", "detail": "装配与精调", "value": 80, "group": "tool"},
-          {"label": "成片", "detail": "可看可改", "value": 100, "group": "output"}
+          {
+            "label": "确认内容",
+            "detail": "唯一真源",
+            "value": 20,
+            "group": "input"
+          },
+          {
+            "label": "导演",
+            "detail": "画面职责",
+            "value": 40,
+            "group": "tool"
+          },
+          {
+            "label": "模板",
+            "detail": "关系可视化",
+            "value": 60,
+            "group": "tool"
+          },
+          {
+            "label": "编辑器",
+            "detail": "装配与精调",
+            "value": 80,
+            "group": "tool"
+          },
+          {
+            "label": "成片",
+            "detail": "可看可改",
+            "value": 100,
+            "group": "output"
+          }
         ],
         "links": []
       },
@@ -285,12 +741,41 @@
       "duration_ms": 4500,
       "primary_blocks": 4,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "标准", "state_kind": "start", "review": true, "description": "先建立两条决策轴。"},
-        {"id": "progress", "at_ms": 1500, "label": "比较", "state_kind": "change", "review": true, "description": "候选进入不同象限并保持同时可读。"},
-        {"id": "result", "at_ms": 3000, "label": "选择", "state_kind": "result", "review": true, "description": "推荐象限和最终选择被明确强调。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "标准",
+          "state_kind": "start",
+          "review": true,
+          "description": "先建立两条决策轴。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "比较",
+          "state_kind": "change",
+          "review": true,
+          "description": "候选进入不同象限并保持同时可读。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "选择",
+          "state_kind": "result",
+          "review": true,
+          "description": "推荐象限和最终选择被明确强调。"
+        }
       ],
-      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "让多个候选在相同标准下同时比较并形成明确选择。", "key_state_review": "none", "camera": null},
-      "parameters": {"connector_speed": 0.85},
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "让多个候选在相同标准下同时比较并形成明确选择。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 0.85
+      },
       "data": {
         "title": "什么时候该做动画模板",
         "subtitle": "价值越高、复用越多，越值得进入活动生产链",
@@ -298,10 +783,30 @@
         "right_title": "高复用",
         "highlight_index": 3,
         "items": [
-          {"label": "临时截图", "detail": "低价值", "value": 20, "group": "low-low"},
-          {"label": "一次动效", "detail": "高表现", "value": 48, "group": "high-low"},
-          {"label": "静态模板", "detail": "可复用", "value": 72, "group": "low-high"},
-          {"label": "活动模板", "detail": "高价值高复用", "value": 100, "group": "high-high"}
+          {
+            "label": "临时截图",
+            "detail": "低价值",
+            "value": 20,
+            "group": "low-low"
+          },
+          {
+            "label": "一次动效",
+            "detail": "高表现",
+            "value": 48,
+            "group": "high-low"
+          },
+          {
+            "label": "静态模板",
+            "detail": "可复用",
+            "value": 72,
+            "group": "low-high"
+          },
+          {
+            "label": "活动模板",
+            "detail": "高价值高复用",
+            "value": 100,
+            "group": "high-high"
+          }
         ],
         "links": []
       },
@@ -316,12 +821,41 @@
       "duration_ms": 4500,
       "primary_blocks": 5,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "概念", "state_kind": "start", "review": true, "description": "先显示完整但抽象的概念。"},
-        {"id": "progress", "at_ms": 1500, "label": "拆解", "state_kind": "change", "review": true, "description": "概念拆成能够分别理解的组成部分。"},
-        {"id": "result", "at_ms": 3000, "label": "组装", "state_kind": "result", "review": true, "description": "组成部分重新连接成可操作系统。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "概念",
+          "state_kind": "start",
+          "review": true,
+          "description": "先显示完整但抽象的概念。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "拆解",
+          "state_kind": "change",
+          "review": true,
+          "description": "概念拆成能够分别理解的组成部分。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "组装",
+          "state_kind": "result",
+          "review": true,
+          "description": "组成部分重新连接成可操作系统。"
+        }
       ],
-      "motion": {"complexity": "complex", "driver": "object", "semantic_purpose": "把一个抽象概念拆成组成部分，再让这些部分形成具体系统。", "key_state_review": "required", "camera": null},
-      "parameters": {"connector_speed": 1.05},
+      "motion": {
+        "complexity": "complex",
+        "driver": "object",
+        "semantic_purpose": "把一个抽象概念拆成组成部分，再让这些部分形成具体系统。",
+        "key_state_review": "required",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 1.05
+      },
       "data": {
         "title": "“AI 系统”到底由什么组成",
         "subtitle": "拆开后才能看见每一部分如何共同产生结果",
@@ -329,11 +863,36 @@
         "right_title": "组装",
         "highlight_index": 4,
         "items": [
-          {"label": "内容真源", "detail": "说什么", "value": 20, "group": "part"},
-          {"label": "判断", "detail": "怎么选", "value": 40, "group": "part"},
-          {"label": "执行器", "detail": "怎么做", "value": 60, "group": "part"},
-          {"label": "验证", "detail": "是否成立", "value": 80, "group": "part"},
-          {"label": "可复用系统", "detail": "持续交付", "value": 100, "group": "whole"}
+          {
+            "label": "内容真源",
+            "detail": "说什么",
+            "value": 20,
+            "group": "part"
+          },
+          {
+            "label": "判断",
+            "detail": "怎么选",
+            "value": 40,
+            "group": "part"
+          },
+          {
+            "label": "执行器",
+            "detail": "怎么做",
+            "value": 60,
+            "group": "part"
+          },
+          {
+            "label": "验证",
+            "detail": "是否成立",
+            "value": 80,
+            "group": "part"
+          },
+          {
+            "label": "可复用系统",
+            "detail": "持续交付",
+            "value": 100,
+            "group": "whole"
+          }
         ],
         "links": []
       },
@@ -348,12 +907,41 @@
       "duration_ms": 4500,
       "primary_blocks": 5,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "基线", "state_kind": "start", "review": true, "description": "显示可比较的基线。"},
-        {"id": "progress", "at_ms": 1500, "label": "变化", "state_kind": "change", "review": true, "description": "各项指标按真实数值生长并重排。"},
-        {"id": "result", "at_ms": 3000, "label": "结论", "state_kind": "result", "review": true, "description": "最终排名和关键指标保持可读。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "基线",
+          "state_kind": "start",
+          "review": true,
+          "description": "显示可比较的基线。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "变化",
+          "state_kind": "change",
+          "review": true,
+          "description": "各项指标按真实数值生长并重排。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "结论",
+          "state_kind": "result",
+          "review": true,
+          "description": "最终排名和关键指标保持可读。"
+        }
       ],
-      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "让数值变化、相对排名和关键指标在同一画面中形成结论。", "key_state_review": "none", "camera": null},
-      "parameters": {"connector_speed": 1.2},
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "让数值变化、相对排名和关键指标在同一画面中形成结论。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 1.2
+      },
       "data": {
         "title": "从两天缩短到两小时",
         "subtitle": "时间节省必须和仍然保留的质量职责一起看",
@@ -361,11 +949,36 @@
         "right_title": "结果",
         "highlight_index": 0,
         "items": [
-          {"label": "制作时间", "detail": "2 小时", "value": 92, "group": "kpi"},
-          {"label": "可编辑性", "detail": "完整保留", "value": 86, "group": "kpi"},
-          {"label": "模板覆盖", "detail": "10 类", "value": 78, "group": "kpi"},
-          {"label": "真实验证", "detail": "端到端", "value": 71, "group": "kpi"},
-          {"label": "返工次数", "detail": "下降", "value": 58, "group": "kpi"}
+          {
+            "label": "制作时间",
+            "detail": "2 小时",
+            "value": 92,
+            "group": "kpi"
+          },
+          {
+            "label": "可编辑性",
+            "detail": "完整保留",
+            "value": 86,
+            "group": "kpi"
+          },
+          {
+            "label": "模板覆盖",
+            "detail": "10 类",
+            "value": 78,
+            "group": "kpi"
+          },
+          {
+            "label": "真实验证",
+            "detail": "端到端",
+            "value": 71,
+            "group": "kpi"
+          },
+          {
+            "label": "返工次数",
+            "detail": "下降",
+            "value": 58,
+            "group": "kpi"
+          }
         ],
         "links": []
       },
@@ -380,12 +993,41 @@
       "duration_ms": 4500,
       "primary_blocks": 2,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "之前", "state_kind": "start", "review": true, "description": "先保留能够核对的问题状态。"},
-        {"id": "progress", "at_ms": 1500, "label": "变化", "state_kind": "change", "review": true, "description": "分界线移动，变化过程直接可见。"},
-        {"id": "result", "at_ms": 3000, "label": "之后", "state_kind": "result", "review": true, "description": "前后证据同时保留，结果和变化原因都能辨认。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "之前",
+          "state_kind": "start",
+          "review": true,
+          "description": "先保留能够核对的问题状态。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "变化",
+          "state_kind": "change",
+          "review": true,
+          "description": "分界线移动，变化过程直接可见。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "之后",
+          "state_kind": "result",
+          "review": true,
+          "description": "前后证据同时保留，结果和变化原因都能辨认。"
+        }
       ],
-      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "把同一对象的前后状态并列，并让真正发生的变化成为画面中心。", "key_state_review": "none", "camera": null},
-      "parameters": {"connector_speed": 0.95},
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "把同一对象的前后状态并列，并让真正发生的变化成为画面中心。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 0.95
+      },
       "data": {
         "title": "从工具堆积到系统生产",
         "subtitle": "同样使用 AI，结果差异来自流程是否能持续复用",
@@ -393,8 +1035,18 @@
         "right_title": "之后",
         "highlight_index": 1,
         "items": [
-          {"label": "临时拼接", "detail": "每次重新开始", "value": 35, "group": "before"},
-          {"label": "系统生产", "detail": "真源、模板和验证接通", "value": 92, "group": "after"}
+          {
+            "label": "临时拼接",
+            "detail": "每次重新开始",
+            "value": 35,
+            "group": "before"
+          },
+          {
+            "label": "系统生产",
+            "detail": "真源、模板和验证接通",
+            "value": 92,
+            "group": "after"
+          }
         ],
         "links": []
       },
@@ -409,12 +1061,41 @@
       "duration_ms": 4500,
       "primary_blocks": 3,
       "steps": [
-        {"id": "start", "at_ms": 0, "label": "主体", "state_kind": "start", "review": true, "description": "先建立主要画面职责。"},
-        {"id": "progress", "at_ms": 1500, "label": "并列", "state_kind": "change", "review": true, "description": "人物与解释画面按布局职责同时成立。"},
-        {"id": "result", "at_ms": 3000, "label": "稳定", "state_kind": "result", "review": true, "description": "最终布局保持文字、人物和叠加边界可读。"}
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "主体",
+          "state_kind": "start",
+          "review": true,
+          "description": "先建立主要画面职责。"
+        },
+        {
+          "id": "progress",
+          "at_ms": 1500,
+          "label": "并列",
+          "state_kind": "change",
+          "review": true,
+          "description": "人物与解释画面按布局职责同时成立。"
+        },
+        {
+          "id": "result",
+          "at_ms": 3000,
+          "label": "稳定",
+          "state_kind": "result",
+          "review": true,
+          "description": "最终布局保持文字、人物和叠加边界可读。"
+        }
       ],
-      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "让同一解释画面能够按全屏、真人分屏或透明叠加进入视频。", "key_state_review": "none", "camera": null},
-      "parameters": {"connector_speed": 0.8},
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "让同一解释画面能够按全屏、真人分屏或透明叠加进入视频。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {
+        "connector_speed": 0.8
+      },
       "data": {
         "title": "同一模板适配三种视频布局",
         "subtitle": "内容关系不变，只改变画面职责和占用空间",
@@ -422,9 +1103,24 @@
         "right_title": "解释画面",
         "highlight_index": 2,
         "items": [
-          {"label": "全屏", "detail": "图解承担主要表达", "value": 33, "group": "layout"},
-          {"label": "真人分屏", "detail": "人物与证据并列", "value": 66, "group": "layout"},
-          {"label": "透明叠加", "detail": "覆盖到真实底片", "value": 100, "group": "layout"}
+          {
+            "label": "全屏",
+            "detail": "图解承担主要表达",
+            "value": 33,
+            "group": "layout"
+          },
+          {
+            "label": "真人分屏",
+            "detail": "人物与证据并列",
+            "value": 66,
+            "group": "layout"
+          },
+          {
+            "label": "透明叠加",
+            "detail": "覆盖到真实底片",
+            "value": 100,
+            "group": "layout"
+          }
         ],
         "links": []
       },
@@ -435,17 +1131,45 @@
     {
       "id": "explanatory-stage",
       "name": "Explanatory diagram stage",
-      "page_roles": ["explanation", "video-layout"],
-      "content_shapes": [
-        "ordered-process", "phase-timeline", "layered-framework", "causal-loop",
-        "input-output-toolchain", "comparison-matrix", "decompose-assemble",
-        "metric-dashboard", "evidence-before-after", "explanatory-layout-shell"
+      "page_roles": [
+        "explanation",
+        "video-layout"
       ],
-      "required_data_fields": ["title", "subtitle", "left_title", "right_title", "highlight_index", "items"],
-      "required_layer_ids": ["title", "subtitle", "diagram-stage"],
-      "title_layer_ids": ["title"],
-      "content_layer_ids": ["subtitle", "diagram-stage"],
-      "capacity": {"maximum_primary_blocks": 8},
+      "content_shapes": [
+        "ordered-process",
+        "phase-timeline",
+        "layered-framework",
+        "causal-loop",
+        "input-output-toolchain",
+        "comparison-matrix",
+        "decompose-assemble",
+        "metric-dashboard",
+        "evidence-before-after",
+        "explanatory-layout-shell"
+      ],
+      "required_data_fields": [
+        "title",
+        "subtitle",
+        "left_title",
+        "right_title",
+        "highlight_index",
+        "items"
+      ],
+      "required_layer_ids": [
+        "title",
+        "subtitle",
+        "diagram-stage"
+      ],
+      "title_layer_ids": [
+        "title"
+      ],
+      "content_layer_ids": [
+        "subtitle",
+        "diagram-stage"
+      ],
+      "capacity": {
+        "maximum_primary_blocks": 8
+      },
       "asset_slots": []
     }
   ],
@@ -453,120 +1177,420 @@
     {
       "id": "landscape-full",
       "name": "Landscape full frame",
-      "canvas": {"width": 1920, "height": 1080, "background_mode": "opaque", "background_color": "#11131a"},
+      "canvas": {
+        "width": 1920,
+        "height": 1080,
+        "background_mode": "opaque",
+        "background_color": "#11131a"
+      },
       "layers": {
-        "title": {"x": 96, "y": 72, "width": 1728, "height": 92, "font_size": 56},
-        "subtitle": {"x": 96, "y": 174, "width": 1500, "height": 62, "font_size": 26},
-        "diagram-stage": {"x": 96, "y": 272, "width": 1728, "height": 710},
-        "presenter-slot": {"x": 0, "y": 0, "width": 1, "height": 1, "visible": false}
+        "title": {
+          "x": 96,
+          "y": 72,
+          "width": 1728,
+          "height": 92,
+          "font_size": 56
+        },
+        "subtitle": {
+          "x": 96,
+          "y": 174,
+          "width": 1500,
+          "height": 62,
+          "font_size": 26
+        },
+        "diagram-stage": {
+          "x": 96,
+          "y": 272,
+          "width": 1728,
+          "height": 710
+        },
+        "presenter-slot": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "visible": false
+        }
       }
     },
     {
       "id": "portrait-full",
       "name": "Portrait full frame",
-      "canvas": {"width": 1080, "height": 1920, "background_mode": "opaque", "background_color": "#11131a"},
+      "canvas": {
+        "width": 1080,
+        "height": 1920,
+        "background_mode": "opaque",
+        "background_color": "#11131a"
+      },
       "layers": {
-        "title": {"x": 64, "y": 104, "width": 952, "height": 164, "font_size": 62},
-        "subtitle": {"x": 64, "y": 294, "width": 900, "height": 110, "font_size": 30},
-        "diagram-stage": {"x": 64, "y": 480, "width": 952, "height": 1328},
-        "presenter-slot": {"x": 0, "y": 0, "width": 1, "height": 1, "visible": false}
+        "title": {
+          "x": 64,
+          "y": 104,
+          "width": 952,
+          "height": 164,
+          "font_size": 62
+        },
+        "subtitle": {
+          "x": 64,
+          "y": 294,
+          "width": 900,
+          "height": 110,
+          "font_size": 30
+        },
+        "diagram-stage": {
+          "x": 64,
+          "y": 480,
+          "width": 952,
+          "height": 1328
+        },
+        "presenter-slot": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "visible": false
+        }
       }
     },
     {
       "id": "square-full",
       "name": "Square full frame",
-      "canvas": {"width": 1080, "height": 1080, "background_mode": "opaque", "background_color": "#11131a"},
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background_mode": "opaque",
+        "background_color": "#11131a"
+      },
       "layers": {
-        "title": {"x": 56, "y": 54, "width": 968, "height": 112, "font_size": 48},
-        "subtitle": {"x": 56, "y": 174, "width": 920, "height": 72, "font_size": 24},
-        "diagram-stage": {"x": 56, "y": 280, "width": 968, "height": 744},
-        "presenter-slot": {"x": 0, "y": 0, "width": 1, "height": 1, "visible": false}
+        "title": {
+          "x": 56,
+          "y": 54,
+          "width": 968,
+          "height": 112,
+          "font_size": 48
+        },
+        "subtitle": {
+          "x": 56,
+          "y": 174,
+          "width": 920,
+          "height": 72,
+          "font_size": 24
+        },
+        "diagram-stage": {
+          "x": 56,
+          "y": 280,
+          "width": 968,
+          "height": 744
+        },
+        "presenter-slot": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "visible": false
+        }
       }
     },
     {
       "id": "landscape-presenter-split",
       "name": "Landscape presenter split",
-      "canvas": {"width": 1920, "height": 1080, "background_mode": "transparent", "background_color": "#00000000"},
+      "canvas": {
+        "width": 1920,
+        "height": 1080,
+        "background_mode": "transparent",
+        "background_color": "#00000000"
+      },
       "layers": {
-        "title": {"x": 790, "y": 86, "width": 1034, "height": 92, "font_size": 50},
-        "subtitle": {"x": 790, "y": 184, "width": 980, "height": 68, "font_size": 24},
-        "diagram-stage": {"x": 790, "y": 292, "width": 1034, "height": 672},
-        "presenter-slot": {"x": 72, "y": 72, "width": 640, "height": 936, "visible": true}
+        "title": {
+          "x": 790,
+          "y": 86,
+          "width": 1034,
+          "height": 92,
+          "font_size": 50
+        },
+        "subtitle": {
+          "x": 790,
+          "y": 184,
+          "width": 980,
+          "height": 68,
+          "font_size": 24
+        },
+        "diagram-stage": {
+          "x": 790,
+          "y": 292,
+          "width": 1034,
+          "height": 672
+        },
+        "presenter-slot": {
+          "x": 72,
+          "y": 72,
+          "width": 640,
+          "height": 936,
+          "visible": true
+        }
       }
     },
     {
       "id": "portrait-presenter-split",
       "name": "Portrait presenter split",
-      "canvas": {"width": 1080, "height": 1920, "background_mode": "transparent", "background_color": "#00000000"},
+      "canvas": {
+        "width": 1080,
+        "height": 1920,
+        "background_mode": "transparent",
+        "background_color": "#00000000"
+      },
       "layers": {
-        "title": {"x": 64, "y": 852, "width": 952, "height": 138, "font_size": 54},
-        "subtitle": {"x": 64, "y": 1008, "width": 920, "height": 94, "font_size": 28},
-        "diagram-stage": {"x": 64, "y": 1140, "width": 952, "height": 700},
-        "presenter-slot": {"x": 64, "y": 64, "width": 952, "height": 700, "visible": true}
+        "title": {
+          "x": 64,
+          "y": 852,
+          "width": 952,
+          "height": 138,
+          "font_size": 54
+        },
+        "subtitle": {
+          "x": 64,
+          "y": 1008,
+          "width": 920,
+          "height": 94,
+          "font_size": 28
+        },
+        "diagram-stage": {
+          "x": 64,
+          "y": 1140,
+          "width": 952,
+          "height": 700
+        },
+        "presenter-slot": {
+          "x": 64,
+          "y": 64,
+          "width": 952,
+          "height": 700,
+          "visible": true
+        }
       }
     },
     {
       "id": "square-presenter-split",
       "name": "Square presenter split",
-      "canvas": {"width": 1080, "height": 1080, "background_mode": "transparent", "background_color": "#00000000"},
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background_mode": "transparent",
+        "background_color": "#00000000"
+      },
       "layers": {
-        "title": {"x": 510, "y": 62, "width": 514, "height": 122, "font_size": 42},
-        "subtitle": {"x": 510, "y": 194, "width": 500, "height": 76, "font_size": 22},
-        "diagram-stage": {"x": 510, "y": 302, "width": 514, "height": 716},
-        "presenter-slot": {"x": 46, "y": 46, "width": 402, "height": 988, "visible": true}
+        "title": {
+          "x": 510,
+          "y": 62,
+          "width": 514,
+          "height": 122,
+          "font_size": 42
+        },
+        "subtitle": {
+          "x": 510,
+          "y": 194,
+          "width": 500,
+          "height": 76,
+          "font_size": 22
+        },
+        "diagram-stage": {
+          "x": 510,
+          "y": 302,
+          "width": 514,
+          "height": 716
+        },
+        "presenter-slot": {
+          "x": 46,
+          "y": 46,
+          "width": 402,
+          "height": 988,
+          "visible": true
+        }
       }
     },
     {
       "id": "landscape-transparent-overlay",
       "name": "Landscape transparent overlay",
-      "canvas": {"width": 1920, "height": 1080, "background_mode": "transparent", "background_color": "#00000000"},
+      "canvas": {
+        "width": 1920,
+        "height": 1080,
+        "background_mode": "transparent",
+        "background_color": "#00000000"
+      },
       "layers": {
-        "title": {"x": 128, "y": 636, "width": 1040, "height": 82, "font_size": 46},
-        "subtitle": {"x": 128, "y": 726, "width": 980, "height": 58, "font_size": 23},
-        "diagram-stage": {"x": 1120, "y": 590, "width": 690, "height": 390},
-        "presenter-slot": {"x": 0, "y": 0, "width": 1, "height": 1, "visible": false}
+        "title": {
+          "x": 128,
+          "y": 636,
+          "width": 1040,
+          "height": 82,
+          "font_size": 46
+        },
+        "subtitle": {
+          "x": 128,
+          "y": 726,
+          "width": 980,
+          "height": 58,
+          "font_size": 23
+        },
+        "diagram-stage": {
+          "x": 1120,
+          "y": 590,
+          "width": 690,
+          "height": 390
+        },
+        "presenter-slot": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "visible": false
+        }
       }
     },
     {
       "id": "portrait-transparent-overlay",
       "name": "Portrait transparent overlay",
-      "canvas": {"width": 1080, "height": 1920, "background_mode": "transparent", "background_color": "#00000000"},
+      "canvas": {
+        "width": 1080,
+        "height": 1920,
+        "background_mode": "transparent",
+        "background_color": "#00000000"
+      },
       "layers": {
-        "title": {"x": 62, "y": 1250, "width": 956, "height": 124, "font_size": 50},
-        "subtitle": {"x": 62, "y": 1392, "width": 920, "height": 82, "font_size": 26},
-        "diagram-stage": {"x": 62, "y": 1500, "width": 956, "height": 350},
-        "presenter-slot": {"x": 0, "y": 0, "width": 1, "height": 1, "visible": false}
+        "title": {
+          "x": 62,
+          "y": 1250,
+          "width": 956,
+          "height": 124,
+          "font_size": 50
+        },
+        "subtitle": {
+          "x": 62,
+          "y": 1392,
+          "width": 920,
+          "height": 82,
+          "font_size": 26
+        },
+        "diagram-stage": {
+          "x": 62,
+          "y": 1500,
+          "width": 956,
+          "height": 350
+        },
+        "presenter-slot": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "visible": false
+        }
       }
     },
     {
       "id": "square-transparent-overlay",
       "name": "Square transparent overlay",
-      "canvas": {"width": 1080, "height": 1080, "background_mode": "transparent", "background_color": "#00000000"},
+      "canvas": {
+        "width": 1080,
+        "height": 1080,
+        "background_mode": "transparent",
+        "background_color": "#00000000"
+      },
       "layers": {
-        "title": {"x": 54, "y": 590, "width": 972, "height": 108, "font_size": 44},
-        "subtitle": {"x": 54, "y": 708, "width": 930, "height": 70, "font_size": 23},
-        "diagram-stage": {"x": 54, "y": 804, "width": 972, "height": 222},
-        "presenter-slot": {"x": 0, "y": 0, "width": 1, "height": 1, "visible": false}
+        "title": {
+          "x": 54,
+          "y": 590,
+          "width": 972,
+          "height": 108,
+          "font_size": 44
+        },
+        "subtitle": {
+          "x": 54,
+          "y": 708,
+          "width": 930,
+          "height": 70,
+          "font_size": 23
+        },
+        "diagram-stage": {
+          "x": 54,
+          "y": 804,
+          "width": 972,
+          "height": 222
+        },
+        "presenter-slot": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 1,
+          "visible": false
+        }
       }
     }
   ],
   "default_variant_id": "landscape-full",
   "data_fields": [
-    {"id": "title", "name": "标题", "kind": "string", "default": "解释型 B-roll"},
-    {"id": "subtitle", "name": "说明", "kind": "string", "default": "用内容关系决定画面结构"},
-    {"id": "left_title", "name": "左侧标签", "kind": "string", "default": "输入"},
-    {"id": "right_title", "name": "右侧标签", "kind": "string", "default": "结果"},
-    {"id": "highlight_index", "name": "强调条目", "kind": "number", "default": 0},
+    {
+      "id": "title",
+      "name": "标题",
+      "kind": "string",
+      "default": "解释型 B-roll"
+    },
+    {
+      "id": "subtitle",
+      "name": "说明",
+      "kind": "string",
+      "default": "用内容关系决定画面结构"
+    },
+    {
+      "id": "left_title",
+      "name": "左侧标签",
+      "kind": "string",
+      "default": "输入"
+    },
+    {
+      "id": "right_title",
+      "name": "右侧标签",
+      "kind": "string",
+      "default": "结果"
+    },
+    {
+      "id": "highlight_index",
+      "name": "强调条目",
+      "kind": "number",
+      "default": 0
+    },
     {
       "id": "items",
       "name": "内容条目",
       "kind": "table",
-      "default": [{"label": "起点", "detail": "说明", "value": 50, "group": "default"}],
+      "default": [
+        {
+          "label": "起点",
+          "detail": "说明",
+          "value": 50,
+          "group": "default"
+        }
+      ],
       "columns": [
-        {"id": "label", "name": "名称", "kind": "string"},
-        {"id": "detail", "name": "说明", "kind": "string"},
-        {"id": "value", "name": "数值", "kind": "number"},
-        {"id": "group", "name": "分组", "kind": "string"}
+        {
+          "id": "label",
+          "name": "名称",
+          "kind": "string"
+        },
+        {
+          "id": "detail",
+          "name": "说明",
+          "kind": "string"
+        },
+        {
+          "id": "value",
+          "name": "数值",
+          "kind": "number"
+        },
+        {
+          "id": "group",
+          "name": "分组",
+          "kind": "string"
+        }
       ]
     },
     {
@@ -575,20 +1599,56 @@
       "kind": "table",
       "default": [],
       "columns": [
-        {"id": "from", "name": "起点", "kind": "string"},
-        {"id": "to", "name": "终点", "kind": "string"},
-        {"id": "label", "name": "关系", "kind": "string"}
+        {
+          "id": "from",
+          "name": "起点",
+          "kind": "string"
+        },
+        {
+          "id": "to",
+          "name": "终点",
+          "kind": "string"
+        },
+        {
+          "id": "label",
+          "name": "关系",
+          "kind": "string"
+        }
       ]
     }
   ],
   "quality": {
     "canvas_selector": "#mediaCanvas",
-    "roundtrip": {"data_field": "title", "layer_id": "title"},
-    "required_layer_ids": ["title", "subtitle", "diagram-stage"],
+    "roundtrip": {
+      "data_field": "title",
+      "layer_id": "title"
+    },
+    "required_layer_ids": [
+      "title",
+      "subtitle",
+      "diagram-stage"
+    ],
     "bounds_tolerance_px": 1,
-    "minimum_font_px": {"title": 26, "subtitle": 18},
-    "allow_overflow_layer_ids": ["diagram-stage", "presenter-slot"]
+    "minimum_font_px": {
+      "title": 26,
+      "subtitle": 18
+    },
+    "allow_overflow_layer_ids": [
+      "diagram-stage",
+      "presenter-slot"
+    ]
   },
-  "delivery": {"preview": "local-server", "remote_dependencies": "forbid"},
-  "resources": ["editable-media-runtime.js", "variant-layout.css"]
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": [
+    "editable-media-runtime.js",
+    "variant-layout.css"
+  ],
+  "frame_readiness": {
+    "default_timeout_ms": 10000,
+    "maximum_timeout_ms": 30000,
+    "retry_limit": 1
+  }
 }

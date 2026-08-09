@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "visual-multimedia.media-project-state.v3",
   "title": "Visual Multimedia Media Project State v3",
+  "description": "Tracks production stages, approvals, decisions, artifact hashes, blockers, and next actions across rounds. It is not an editor-native project or timeline; when MediaFlow Pro is active, project.mfp remains the sole source of editor state, assets, timeline revisions, and operation history.",
   "type": "object",
   "additionalProperties": false,
   "required": [

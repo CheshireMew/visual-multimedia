@@ -160,7 +160,7 @@ function checkManifest(manifestPath) {
   );
 
   if (manifest.protocol !== "editable-media") fail(`${manifestPath} 缺少 editable-media protocol`);
-  if (manifest.version !== 5) fail(`${manifestPath} 必须使用 editable-media v5`);
+  if (manifest.version !== 6) fail(`${manifestPath} 必须使用 editable-media v6`);
   for (const legacyField of ["canvas", "timeline", "layouts", "default_layout_id"]) {
     if (Object.prototype.hasOwnProperty.call(manifest, legacyField)) {
       fail(`${manifestPath} 仍保留旧字段 ${legacyField}`);
@@ -365,7 +365,7 @@ const starterManifest = ensurePath("assets/web-media-starter/editable-media.json
 checkManifest(starterManifest);
 
 for (const schema of [
-  "schemas/editable-media.v5.schema.json",
+  "schemas/editable-media.v6.schema.json",
   "schemas/text-motion.v1.schema.json",
   "schemas/media-sources.v3.schema.json",
   "schemas/media-resource-library.v1.schema.json",
@@ -694,6 +694,27 @@ const starterRuntimeHash = sha256File(starterRuntime);
 if (!fs.readFileSync(starterRuntime, "utf8").includes("getCamera")) {
   fail("网页通用运行时没有暴露确定性 getCamera 接口");
 }
+const reactStarterRoot = ensurePath("assets/react-media-starter");
+const reactDistRoot = ensurePath("assets/react-media-starter/dist");
+const reactDistManifest = ensurePath("assets/react-media-starter/dist/editable-media.json");
+checkManifest(reactDistManifest);
+const reactRuntime = ensurePath("assets/react-media-starter/dist/editable-media-runtime.js");
+if (sha256File(reactRuntime) !== starterRuntimeHash) {
+  fail("React 参考成品没有消费当前唯一 editable-media v6 通用运行时");
+}
+const reactBuildInfo = readJson(ensurePath("assets/react-media-starter/dist/build-info.json"));
+ensurePath("assets/react-media-starter/THIRD_PARTY_NOTICES.md");
+ensurePath("assets/react-media-starter/dist/THIRD_PARTY_NOTICES.md");
+if (
+  reactBuildInfo?.protocol !== "editable-media-react-build"
+  || reactBuildInfo?.editable_media_version !== 6
+  || reactBuildInfo?.sourcemaps !== true
+  || !reactBuildInfo?.lock_sha256
+  || !reactBuildInfo?.source_sha256
+) {
+  fail("React 参考成品缺少依赖、锁摘要、源码摘要或 sourcemap 构建证据");
+}
+browserProjects.push(reactDistRoot);
 for (const item of catalog?.cases || []) {
   const caseRoot = ensurePath(`assets/web-card-cases/${item.path}`, `案例 ${item.id}`);
   for (const [kind, relative] of Object.entries(item.files || {})) {
@@ -911,6 +932,15 @@ if (runBrowserChecks && failures.length === 0) {
     process.execPath,
     [path.join(scriptDir, "self-test-explanatory-broll.mjs")],
     "十类解释型 B-roll—九种布局—Gallery 动画预览浏览器检查",
+  );
+}
+
+if (runFullChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(reactStarterRoot, "scripts", "verify-reproducible-build.mjs")],
+    "React editable-media 可复现构建",
+    reactStarterRoot
   );
 }
 

@@ -4,7 +4,7 @@
       "id": "interview-explainer",
       "name": "采访原声讲解型视频",
       "package": "interview-explainer/1.4.0/profile.json",
-      "package_sha256": "c60595f0651a9777b5f1e392989dfc6feeb3b90de762f07d29fb3097d69e9d88",
+      "package_sha256": "1fec9b4dc8d6db636376b856a9692616e5282470cb38d81cdff8703651e7ff81",
       "public_entry": "scripts/interview-explainer.mjs",
       "status": "active",
       "version": "1.4.0"

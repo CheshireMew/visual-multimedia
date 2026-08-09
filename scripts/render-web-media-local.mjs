@@ -296,7 +296,7 @@ node scripts/render-web-media-local.mjs render --package <网页包目录或清�
   --output <文件.mp4|文件.gif> [--variant <id>] [--fps <数字>]
   [--ffmpeg <路径>] [--browser <Chromium路径>] [--report <路径>] [--overwrite]
 
-直接读取 editable-media v5 网页真源，以 window.__hf.seek(seconds) 确定性逐帧渲染。
+直接读取 editable-media v6 网页真源，以 window.__hf.seek(seconds) 确定性逐帧渲染。
 `);
 }
 

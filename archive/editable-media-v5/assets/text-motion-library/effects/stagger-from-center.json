@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "stagger-from-center",
+  "name": "字素中心向外错峰",
+  "aliases": ["中心扩散文字", "stagger center"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "让标题从中心字素向两侧展开，形成明确的中心注意力。",
+    "energy": "moderate",
+    "semantic_tags": ["grapheme", "center-out", "stagger", "focus"]
+  },
+  "segmentation": {
+    "unit": "grapheme",
+    "order": "center-out",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 620, "stagger_ms": 22, "easing": "ease-out"},
+    "exit": {"duration_ms": 420, "stagger_ms": 16, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 150, "micro_delay_ms": 20},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 12, "blur_px": 3}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "blur_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "blur_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -8, "blur_px": 3}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 30,
+    "recommended_max_lines": 2,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 150},
+    "notes": ["中心顺序按实际字素数量计算。", "偶数长度标题必须保持左右节奏对称。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "center-first", "at": 0, "meaning": "中心字素是最早活动单元。"},
+      {"operation": "enter", "id": "expanding", "at": 0.55, "meaning": "错峰顺序由中心向两侧推进。"},
+      {"operation": "enter", "id": "complete", "at": 1, "meaning": "所有字素完整可读。"}
+    ]
+  }
+}

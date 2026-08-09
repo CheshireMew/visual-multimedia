@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editable media</title>
+  <style>
+    :root {
+      --canvas-width: 1;
+      --canvas-height: 1;
+      --paper: #f3efe6;
+      --paper-deep: #e8e1d4;
+      --ink: #171611;
+      --panel: #e7dfd1;
+      --panel-raised: #f8f4eb;
+      --panel-highlight: #fff4d3;
+      --cream: #1c1b17;
+      --muted: #5f5b52;
+      --quiet: #7d766a;
+      --line: #d5cbb9;
+      --accent: #f2b21b;
+      --accent-soft: #654900;
+      --font-sans: "Noto Sans SC", "Segoe UI", sans-serif;
+      --font-mono: "Cascadia Mono", Consolas, monospace;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background: #282720;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 10%, #454338 0, transparent 30%),
+        #24231e;
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 18px;
+      padding: 28px;
+    }
+
+    .viewport {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      transform-origin: top left;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        linear-gradient(180deg, rgb(255 255 255 / 28%), transparent 24%),
+        var(--paper);
+      box-shadow: 0 44px 110px rgb(0 0 0 / 38%);
+    }
+
+    .media-canvas::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      opacity: .28;
+      background-image:
+        radial-gradient(circle at 18% 24%, rgb(21 21 16 / 12%) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 73% 62%, rgb(21 21 16 / 9%) 0 .8px, transparent 1.2px);
+      background-size: 21px 23px, 29px 31px;
+      mix-blend-mode: multiply;
+    }
+
+    .media-canvas::after {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      z-index: 10;
+      border: 1px solid rgb(21 21 16 / 17%);
+      pointer-events: none;
+    }
+
+    .header {
+      position: absolute;
+      inset: 64px 72px auto;
+      height: 325px;
+    }
+
+    .kicker {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 0;
+      color: #5b5a51;
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgb(208 146 16 / 12%);
+    }
+
+    .title {
+      width: 1080px;
+      margin: 28px 0 0;
+      color: var(--ink);
+      font-size: 76px;
+      font-weight: 900;
+      line-height: 1.03;
+      letter-spacing: -.04em;
+      white-space: pre-line;
+    }
+
+    .header-meta {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 8px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 30px;
+      align-items: end;
+    }
+
+    .summary {
+      min-width: 0;
+      margin: 0;
+      color: #56574f;
+      font-size: 29px;
+      font-weight: 500;
+      line-height: 40px;
+      letter-spacing: -.012em;
+    }
+
+    .issue-number {
+      position: absolute;
+      top: -34px;
+      right: 6px;
+      margin: 0;
+      color: rgb(21 21 16 / 6%);
+      font-family: var(--font-mono);
+      font-size: 218px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.11em;
+      -webkit-text-stroke: 3px rgb(21 21 16 / 14%);
+      transform: rotate(-3deg);
+      user-select: none;
+    }
+
+    .legend {
+      display: flex;
+      gap: 0;
+      color: #67665d;
+      font-family: var(--font-mono);
+      font-size: 22px;
+      line-height: 1;
+      letter-spacing: .025em;
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .legend span:not(:last-child)::after {
+      content: "·";
+      margin: 0 13px;
+      color: #b18a3e;
+    }
+
+    .list-panel {
+      position: absolute;
+      left: 72px;
+      right: 72px;
+      top: 418px;
+      bottom: 58px;
+      display: grid;
+      grid-template-rows: 84px minmax(0, 1fr);
+      gap: 0;
+      padding: 0;
+      overflow: hidden;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .list-panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background:
+        linear-gradient(90deg, var(--accent) 0 252px, var(--line) 252px 100%);
+    }
+
+    .panel-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 8px 10px;
+      border-bottom: 1px solid var(--line);
+      color: var(--quiet);
+      font-family: var(--font-mono);
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .curator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-right: 2px;
+      text-transform: none;
+    }
+
+    .curator-avatar {
+      width: 58px;
+      height: 58px;
+      flex: 0 0 auto;
+      border: 3px solid #fffdf7;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+      box-shadow:
+        0 0 0 1px rgb(61 50 31 / 18%),
+        0 5px 14px rgb(73 56 24 / 12%);
+    }
+
+    .curator-copy {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .curator-label {
+      color: #766952;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .curator-name {
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 24px;
+      font-weight: 750;
+      line-height: 1.1;
+      letter-spacing: -.015em;
+      white-space: nowrap;
+    }
+
+    .project-list {
+      position: relative;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: repeat(7, minmax(0, 1fr));
+      gap: 0;
+    }
+
+    .project {
+      position: relative;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr) 172px;
+      gap: 24px;
+      align-items: center;
+      padding: 21px 8px;
+      overflow: hidden;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .project:first-child {
+      background:
+        linear-gradient(90deg, rgb(242 178 27 / 11%), rgb(242 178 27 / 2%) 72%, transparent);
+    }
+
+    .project::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 3px;
+      background: var(--accent);
+      opacity: 0;
+    }
+
+    .project:first-child::after {
+      opacity: 1;
+    }
+
+    .rank {
+      display: block;
+      width: 52px;
+      padding: 0 0 10px;
+      border: 0;
+      border-bottom: 2px solid #c9beaa;
+      border-radius: 0;
+      color: #81796d;
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .project:first-child .rank {
+      border-color: var(--accent);
+      background: transparent;
+      color: #a76f00;
+      box-shadow: none;
+    }
+
+    .project-copy {
+      min-width: 0;
+      align-self: center;
+    }
+
+    .project-name {
+      margin: 0;
+      color: var(--cream);
+      font-size: 33px;
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -.02em;
+    }
+
+    .project-description {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: -.008em;
+    }
+
+    .project-url {
+      display: block;
+      margin-top: 7px;
+      overflow: hidden;
+      color: #6f675b;
+      font-family: var(--font-mono);
+      font-size: 17px;
+      line-height: 1.3;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .star {
+      justify-self: end;
+      display: flex;
+      grid-template-columns: 24px auto;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 156px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      color: var(--accent-soft);
+      background: transparent;
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .star svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--accent);
+    }
+
+    .preview-note {
+      margin: 0;
+      padding: 10px 16px;
+      border: 1px solid rgb(255 255 255 / 10%);
+      border-radius: 999px;
+      color: #cfd7cf;
+      background: rgb(37 34 27 / 84%);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      backdrop-filter: blur(12px);
+    }
+
+    body.capture {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body.capture .app {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      padding: 0;
+    }
+
+    body.capture .viewport {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: visible;
+    }
+
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+    }
+
+    body.capture .media-canvas {
+      transform: none !important;
+    }
+
+    body.capture .preview-note {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="1"
+    data-width="1600"
+    data-height="2000"
+    data-fps="1"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section
+          class="media-canvas"
+          id="mediaCanvas"
+          aria-label="Editable media canvas"
+        >
+          <header class="header">
+            <p class="kicker" data-editable-data="kicker" data-editable-id="kicker"></p>
+            <h1 class="title" data-editable-data="title" data-editable-id="title"></h1>
+            <p
+              class="issue-number"
+              data-editable-data="issue_number"
+              data-editable-id="issue-number"
+              data-layout-ignore
+              aria-hidden="true"
+            ></p>
+            <div class="header-meta">
+              <p class="summary" data-editable-data="summary" data-editable-id="summary"></p>
+              <div class="legend" id="legend" aria-label="内容覆盖范围"></div>
+            </div>
+          </header>
+
+          <section class="list-panel" data-editable-id="list-panel">
+            <div class="panel-meta">
+              <span data-editable-data="index_label"></span>
+              <div class="curator" aria-label="内容整理者">
+                <img
+                  class="curator-avatar"
+                  data-editable-image="curator_avatar"
+                  data-editable-id="curator-avatar"
+                  src=""
+                  alt="内容整理者柴郡的头像"
+                  draggable="false"
+                >
+                <span class="curator-copy">
+                  <span class="curator-label" data-editable-data="curator_label"></span>
+                  <span class="curator-name" data-editable-data="curator_name" data-editable-id="curator-name"></span>
+                </span>
+              </div>
+            </div>
+            <div class="project-list" id="projectList"></div>
+          </section>
+        </section>
+      </div>
+    </div>
+    <p class="preview-note" id="previewNote"></p>
+  </main>
+
+  <script>
+    const starIcon = `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m12 2.3 2.96 6 6.62.96-4.79 4.67 1.13 6.59L12 17.4l-5.92 3.12 1.13-6.59-4.79-4.67L9.04 8.3 12 2.3Z"/>
+      </svg>
+    `;
+
+    const projectList = document.querySelector("#projectList");
+    const legend = document.querySelector("#legend");
+
+    function renderItems(items) {
+      const rows = Array.isArray(items) ? items : [];
+      projectList.replaceChildren(...rows.map((item, index) => {
+        const row = document.createElement("article");
+        row.className = "project";
+        row.dataset.editableId = `project-${index + 1}`;
+
+        const rank = document.createElement("span");
+        rank.className = "rank";
+        rank.textContent = String(index + 1).padStart(2, "0");
+
+        const copy = document.createElement("div");
+        copy.className = "project-copy";
+
+        const name = document.createElement("h2");
+        name.className = "project-name";
+        name.textContent = item.name;
+
+        const description = document.createElement("p");
+        description.className = "project-description";
+        description.textContent = item.description;
+
+        const url = document.createElement("span");
+        url.className = "project-url";
+        url.textContent = item.url;
+
+        const stars = document.createElement("span");
+        stars.className = "star";
+        stars.innerHTML = starIcon;
+        const starText = document.createElement("span");
+        starText.textContent = item.stars;
+        stars.append(starText);
+
+        copy.append(name, description, url);
+        row.append(rank, copy, stars);
+        return row;
+      }));
+    }
+
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1";
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+
+    let output = { width: 1, height: 1 };
+    if (captureMode) document.body.classList.add("capture");
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(
+        viewport.clientWidth / output.width,
+        viewport.clientHeight / output.height,
+        1
+      );
+      const fittedScale = Math.max(.1, scale);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+
+    window.addEventListener("editablemediadata", (event) => {
+      const data = event.detail.data;
+      if (Array.isArray(data.items)) renderItems(data.items);
+      if (Array.isArray(data.legend_items)) {
+        legend.replaceChildren(...data.legend_items.map((item) => {
+          const node = document.createElement("span");
+          node.textContent = String(item);
+          return node;
+        }));
+      }
+    });
+  </script>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height)
+      };
+      document.querySelector("#previewNote").textContent =
+        `固定画布 ${output.width} × ${output.height} · 网页为可编辑制作源`;
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

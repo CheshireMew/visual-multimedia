@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 名词解析</title>
+  <style>
+    :root {
+      --canvas-width: 1;
+      --canvas-height: 1;
+      --paper: #f7f7f4;
+      --ink: #161616;
+      --muted: #4f4f4c;
+      --line: #d7d7d2;
+      --font-sans: "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", "Segoe UI", sans-serif;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background: #252525;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      background: #252525;
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 18px;
+      padding: 28px;
+    }
+
+    .viewport {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      transform-origin: top left;
+      overflow: hidden;
+      isolation: isolate;
+      background: var(--paper);
+      box-shadow: 0 40px 100px rgb(0 0 0 / 35%);
+    }
+
+    .header {
+      position: absolute;
+      left: 90px;
+      right: 90px;
+      top: 92px;
+      height: 134px;
+      display: flex;
+      align-items: flex-start;
+      border-bottom: 3px solid var(--ink);
+    }
+
+    .title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 92px;
+      font-weight: 800;
+      line-height: 108px;
+      letter-spacing: -.045em;
+      text-wrap: balance;
+    }
+
+    .list-panel {
+      position: absolute;
+      left: 90px;
+      right: 90px;
+      top: 280px;
+      height: 1596px;
+    }
+
+    .term-list {
+      height: 100%;
+      display: grid;
+      grid-template-rows: repeat(14, 114px);
+    }
+
+    .term-row {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1fr);
+      gap: 28px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .term-row:first-child {
+      border-top: 1px solid var(--line);
+    }
+
+    .term-name,
+    .term-definition {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .term-name {
+      color: var(--ink);
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -.025em;
+    }
+
+    .term-definition {
+      color: var(--muted);
+      font-size: 34px;
+      font-weight: 400;
+      line-height: 1.3;
+      letter-spacing: -.02em;
+    }
+
+    .production-watermark {
+      position: absolute;
+      right: 90px;
+      bottom: 42px;
+      width: 320px;
+      height: 36px;
+      margin: 0;
+      color: var(--ink);
+      font-size: 28px;
+      font-weight: 650;
+      line-height: 36px;
+      letter-spacing: .015em;
+      text-align: right;
+      opacity: .22;
+      white-space: nowrap;
+    }
+
+    .preview-note {
+      margin: 0;
+      padding: 10px 16px;
+      border: 1px solid rgb(255 255 255 / 10%);
+      border-radius: 999px;
+      color: #dadada;
+      background: rgb(37 37 37 / 86%);
+      font-size: 13px;
+    }
+
+    body.capture {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body.capture .app {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      padding: 0;
+    }
+
+    body.capture .viewport {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: visible;
+    }
+
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+    }
+
+    body.capture .media-canvas {
+      transform: none !important;
+    }
+
+    body.capture .preview-note {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="1"
+    data-width="1500"
+    data-height="2000"
+    data-fps="1"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="AI 名词解析卡片">
+          <header class="header">
+            <h1 class="title" data-editable-data="title" data-editable-id="title"></h1>
+          </header>
+          <section class="list-panel" data-editable-id="list-panel" aria-label="AI 名词与释义">
+            <div class="term-list" id="termList"></div>
+          </section>
+          <p
+            class="production-watermark"
+            data-editable-data="production_watermark"
+            data-editable-id="production-watermark"
+            aria-label="卡片制作水印"
+          ></p>
+        </section>
+      </div>
+    </div>
+    <p class="preview-note" id="previewNote"></p>
+  </main>
+
+  <script>
+    const termList = document.querySelector("#termList");
+
+    function renderTerms(terms) {
+      const rows = Array.isArray(terms) ? terms : [];
+      termList.replaceChildren(...rows.map((item, index) => {
+        const row = document.createElement("article");
+        row.className = "term-row";
+        row.dataset.editableId = `term-row-${index + 1}`;
+
+        const term = document.createElement("h2");
+        term.className = "term-name";
+        term.textContent = `${item.term}：`;
+
+        const definition = document.createElement("p");
+        definition.className = "term-definition";
+        definition.textContent = item.definition;
+
+        row.append(term, definition);
+        return row;
+      }));
+    }
+
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1";
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+
+    let output = { width: 1, height: 1 };
+    if (captureMode) document.body.classList.add("capture");
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(
+        viewport.clientWidth / output.width,
+        viewport.clientHeight / output.height,
+        1
+      );
+      const fittedScale = Math.max(.1, scale);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+
+    window.addEventListener("editablemediadata", (event) => {
+      const data = event.detail.data;
+      if (Array.isArray(data.terms)) renderTerms(data.terms);
+    });
+  </script>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height)
+      };
+      document.querySelector("#previewNote").textContent =
+        `固定画布 ${output.width} × ${output.height} · 网页为可编辑制作源`;
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

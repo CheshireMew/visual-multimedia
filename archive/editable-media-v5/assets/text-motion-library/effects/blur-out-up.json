@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "blur-out-up",
+  "name": "逐词模糊上退",
+  "aliases": ["向上虚化退出", "blur out up"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "exit",
+    "purpose": "让已读完的短句按词向上退出，为下一层内容腾出空间。",
+    "energy": "moderate",
+    "semantic_tags": ["word", "blur", "exit", "up"]
+  },
+  "segmentation": {
+    "unit": "word",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 560, "stagger_ms": 28, "easing": "ease-out"},
+    "exit": {"duration_ms": 480, "stagger_ms": 24, "easing": "ease-in"},
+    "replace": {"mode": "crossfade", "overlap_ms": 170, "micro_delay_ms": 35},
+    "hold_ms": 800
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 10, "blur_px": 6}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "blur_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "blur_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -14, "blur_px": 8}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 52,
+    "recommended_max_lines": 3,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 150},
+    "notes": ["退出完成前仍需保持词组可辨。", "高频字幕不连续使用模糊退出。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "exit", "id": "readable", "at": 0, "meaning": "文字完整可读。"},
+      {"operation": "exit", "id": "leaving", "at": 0.55, "meaning": "词组按顺序向上并逐渐虚化。"},
+      {"operation": "exit", "id": "gone", "at": 1, "meaning": "所有词已退出且不留残影。"}
+    ]
+  }
+}

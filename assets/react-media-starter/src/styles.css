@@ -1,0 +1,46 @@
+:root {
+  font-family: Inter, "Segoe UI", "Microsoft YaHei", sans-serif;
+  color: #f8fbff;
+  background: #090d17;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body { display: grid; place-items: center; background: #151b2a; }
+#root { width: 1280px; height: 720px; }
+.canvas {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #26365e 0, #10182d 42%, #080b13 100%);
+}
+.grid {
+  position: absolute;
+  inset: 0;
+  opacity: .18;
+  background-image: linear-gradient(#7894cd 1px, transparent 1px), linear-gradient(90deg, #7894cd 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+h1 { position: absolute; left: 72px; top: 54px; margin: 0; font-size: 58px; letter-spacing: -.04em; }
+.subtitle { position: absolute; left: 76px; top: 132px; margin: 0; color: #a8b8dc; font-size: 22px; }
+.orbiter {
+  position: absolute;
+  left: -48px;
+  top: -48px;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #8de1ff;
+  border-radius: 24px;
+  transform-origin: 50% 50%;
+  color: #0b1324;
+  background: linear-gradient(135deg, #8de1ff, #ad91ff);
+  box-shadow: 0 20px 60px #70a9ff55;
+  font: 700 21px/1 ui-monospace, monospace;
+}
+.progress { position: absolute; left: 74px; right: 74px; bottom: 72px; height: 8px; background: #ffffff18; }
+.progress i { display: block; height: 100%; background: linear-gradient(90deg, #8de1ff, #ad91ff); }
+output { position: absolute; right: 74px; bottom: 98px; color: #c8d4ef; font: 600 17px/1 ui-monospace, monospace; }
+body:not(.capture) #root { transform: scale(min(1, calc(100vw / 1280), calc(100vh / 720))); }

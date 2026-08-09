@@ -12,7 +12,7 @@
 
 1. 用正式素材导入器登记原片、旁白和其它独立素材。
 2. 建立并听音复核 `transcript.json` 与 `clip-selections.json`。
-3. 为每段旁白建立一个经过浏览器验证的 `editable-media` v5 场景包。
+3. 为每段旁白建立一个经过浏览器验证的 `editable-media` v6 场景包。
 4. 填写并验证 `narration-bundle.json` 与 `interview-explainer-draft.json`。
 5. 依次运行 `plan`、`confirm-plan`、`render`、`review` 和 `finalize`。
 

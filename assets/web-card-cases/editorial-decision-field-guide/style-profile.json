@@ -1,0 +1,51 @@
+{
+  "profile_id": "editorial-field-guide-ai-agency",
+  "source": "custom",
+  "applicability": {
+    "shared_visual_core": ["static-card"],
+    "static_composition": ["static-card"],
+    "time_motion": [],
+    "interaction": []
+  },
+  "shared_visual_core": {
+    "typography": {
+      "primary": "Microsoft YaHei UI / Noto Sans SC / system sans",
+      "title_weight": 820,
+      "section_weight": 800,
+      "body_weight": 500,
+      "numerals": "Solid numbered index blocks"
+    },
+    "color": {
+      "surface": "Warm editorial paper",
+      "ink": "Blue-black",
+      "primary_accent": "Cobalt blue",
+      "action_accent": "Acid lime",
+      "stop_accent": "Signal orange"
+    },
+    "material": "Flat printed field guide with a quiet 48px technical grid",
+    "shape_and_line": "Hard editorial rules, one clipped warning shape, flat index squares and two decisive color fields; no rounded SaaS panels",
+    "image_treatment": "No decorative imagery; typography, index geometry and semantic color carry the composition",
+    "hierarchy_and_rhythm": "Large asymmetric cover → four-way diagnosis strip → two-column method directory → continue-or-stop color split → dark human-agency footer"
+  },
+  "realizations": {
+    "static_composition": {
+      "canvas": "Fixed 1440 × 2160 portrait 2:3 poster",
+      "capacity": "One continuous poster with four diagnosis states, six actions, two exit conditions and one closing statement",
+      "grid": "48px blue side rail, 94px content origin, 1264px main width, four-column diagnosis, two-column methods and two-column decision split",
+      "role_sizes_1440px": {
+        "title": "92px",
+        "intro": "30px",
+        "section_title": "42px",
+        "diagnosis_title": "30px",
+        "method_title": "30px",
+        "method_action": "22px",
+        "body": "20–25px"
+      },
+      "reading_order": "Cover promise → classify the failure → choose one of six actions → continue or stop → return judgment to the person",
+      "preview": "Inspect the complete 1440 × 2160 canvas and a 360px-wide thumbnail",
+      "delivery": "Capture as one 1440 × 2160 PNG"
+    },
+    "time_motion": null,
+    "interaction": null
+  }
+}

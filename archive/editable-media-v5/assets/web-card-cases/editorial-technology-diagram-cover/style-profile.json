@@ -1,0 +1,48 @@
+{
+  "profile_id": "editorial-technology-diagram-cover",
+  "source": "built-in",
+  "applicability": {
+    "shared_visual_core": ["cover", "static-card", "web-animation", "web-derived-video"],
+    "static_composition": ["cover", "static-card"],
+    "time_motion": ["web-animation", "web-derived-video"],
+    "interaction": []
+  },
+  "shared_visual_core": {
+    "typography": {
+      "display": "Noto Sans SC / Microsoft YaHei UI / PingFang SC",
+      "body": "Noto Sans SC / Microsoft YaHei UI / PingFang SC",
+      "metadata": "Cascadia Mono / Consolas",
+      "display_weight": 650,
+      "body_weight": 500
+    },
+    "color": {
+      "paper": "Warm editorial white",
+      "ink": "Charcoal carries text and diagram structure",
+      "accent": "Restrained coral marks the active relation"
+    },
+    "material": "Flat warm paper with a quiet square grid only in the diagram field",
+    "shape_and_line": "Open geometric paths, one central field and three explanatory nodes",
+    "image_treatment": "The case uses an original HTML/SVG diagram; generated variants remain text-free assets under the same diagram slot",
+    "hierarchy_and_rhythm": "Large left title, concise deck, quiet metadata and one right-side explanatory diagram"
+  },
+  "realizations": {
+    "static_composition": {
+      "structure": "A continuous left title field and a right diagram field share one baseline and a wide editorial canvas",
+      "variants": "Each requested ratio recomposes the title and diagram; this case demonstrates the native 5:2 wide cover",
+      "thumbnail": "The title remains readable before diagram labels at reduced width",
+      "capture": "Capture the single static scene from the editable-media v5 webpage"
+    },
+    "time_motion": {
+      "carrier": "Diagram paths and nodes may establish an input-to-model-to-result relation while the title field remains stable",
+      "states": "Start exposes the open inputs, change establishes the central relation, result completes the highlighted path",
+      "energy": "Restrained line growth and short node movement without camera motion or page-level floating",
+      "loop": "none",
+      "reduced_motion": "Show the complete static diagram"
+    },
+    "interaction": {
+      "mode": "none",
+      "controls": "none",
+      "feedback": "none"
+    }
+  }
+}

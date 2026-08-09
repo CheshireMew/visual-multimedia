@@ -1,0 +1,362 @@
+{
+  "protocol": "editable-media",
+  "version": 5,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "hybrid",
+    "fps": 30,
+    "loop": "repeat",
+    "controls": {
+      "keyboard": true,
+      "wheel": true,
+      "touch": true,
+      "overview": true
+    }
+  },
+  "accessibility": {
+    "title_data_field": "title",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "title",
+      "name": "Gallery title",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {
+        "x": 360,
+        "y": 42,
+        "width": 1032,
+        "height": 54,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 24,
+          "maximum": 72,
+          "step": 1
+        }
+      }
+    },
+    {
+      "id": "preview-copy",
+      "name": "Current preview copy",
+      "kind": "text",
+      "selector": "[data-editable-id='preview-copy']",
+      "default_bounds": {
+        "x": 360,
+        "y": 118,
+        "width": 600,
+        "height": 28,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 12,
+          "maximum": 40,
+          "step": 1
+        }
+      }
+    },
+    {
+      "id": "motion-stage",
+      "name": "Deterministic text motion stage",
+      "kind": "group",
+      "selector": "[data-editable-id='motion-stage']",
+      "default_bounds": {
+        "x": 360,
+        "y": 170,
+        "width": 1032,
+        "height": 450,
+        "rotation": 0
+      },
+      "editable": [],
+      "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "text-motion-gallery",
+    "name": "Deterministic text motion gallery",
+    "category": "motion",
+    "tags": [
+      "text",
+      "motion",
+      "catalog",
+      "deterministic"
+    ]
+  },
+  "theme_variables": [
+    {
+      "id": "background",
+      "name": "Background",
+      "kind": "color",
+      "css_variable": "--background",
+      "default": "#0d1117"
+    },
+    {
+      "id": "surface",
+      "name": "Surface",
+      "kind": "color",
+      "css_variable": "--surface",
+      "default": "#151b24"
+    },
+    {
+      "id": "text",
+      "name": "Text",
+      "kind": "color",
+      "css_variable": "--text",
+      "default": "#f4f7fb"
+    },
+    {
+      "id": "muted",
+      "name": "Muted",
+      "kind": "color",
+      "css_variable": "--muted",
+      "default": "#9aa7b8"
+    },
+    {
+      "id": "line",
+      "name": "Line",
+      "kind": "color",
+      "css_variable": "--line",
+      "default": "#2a3545"
+    },
+    {
+      "id": "accent",
+      "name": "Accent",
+      "kind": "color",
+      "css_variable": "--accent",
+      "default": "#89a8ff"
+    },
+    {
+      "id": "font_family",
+      "name": "Font family",
+      "kind": "font",
+      "css_variable": "--font-family",
+      "default": "Segoe UI, Microsoft YaHei, system-ui, sans-serif"
+    }
+  ],
+  "parameters": [
+    {
+      "id": "spring_strength",
+      "name": "回弹强度",
+      "description": "控制所选文字动效的回弹程度。",
+      "group": "文字动效",
+      "kind": "number",
+      "scope": "global",
+      "default": 0.7,
+      "animatable": true,
+      "unit": "ratio",
+      "control": "slider",
+      "css_variable": "--text-motion-spring-strength",
+      "constraints": {
+        "minimum": 0,
+        "maximum": 1,
+        "step": 0.01
+      }
+    },
+    {
+      "id": "stagger_interval_ms",
+      "name": "错峰间隔",
+      "description": "控制连续文字单元开始运动的时间差。",
+      "group": "文字动效",
+      "kind": "integer",
+      "scope": "scene",
+      "default": 80,
+      "animatable": true,
+      "unit": "ms",
+      "control": "slider",
+      "css_variable": "--text-motion-stagger-interval-ms",
+      "constraints": {
+        "minimum": 0,
+        "maximum": 600,
+        "step": 10
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "id": "catalog",
+      "name": "Text motion catalog",
+      "page_role": "reference",
+      "content_shape": "interactive-catalog",
+      "layout_id": "catalog-stage",
+      "duration_ms": 6000,
+      "primary_blocks": 1,
+      "steps": [
+        {
+          "id": "start",
+          "at_ms": 0,
+          "label": "Start",
+          "state_kind": "start",
+          "review": true,
+          "description": "所选效果处于当前操作的确定性开始状态。"
+        },
+        {
+          "id": "motion",
+          "at_ms": 1800,
+          "label": "Motion",
+          "state_kind": "change",
+          "review": true,
+          "description": "真实运行时正在按当前效果和分段推进。"
+        },
+        {
+          "id": "result",
+          "at_ms": 4200,
+          "label": "Result",
+          "state_kind": "result",
+          "review": true,
+          "description": "所选效果进入稳定结果或下一次预览循环。"
+        }
+      ],
+      "motion": {
+        "complexity": "complex",
+        "driver": "object",
+        "semantic_purpose": "用同一确定性时间入口检查正式文字动效记录的开始、变化和结果。",
+        "key_state_review": "required",
+        "camera": null
+      },
+      "parameters": {
+        "stagger_interval_ms": 80
+      },
+      "data": {
+        "title": "确定性文字动效库",
+        "preview_text": "让文字动起来",
+        "previous_text": "文字动效系统"
+      },
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "catalog-stage",
+      "name": "Text motion catalog with preview stage",
+      "page_roles": ["reference"],
+      "content_shapes": ["interactive-catalog"],
+      "required_data_fields": [
+        "title",
+        "preview_text",
+        "previous_text"
+      ],
+      "required_layer_ids": [
+        "title",
+        "preview-copy",
+        "motion-stage"
+      ],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": [
+        "preview-copy",
+        "motion-stage"
+      ],
+      "capacity": {
+        "maximum_primary_blocks": 1
+      },
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "landscape",
+      "name": "Landscape gallery",
+      "canvas": {
+        "width": 1440,
+        "height": 900,
+        "background_mode": "opaque",
+        "background_color": "#0d1117"
+      },
+      "layers": {
+        "title": {
+          "x": 360,
+          "y": 42,
+          "width": 1032,
+          "height": 54
+        },
+        "preview-copy": {
+          "x": 360,
+          "y": 118,
+          "width": 600,
+          "height": 28
+        },
+        "motion-stage": {
+          "x": 360,
+          "y": 170,
+          "width": 1032,
+          "height": 450
+        }
+      }
+    }
+  ],
+  "default_variant_id": "landscape",
+  "data_fields": [
+    {
+      "id": "title",
+      "name": "Gallery title",
+      "kind": "string",
+      "default": "确定性文字动效库"
+    },
+    {
+      "id": "preview_text",
+      "name": "Preview text",
+      "kind": "string",
+      "default": "让文字动起来"
+    },
+    {
+      "id": "previous_text",
+      "name": "Previous text",
+      "kind": "string",
+      "default": "文字动效系统"
+    }
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {
+      "data_field": "preview_text",
+      "layer_id": "preview-copy"
+    },
+    "required_layer_ids": [
+      "title",
+      "preview-copy",
+      "motion-stage"
+    ],
+    "required_title_layer_ids": ["title"],
+    "bounds_tolerance_px": 1,
+    "allow_overflow_layer_ids": ["motion-stage"],
+    "minimum_font_px": {
+      "title": 24,
+      "preview-copy": 12
+    }
+  },
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  }
+}

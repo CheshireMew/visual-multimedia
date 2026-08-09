@@ -1,6 +1,6 @@
 {
   "protocol": "editable-media",
-  "version": 5,
+  "version": 6,
   "entry": "index.html",
   "media_sources": "media-sources.json",
   "playback": {
@@ -167,39 +167,49 @@
   ],
   "parameters": [
     {
-      "id": "spring_strength",
-      "name": "回弹强度",
-      "description": "控制所选文字动效的回弹程度。",
-      "group": "文字动效",
-      "kind": "number",
-      "scope": "global",
-      "default": 0.7,
-      "animatable": true,
-      "unit": "ratio",
-      "control": "slider",
-      "css_variable": "--text-motion-spring-strength",
-      "constraints": {
-        "minimum": 0,
-        "maximum": 1,
-        "step": 0.01
+      "descriptor": {
+        "id": "spring_strength",
+        "label": "回弹强度",
+        "description": "控制所选文字动效的回弹程度。",
+        "group": "文字动效",
+        "kind": "number",
+        "control": "slider",
+        "default": 0.7,
+        "unit": "ratio",
+        "constraints": {
+          "minimum": 0,
+          "maximum": 1,
+          "step": 0.01
+        },
+        "options_source": null,
+        "timeline": "keyframe"
+      },
+      "binding": {
+        "scope": "global",
+        "css_variable": "--text-motion-spring-strength"
       }
     },
     {
-      "id": "stagger_interval_ms",
-      "name": "错峰间隔",
-      "description": "控制连续文字单元开始运动的时间差。",
-      "group": "文字动效",
-      "kind": "integer",
-      "scope": "scene",
-      "default": 80,
-      "animatable": true,
-      "unit": "ms",
-      "control": "slider",
-      "css_variable": "--text-motion-stagger-interval-ms",
-      "constraints": {
-        "minimum": 0,
-        "maximum": 600,
-        "step": 10
+      "descriptor": {
+        "id": "stagger_interval_ms",
+        "label": "错峰间隔",
+        "description": "控制连续文字单元开始运动的时间差。",
+        "group": "文字动效",
+        "kind": "integer",
+        "control": "slider",
+        "default": 80,
+        "unit": "ms",
+        "constraints": {
+          "minimum": 0,
+          "maximum": 600,
+          "step": 10
+        },
+        "options_source": null,
+        "timeline": "keyframe"
+      },
+      "binding": {
+        "scope": "scene",
+        "css_variable": "--text-motion-stagger-interval-ms"
       }
     }
   ],
@@ -260,8 +270,12 @@
     {
       "id": "catalog-stage",
       "name": "Text motion catalog with preview stage",
-      "page_roles": ["reference"],
-      "content_shapes": ["interactive-catalog"],
+      "page_roles": [
+        "reference"
+      ],
+      "content_shapes": [
+        "interactive-catalog"
+      ],
       "required_data_fields": [
         "title",
         "preview_text",
@@ -272,7 +286,9 @@
         "preview-copy",
         "motion-stage"
       ],
-      "title_layer_ids": ["title"],
+      "title_layer_ids": [
+        "title"
+      ],
       "content_layer_ids": [
         "preview-copy",
         "motion-stage"
@@ -347,9 +363,13 @@
       "preview-copy",
       "motion-stage"
     ],
-    "required_title_layer_ids": ["title"],
+    "required_title_layer_ids": [
+      "title"
+    ],
     "bounds_tolerance_px": 1,
-    "allow_overflow_layer_ids": ["motion-stage"],
+    "allow_overflow_layer_ids": [
+      "motion-stage"
+    ],
     "minimum_font_px": {
       "title": 24,
       "preview-copy": 12
@@ -358,5 +378,10 @@
   "delivery": {
     "preview": "local-server",
     "remote_dependencies": "forbid"
+  },
+  "frame_readiness": {
+    "default_timeout_ms": 10000,
+    "maximum_timeout_ms": 30000,
+    "retry_limit": 1
   }
 }

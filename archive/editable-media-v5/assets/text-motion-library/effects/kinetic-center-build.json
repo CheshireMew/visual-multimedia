@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "kinetic-center-build",
+  "name": "中心向外逐词构建",
+  "aliases": ["中心词组建立", "kinetic center"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "layout-slot", "overflow": "hidden", "requires_final_width": true, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "从中心词开始向两侧构建一个紧凑短语。",
+    "energy": "expressive",
+    "semantic_tags": ["word", "center-out", "build", "kinetic"]
+  },
+  "segmentation": {
+    "unit": "word",
+    "order": "center-out",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 480, "stagger_ms": 120, "easing": "ease-out"},
+    "exit": {"duration_ms": 300, "stagger_ms": 72, "easing": "ease-in"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 220},
+    "hold_ms": 900
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "center",
+    "unit_variation": "depth",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "x_px": 42, "y_px": 6, "scale": 0.96, "blur_px": 3.5}},
+        {"offset": 1, "values": {"opacity": 1, "x_px": 0, "y_px": 0, "scale": 1, "blur_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "x_px": 0, "y_px": 0, "blur_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "x_px": -24, "y_px": -6, "blur_px": 2.5}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 26,
+    "recommended_max_lines": 1,
+    "layout_sensitive": true,
+    "motion_intensity": "high",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 150},
+    "notes": ["只用于单行、词数较少的短语。", "最终词组必须保持居中，不能把演示中的物理推挤当成未实现能力。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "center-seed", "at": 0, "meaning": "中心词是构建起点。"},
+      {"operation": "enter", "id": "expanding", "at": 0.55, "meaning": "两侧词组按中心距离依次进入。"},
+      {"operation": "enter", "id": "centered-phrase", "at": 1, "meaning": "完整短语回到最终居中布局。"}
+    ]
+  }
+}

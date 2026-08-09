@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "bottom-up-letters",
+  "name": "字素自下构建",
+  "aliases": ["底部逐字", "bottom up letters"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "让短标题以清晰、较强的自下而上字素节奏建立。",
+    "energy": "expressive",
+    "semantic_tags": ["grapheme", "bottom-up", "build", "headline"]
+  },
+  "segmentation": {
+    "unit": "grapheme",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 400, "stagger_ms": 88, "easing": "ease-out"},
+    "exit": {"duration_ms": 280, "stagger_ms": 28, "easing": "ease-in"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 35},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "bottom",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": 46}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": -14}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 18,
+    "recommended_max_lines": 2,
+    "layout_sensitive": false,
+    "motion_intensity": "high",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 140},
+    "notes": ["只用于短词或紧凑标题。", "始终保持清晰字形，不叠加模糊。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "below", "at": 0, "meaning": "字素位于基线下方。"},
+      {"operation": "enter", "id": "building", "at": 0.55, "meaning": "标题由左至右自下建立。"},
+      {"operation": "enter", "id": "baseline", "at": 1, "meaning": "所有字素回到稳定基线。"}
+    ]
+  }
+}

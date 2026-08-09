@@ -7,7 +7,7 @@ export const EDITABLE_MEDIA_SCHEMA_PATH = path.resolve(
   SCRIPT_DIR,
   "..",
   "schemas",
-  "editable-media.v5.schema.json"
+  "editable-media.v6.schema.json"
 );
 
 function valueType(value) {
@@ -36,12 +36,12 @@ function canonical(value) {
 
 function resolveReference(rootSchema, reference) {
   if (!reference.startsWith("#/")) {
-    throw new Error(`editable-media v5 schema 只允许本地引用：${reference}`);
+    throw new Error(`editable-media v6 schema 只允许本地引用：${reference}`);
   }
   return reference.slice(2).split("/").reduce((current, encoded) => {
     const key = encoded.replaceAll("~1", "/").replaceAll("~0", "~");
     if (!current || !Object.prototype.hasOwnProperty.call(current, key)) {
-      throw new Error(`editable-media v5 schema 引用了不存在的位置：${reference}`);
+      throw new Error(`editable-media v6 schema 引用了不存在的位置：${reference}`);
     }
     return current[key];
   }, rootSchema);
@@ -129,7 +129,7 @@ function validateNode(value, schema, rootSchema, location, errors) {
       if (Object.prototype.hasOwnProperty.call(properties, key)) {
         validateNode(item, properties[key], rootSchema, `${location}.${key}`, errors);
       } else if (schema.additionalProperties === false) {
-        errors.push(`${location}.${key} 不是 editable-media v5 字段`);
+        errors.push(`${location}.${key} 不是 editable-media v6 字段`);
       } else if (
         schema.additionalProperties
         && typeof schema.additionalProperties === "object"
@@ -204,7 +204,7 @@ export function readEditableMediaPackage(target) {
   const manifest = JSON.parse(fs.readFileSync(normalized.manifestPath, "utf8"));
   const errors = validateEditableMediaSchema(manifest);
   if (errors.length) {
-    throw new Error(`editable-media v5 schema 未通过：\n- ${errors.join("\n- ")}`);
+    throw new Error(`editable-media v6 schema 未通过：\n- ${errors.join("\n- ")}`);
   }
   return {
     ...normalized,

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>编辑科技图解封面</title>
+  <style>
+    :root {
+      --paper: #faf9f5;
+      --ink: #252522;
+      --muted: #67665f;
+      --line: #d8d5cb;
+      --accent: #e05f4b;
+      --font-sans: "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", "Segoe UI", sans-serif;
+      --font-mono: "Cascadia Mono", Consolas, monospace;
+      --canvas-width: 1500;
+      --canvas-height: 600;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      overflow: hidden;
+      color: var(--ink);
+      background: #1f201e;
+      font-family: var(--font-sans);
+    }
+    .app { width: 100vw; height: 100vh; display: grid; place-items: center; padding: 28px; }
+    .viewport { width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
+    .canvas-shell { position: relative; }
+    .media-canvas {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      transform-origin: top left;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, transparent 49.96%, rgb(37 37 34 / 8%) 50%, transparent 50.04%),
+        var(--paper);
+    }
+    .media-canvas::before {
+      content: "";
+      position: absolute;
+      left: 54px;
+      right: 54px;
+      top: 36px;
+      height: 1px;
+      background: var(--line);
+    }
+    [data-editable-id] { position: absolute; }
+    .kicker, .metadata, .diagram-title {
+      margin: 0;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .11em;
+    }
+    .kicker { left: 80px; top: 58px; width: 560px; height: 28px; font-size: 16px; font-weight: 700; line-height: 28px; }
+    .title {
+      left: 80px;
+      top: 126px;
+      width: 630px;
+      height: 196px;
+      margin: 0;
+      white-space: pre-line;
+      font-size: 72px;
+      font-weight: 650;
+      line-height: 1.12;
+      letter-spacing: -.045em;
+      text-wrap: balance;
+    }
+    .title::after {
+      content: "";
+      display: block;
+      width: 62px;
+      height: 8px;
+      margin-top: 24px;
+      background: var(--accent);
+    }
+    .deck { left: 82px; top: 360px; width: 560px; height: 74px; margin: 0; color: var(--muted); font-size: 23px; font-weight: 500; line-height: 1.55; }
+    .metadata { left: 82px; top: 520px; width: 560px; height: 24px; font-size: 13px; font-weight: 700; line-height: 24px; }
+    .folio { left: 1416px; top: 538px; width: 28px; height: 20px; color: var(--muted); font: 700 13px/20px var(--font-mono); letter-spacing: .12em; }
+
+    .diagram-stage {
+      left: 760px;
+      top: 48px;
+      width: 660px;
+      height: 504px;
+      overflow: hidden;
+      border-left: 1px solid var(--line);
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 42px 42px;
+      background-position: -1px -1px;
+    }
+    .diagram-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--paper) 0, transparent 18%, transparent 100%);
+      pointer-events: none;
+    }
+    .diagram-title { left: 810px; top: 82px; width: 360px; height: 24px; font-size: 13px; font-weight: 700; line-height: 24px; }
+    .diagram-lines { position: absolute; inset: 72px 28px 54px 24px; width: calc(100% - 52px); height: calc(100% - 126px); }
+    .diagram-lines .base { fill: none; stroke: #343430; stroke-width: 2.4; opacity: .72; }
+    .diagram-lines .accent { fill: none; stroke: var(--accent); stroke-width: 4.4; stroke-linecap: round; }
+    .diagram-lines .quiet { fill: none; stroke: #8f8d84; stroke-width: 1.4; stroke-dasharray: 5 8; }
+    .diagram-lines circle { fill: var(--paper); stroke: #343430; stroke-width: 2.4; }
+    .diagram-lines .hub { fill: #343430; stroke: #343430; }
+    .diagram-lines .result { fill: var(--accent); stroke: var(--accent); }
+    .node-label {
+      margin: 0;
+      padding: 6px 10px;
+      width: auto;
+      height: 32px;
+      color: var(--ink);
+      background: rgb(250 249 245 / 92%);
+      font: 700 15px/20px var(--font-mono);
+      letter-spacing: .03em;
+      white-space: nowrap;
+    }
+    .input-label { left: 816px; top: 202px; }
+    .model-label { left: 1010px; top: 270px; }
+    .result-label { left: 1218px; top: 354px; }
+    .micro-copy { left: 52px; top: 454px; width: 360px; height: 20px; color: var(--muted); font: 600 12px/20px var(--font-mono); letter-spacing: .08em; }
+
+    body.capture { width: calc(var(--canvas-width) * 1px); height: calc(var(--canvas-height) * 1px); min-height: 0; display: block; overflow: hidden; background: transparent; }
+    body.capture .app, body.capture .viewport { width: calc(var(--canvas-width) * 1px); height: calc(var(--canvas-height) * 1px); display: block; padding: 0; overflow: visible; }
+    body.capture .canvas-shell { width: calc(var(--canvas-width) * 1px) !important; height: calc(var(--canvas-height) * 1px) !important; }
+    body.capture .media-canvas { transform: none !important; }
+  </style>
+</head>
+<body>
+  <main class="app" data-editable-media-root data-composition-id="editable-media" data-no-timeline data-start="0" data-duration="1" data-width="1500" data-height="600" data-fps="1">
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="编辑科技图解封面">
+          <p class="kicker" data-editable-data="kicker" data-editable-id="kicker"></p>
+          <h1 class="title" data-editable-data="title" data-editable-id="title"></h1>
+          <p class="deck" data-editable-data="deck" data-editable-id="deck"></p>
+          <p class="metadata" data-editable-data="metadata" data-editable-id="metadata"></p>
+          <span class="folio" data-editable-data="folio" data-editable-id="folio"></span>
+          <section class="diagram-stage" id="diagram-stage" data-editable-id="diagram-stage">
+            <svg class="diagram-lines" viewBox="0 0 608 378" aria-hidden="true">
+              <path class="quiet" d="M42 76 C172 18 208 112 290 156 S430 150 560 76"/>
+              <path class="base" d="M50 130 C158 130 170 188 282 188 S420 246 552 246"/>
+              <path class="accent" d="M50 130 C158 130 170 188 282 188 S420 246 552 246"/>
+              <path class="base" d="M282 188 C330 112 412 88 506 118"/>
+              <path class="quiet" d="M282 188 C338 278 414 320 540 314"/>
+              <circle cx="50" cy="130" r="13"/>
+              <circle class="hub" cx="282" cy="188" r="20"/>
+              <circle cx="506" cy="118" r="12"/>
+              <circle class="result" cx="552" cy="246" r="16"/>
+              <circle cx="540" cy="314" r="9"/>
+            </svg>
+            <span class="micro-copy" data-editable-data="micro_copy" data-editable-id="micro-copy"></span>
+          </section>
+          <p class="diagram-title" data-editable-data="diagram_title" data-editable-id="diagram-title"></p>
+          <p class="node-label input-label" data-editable-data="input_label" data-editable-id="input-label"></p>
+          <p class="node-label model-label" data-editable-data="model_label" data-editable-id="model-label"></p>
+          <p class="node-label result-label" data-editable-data="result_label" data-editable-id="result-label"></p>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    const captureMode = new URLSearchParams(location.search).get("capture") === "1";
+    const viewport = document.querySelector("#viewport");
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    let output = {width: 1500, height: 600};
+    if (captureMode) document.body.classList.add("capture");
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(viewport.clientWidth / output.width, viewport.clientHeight / output.height, 1);
+      const fitted = Math.max(.1, scale);
+      canvasShell.style.width = `${output.width * fitted}px`;
+      canvasShell.style.height = `${output.height * fitted}px`;
+      mediaCanvas.style.transform = `scale(${fitted})`;
+    }
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {width: Number(variant.canvas.width), height: Number(variant.canvas.height)};
+      if (!captureMode) new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

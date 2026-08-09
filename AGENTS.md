@@ -8,7 +8,7 @@
 
 ## 共享边界与唯一真源
 
-- `schemas/editable-media.v5.schema.json` 是 `editable-media` v5 清单结构的唯一真源。
+- `schemas/editable-media.v6.schema.json` 是 `editable-media` v6 清单结构的唯一真源。
 - `assets/web-media-starter/` 和 `assets/web-card-cases/` 是生产者真实输出及跨仓库合同案例的唯一来源。消费端不得手写等价假数据代替这些输出。
 - `window.editableMedia` 是结构化编辑状态入口，`window.__hf.duration/seek(seconds)` 是确定性逐帧时间入口。运行时、校验器和消费者必须读取同一边界，不能增加第二套时钟或恢复逻辑。
 - `references/structured-media-editor-cli.md` 只记录 Skill 如何使用公开编辑器能力。MediaFlow Pro 的操作名称、参数和功能可用性以实际 `mediaflow-cli describe` 输出为真源，本仓库不得复制维护另一份 CLI 定义。
@@ -65,7 +65,7 @@
 3. 运行 MediaFlow Pro 的合同测试以及受影响的导入、网页编辑、渲染、时间线和导出测试。至少包含：
 
    ```powershell
-   D:\Tools\MediaFlow\.venv\Scripts\python.exe -m pytest tests\v2\domain\test_editable_media_v5_contract.py
+   D:\Tools\MediaFlow\.venv\Scripts\python.exe -m pytest tests\v2\domain\test_editable_media_v6_contract.py
    ```
 
 4. 使用同步后的真实生产者网页包完成一次 MediaFlow Pro 导入、项目保存、片段读取或修改、逐帧渲染、时间线消费和实际导出；查看最终画面或成片，而不是只检查函数返回值、schema 通过或缓存文件存在。

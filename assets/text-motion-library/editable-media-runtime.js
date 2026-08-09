@@ -29,6 +29,10 @@
   let overviewOpen = false;
   let wheelLockedUntil = 0;
   let touchStart = null;
+  let frameGeneration = 0;
+  let activeFrame = null;
+  let frameTaskSequence = 0;
+  const frameRenderers = new Map();
   const cameraStyledLayerIds = new Set();
   const overlay = document.createElement("div");
   const resizeHandle = document.createElement("button");
@@ -81,6 +85,130 @@
   function clone(value) {
     if (value === undefined || value === null) return value;
     return JSON.parse(JSON.stringify(value));
+  }
+
+  function frameError(code, message, frame, details = {}) {
+    const error = new Error(message);
+    error.name = "EditableMediaFrameError";
+    error.code = code;
+    error.seconds = Number(frame?.seconds || 0);
+    error.generation = Number(frame?.generation || 0);
+    error.label = details.label || null;
+    error.retryable = Boolean(details.retryable);
+    error.toJSON = () => ({
+      code: error.code,
+      message: error.message,
+      seconds: error.seconds,
+      generation: error.generation,
+      label: error.label,
+      retryable: error.retryable,
+    });
+    return error;
+  }
+
+  function raceFrame(frame, promise) {
+    return Promise.race([Promise.resolve(promise), frame.cancelled]);
+  }
+
+  function registerRenderer(id, renderer) {
+    if (typeof id !== "string" || !id.trim()) {
+      throw new TypeError("Editable media renderer id must be a non-empty string");
+    }
+    if (typeof renderer !== "function") {
+      throw new TypeError("Editable media renderer must be a function");
+    }
+    if (frameRenderers.has(id)) {
+      throw new Error(`Editable media renderer is already registered: ${id}`);
+    }
+    frameRenderers.set(id, renderer);
+  }
+
+  function deferFrame(options = {}) {
+    const frame = activeFrame;
+    if (!frame || frame.settled) {
+      throw new Error("deferFrame() must be called while a frame is being rendered");
+    }
+    const label = typeof options.label === "string" ? options.label.trim() : "";
+    if (!label) throw new TypeError("Frame task label must be a non-empty string");
+    const readiness = manifest?.frame_readiness || {};
+    const maximum = Number(readiness.maximum_timeout_ms || 30000);
+    const requested = Number(options.timeout_ms || readiness.default_timeout_ms || 10000);
+    const timeoutMs = Math.max(1, Math.min(maximum, requested));
+    const handle = `hf-${frame.generation}-${++frameTaskSequence}`;
+    let resolveTask;
+    let rejectTask;
+    const promise = new Promise((resolve, reject) => {
+      resolveTask = resolve;
+      rejectTask = reject;
+    });
+    const task = {
+      handle,
+      label,
+      startedAt: performance.now(),
+      completedAt: null,
+      observed: false,
+      promise,
+      resolveTask,
+      rejectTask,
+      timer: 0,
+    };
+    task.timer = setTimeout(() => {
+      if (task.completedAt !== null) return;
+      task.completedAt = performance.now();
+      task.rejectTask(frameError(
+        "frame_task_timeout",
+        `Frame task timed out after ${timeoutMs} ms: ${label}`,
+        frame,
+        { label, retryable: options.retryable !== false }
+      ));
+    }, timeoutMs);
+    frame.tasks.set(handle, task);
+    return handle;
+  }
+
+  function settleFrameTask(handle, failure = null) {
+    const task = activeFrame?.tasks.get(handle);
+    if (!task || task.completedAt !== null) return;
+    clearTimeout(task.timer);
+    task.completedAt = performance.now();
+    if (!failure) {
+      task.resolveTask();
+      return;
+    }
+    const code = typeof failure.code === "string" && failure.code
+      ? failure.code
+      : "frame_task_failed";
+    const message = typeof failure.message === "string" && failure.message
+      ? failure.message
+      : `Frame task failed: ${task.label}`;
+    task.rejectTask(frameError(code, message, activeFrame, {
+      label: task.label,
+      retryable: failure.retryable === true,
+    }));
+  }
+
+  function resolveFrame(handle) {
+    settleFrameTask(handle);
+  }
+
+  function rejectFrame(handle, error) {
+    settleFrameTask(handle, error || {});
+  }
+
+  async function waitForFrameTasks(frame) {
+    while (true) {
+      const tasks = Array.from(frame.tasks.values())
+        .filter((task) => !task.observed);
+      tasks.forEach((task) => { task.observed = true; });
+      const pending = tasks.map((task) => task.promise);
+      if (!pending.length) return;
+      await raceFrame(frame, Promise.all(pending));
+      await raceFrame(frame, Promise.resolve());
+    }
+  }
+
+  function nextPaint(frame) {
+    return raceFrame(frame, new Promise((resolve) => requestAnimationFrame(resolve)));
   }
 
   function mergeLayerMaps(base, override) {
@@ -710,8 +838,8 @@
       : {};
     const parameterDefaults = Object.fromEntries(
       (manifest.parameters || [])
-        .filter((item) => item.scope === "scene")
-        .map((item) => [item.id, clone(item.default)])
+        .filter((item) => item.binding.scope === "scene")
+        .map((item) => [item.descriptor.id, clone(item.descriptor.default)])
     );
     return {
       layers: mergeLayerMaps(nextBase, previousOverrides),
@@ -909,10 +1037,70 @@
       milliseconds %= duration;
     }
     const resolved = setTime(milliseconds) / 1000;
-    await new Promise((resolve) => requestAnimationFrame(() => {
-      requestAnimationFrame(resolve);
-    }));
-    return resolved;
+    const generation = ++frameGeneration;
+    if (activeFrame && !activeFrame.settled) {
+      activeFrame.cancel(frameError(
+        "frame_superseded",
+        `Frame generation ${activeFrame.generation} was superseded by ${generation}`,
+        activeFrame
+      ));
+    }
+    let cancelFrame;
+    const frame = {
+      seconds: resolved,
+      generation,
+      startedAt: performance.now(),
+      settled: false,
+      tasks: new Map(),
+      cancelled: new Promise((_, reject) => { cancelFrame = reject; }),
+      cancel: (error) => {
+        if (frame.settled) return;
+        frame.settled = true;
+        frame.tasks.forEach((task) => clearTimeout(task.timer));
+        cancelFrame(error);
+      },
+    };
+    activeFrame = frame;
+    try {
+      const renderPromises = Array.from(frameRenderers.entries()).map(
+        async ([id, renderer]) => {
+          try {
+            await renderer({ seconds: resolved, generation });
+          } catch (error) {
+            if (error?.code) throw error;
+            throw frameError(
+              "frame_task_failed",
+              error instanceof Error ? error.message : String(error),
+              frame,
+              { label: `renderer:${id}`, retryable: error?.retryable === true }
+            );
+          }
+        }
+      );
+      await raceFrame(frame, Promise.all(renderPromises));
+      await waitForFrameTasks(frame);
+      await nextPaint(frame);
+      await waitForFrameTasks(frame);
+      await nextPaint(frame);
+      await waitForFrameTasks(frame);
+      frame.settled = true;
+      const completedAt = performance.now();
+      return {
+        seconds: resolved,
+        generation,
+        wait_ms: completedAt - frame.startedAt,
+        tasks: Array.from(frame.tasks.values()).map((task) => ({
+          label: task.label,
+          elapsed_ms: (task.completedAt || completedAt) - task.startedAt,
+        })),
+      };
+    } catch (error) {
+      frame.settled = true;
+      frame.tasks.forEach((task) => clearTimeout(task.timer));
+      throw error;
+    } finally {
+      if (activeFrame === frame) activeFrame = null;
+    }
   }
 
   function installFrameProtocol() {
@@ -927,6 +1115,10 @@
       get: () => totalDuration() / 1000,
     });
     frameProtocol.seek = seekSeconds;
+    frameProtocol.registerRenderer = registerRenderer;
+    frameProtocol.deferFrame = deferFrame;
+    frameProtocol.resolveFrame = resolveFrame;
+    frameProtocol.rejectFrame = rejectFrame;
     window.__hf = frameProtocol;
     return frameProtocol;
   }
@@ -1266,8 +1458,8 @@
       throw new Error(`Unable to load editable-media manifest: ${response.status} ${manifestUrl}`);
     }
     manifest = await response.json();
-    if (manifest.protocol !== "editable-media" || manifest.version !== 5) {
-      throw new Error("editable-media manifest must use protocol v5");
+    if (manifest.protocol !== "editable-media" || manifest.version !== 6) {
+      throw new Error("editable-media manifest must use protocol v6");
     }
     if (typeof manifest.media_sources !== "string" || !manifest.media_sources) {
       throw new Error("editable-media manifest must declare media_sources");
@@ -1318,13 +1510,13 @@
       ),
       parameters: Object.fromEntries(
         parameterDefinitions
-          .filter((item) => item.scope === "global")
-          .map((item) => [item.id, clone(item.default)])
+          .filter((item) => item.binding.scope === "global")
+          .map((item) => [item.descriptor.id, clone(item.descriptor.default)])
       ),
       parameter_bindings: Object.fromEntries(
         parameterDefinitions
-          .filter((item) => item.css_variable)
-          .map((item) => [item.id, item.css_variable])
+          .filter((item) => item.binding.css_variable)
+          .map((item) => [item.descriptor.id, item.binding.css_variable])
       ),
       parameter_locks: [],
       variant: {
@@ -1368,7 +1560,7 @@
     await Promise.all(Array.from(document.images).map((image) => image.decode()));
     refreshNodes();
     captureDefaults();
-    setTime(currentGlobalTimeMs);
+    await seekSeconds(currentGlobalTimeMs / 1000);
     if (state.playback.mode === "autoplay"
       && new URLSearchParams(location.search).get("capture") !== "1") {
       play();

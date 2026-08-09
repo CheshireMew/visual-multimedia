@@ -49,7 +49,7 @@
     "source_card": "target-native:assets/video-progress-bar",
     "upstream_demo": null,
     "upstream_preview_declared": false,
-    "notes": "目标原生配方，按真实视频总时间生成 editable-media v5 透明覆盖层，不复制外部教程或模板资产。"
+    "notes": "目标原生配方，按真实视频总时间生成 editable-media v6 透明覆盖层，不复制外部教程或模板资产。"
   },
   "behavior_fingerprint": "9a1e51946230e947b5c4eaafc04f723fb2f3e9b483004cd929e5f22ae3200f27",
   "applicability": {

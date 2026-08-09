@@ -1,0 +1,59 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "short-slide-down",
+  "name": "逐词短距下落",
+  "aliases": ["克制下落", "short slide down"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "layout-slot", "overflow": "hidden", "requires_final_width": true, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace"],
+    "default_operation": "enter",
+    "purpose": "让紧凑词组从上方短距离落入最终位置。",
+    "energy": "moderate",
+    "semantic_tags": ["word", "slide-down", "compact", "stack"]
+  },
+  "segmentation": {
+    "unit": "word",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 520, "stagger_ms": 84, "easing": "ease-out"},
+    "exit": {"duration_ms": 320, "stagger_ms": 36, "easing": "ease-in-out"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 70},
+    "hold_ms": 850
+  },
+  "renderer": {
+    "kind": "keyframes",
+    "transform_origin": "top",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "y_px": -24, "blur_px": 2.4, "scale": 0.992}},
+        {"offset": 1, "values": {"opacity": 1, "y_px": 0, "blur_px": 0, "scale": 1}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "y_px": 0, "blur_px": 0, "scale": 1}},
+        {"offset": 1, "values": {"opacity": 0, "y_px": 10, "blur_px": 1.2, "scale": 1}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 32,
+    "recommended_max_lines": 3,
+    "layout_sensitive": true,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "fade", "duration_ms": 150},
+    "notes": ["适合短词组或紧凑堆叠。", "多行时必须检查每行落点和间距，不模拟不存在的物理推挤。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "enter", "id": "above-stack", "at": 0, "meaning": "词组位于最终位置上方。"},
+      {"operation": "enter", "id": "dropping", "at": 0.55, "meaning": "词组按阅读顺序短距下落。"},
+      {"operation": "enter", "id": "stacked", "at": 1, "meaning": "所有词回到最终排版位置。"}
+    ]
+  }
+}

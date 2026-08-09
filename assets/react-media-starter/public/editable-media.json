@@ -1,0 +1,112 @@
+{
+  "protocol": "editable-media",
+  "version": 6,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "manual",
+    "fps": 30,
+    "loop": "none",
+    "controls": {"keyboard": false, "wheel": false, "touch": false, "overview": false}
+  },
+  "frame_readiness": {"default_timeout_ms": 10000, "maximum_timeout_ms": 30000, "retry_limit": 1},
+  "accessibility": {"title_data_field": "title", "canvas_selector": "#mediaCanvas"},
+  "layers": [
+    {
+      "id": "title",
+      "name": "标题",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {"x": 72, "y": 54, "width": 760, "height": 72, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 36, "maximum": 80, "step": 1}}
+    },
+    {
+      "id": "orbiter",
+      "name": "轨道元素",
+      "kind": "shape",
+      "selector": "[data-editable-id='orbiter']",
+      "default_bounds": {"x": 592, "y": 312, "width": 96, "height": 96, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {}
+    }
+  ],
+  "component": {"id": "react-deterministic-reference", "name": "React 确定性参考成品", "category": "animation", "tags": ["react", "deterministic", "reference"]},
+  "theme_variables": [
+    {"id": "background", "name": "背景", "kind": "color", "css_variable": "--background", "default": "#090d17"},
+    {"id": "accent", "name": "强调色", "kind": "color", "css_variable": "--accent", "default": "#8de1ff"}
+  ],
+  "parameters": [
+    {
+      "descriptor": {
+        "id": "orbit_radius",
+        "label": "轨道半径",
+        "description": "控制轨道动画的空间半径。",
+        "group": "运动",
+        "kind": "number",
+        "control": "slider",
+        "default": 260,
+        "unit": "px",
+        "constraints": {"minimum": 80, "maximum": 420, "step": 1},
+        "options_source": null,
+        "timeline": "keyframe"
+      },
+      "binding": {"scope": "global", "css_variable": "--orbit-radius"}
+    }
+  ],
+  "scenes": [
+    {
+      "id": "react-orbit",
+      "name": "React 绝对时间轨道",
+      "page_role": "explanation",
+      "content_shape": "single-animation",
+      "layout_id": "react-reference-layout",
+      "duration_ms": 4000,
+      "primary_blocks": 2,
+      "steps": [
+        {"id": "start", "at_ms": 0, "label": "开始", "state_kind": "start", "review": true, "description": "轨道元素从绝对时间零点开始。"},
+        {"id": "result", "at_ms": 3000, "label": "完成", "state_kind": "result", "review": true, "description": "任意顺序定位仍得到相同画面。"}
+      ],
+      "motion": {"complexity": "simple", "driver": "object", "semantic_purpose": "证明 React 成品包只依赖绝对时间和固定随机种子。", "key_state_review": "required", "camera": null},
+      "parameters": {},
+      "data": {},
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "react-reference-layout",
+      "name": "React reference layout",
+      "page_roles": ["explanation"],
+      "content_shapes": ["single-animation"],
+      "required_data_fields": ["title"],
+      "required_layer_ids": ["title", "orbiter"],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": ["orbiter"],
+      "capacity": {"maximum_primary_blocks": 2},
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {"id": "landscape", "name": "Landscape", "canvas": {"width": 1280, "height": 720, "background_mode": "opaque", "background_color": "#090d17"}, "layers": {}}
+  ],
+  "default_variant_id": "landscape",
+  "data_fields": [
+    {"id": "title", "name": "标题", "kind": "string", "default": "React 只是生产方式"}
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "required_layer_ids": ["title", "orbiter"],
+    "bounds_tolerance_px": 2,
+    "minimum_font_px": {"title": 36},
+    "content_bounds_layer_ids": ["title", "orbiter"],
+    "minimum_content_span": 0.4
+  },
+  "delivery": {"preview": "local-server", "remote_dependencies": "forbid"},
+  "resources": [
+    "editable-media-runtime.js",
+    "build-info.json",
+    "THIRD_PARTY_NOTICES.md"
+  ]
+}

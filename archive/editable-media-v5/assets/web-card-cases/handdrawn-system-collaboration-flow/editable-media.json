@@ -1,0 +1,133 @@
+{
+  "protocol": "editable-media",
+  "version": 5,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "autoplay",
+    "fps": 30,
+    "loop": "repeat",
+    "controls": {"keyboard": false, "wheel": false, "touch": false, "overview": false}
+  },
+  "accessibility": {"title_data_field": "headline", "canvas_selector": "#mediaCanvas"},
+  "layers": [
+    {
+      "id": "identity", "name": "左上角主题", "kind": "group", "selector": "[data-editable-id='identity']",
+      "default_bounds": {"x": 56, "y": 28, "width": 390, "height": 82, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}
+    },
+    {
+      "id": "headline", "name": "主标题", "kind": "text", "selector": "[data-editable-id='headline']",
+      "default_bounds": {"x": 505, "y": 31, "width": 430, "height": 66, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 28, "maximum": 42, "step": 1}}
+    },
+    {
+      "id": "creator", "name": "作者署名", "kind": "group", "selector": "[data-editable-id='creator']",
+      "default_bounds": {"x": 1130, "y": 36, "width": 260, "height": 60, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}
+    },
+    {
+      "id": "diagram", "name": "MCP 人机协同流程图", "kind": "group", "selector": "[data-editable-id='diagram']",
+      "default_bounds": {"x": 42, "y": 128, "width": 1356, "height": 714, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "mcp-human-collaboration-loop",
+    "name": "MCP 人机协同动态流程图",
+    "category": "diagrams",
+    "tags": ["MCP", "Agent", "人机协同", "流程图", "视频", "科普"]
+  },
+  "theme_variables": [
+    {"id": "background", "name": "背景", "kind": "color", "css_variable": "--background", "default": "#060809"},
+    {"id": "text", "name": "正文", "kind": "color", "css_variable": "--text", "default": "#f0eee7"},
+    {"id": "muted", "name": "次要文字", "kind": "color", "css_variable": "--muted", "default": "#aeb8bb"},
+    {"id": "cyan", "name": "MCP 主回路", "kind": "color", "css_variable": "--cyan", "default": "#55b9e8"},
+    {"id": "green", "name": "工具与反馈", "kind": "color", "css_variable": "--green", "default": "#31c77b"},
+    {"id": "purple", "name": "共享状态", "kind": "color", "css_variable": "--purple", "default": "#bd66d6"},
+    {"id": "amber", "name": "人的界面", "kind": "color", "css_variable": "--amber", "default": "#d5a554"},
+    {"id": "pulse", "name": "流动光点", "kind": "color", "css_variable": "--pulse", "default": "#61ef9f"},
+    {"id": "font_display", "name": "中英文手绘标题字体", "kind": "font", "css_variable": "--font-display", "default": "Xiaolai, YouYuan, Microsoft YaHei UI, sans-serif"},
+    {"id": "font_body", "name": "中英文手绘正文字体", "kind": "font", "css_variable": "--font-body", "default": "Xiaolai, YouYuan, Microsoft YaHei UI, sans-serif"}
+  ],
+  "parameters": [],
+  "scenes": [
+    {
+      "id": "mcp-collaboration-loop",
+      "name": "MCP 人机协同回路",
+      "page_role": "explanation",
+      "content_shape": "state-transition",
+      "layout_id": "mcp-handdrawn-loop-layout",
+      "duration_ms": 14000,
+      "primary_blocks": 3,
+      "steps": [
+        {"id": "overview", "at_ms": 0, "label": "先看全貌", "state_kind": "start", "review": true, "description": "所有框、文字、连线和颜色从第一帧起固定显示。"},
+        {"id": "trigger", "at_ms": 1300, "label": "任务进入", "state_kind": "change", "review": true, "description": "光点从固定任务入口沿直角线进入 Agent。"},
+        {"id": "client", "at_ms": 3050, "label": "客户端调用服务端", "state_kind": "change", "review": true, "description": "客户端到服务端只发生一次光点动画。"},
+        {"id": "tool", "at_ms": 4250, "label": "执行已有工具", "state_kind": "change", "review": true, "description": "MCP 服务端把结构化调用交给已有工具。"},
+        {"id": "human", "at_ms": 5900, "label": "人工确认路径", "state_kind": "change", "review": true, "description": "需要人工确认时，结果沿固定直线进入人的界面。"},
+        {"id": "feedback", "at_ms": 8300, "label": "状态与反馈闭环", "state_kind": "result", "review": true, "description": "人的修改写入共享状态，再通过事件反馈回到 Agent。"},
+        {"id": "auto", "at_ms": 10100, "label": "自动继续路径", "state_kind": "change", "review": true, "description": "无需人工确认时沿另一条固定直角线路写入共享状态。"},
+        {"id": "shared", "at_ms": 11800, "label": "读写同一状态", "state_kind": "result", "review": true, "description": "MCP 服务端与共享业务状态保持竖直对齐，以两条短线表达双向读写。"},
+        {"id": "hold", "at_ms": 13300, "label": "完整停留", "state_kind": "hold", "review": true, "description": "光点结束，静态全貌保持不变。"}
+      ],
+      "motion": {
+        "complexity": "complex",
+        "driver": "object",
+        "semantic_purpose": "只用沿固定直线和直角线路移动的短光点解释调用与协同；不改变文字、布局、大小、框线颜色或亮度。",
+        "key_state_review": "required",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {},
+      "asset_slots": {"creator-avatar": {"data_field": "creator_avatar"}}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "mcp-handdrawn-loop-layout",
+      "name": "MCP 手绘人机协同回路",
+      "page_roles": ["explanation"],
+      "content_shapes": ["state-transition"],
+      "required_data_fields": ["identity_title", "identity_copy", "headline", "agent_title", "client_title", "server_title", "tools_title", "state_title", "human_ui_title", "boundary", "creator_avatar", "creator_name", "creator_role"],
+      "required_layer_ids": ["identity", "headline", "creator", "diagram"],
+      "title_layer_ids": ["identity", "headline"],
+      "content_layer_ids": ["diagram"],
+      "capacity": {"maximum_primary_blocks": 3},
+      "asset_slots": [{"id": "creator-avatar", "required": true, "ratio": "1:1", "fit": "contain", "preserve_full_frame": true}]
+    }
+  ],
+  "variants": [
+    {"id": "landscape", "name": "横版 16:10", "canvas": {"width": 1440, "height": 900, "background_mode": "opaque", "background_color": "#060809"}, "layers": {}}
+  ],
+  "default_variant_id": "landscape",
+  "data_fields": [
+    {"id": "identity_title", "name": "左上角主题", "kind": "string", "default": "MCP"},
+    {"id": "identity_copy", "name": "左上角说明", "kind": "string", "default": "让 Agent 使用工具，也让人随时参与"},
+    {"id": "headline", "name": "主标题", "kind": "string", "default": "人机协同回路"},
+    {"id": "agent_title", "name": "Agent 节点", "kind": "string", "default": "Agent"},
+    {"id": "client_title", "name": "客户端节点", "kind": "string", "default": "MCP 客户端"},
+    {"id": "server_title", "name": "服务端节点", "kind": "string", "default": "MCP 服务端"},
+    {"id": "tools_title", "name": "工具节点", "kind": "string", "default": "已有工具"},
+    {"id": "state_title", "name": "共享状态", "kind": "string", "default": "共享业务状态"},
+    {"id": "human_ui_title", "name": "人的界面", "kind": "string", "default": "人的界面"},
+    {"id": "boundary", "name": "能力边界", "kind": "string", "default": "MCP 负责把工具能力标准化给 Agent；界面同步、权限和冲突处理仍由应用负责。"},
+    {"id": "creator_avatar", "name": "作者头像", "kind": "media-source", "default": "cheshire-avatar"},
+    {"id": "creator_name", "name": "作者署名", "kind": "string", "default": "柴郡@0xCheshire"},
+    {"id": "creator_role", "name": "作者说明", "kind": "string", "default": "原创图解"}
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "headline", "layer_id": "headline"},
+    "required_layer_ids": ["identity", "headline", "creator", "diagram"],
+    "bounds_tolerance_px": 2,
+    "minimum_font_px": {"headline": 28},
+    "minimum_gaps": [{"above": "headline", "below": "diagram", "min_px": 20}],
+    "content_bounds_layer_ids": ["identity", "headline", "creator", "diagram"],
+    "minimum_content_span": 0.90,
+    "thumbnail": {"width": 480, "minimum_text_px": 8, "text_layer_ids": ["headline"]}
+  },
+  "delivery": {"preview": "local-server", "remote_dependencies": "forbid"},
+  "resources": ["editable-media-runtime.js", "style-profile.json", "assets/fonts/Xiaolai-Regular.ttf", "assets/fonts/Xiaolai-OFL.txt"]
+}

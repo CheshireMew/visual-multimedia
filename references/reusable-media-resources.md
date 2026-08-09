@@ -8,7 +8,7 @@
 
 `production-assets` 保存不绑定某位创作者身份的字体、图标、纹理、背景、音效、音乐和其它通用制作素材。库中每项都要说明媒体类型、实际职责、权利和采用条件；不同消费者仍按素材类型处理，不能用一套“万能素材”规则替代字体加载、图片槽位、视频时间线或声音混音。
 
-`web-components` 保存完整、自包含、已经通过真实浏览器验证的 editable-media v5 网页包。它可以是组件或完整案例，但不能只复制一段 HTML、截图或消费者内部 ID。项目采用后得到的仍是通用网页包，MediaFlow Pro、HyperFrames 或独立网页预览继续通过同一 `window.editableMedia` 与 `window.__hf` 边界读取。
+`web-components` 保存完整、自包含、已经通过真实浏览器验证的 editable-media v6 网页包。它可以是组件或完整案例，但不能只复制一段 HTML、截图或消费者内部 ID。项目采用后得到的仍是通用网页包，MediaFlow Pro、HyperFrames 或独立网页预览继续通过同一 `window.editableMedia` 与 `window.__hf` 边界读取。
 
 注册表没有默认资源。未点名资源、没有项目历史或无法从当前内容判断时，不暗选某张照片、某段音乐或某个组件。
 

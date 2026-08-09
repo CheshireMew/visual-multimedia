@@ -1,0 +1,65 @@
+{
+  "protocol": "visual-multimedia-text-motion",
+  "version": 1,
+  "id": "shimmer-sweep",
+  "name": "文字扫光",
+  "aliases": ["高光扫过", "shimmer"],
+  "status": "active",
+  "source_ids": ["sakura-animate-text"],
+  "host": {"sizing": "content", "overflow": "visible", "requires_final_width": false, "style_ownership": "project"},
+  "intent": {
+    "operations": ["enter", "exit", "replace", "emphasis"],
+    "default_operation": "emphasis",
+    "purpose": "用一次受控高光扫过强调已经可读的短标题。",
+    "energy": "moderate",
+    "semantic_tags": ["whole", "shimmer", "emphasis", "highlight"]
+  },
+  "segmentation": {
+    "unit": "whole",
+    "order": "forward",
+    "whitespace": "preserve",
+    "layout_measurement": "none"
+  },
+  "timing": {
+    "enter": {"duration_ms": 850, "stagger_ms": 0, "easing": "ease-out"},
+    "exit": {"duration_ms": 650, "stagger_ms": 0, "easing": "ease-in"},
+    "replace": {"mode": "sequential", "overlap_ms": 0, "micro_delay_ms": 36},
+    "emphasis": {"duration_ms": 1600, "stagger_ms": 0, "easing": "ease-in-out"},
+    "hold_ms": 900
+  },
+  "renderer": {
+    "kind": "shimmer",
+    "transform_origin": "center",
+    "unit_variation": "none",
+    "tracks": {
+      "enter": [
+        {"offset": 0, "values": {"opacity": 0, "x_px": -22, "blur_px": 8}},
+        {"offset": 1, "values": {"opacity": 1, "x_px": 0, "blur_px": 0}}
+      ],
+      "exit": [
+        {"offset": 0, "values": {"opacity": 1, "x_px": 0, "blur_px": 0}},
+        {"offset": 1, "values": {"opacity": 0, "x_px": 22, "blur_px": 8}}
+      ],
+      "emphasis": [
+        {"offset": 0, "values": {"opacity": 1, "shimmer_pct": -120}},
+        {"offset": 0.5, "values": {"opacity": 1, "shimmer_pct": 0}},
+        {"offset": 1, "values": {"opacity": 1, "shimmer_pct": 120}}
+      ]
+    }
+  },
+  "constraints": {
+    "recommended_max_graphemes": 28,
+    "recommended_max_lines": 2,
+    "layout_sensitive": false,
+    "motion_intensity": "medium",
+    "reduced_motion": {"strategy": "none", "duration_ms": 0},
+    "notes": ["高光只扫过一次，不把整段时间线变成无意义循环。", "正文、长字幕和低对比文字不使用。"]
+  },
+  "review": {
+    "key_states": [
+      {"operation": "emphasis", "id": "before-sweep", "at": 0, "meaning": "文字已经完整可读，高光位于左侧。"},
+      {"operation": "emphasis", "id": "sweep-center", "at": 0.5, "meaning": "高光穿过文字中心但不遮蔽字形。"},
+      {"operation": "emphasis", "id": "after-sweep", "at": 1, "meaning": "高光离开，文字仍保持原位。"}
+    ]
+  }
+}

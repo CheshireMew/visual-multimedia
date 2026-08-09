@@ -1,0 +1,777 @@
+{
+  "effect_count": 24,
+  "effects": [
+    {
+      "aliases": [
+        "向上虚化退出",
+        "blur out up"
+      ],
+      "behavior_fingerprint": "59afc8a255c6cdcede5659c1cd4ae08b259bf15d260e34eaf719fa63cd55675b",
+      "default_operation": "exit",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "blur-out-up",
+      "motion_intensity": "medium",
+      "name": "逐词模糊上退",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/blur-out-up.json",
+      "purpose": "让已读完的短句按词向上退出，为下一层内容腾出空间。",
+      "recommended_max_graphemes": 52,
+      "recommended_max_lines": 3,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "word",
+        "blur",
+        "exit",
+        "up"
+      ],
+      "sha256": "5f5e7625c610753de72b4efb3a34b6f21e75f9a8264cb83368d8c8963deab2d9",
+      "status": "active",
+      "unit": "word"
+    },
+    {
+      "aliases": [
+        "底部逐字",
+        "bottom up letters"
+      ],
+      "behavior_fingerprint": "67aeb2af36b65e9ad2f8d24141f6661775fc6fb203ce38580ac994c0d0b09802",
+      "default_operation": "enter",
+      "energy": "expressive",
+      "host_sizing": "content",
+      "id": "bottom-up-letters",
+      "motion_intensity": "high",
+      "name": "字素自下构建",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/bottom-up-letters.json",
+      "purpose": "让短标题以清晰、较强的自下而上字素节奏建立。",
+      "recommended_max_graphemes": 18,
+      "recommended_max_lines": 2,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "grapheme",
+        "bottom-up",
+        "build",
+        "headline"
+      ],
+      "sha256": "73ae44d68ffd6ef5f8cf053959c56d2167adc474b735a78dc9c601cf977c4790",
+      "status": "active",
+      "unit": "grapheme"
+    },
+    {
+      "aliases": [
+        "词组纵深",
+        "depth parallax words"
+      ],
+      "behavior_fingerprint": "9368d9b80385dd75b91d83cdec67014f3922041db6e803917d4c9751b3a30052",
+      "default_operation": "enter",
+      "energy": "expressive",
+      "host_sizing": "layout-slot",
+      "id": "depth-parallax-words",
+      "motion_intensity": "high",
+      "name": "逐词景深聚合",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/depth-parallax-words.json",
+      "purpose": "用不同幅度的纵深和位移让少量关键词聚合到同一平面。",
+      "recommended_max_graphemes": 34,
+      "recommended_max_lines": 2,
+      "requires_final_width": true,
+      "semantic_tags": [
+        "word",
+        "depth",
+        "parallax",
+        "focus"
+      ],
+      "sha256": "bfdcd749638da396c16d1dd7153d7d725941184c8a72ff660bfc8fccd8c4097a",
+      "status": "active",
+      "unit": "word"
+    },
+    {
+      "aliases": [
+        "淡化替换",
+        "fade through"
+      ],
+      "behavior_fingerprint": "c2a998eeef368bf7af3bca348f0e51f55ee84e7d62e7e055d6787a37c5437314",
+      "default_operation": "replace",
+      "energy": "calm",
+      "host_sizing": "content",
+      "id": "fade-through",
+      "motion_intensity": "low",
+      "name": "整段淡化穿越",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/fade-through.json",
+      "purpose": "用很短的淡化交叉窗口替换同一位置的整段文字。",
+      "recommended_max_graphemes": 88,
+      "recommended_max_lines": 5,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "whole",
+        "fade",
+        "replace",
+        "subtle"
+      ],
+      "sha256": "e5fbb43eaaa4c3f0832c6b2d9e36e4231df4bd4bcbba56f3de4313b49087e6dd",
+      "status": "active",
+      "unit": "whole"
+    },
+    {
+      "aliases": [
+        "由虚到实",
+        "focus resolve"
+      ],
+      "behavior_fingerprint": "d65ceda92ad9d24c0552201ccfa8000e2324c7d5c531330ef84a1f43e9fe303a",
+      "default_operation": "enter",
+      "energy": "calm",
+      "host_sizing": "content",
+      "id": "focus-blur-resolve",
+      "motion_intensity": "medium",
+      "name": "整段聚焦显现",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/focus-blur-resolve.json",
+      "purpose": "把一个重要主张从明显失焦状态收束到清晰结果。",
+      "recommended_max_graphemes": 52,
+      "recommended_max_lines": 3,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "whole",
+        "focus",
+        "resolve",
+        "claim"
+      ],
+      "sha256": "5539ad8263929aeb5da58dab728446e2051f42a2d4e09aa934c21115f2de1a6c",
+      "status": "active",
+      "unit": "whole"
+    },
+    {
+      "aliases": [
+        "中心词组建立",
+        "kinetic center"
+      ],
+      "behavior_fingerprint": "34c23318a7140eb146da52bfd207fd0a6231f0cd44bf959d8f3db0b72bd38e85",
+      "default_operation": "enter",
+      "energy": "expressive",
+      "host_sizing": "layout-slot",
+      "id": "kinetic-center-build",
+      "motion_intensity": "high",
+      "name": "中心向外逐词构建",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/kinetic-center-build.json",
+      "purpose": "从中心词开始向两侧构建一个紧凑短语。",
+      "recommended_max_graphemes": 26,
+      "recommended_max_lines": 1,
+      "requires_final_width": true,
+      "semantic_tags": [
+        "word",
+        "center-out",
+        "build",
+        "kinetic"
+      ],
+      "sha256": "9208f82da4e75ba2d605e425b971a0881cb98aed821fd19de1f9e2f3d62d182a",
+      "status": "active",
+      "unit": "word"
+    },
+    {
+      "aliases": [
+        "行级滑动",
+        "line slide"
+      ],
+      "behavior_fingerprint": "de631252b090b4b587d2504dfffb0f513d00c081a0e3be86be02393d5bc8a224",
+      "default_operation": "enter",
+      "energy": "moderate",
+      "host_sizing": "layout-slot",
+      "id": "line-by-line-slide",
+      "motion_intensity": "medium",
+      "name": "逐行横向滑入",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/line-by-line-slide.json",
+      "purpose": "让多行说明按真实排版行清楚进入，强调阅读顺序。",
+      "recommended_max_graphemes": 96,
+      "recommended_max_lines": 5,
+      "requires_final_width": true,
+      "semantic_tags": [
+        "line",
+        "slide",
+        "reading-order",
+        "multiline"
+      ],
+      "sha256": "3726766a7c3086e6cdf5981f2cdd505308d24f58d7ec1454c35df27854b56f54",
+      "status": "active",
+      "unit": "line"
+    },
+    {
+      "aliases": [
+        "向上揭示",
+        "line mask reveal"
+      ],
+      "behavior_fingerprint": "bf73ce15c27069ee34c9666f03330d3d5768c5c6629f0d1a84db7ff00d64b532",
+      "default_operation": "enter",
+      "energy": "moderate",
+      "host_sizing": "layout-slot",
+      "id": "mask-reveal-up",
+      "motion_intensity": "medium",
+      "name": "逐行遮罩上揭",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/mask-reveal-up.json",
+      "purpose": "按实际排版行从下向上揭示多行标题或短段落。",
+      "recommended_max_graphemes": 72,
+      "recommended_max_lines": 4,
+      "requires_final_width": true,
+      "semantic_tags": [
+        "line",
+        "mask",
+        "reveal",
+        "multiline"
+      ],
+      "sha256": "068f0a32792a8a369d1b0ce89d659eea357b898c7855290aac677cf4177f5402",
+      "status": "active",
+      "unit": "line"
+    },
+    {
+      "aliases": [
+        "微缩淡入",
+        "micro scale"
+      ],
+      "behavior_fingerprint": "96a58741a5dcada646d0b74c1c0d7e60e11b5f2fab734e0ba7040efc768e93ef",
+      "default_operation": "enter",
+      "energy": "calm",
+      "host_sizing": "content",
+      "id": "micro-scale-fade",
+      "motion_intensity": "low",
+      "name": "轻微缩放淡化",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/micro-scale-fade.json",
+      "purpose": "在不抢夺内容注意力的情况下让整段文字自然出现。",
+      "recommended_max_graphemes": 120,
+      "recommended_max_lines": 6,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "whole",
+        "subtle",
+        "fade",
+        "general"
+      ],
+      "sha256": "c0ba95f9f5c61eafb8fe9c13330b911299b8e6521ee4c0c9a70764f6ed4edf04",
+      "status": "active",
+      "unit": "whole"
+    },
+    {
+      "aliases": [
+        "字符阶梯",
+        "letter rise"
+      ],
+      "behavior_fingerprint": "51e4f4873f08088791bb61fa4af7fa326380e4008fd6f404979540e19107f681",
+      "default_operation": "replace",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "per-character-rise",
+      "motion_intensity": "medium",
+      "name": "逐字上升",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/per-character-rise.json",
+      "purpose": "用清晰的逐字阶梯节奏完成标题进入或替换。",
+      "recommended_max_graphemes": 32,
+      "recommended_max_lines": 2,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "grapheme",
+        "rise",
+        "crisp",
+        "headline"
+      ],
+      "sha256": "7a05d6096763392ec2940e250ec04cbf6e7d0537e852d0a65da188365d4a53b1",
+      "status": "active",
+      "unit": "grapheme"
+    },
+    {
+      "aliases": [
+        "词组交叉淡化",
+        "word crossfade"
+      ],
+      "behavior_fingerprint": "f0d504a3e89430f03ce6580487367894fe3065451d3bd74d2166bd314ccb1788",
+      "default_operation": "replace",
+      "energy": "calm",
+      "host_sizing": "content",
+      "id": "per-word-crossfade",
+      "motion_intensity": "low",
+      "name": "逐词交叉替换",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/per-word-crossfade.json",
+      "purpose": "在编辑型标题或短句更新时保留词组边界和从容节奏。",
+      "recommended_max_graphemes": 54,
+      "recommended_max_lines": 3,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "word",
+        "crossfade",
+        "editorial",
+        "replace"
+      ],
+      "sha256": "1c2b783f3a41370f619a0b00ab7d47def859623187eef47c7854349b3b90124f",
+      "status": "active",
+      "unit": "word"
+    },
+    {
+      "aliases": [
+        "收束退出",
+        "scale down fade"
+      ],
+      "behavior_fingerprint": "fa244b5da46a3aeb39b860aa76253931ac4e65bcf23a65d1103b5d0b582ad17b",
+      "default_operation": "exit",
+      "energy": "calm",
+      "host_sizing": "content",
+      "id": "scale-down-fade",
+      "motion_intensity": "low",
+      "name": "整段缩小淡出",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/scale-down-fade.json",
+      "purpose": "让整段文字以克制的缩小和淡化完成收束。",
+      "recommended_max_graphemes": 80,
+      "recommended_max_lines": 5,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "whole",
+        "scale",
+        "exit",
+        "closure"
+      ],
+      "sha256": "c4cc739bc688b3d28dadfd6a35548ddb6933c81f11cfde2f37320918a4d1f21a",
+      "status": "active",
+      "unit": "whole"
+    },
+    {
+      "aliases": [
+        "横向共享轴",
+        "shared axis x"
+      ],
+      "behavior_fingerprint": "d159d79c1bf75396aadc18e8846a21aec698c7e4357578e9315b8e7dab1dd725",
+      "default_operation": "replace",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "shared-axis-x",
+      "motion_intensity": "medium",
+      "name": "横轴整段替换",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/shared-axis-x.json",
+      "purpose": "沿同一横向关系替换整段内容，表达前后步骤或左右推进。",
+      "recommended_max_graphemes": 64,
+      "recommended_max_lines": 4,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "whole",
+        "axis-x",
+        "replace",
+        "directional"
+      ],
+      "sha256": "5ce2ec2008c25db91eff55f61a16b48528abcf2acbdefdd20d8271f55011ab2e",
+      "status": "active",
+      "unit": "whole"
+    },
+    {
+      "aliases": [
+        "纵向共享轴",
+        "shared axis y"
+      ],
+      "behavior_fingerprint": "616fb352027291ee1fe0930ea3fc22d1246646a2141e14569ce750d7e52e5903",
+      "default_operation": "replace",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "shared-axis-y",
+      "motion_intensity": "medium",
+      "name": "纵轴逐词替换",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/shared-axis-y.json",
+      "purpose": "沿同一纵向关系替换逐词信息，表达上下层级或继续推进。",
+      "recommended_max_graphemes": 48,
+      "recommended_max_lines": 3,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "word",
+        "axis-y",
+        "replace",
+        "directional"
+      ],
+      "sha256": "38098cc2713b1fec9f599fa8b014addb1ac2561bd702125c7c27110ce8b32bd9",
+      "status": "active",
+      "unit": "word"
+    },
+    {
+      "aliases": [
+        "纵深共享轴",
+        "shared axis z"
+      ],
+      "behavior_fingerprint": "6b29fb729da304ed83c534a386fb7b9d875e36f4b65dc736e4fd527327d12eca",
+      "default_operation": "replace",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "shared-axis-z",
+      "motion_intensity": "medium",
+      "name": "景深缩放替换",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/shared-axis-z.json",
+      "purpose": "通过前后景深缩放替换同一层级的整段文字。",
+      "recommended_max_graphemes": 56,
+      "recommended_max_lines": 3,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "whole",
+        "axis-z",
+        "scale",
+        "replace"
+      ],
+      "sha256": "cc963190e3e28717dc5b2678a9f2480e1c993308f8d83f429840e7d2a0b8b904",
+      "status": "active",
+      "unit": "whole"
+    },
+    {
+      "aliases": [
+        "高光扫过",
+        "shimmer"
+      ],
+      "behavior_fingerprint": "e10de0737d787fce9b6b3d5b707f6ff7e7bd3b4e7fb419d719fc68c91baf50b3",
+      "default_operation": "emphasis",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "shimmer-sweep",
+      "motion_intensity": "medium",
+      "name": "文字扫光",
+      "operations": [
+        "enter",
+        "exit",
+        "replace",
+        "emphasis"
+      ],
+      "path": "effects/shimmer-sweep.json",
+      "purpose": "用一次受控高光扫过强调已经可读的短标题。",
+      "recommended_max_graphemes": 28,
+      "recommended_max_lines": 2,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "whole",
+        "shimmer",
+        "emphasis",
+        "highlight"
+      ],
+      "sha256": "da07a78f3b676cfdd0e6447787147675497ed5e47f46d7bdb6b42149aec91622",
+      "status": "active",
+      "unit": "whole"
+    },
+    {
+      "aliases": [
+        "克制下落",
+        "short slide down"
+      ],
+      "behavior_fingerprint": "eb2898e3de8d36d7d333c5064f14d7414c10581f7c0e465d356bed0f90375f88",
+      "default_operation": "enter",
+      "energy": "moderate",
+      "host_sizing": "layout-slot",
+      "id": "short-slide-down",
+      "motion_intensity": "medium",
+      "name": "逐词短距下落",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/short-slide-down.json",
+      "purpose": "让紧凑词组从上方短距离落入最终位置。",
+      "recommended_max_graphemes": 32,
+      "recommended_max_lines": 3,
+      "requires_final_width": true,
+      "semantic_tags": [
+        "word",
+        "slide-down",
+        "compact",
+        "stack"
+      ],
+      "sha256": "bb2fc981d71867fd5950e849e84bb60bc02760b7784deb814287ac7c936d36cf",
+      "status": "active",
+      "unit": "word"
+    },
+    {
+      "aliases": [
+        "克制右滑",
+        "short slide right"
+      ],
+      "behavior_fingerprint": "41c46d67fa3492ab0950aff816bda0fb727955b997f4916f5e25ceb1cb753534",
+      "default_operation": "enter",
+      "energy": "moderate",
+      "host_sizing": "layout-slot",
+      "id": "short-slide-right",
+      "motion_intensity": "medium",
+      "name": "逐词短距右滑",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/short-slide-right.json",
+      "purpose": "用短距离共享方向和逐词透明度节奏建立横向标题。",
+      "recommended_max_graphemes": 42,
+      "recommended_max_lines": 2,
+      "requires_final_width": true,
+      "semantic_tags": [
+        "word",
+        "slide-right",
+        "compact",
+        "headline"
+      ],
+      "sha256": "998810a1a8aa28087fa0663ce89dfc6ea9fc361917db63ea1fd9566d289f5e53",
+      "status": "active",
+      "unit": "word"
+    },
+    {
+      "aliases": [
+        "柔和聚焦",
+        "soft blur"
+      ],
+      "behavior_fingerprint": "df6e7ff6ad50ffc4998b2985ef20dfdce9f0f9c72605dcb9b24e56b73f23c58e",
+      "default_operation": "replace",
+      "energy": "calm",
+      "host_sizing": "content",
+      "id": "soft-blur-in",
+      "motion_intensity": "medium",
+      "name": "柔焦逐字淡入",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/soft-blur-in.json",
+      "purpose": "在同一标题槽位中柔和替换短句，同时保留逐字节奏。",
+      "recommended_max_graphemes": 28,
+      "recommended_max_lines": 2,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "soft",
+        "focus",
+        "editorial",
+        "replace"
+      ],
+      "sha256": "a3fbe2f71dcf6483e026ae7aa1fb09c3b1ed9f69fcd255ff5d289fc4f48b4d04",
+      "status": "active",
+      "unit": "grapheme"
+    },
+    {
+      "aliases": [
+        "弹跳进入",
+        "spring scale"
+      ],
+      "behavior_fingerprint": "9da9c0a516e8dcc10cbab370e2b4a24b81d302aacce18f8a712a337dc3745d6f",
+      "default_operation": "enter",
+      "energy": "expressive",
+      "host_sizing": "content",
+      "id": "spring-scale-in",
+      "motion_intensity": "high",
+      "name": "逐词弹性放大",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/spring-scale-in.json",
+      "purpose": "让短促口号或关键词以有弹性的逐词节奏进入。",
+      "recommended_max_graphemes": 24,
+      "recommended_max_lines": 2,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "word",
+        "spring",
+        "scale",
+        "energetic"
+      ],
+      "sha256": "2bed677e210fd480a0d244e11deff28709fc9052b86cd91d4204e3a1275f37f5",
+      "status": "active",
+      "unit": "word"
+    },
+    {
+      "aliases": [
+        "中心扩散文字",
+        "stagger center"
+      ],
+      "behavior_fingerprint": "9eacb1629de719516537539c4feae9bb0214556c028d611f8db899cce17c18f6",
+      "default_operation": "enter",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "stagger-from-center",
+      "motion_intensity": "medium",
+      "name": "字素中心向外错峰",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/stagger-from-center.json",
+      "purpose": "让标题从中心字素向两侧展开，形成明确的中心注意力。",
+      "recommended_max_graphemes": 30,
+      "recommended_max_lines": 2,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "grapheme",
+        "center-out",
+        "stagger",
+        "focus"
+      ],
+      "sha256": "d951be1eaa8ee54a7ab339eaa6286ce94c7f17ec3118d67a4b51f3651874e711",
+      "status": "active",
+      "unit": "grapheme"
+    },
+    {
+      "aliases": [
+        "边缘聚合文字",
+        "stagger edges"
+      ],
+      "behavior_fingerprint": "a2b44a227f28dbb05a9cb8e9517f5133765edb931e6f057013a02bc8788d87ea",
+      "default_operation": "enter",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "stagger-from-edges",
+      "motion_intensity": "medium",
+      "name": "字素两端向内错峰",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/stagger-from-edges.json",
+      "purpose": "让标题从左右两端向中心聚合，强调汇合或收束。",
+      "recommended_max_graphemes": 30,
+      "recommended_max_lines": 2,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "grapheme",
+        "edges-in",
+        "stagger",
+        "converge"
+      ],
+      "sha256": "7af2e8e1aae774346a893806c4cebba3e93381898409572a3ed7fb91b328db5b",
+      "status": "active",
+      "unit": "grapheme"
+    },
+    {
+      "aliases": [
+        "顶部逐字",
+        "top down letters"
+      ],
+      "behavior_fingerprint": "3263607b1b3f6416c9b3a0779ecc955f745accdca4738abd9d6cd992f3298095",
+      "default_operation": "enter",
+      "energy": "expressive",
+      "host_sizing": "content",
+      "id": "top-down-letters",
+      "motion_intensity": "high",
+      "name": "字素自上构建",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/top-down-letters.json",
+      "purpose": "让短标题以清晰、较强的自上而下字素节奏建立。",
+      "recommended_max_graphemes": 18,
+      "recommended_max_lines": 2,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "grapheme",
+        "top-down",
+        "build",
+        "headline"
+      ],
+      "sha256": "08db016a62cb14ac702e28d1831c13de89de41ee228a983cd7b8476349971416",
+      "status": "active",
+      "unit": "grapheme"
+    },
+    {
+      "aliases": [
+        "逐字显现",
+        "typewriter"
+      ],
+      "behavior_fingerprint": "e89ecf61bf2ad466d4c82e4168e45c9c26d324688be28716009e8e935c6618de",
+      "default_operation": "enter",
+      "energy": "moderate",
+      "host_sizing": "content",
+      "id": "typewriter",
+      "motion_intensity": "low",
+      "name": "字素打字机",
+      "operations": [
+        "enter",
+        "exit",
+        "replace"
+      ],
+      "path": "effects/typewriter.json",
+      "purpose": "按完整字素逐个显示界面输入、命令或短句。",
+      "recommended_max_graphemes": 44,
+      "recommended_max_lines": 3,
+      "requires_final_width": false,
+      "semantic_tags": [
+        "grapheme",
+        "typewriter",
+        "interface",
+        "sequential"
+      ],
+      "sha256": "b2e7c6382f08950347a63c46648bd73b58205b091b606c3add1eb00768e48ee4",
+      "status": "active",
+      "unit": "grapheme"
+    }
+  ],
+  "library_version": "1.0.0",
+  "protocol": "visual-multimedia-text-motion-catalog",
+  "version": 1
+}

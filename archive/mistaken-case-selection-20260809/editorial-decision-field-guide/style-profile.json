@@ -1,0 +1,40 @@
+{
+  "profile_id": "sketch-note-explainer",
+  "source": "built-in",
+  "applicability": {
+    "shared_visual_core": ["static-card"],
+    "static_composition": ["static-card"],
+    "time_motion": [],
+    "interaction": []
+  },
+  "shared_visual_core": {
+    "typography": {
+      "primary": "Microsoft YaHei UI / Microsoft YaHei / system sans",
+      "annotation": "KaiTi / STKaiti / serif",
+      "title_weight": 900,
+      "body_weight": 500
+    },
+    "color": {
+      "surface": "Warm low-saturation paper",
+      "ink": "Deep green-black",
+      "annotation": "Burnt orange-red",
+      "action": "Muted teal",
+      "highlight": "Dry yellow marker"
+    },
+    "material": "Flat warm paper with a restrained construction grid",
+    "shape_and_line": "Straight structural rules with a few hand-drawn circles, underlines and marker swashes that explain emphasis",
+    "image_treatment": "No image assets; ordinary non-original content uses only a low-opacity production watermark",
+    "hierarchy_and_rhythm": "Large conversational title, full-width diagnostic table, two parallel action columns, three success criteria and one dark closing strip"
+  },
+  "realizations": {
+    "static_composition": {
+      "canvas": "Fixed 1900 × 3700 wide portrait card",
+      "capacity": "Four failure layers, three system tactics, four stop rules, three success criteria and one immediate action path",
+      "reading_order": "Top introduction → four-layer diagnosis → tactics and stop rules → success criteria → immediate action",
+      "preview": "Inspect the complete canvas and a 360px-wide thumbnail",
+      "delivery": "Export one 1900 × 3700 PNG"
+    },
+    "time_motion": null,
+    "interaction": null
+  }
+}

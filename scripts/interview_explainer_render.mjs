@@ -346,8 +346,8 @@ function renderSourceSegment(context, segment, outputPath, cachePath, cacheKey) 
 
 function assertMediaFlowProCapabilities(environment) {
   const describe = mediaFlowProDescribe(environment);
-  if (describe.protocol !== "mediaflow-editor" || describe.version !== 3) {
-    throw new Error("MediaFlow Pro describe 不是当前 v3 能力合同");
+  if (describe.protocol !== "mediaflow-editor" || describe.version !== 4) {
+    throw new Error("MediaFlow Pro describe 不是当前 v4 能力合同");
   }
   if (describe.product !== "MediaFlow Pro") {
     throw new Error(

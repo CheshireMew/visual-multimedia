@@ -1,0 +1,47 @@
+{
+  "profile_id": "editorial-warm-paper-ledger",
+  "source": "custom",
+  "applicability": {
+    "shared_visual_core": ["static-card"],
+    "static_composition": ["static-card"],
+    "time_motion": [],
+    "interaction": []
+  },
+  "shared_visual_core": {
+    "typography": {
+      "primary": "Noto Sans SC / Microsoft YaHei UI / system sans",
+      "technical": "Cascadia Mono / Consolas",
+      "title_weight": 900,
+      "body_weight": 500,
+      "url_style": "Small warm-brown monospace"
+    },
+    "color": {
+      "surface": "Warm paper neutrals",
+      "accent": "Avatar-derived gold is reserved for rank one, the ledger marker, stars and small navigation cues"
+    },
+    "material": "Subtle CSS paper grain with warm-neutral hairlines and no floating glass or heavy container shadows",
+    "shape_and_line": "One flat ledger organized by shared columns, fine rules and a single inline vector star",
+    "image_treatment": "No external evidence image; the background is CSS paper and the local avatar belongs only to the explicit curator credit",
+    "hierarchy_and_rhythm": "Large Chinese title, oversized outlined issue number, one metadata band and evenly spaced repository rows"
+  },
+  "realizations": {
+    "static_composition": {
+      "canvas": "Fixed 1600 × 2000 editorial card",
+      "capacity": "Seven repository rows with shared name, description, URL and metric columns",
+      "role_sizes_1600px": {
+        "title": "76px",
+        "summary": "29px",
+        "list_meta": "21px",
+        "curator_name": "24px",
+        "item_name": "33px",
+        "item_description": "24px",
+        "url": "17px",
+        "metric": "22px"
+      },
+      "preview": "Fit the complete fixed canvas inside a normal browser window, with scrolling as a fallback, then inspect every text role",
+      "delivery": "Capture the fixed canvas as a 1600 × 2000 PNG"
+    },
+    "time_motion": null,
+    "interaction": null
+  }
+}

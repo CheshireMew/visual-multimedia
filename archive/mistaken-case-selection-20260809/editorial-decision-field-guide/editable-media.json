@@ -1,0 +1,307 @@
+{
+  "protocol": "editable-media",
+  "version": 6,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "manual",
+    "fps": 1,
+    "loop": "none",
+    "controls": {
+      "keyboard": false,
+      "wheel": false,
+      "touch": false,
+      "overview": false
+    }
+  },
+  "frame_readiness": {
+    "default_timeout_ms": 10000,
+    "maximum_timeout_ms": 30000,
+    "retry_limit": 1
+  },
+  "accessibility": {
+    "title_data_field": "title",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "eyebrow",
+      "name": "主题眉题",
+      "kind": "text",
+      "selector": "[data-editable-id='eyebrow']",
+      "default_bounds": {"x": 110, "y": 86, "width": 1680, "height": 42, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 24, "maximum": 48, "step": 1}}
+    },
+    {
+      "id": "title",
+      "name": "主标题",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {"x": 110, "y": 133, "width": 1680, "height": 160, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 88, "maximum": 144, "step": 1}}
+    },
+    {
+      "id": "dek",
+      "name": "导语",
+      "kind": "text",
+      "selector": "[data-editable-id='dek']",
+      "default_bounds": {"x": 110, "y": 320, "width": 1190, "height": 200, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 32, "maximum": 50, "step": 1}}
+    },
+    {
+      "id": "context-note",
+      "name": "语境说明",
+      "kind": "text",
+      "selector": "[data-editable-id='context-note']",
+      "default_bounds": {"x": 1360, "y": 328, "width": 430, "height": 185, "rotation": -1.2},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 24, "maximum": 40, "step": 1}}
+    },
+    {
+      "id": "failure-table",
+      "name": "失败分层",
+      "kind": "group",
+      "selector": "[data-editable-id='failure-table']",
+      "default_bounds": {"x": 110, "y": 610, "width": 1680, "height": 1220, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {"id": "layer-row-1", "name": "失败层级一", "kind": "group", "selector": "[data-editable-id='layer-row-1']", "parent_id": "failure-table", "default_bounds": {"x": 110, "y": 750, "width": 1680, "height": 270, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "layer-row-2", "name": "失败层级二", "kind": "group", "selector": "[data-editable-id='layer-row-2']", "parent_id": "failure-table", "default_bounds": {"x": 110, "y": 1020, "width": 1680, "height": 270, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "layer-row-3", "name": "失败层级三", "kind": "group", "selector": "[data-editable-id='layer-row-3']", "parent_id": "failure-table", "default_bounds": {"x": 110, "y": 1290, "width": 1680, "height": 270, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {"id": "layer-row-4", "name": "失败层级四", "kind": "group", "selector": "[data-editable-id='layer-row-4']", "parent_id": "failure-table", "default_bounds": {"x": 110, "y": 1560, "width": 1680, "height": 270, "rotation": 0}, "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}},
+    {
+      "id": "tactics",
+      "name": "换打法",
+      "kind": "group",
+      "selector": "[data-editable-id='tactics']",
+      "default_bounds": {"x": 110, "y": 1890, "width": 800, "height": 820, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "stop-rules",
+      "name": "停止规则",
+      "kind": "group",
+      "selector": "[data-editable-id='stop-rules']",
+      "default_bounds": {"x": 980, "y": 1890, "width": 810, "height": 820, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "reframing",
+      "name": "重写成功标准",
+      "kind": "group",
+      "selector": "[data-editable-id='reframing']",
+      "default_bounds": {"x": 110, "y": 2770, "width": 1680, "height": 530, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "action-strip",
+      "name": "立即行动",
+      "kind": "group",
+      "selector": "[data-editable-id='action-strip']",
+      "default_bounds": {"x": 110, "y": 3360, "width": 1680, "height": 250, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "production-watermark",
+      "name": "制作水印",
+      "kind": "text",
+      "selector": "[data-editable-id='production-watermark']",
+      "default_bounds": {"x": 1450, "y": 3650, "width": 340, "height": 32, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 20, "maximum": 36, "step": 1}}
+    }
+  ],
+  "component": {
+    "id": "editorial-decision-field-guide",
+    "name": "编辑式问题诊断与行动指南",
+    "category": "cards",
+    "tags": ["问题诊断", "行动指南", "停止规则", "编辑式排版", "宽竖版文字卡"]
+  },
+  "theme_variables": [
+    {"id": "paper", "name": "纸面", "kind": "color", "css_variable": "--paper", "default": "#f3eee3"},
+    {"id": "ink", "name": "主文字", "kind": "color", "css_variable": "--ink", "default": "#191c1a"},
+    {"id": "muted", "name": "辅助文字", "kind": "color", "css_variable": "--muted", "default": "#50544f"},
+    {"id": "line", "name": "结构线", "kind": "color", "css_variable": "--line", "default": "#a8aa9f"},
+    {"id": "accent", "name": "批注重点", "kind": "color", "css_variable": "--accent", "default": "#e6552d"},
+    {"id": "teal", "name": "行动提示", "kind": "color", "css_variable": "--teal", "default": "#1f736b"},
+    {"id": "wash", "name": "浅重点底", "kind": "color", "css_variable": "--wash", "default": "#f5d84f"},
+    {"id": "font_sans", "name": "正文字体", "kind": "font", "css_variable": "--font-sans", "default": "Microsoft YaHei UI, Microsoft YaHei, PingFang SC, sans-serif"},
+    {"id": "font_note", "name": "批注字体", "kind": "font", "css_variable": "--font-note", "default": "KaiTi, STKaiti, serif"}
+  ],
+  "parameters": [],
+  "scenes": [
+    {
+      "id": "ai-anxiety-recovery",
+      "name": "用 AI 用抑郁了咋办",
+      "page_role": "explanation",
+      "content_shape": "layered-decision-and-actions",
+      "layout_id": "single-canvas-recovery-guide",
+      "duration_ms": 1000,
+      "primary_blocks": 4,
+      "steps": [
+        {"id": "page", "at_ms": 0, "label": "完整页面", "state_kind": "start", "review": false, "description": "静态单图一次性呈现失败分层、系统打法、停止规则和成功标准。"}
+      ],
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "保留一页内从判断到行动的完整阅读路径。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {},
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "single-canvas-recovery-guide",
+      "name": "单图失败分层与行动指南",
+      "page_roles": ["explanation"],
+      "content_shapes": ["layered-decision-and-actions"],
+      "required_data_fields": ["eyebrow", "title", "dek", "context_note", "failure_heading", "failure_layers", "tactics_heading", "tactics", "stop_heading", "stop_rules", "reframe_heading", "reframes", "action_label", "action_steps", "closing", "production_watermark"],
+      "required_layer_ids": ["eyebrow", "title", "dek", "context-note", "failure-table", "tactics", "stop-rules", "reframing", "action-strip", "production-watermark"],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": ["dek", "failure-table", "tactics", "stop-rules", "reframing", "action-strip"],
+      "capacity": {"maximum_primary_blocks": 4},
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "portrait-wide",
+      "name": "宽竖版",
+      "canvas": {
+        "width": 1900,
+        "height": 3700,
+        "background_mode": "opaque",
+        "background_color": "#f3eee3"
+      },
+      "layers": {}
+    }
+  ],
+  "default_variant_id": "portrait-wide",
+  "data_fields": [
+    {"id": "eyebrow", "name": "主题眉题", "kind": "string", "default": "当努力和结果之间的关系突然变得不稳定"},
+    {"id": "title", "name": "主标题", "kind": "string", "default": "用 AI 用抑郁了，咋办？"},
+    {"id": "dek", "name": "导语", "kind": "string", "default": "最折磨人的不是一次失败，而是：你认真调整了，结果却像随机数。久了，大脑会得出“我做什么都没用”。先别急着继续补指令——先判断这次失败属于哪一层。"},
+    {"id": "context_note", "name": "语境说明", "kind": "string", "default": "这里说的是被反复失败磨出来的无力感，不是在替抑郁症做诊断。"},
+    {"id": "failure_heading", "name": "失败分层标题", "kind": "string", "default": "先分层：这次到底是哪种失败？"},
+    {
+      "id": "failure_layers",
+      "name": "失败分层",
+      "kind": "table",
+      "default": [
+        {"number": "1", "label": "能查明的工程问题", "clue": "文件没读到、路径或格式错了、数据没传进去、工具没有触发。", "action": "继续查。这里的修正和结果之间，通常有稳定因果。"},
+        {"number": "2", "label": "能用测试改善的问题", "clue": "提示词、示例、上下文顺序、规则长短，让结果时好时坏。", "action": "别凭手感调。固定 20 个案例：14/20 → 17/20；剩下 3 次是概率尾部，不等于方法全坏。"},
+        {"number": "3", "label": "当前模型做不到", "clue": "规则一多就顾此失彼；审美、长流程、指令服从长期不稳。", "action": "允许写下工程结论：当前模型做不好。换模型、降要求，或把高判断环节交给人。"},
+        {"number": "4", "label": "平台自己变了", "clue": "昨天能用，今天变差；模型版本、上下文处理或工具路由悄悄变化。", "action": "禁止无限调试看不见的依赖。保留测试和版本条件，等待或更换平台。"}
+      ],
+      "columns": [
+        {"id": "number", "name": "序号", "kind": "string"},
+        {"id": "label", "name": "层级", "kind": "string"},
+        {"id": "clue", "name": "看到什么", "kind": "string"},
+        {"id": "action", "name": "怎么做", "kind": "string"}
+      ]
+    },
+    {"id": "tactics_heading", "name": "换打法标题", "kind": "string", "default": "别再给黑盒加规矩，给系统加结构"},
+    {
+      "id": "tactics",
+      "name": "换打法",
+      "kind": "table",
+      "default": [
+        {"label": "拆开任务", "body": "把“一次写好”改成：初稿 → 挑问题 → 重写。大流程也一样，拆到每一步都有可见结果。"},
+        {"label": "增加选择", "body": "一次生成 5 个 → 让 AI 排序 → 保留前 2 个 → 再细化。单次不稳，就给系统搜索空间。"},
+        {"label": "留一刀给人", "body": "AI 扩大选项，人只做“哪个真的好”的高价值选择。8 小时变 40 分钟，就已经有用，不必迷信全自动。"}
+      ],
+      "columns": [
+        {"id": "label", "name": "方法", "kind": "string"},
+        {"id": "body", "name": "说明", "kind": "string"}
+      ]
+    },
+    {"id": "stop_heading", "name": "停止规则标题", "kind": "string", "default": "先写停止规则，别把自己交给老虎机"},
+    {
+      "id": "stop_rules",
+      "name": "停止规则",
+      "kind": "list",
+      "default": [
+        "同一问题最多 3 次有依据的修改。说清：怀疑原因 X → 改动 Y → 观察指标 Z。",
+        "拆阶段、固定测试、加候选和审稿后，仍无可测提升：暂停。",
+        "人工返工已经吃掉省下的时间：暂停。",
+        "可能等模型升级自然解决：保留测试、数据和流程，冻结当前版本。"
+      ]
+    },
+    {"id": "reframe_heading", "name": "成功标准标题", "kind": "string", "default": "重写成功标准：不追求“永远听话”，追求“稳定有价值”"},
+    {
+      "id": "reframes",
+      "name": "成功标准",
+      "kind": "table",
+      "default": [
+        {"label": "先测正贡献", "body": "拿 30～50 条真实材料，固定模型和上下文，盲测：裸模型 / 当前方案 / 极简方案。谁真的赢，让数据说话。"},
+        {"label": "发布不等于完美", "body": "裸模型 40 分、用了方案平均 65 分，已经能提供价值。写清测试条件和不稳定场景，就可以发布。"},
+        {"label": "输出不等于你", "body": "你的能力在于提问题、定标准、设计实验、做选择。模型只是中间的随机执行；它今天变笨，不等于你也变笨。"}
+      ],
+      "columns": [
+        {"id": "label", "name": "标准", "kind": "string"},
+        {"id": "body", "name": "说明", "kind": "string"}
+      ]
+    },
+    {"id": "action_label", "name": "行动标签", "kind": "string", "default": "现在就做"},
+    {"id": "action_steps", "name": "行动步骤", "kind": "string", "default": "选 20 个真实案例 → 跑基线 → 一次只改一个假设 → 3 轮没提升就换结构 → 仍无正贡献就冻结"},
+    {"id": "closing", "name": "收束句", "kind": "string", "default": "你要夺回的，不是对模型的完全控制，而是对继续、换打法或停止的决定权。"},
+    {"id": "production_watermark", "name": "制作水印", "kind": "string", "default": "𝕏@0xCheshire"}
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "required_layer_ids": ["eyebrow", "title", "dek", "context-note", "failure-table", "layer-row-1", "layer-row-2", "layer-row-3", "layer-row-4", "tactics", "stop-rules", "reframing", "action-strip", "production-watermark"],
+    "bounds_tolerance_px": 3,
+    "minimum_font_px": {
+      "eyebrow": 24,
+      "title": 88,
+      "dek": 43,
+      "context-note": 24,
+      "production-watermark": 20
+    },
+    "minimum_gaps": [
+      {"above": "eyebrow", "below": "title", "min_px": 5},
+      {"above": "title", "below": "dek", "min_px": 20},
+      {"above": "tactics", "below": "reframing", "min_px": 50},
+      {"above": "reframing", "below": "action-strip", "min_px": 50}
+    ],
+    "title_to_content": {
+      "title_layer_id": "title",
+      "content_layer_ids": ["failure-table", "tactics", "stop-rules", "reframing", "action-strip"],
+      "minimum_px": 280
+    },
+    "content_bounds_layer_ids": ["eyebrow", "title", "dek", "context-note", "failure-table", "tactics", "stop-rules", "reframing", "action-strip", "production-watermark"],
+    "minimum_content_span": 0.95,
+    "bottom_whitespace": {
+      "content_layer_ids": ["eyebrow", "title", "dek", "context-note", "failure-table", "tactics", "stop-rules", "reframing", "action-strip", "production-watermark"],
+      "maximum_ratio": 0.02
+    },
+    "thumbnail": {
+      "width": 360,
+      "minimum_text_px": 8,
+      "text_layer_ids": ["title", "dek"]
+    }
+  },
+  "production": {
+    "media_project_id": "web-card-case-editorial-decision-field-guide",
+    "media_script_version": "2026-08-08",
+    "profile_id": "sketch-note-explainer"
+  },
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": ["editable-media-runtime.js", "style-profile.json"]
+}

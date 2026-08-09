@@ -1,0 +1,53 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 4,
+  "sources": [
+    {
+      "id": "cheshire-avatar",
+      "media_type": "icon",
+      "file": "assets/by-sha256/25/255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b.png",
+      "binding": {
+        "pipeline": "browser"
+      },
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
+      "acquisition": {
+        "method": "project-owned",
+        "source_url": "",
+        "captured_at": "2026-08-04T02:11:12.550Z"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "Creator identity asset approved by the user for original authorship credit",
+        "attribution": "柴郡@0xCheshire",
+        "terms_url": ""
+      },
+      "usage": "Original author avatar beside the visible signature",
+      "integrity": {
+        "sha256": "255e6243648bbd731aa269c4ac5643e89a818c7ca79b334bec582584c73af91b",
+        "bytes": 902095,
+        "mime_type": "image/png"
+      },
+      "generation": null,
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-08-04T02:11:12.550Z",
+          "provider": "",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "crops": {},
+      "notes": ""
+    }
+  ]
+}

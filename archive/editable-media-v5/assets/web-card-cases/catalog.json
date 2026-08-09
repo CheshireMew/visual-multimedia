@@ -1,0 +1,99 @@
+{
+  "cases": [
+    {
+      "id": "text-card-glossary",
+      "path": "text-card-glossary",
+      "files": {
+        "preview": "preview.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json"
+      },
+      "use_when": "内容由重复的名词—解释、概念—定义或相似键值对构成，并主要依靠文字本身完成阅读",
+      "reuse": "单栏术语与释义的共同对齐、可编辑表格字段、真实容量验收，以及普通非原创内容只使用制作水印的身份语义",
+      "adapt": "当前内容决定标题、条目数量、术语列宽、行高、画布尺寸和字体；先判断原创、整理或普通非原创，再选择身份标记",
+      "verify": "完整画布与 360px 缩略图都能读出主要文字；半透明 𝕏@0xCheshire 可辨认但不抢内容，且网页包不含头像或作者署名字段"
+    },
+    {
+      "id": "warm-paper-project-list",
+      "path": "warm-paper-project-list",
+      "files": {
+        "preview": "preview.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json"
+      },
+      "use_when": "多个项目、工具或资源按名称、说明、链接和数值等重复字段排成一张清单式图片",
+      "reuse": "单画布层级、共享列与分隔线、共同对齐关系、可编辑字段和固定尺寸导出链路",
+      "adapt": "标题、字段、条目数量、画布尺寸、密度、配色和整理说明位置由当前内容与品牌素材决定；没有实际筛选或整理贡献时不能沿用该身份角色",
+      "verify": "普通浏览器窗口能看全画布，所有文字角色在整图显示时可读，捕获图与网页真源一致"
+    },
+    {
+      "id": "social-evidence-variants",
+      "path": "social-evidence-variants",
+      "files": {
+        "preview": "preview-portrait-3x4.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json"
+      },
+      "use_when": "同一份主张与证据需要制作社交卡、平台封面，或在相同编辑视觉核心上制作网页动画及其派生视频",
+      "reuse": "共享字体、色彩、纸张、线条和证据表面；静态场景提供三输出变体与比例专用标题，动画场景另外提供分散—对齐—结果保持的语义运动",
+      "adapt": "当前内容决定逐页职责、文案、证据类型、布局、比例和运动载体；静态坐标和示例时间点不跨项目继承",
+      "verify": "对每个输出变体 × 场景运行 validate-editable-media.mjs；静态场景检查 360px 缩略图，动画场景查看真实开始、变化、结果状态并完整播放"
+    },
+    {
+      "id": "editorial-technology-diagram-cover",
+      "path": "editorial-technology-diagram-cover",
+      "files": {
+        "preview": "preview.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json"
+      },
+      "use_when": "没有参考图的技术、研究、模型或方法主题需要制作左侧准确标题、右侧原创图解的宽幅编辑封面",
+      "reuse": "连续标题区与原创图解区的双重心结构、准确文字和图解分层编辑的职责，以及完整画布与缩略图共同验收的制作链",
+      "adapt": "当前主题和语言合同重新决定图解命题及全部可见文字，当前视觉来源重新决定调色板、字体、网格密度和各比例构图；本案例的文字、色值与 5:2 画布都不是其它封面的默认值",
+      "verify": "在真实浏览器检查全部可见文字来自数据字段并服从当前语言、网页编辑回写、完整画布、360px 标题缩略图和图解标签可读性；生成图变体另核对无文字素材与网页文字边界"
+    },
+    {
+      "id": "technical-interface-comparison",
+      "path": "technical-interface-comparison",
+      "files": {
+        "preview": "preview.png",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json",
+        "qa": "qa-preview.mjs"
+      },
+      "use_when": "两到四个接口、工具或工作方式需要在同一张横向卡片中并列解释各自怎样连接调用者、能力与结果",
+      "reuse": "等宽横向栏、每栏同层级的微型机制图、语义分色、克制技术线条和一条产品无关的共享能力底座",
+      "adapt": "当前主题重新决定概念、栏数、标题、节点、配色、字体、画布和署名；不得自动继承 MCP、CLI、API 文案或作者身份",
+      "verify": "真实浏览器检查文字边界、图标与标签光学中心、连线端点、结构线语义和 360px 缩略图；不能出现无意义半截横条或项目专用业务核心"
+    },
+    {
+      "id": "handdrawn-system-collaboration-flow",
+      "path": "handdrawn-system-collaboration-flow",
+      "files": {
+        "preview": "preview.png",
+        "preview_video": "preview.mp4",
+        "web": "index.html",
+        "manifest": "editable-media.json",
+        "style": "style-profile.json",
+        "sources": "media-sources.json",
+        "qa": "qa-preview.mjs",
+        "export": "export-video.mjs",
+        "notices": "THIRD_PARTY_NOTICES.md"
+      },
+      "use_when": "系统、状态、反馈或人机协同关系适合用深色手绘风稳定全貌图与路径光点逐步解释",
+      "reuse": "第一帧完整显示结构、直线或正交路径、稳定细线层级、同一路径同色光点、统一本地手绘字体，以及网页源帧到移动端 MP4 的确定性链路",
+      "adapt": "当前主题重新决定节点、路径、标签、配色、字体、时间、画布和署名；不得自动继承 MCP、人机协同文案或作者身份",
+      "verify": "捕获全部语义状态，检查静态图层不变、每个事件只走一次、光点与路径同色、文字与图标边界通过；最终视频顺序解码并核对 H.264、yuv420p、avc1、BT.709 与 faststart"
+    }
+  ]
+}

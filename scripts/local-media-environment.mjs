@@ -311,8 +311,8 @@ export function mediaFlowProDescribe(environment) {
   if (!response.ok) {
     fail(`MediaFlow Pro describe 失败：${JSON.stringify(response.error)}`);
   }
-  if (response.protocol !== "mediaflow-editor" || response.version !== 3) {
-    fail("MediaFlow Pro 没有返回当前 v3 响应合同");
+  if (response.protocol !== "mediaflow-editor" || response.version !== 4) {
+    fail("MediaFlow Pro 没有返回当前 v4 响应合同");
   }
   mediaFlowContract = response.result;
   return mediaFlowContract;
@@ -328,7 +328,7 @@ export function mediaFlowProExecute(
   if (!mediaFlowContract) mediaFlowProDescribe(environment);
   const request = {
     protocol: "mediaflow-editor",
-    version: 3,
+    version: 4,
     operation,
     project,
     arguments: argumentsValue,
@@ -366,8 +366,8 @@ export function mediaFlowProExecute(
     ["execute", "--request", "-"],
     JSON.stringify(request),
   );
-  if (response.protocol !== "mediaflow-editor" || response.version !== 3) {
-    fail(`MediaFlow Pro ${operation} 没有返回当前 v3 响应合同`);
+  if (response.protocol !== "mediaflow-editor" || response.version !== 4) {
+    fail(`MediaFlow Pro ${operation} 没有返回当前 v4 响应合同`);
   }
   if (!response.ok) {
     fail(`MediaFlow Pro ${operation} 失败：${JSON.stringify(response.error, null, 2)}`);

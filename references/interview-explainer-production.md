@@ -127,7 +127,7 @@ node scripts/media-project.mjs <command> --project <项目目录> ...
 
 ### 中文解释画面
 
-每段旁白使用一个经过浏览器验证的 `editable-media` v5 场景包。Agent根据当前语义选择画面：
+每段旁白使用一个经过浏览器验证的 `editable-media` v6 场景包。Agent根据当前语义选择画面：
 
 - 比较使用并列结构。
 - 因果和投入产出使用流程或关系。

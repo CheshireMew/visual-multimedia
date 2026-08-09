@@ -1,76 +1,318 @@
 {
   "protocol": "editable-media",
-  "version": 5,
+  "version": 6,
   "entry": "index.html",
   "media_sources": "media-sources.json",
   "playback": {
     "mode": "manual",
     "fps": 1,
     "loop": "none",
-    "controls": {"keyboard": false, "wheel": false, "touch": false, "overview": false}
+    "controls": {
+      "keyboard": false,
+      "wheel": false,
+      "touch": false,
+      "overview": false
+    }
   },
-  "accessibility": {"title_data_field": "title_primary", "canvas_selector": "#mediaCanvas"},
+  "accessibility": {
+    "title_data_field": "title_primary",
+    "canvas_selector": "#mediaCanvas"
+  },
   "layers": [
     {
-      "id": "title-primary", "name": "Primary title", "kind": "text", "selector": "[data-editable-id='title-primary']",
-      "default_bounds": {"x": 54, "y": 36, "width": 1050, "height": 88, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 52, "maximum": 84, "step": 1}}
+      "id": "title-primary",
+      "name": "Primary title",
+      "kind": "text",
+      "selector": "[data-editable-id='title-primary']",
+      "default_bounds": {
+        "x": 54,
+        "y": 36,
+        "width": 1050,
+        "height": 88,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 52,
+          "maximum": 84,
+          "step": 1
+        }
+      }
     },
     {
-      "id": "mcp-panel", "name": "MCP visual diagram", "kind": "group", "selector": "[data-editable-id='mcp-panel']",
-      "default_bounds": {"x": 54, "y": 184, "width": 584, "height": 744, "rotation": 0},
-      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}
+      "id": "mcp-panel",
+      "name": "MCP visual diagram",
+      "kind": "group",
+      "selector": "[data-editable-id='mcp-panel']",
+      "default_bounds": {
+        "x": 54,
+        "y": 184,
+        "width": 584,
+        "height": 744,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {}
     },
     {
-      "id": "cli-panel", "name": "CLI visual diagram", "kind": "group", "selector": "[data-editable-id='cli-panel']",
-      "default_bounds": {"x": 668, "y": 184, "width": 584, "height": 744, "rotation": 0},
-      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}
+      "id": "cli-panel",
+      "name": "CLI visual diagram",
+      "kind": "group",
+      "selector": "[data-editable-id='cli-panel']",
+      "default_bounds": {
+        "x": 668,
+        "y": 184,
+        "width": 584,
+        "height": 744,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {}
     },
     {
-      "id": "api-panel", "name": "API visual diagram", "kind": "group", "selector": "[data-editable-id='api-panel']",
-      "default_bounds": {"x": 1282, "y": 184, "width": 584, "height": 744, "rotation": 0},
-      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}
+      "id": "api-panel",
+      "name": "API visual diagram",
+      "kind": "group",
+      "selector": "[data-editable-id='api-panel']",
+      "default_bounds": {
+        "x": 1282,
+        "y": 184,
+        "width": 584,
+        "height": 744,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {}
     },
     {
-      "id": "core-rail", "name": "Shared application core", "kind": "group", "selector": "[data-editable-id='core-rail']",
-      "default_bounds": {"x": 54, "y": 950, "width": 1500, "height": 82, "rotation": 0},
-      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"], "constraints": {}
+      "id": "core-rail",
+      "name": "Shared application core",
+      "kind": "group",
+      "selector": "[data-editable-id='core-rail']",
+      "default_bounds": {
+        "x": 54,
+        "y": 950,
+        "width": 1500,
+        "height": 82,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {}
     },
     {
-      "id": "creator-avatar", "name": "Creator avatar", "kind": "image", "selector": "[data-editable-id='creator-avatar']",
-      "default_bounds": {"x": 1622, "y": 970, "width": 58, "height": 58, "rotation": 0},
-      "editable": ["image", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"], "constraints": {}
+      "id": "creator-avatar",
+      "name": "Creator avatar",
+      "kind": "image",
+      "selector": "[data-editable-id='creator-avatar']",
+      "default_bounds": {
+        "x": 1622,
+        "y": 970,
+        "width": 58,
+        "height": 58,
+        "rotation": 0
+      },
+      "editable": [
+        "image",
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {}
     },
     {
-      "id": "creator-name", "name": "Creator name", "kind": "text", "selector": "[data-editable-id='creator-name']",
-      "default_bounds": {"x": 1696, "y": 974, "width": 190, "height": 28, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 16, "maximum": 26, "step": 1}}
+      "id": "creator-name",
+      "name": "Creator name",
+      "kind": "text",
+      "selector": "[data-editable-id='creator-name']",
+      "default_bounds": {
+        "x": 1696,
+        "y": 974,
+        "width": 190,
+        "height": 28,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 16,
+          "maximum": 26,
+          "step": 1
+        }
+      }
     },
     {
-      "id": "creator-role", "name": "Creator role", "kind": "text", "selector": "[data-editable-id='creator-role']",
-      "default_bounds": {"x": 1696, "y": 1004, "width": 190, "height": 22, "rotation": 0},
-      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "opacity", "z_index", "visible"],
-      "constraints": {"font_size": {"minimum": 10, "maximum": 18, "step": 1}}
+      "id": "creator-role",
+      "name": "Creator role",
+      "kind": "text",
+      "selector": "[data-editable-id='creator-role']",
+      "default_bounds": {
+        "x": 1696,
+        "y": 1004,
+        "width": 190,
+        "height": 22,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 10,
+          "maximum": 18,
+          "step": 1
+        }
+      }
     }
   ],
   "component": {
     "id": "mcp-cli-api-landscape-visual",
     "name": "MCP CLI API 横版工作方式图解",
     "category": "cards",
-    "tags": ["mcp", "cli", "api", "工作方式", "技术图解", "横版"]
+    "tags": [
+      "mcp",
+      "cli",
+      "api",
+      "工作方式",
+      "技术图解",
+      "横版"
+    ]
   },
   "theme_variables": [
-    {"id": "background", "name": "背景", "kind": "color", "css_variable": "--bg", "default": "#071018"},
-    {"id": "surface", "name": "面板", "kind": "color", "css_variable": "--surface", "default": "#0c1823"},
-    {"id": "text", "name": "正文", "kind": "color", "css_variable": "--text", "default": "#f3f8fb"},
-    {"id": "muted", "name": "次要文字", "kind": "color", "css_variable": "--muted", "default": "#8ca3b2"},
-    {"id": "mcp", "name": "MCP 颜色", "kind": "color", "css_variable": "--mcp", "default": "#7ee7ff"},
-    {"id": "cli", "name": "CLI 颜色", "kind": "color", "css_variable": "--cli", "default": "#ffc66d"},
-    {"id": "api", "name": "API 颜色", "kind": "color", "css_variable": "--api", "default": "#a9f58c"},
-    {"id": "font_sans", "name": "中文字体", "kind": "font", "css_variable": "--font-sans", "default": "Microsoft YaHei UI, Noto Sans SC, PingFang SC, Segoe UI, sans-serif"},
-    {"id": "font_mono", "name": "代码字体", "kind": "font", "css_variable": "--font-mono", "default": "Cascadia Mono, JetBrains Mono, Consolas, monospace"}
+    {
+      "id": "background",
+      "name": "背景",
+      "kind": "color",
+      "css_variable": "--bg",
+      "default": "#071018"
+    },
+    {
+      "id": "surface",
+      "name": "面板",
+      "kind": "color",
+      "css_variable": "--surface",
+      "default": "#0c1823"
+    },
+    {
+      "id": "text",
+      "name": "正文",
+      "kind": "color",
+      "css_variable": "--text",
+      "default": "#f3f8fb"
+    },
+    {
+      "id": "muted",
+      "name": "次要文字",
+      "kind": "color",
+      "css_variable": "--muted",
+      "default": "#8ca3b2"
+    },
+    {
+      "id": "mcp",
+      "name": "MCP 颜色",
+      "kind": "color",
+      "css_variable": "--mcp",
+      "default": "#7ee7ff"
+    },
+    {
+      "id": "cli",
+      "name": "CLI 颜色",
+      "kind": "color",
+      "css_variable": "--cli",
+      "default": "#ffc66d"
+    },
+    {
+      "id": "api",
+      "name": "API 颜色",
+      "kind": "color",
+      "css_variable": "--api",
+      "default": "#a9f58c"
+    },
+    {
+      "id": "font_sans",
+      "name": "中文字体",
+      "kind": "font",
+      "css_variable": "--font-sans",
+      "default": "Microsoft YaHei UI, Noto Sans SC, PingFang SC, Segoe UI, sans-serif"
+    },
+    {
+      "id": "font_mono",
+      "name": "代码字体",
+      "kind": "font",
+      "css_variable": "--font-mono",
+      "default": "Cascadia Mono, JetBrains Mono, Consolas, monospace"
+    }
   ],
   "parameters": [],
   "scenes": [
@@ -83,63 +325,247 @@
       "duration_ms": 1000,
       "primary_blocks": 4,
       "steps": [
-        {"id": "page", "at_ms": 0, "label": "完整画面", "state_kind": "start", "review": false, "description": "横向展示 MCP、CLI、API 各自的调用者、接口过程和结果。"}
+        {
+          "id": "page",
+          "at_ms": 0,
+          "label": "完整画面",
+          "state_kind": "start",
+          "review": false,
+          "description": "横向展示 MCP、CLI、API 各自的调用者、接口过程和结果。"
+        }
       ],
-      "motion": {"complexity": "static", "driver": "none", "semantic_purpose": "用三张流程图解释三种接口如何工作。", "key_state_review": "none", "camera": null},
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "用三张流程图解释三种接口如何工作。",
+        "key_state_review": "none",
+        "camera": null
+      },
       "parameters": {},
       "data": {},
-      "asset_slots": {"creator-avatar": {"data_field": "creator_avatar"}}
+      "asset_slots": {
+        "creator-avatar": {
+          "data_field": "creator_avatar"
+        }
+      }
     }
   ],
   "layout_contracts": [
     {
-      "id": "three-interface-flow", "name": "Three visual interface flows", "page_roles": ["explanation"],
-      "content_shapes": ["three-diagram-landscape"],
-      "required_data_fields": ["title_primary", "mcp_name", "mcp_expansion", "mcp_caption", "cli_name", "cli_expansion", "cli_caption", "api_name", "api_expansion", "api_caption", "creator_avatar", "creator_name", "creator_role"],
-      "required_layer_ids": ["title-primary", "mcp-panel", "cli-panel", "api-panel", "core-rail", "creator-avatar", "creator-name", "creator-role"],
-      "title_layer_ids": ["title-primary"],
-      "content_layer_ids": ["mcp-panel", "cli-panel", "api-panel", "core-rail"],
-      "capacity": {"maximum_primary_blocks": 4},
-      "asset_slots": [{"id": "creator-avatar", "required": true, "ratio": "1:1", "fit": "contain", "preserve_full_frame": true}]
+      "id": "three-interface-flow",
+      "name": "Three visual interface flows",
+      "page_roles": [
+        "explanation"
+      ],
+      "content_shapes": [
+        "three-diagram-landscape"
+      ],
+      "required_data_fields": [
+        "title_primary",
+        "mcp_name",
+        "mcp_expansion",
+        "mcp_caption",
+        "cli_name",
+        "cli_expansion",
+        "cli_caption",
+        "api_name",
+        "api_expansion",
+        "api_caption",
+        "creator_avatar",
+        "creator_name",
+        "creator_role"
+      ],
+      "required_layer_ids": [
+        "title-primary",
+        "mcp-panel",
+        "cli-panel",
+        "api-panel",
+        "core-rail",
+        "creator-avatar",
+        "creator-name",
+        "creator-role"
+      ],
+      "title_layer_ids": [
+        "title-primary"
+      ],
+      "content_layer_ids": [
+        "mcp-panel",
+        "cli-panel",
+        "api-panel",
+        "core-rail"
+      ],
+      "capacity": {
+        "maximum_primary_blocks": 4
+      },
+      "asset_slots": [
+        {
+          "id": "creator-avatar",
+          "required": true,
+          "ratio": "1:1",
+          "fit": "contain",
+          "preserve_full_frame": true
+        }
+      ]
     }
   ],
   "variants": [
     {
-      "id": "landscape-16x9", "name": "Landscape 16:9",
-      "canvas": {"width": 1920, "height": 1080, "background_mode": "opaque", "background_color": "#071018"},
+      "id": "landscape-16x9",
+      "name": "Landscape 16:9",
+      "canvas": {
+        "width": 1920,
+        "height": 1080,
+        "background_mode": "opaque",
+        "background_color": "#071018"
+      },
       "layers": {}
     }
   ],
   "default_variant_id": "landscape-16x9",
   "data_fields": [
-    {"id": "title_primary", "name": "主标题", "kind": "string", "default": "一图看懂 MCP / CLI / API"},
-    {"id": "mcp_name", "name": "MCP name", "kind": "string", "default": "MCP"},
-    {"id": "mcp_expansion", "name": "MCP 全称", "kind": "string", "default": "模型上下文协议"},
-    {"id": "mcp_caption", "name": "MCP caption", "kind": "string", "default": "发现工具 → 读取 Schema → 结构化调用"},
-    {"id": "cli_name", "name": "CLI name", "kind": "string", "default": "CLI"},
-    {"id": "cli_expansion", "name": "CLI 全称", "kind": "string", "default": "命令行界面"},
-    {"id": "cli_caption", "name": "CLI caption", "kind": "string", "default": "参数输入 → 启动进程 → 检查文件 / 输出 / 退出码"},
-    {"id": "api_name", "name": "API name", "kind": "string", "default": "API"},
-    {"id": "api_expansion", "name": "API 全称", "kind": "string", "default": "应用程序编程接口"},
-    {"id": "api_caption", "name": "API caption", "kind": "string", "default": "函数或请求 → 稳定契约 → 持续读写服务与状态"},
-    {"id": "creator_avatar", "name": "Creator avatar", "kind": "media-source", "default": "cheshire-avatar"},
-    {"id": "creator_name", "name": "Creator name", "kind": "string", "default": "柴郡@0xCheshire"},
-    {"id": "creator_role", "name": "作者说明", "kind": "string", "default": "原创图解"}
+    {
+      "id": "title_primary",
+      "name": "主标题",
+      "kind": "string",
+      "default": "一图看懂 MCP / CLI / API"
+    },
+    {
+      "id": "mcp_name",
+      "name": "MCP name",
+      "kind": "string",
+      "default": "MCP"
+    },
+    {
+      "id": "mcp_expansion",
+      "name": "MCP 全称",
+      "kind": "string",
+      "default": "模型上下文协议"
+    },
+    {
+      "id": "mcp_caption",
+      "name": "MCP caption",
+      "kind": "string",
+      "default": "发现工具 → 读取 Schema → 结构化调用"
+    },
+    {
+      "id": "cli_name",
+      "name": "CLI name",
+      "kind": "string",
+      "default": "CLI"
+    },
+    {
+      "id": "cli_expansion",
+      "name": "CLI 全称",
+      "kind": "string",
+      "default": "命令行界面"
+    },
+    {
+      "id": "cli_caption",
+      "name": "CLI caption",
+      "kind": "string",
+      "default": "参数输入 → 启动进程 → 检查文件 / 输出 / 退出码"
+    },
+    {
+      "id": "api_name",
+      "name": "API name",
+      "kind": "string",
+      "default": "API"
+    },
+    {
+      "id": "api_expansion",
+      "name": "API 全称",
+      "kind": "string",
+      "default": "应用程序编程接口"
+    },
+    {
+      "id": "api_caption",
+      "name": "API caption",
+      "kind": "string",
+      "default": "函数或请求 → 稳定契约 → 持续读写服务与状态"
+    },
+    {
+      "id": "creator_avatar",
+      "name": "Creator avatar",
+      "kind": "media-source",
+      "default": "cheshire-avatar"
+    },
+    {
+      "id": "creator_name",
+      "name": "Creator name",
+      "kind": "string",
+      "default": "柴郡@0xCheshire"
+    },
+    {
+      "id": "creator_role",
+      "name": "作者说明",
+      "kind": "string",
+      "default": "原创图解"
+    }
   ],
   "quality": {
     "canvas_selector": "#mediaCanvas",
-    "roundtrip": {"data_field": "title_primary", "layer_id": "title-primary"},
-    "required_layer_ids": ["title-primary", "mcp-panel", "cli-panel", "api-panel", "core-rail", "creator-avatar", "creator-name", "creator-role"],
-    "bounds_tolerance_px": 2,
-    "minimum_font_px": {"title-primary": 52, "creator-name": 16, "creator-role": 10},
-    "minimum_gaps": [
-      {"above": "title-primary", "below": "mcp-panel", "min_px": 20},
-      {"above": "mcp-panel", "below": "core-rail", "min_px": 20}
+    "roundtrip": {
+      "data_field": "title_primary",
+      "layer_id": "title-primary"
+    },
+    "required_layer_ids": [
+      "title-primary",
+      "mcp-panel",
+      "cli-panel",
+      "api-panel",
+      "core-rail",
+      "creator-avatar",
+      "creator-name",
+      "creator-role"
     ],
-    "content_bounds_layer_ids": ["title-primary", "mcp-panel", "cli-panel", "api-panel", "core-rail", "creator-avatar", "creator-name", "creator-role"],
+    "bounds_tolerance_px": 2,
+    "minimum_font_px": {
+      "title-primary": 52,
+      "creator-name": 16,
+      "creator-role": 10
+    },
+    "minimum_gaps": [
+      {
+        "above": "title-primary",
+        "below": "mcp-panel",
+        "min_px": 20
+      },
+      {
+        "above": "mcp-panel",
+        "below": "core-rail",
+        "min_px": 20
+      }
+    ],
+    "content_bounds_layer_ids": [
+      "title-primary",
+      "mcp-panel",
+      "cli-panel",
+      "api-panel",
+      "core-rail",
+      "creator-avatar",
+      "creator-name",
+      "creator-role"
+    ],
     "minimum_content_span": 0.92,
-    "thumbnail": {"width": 480, "minimum_text_px": 8, "text_layer_ids": ["title-primary"]}
+    "thumbnail": {
+      "width": 480,
+      "minimum_text_px": 8,
+      "text_layer_ids": [
+        "title-primary"
+      ]
+    }
   },
-  "delivery": {"preview": "local-server", "remote_dependencies": "forbid"},
-  "resources": ["editable-media-runtime.js", "style-profile.json"]
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": [
+    "editable-media-runtime.js",
+    "style-profile.json"
+  ],
+  "frame_readiness": {
+    "default_timeout_ms": 10000,
+    "maximum_timeout_ms": 30000,
+    "retry_limit": 1
+  }
 }

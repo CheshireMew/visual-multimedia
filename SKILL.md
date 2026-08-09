@@ -33,6 +33,10 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 用户只点名本 Skill 并提供内容、未说明成品时，先给出首选载体及理由，完成可确认的媒体文案后停止，不创建完整媒体。明确要求样稿或成品时进入制作；静态任务仍先交完整画布样稿，明确授权连续完成时除外。
 
+## 当前视频默认基线
+
+用户要求制作带语音的视频、且当前请求没有另行指定时，默认使用中英文双语字幕；与声音一致的原语言为主层，译文为次层，并在最终画面中实际显示。需要生成合成旁白时，默认唯一解析已注册声音 `game.honkai-star-rail.silverwolf.default`（银狼），通过 GPT-SoVITS `speech.synthesize` 以 `speed_factor: 1.25` 生成，不在后期另行拉伸。用户提供了必须保留的真人原声或现成旁白时继续使用真实声音，不为套用默认而重新合成；用户后来明确指定的声音、语速、字幕语言、单语字幕或无字幕要求覆盖本基线，并使受影响的旧音频、字幕和必要下游失效。
+
 ## 开始前的七项判断
 
 收到请求后先确定：
@@ -147,7 +151,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 自动选择或继承视觉与动效配方 | `references/visual-production-profiles.md` | 继承共享视觉核心，并按静态、时间与交互载体选择对应实现层 |
 | 建立或继承项目、系列的声音素材角色与混音规则 | `references/sound-production-profiles.md` | 使用独立声音档案引用真实 audio source id，不把声音规则混入视觉档案 |
 | 查找、注册或采用创作者素材、通用制作素材、网页组件，或从项目晋升可复用成果 | `references/reusable-media-resources.md` | 使用不可变注册版本，经现有素材账本或完整网页包边界进入项目，并保存采用与晋升证据 |
-| 图文卡片、封面、图表、GIF、代码动画、可手动推进的多场景 HTML 或无实拍视觉 | `references/web-visual-production.md` | 建立网页真源、场景合同、播放方式、样稿、确定性时间线和派生媒体 |
+| 图文、图表、GIF、HTML/React 动画或无实拍视觉 | `references/web-visual-production.md` | 选择 DOM/React 入口，建立 v6 真源与派生媒体 |
 | 技术概念、接口、工具或系统关系需要静态机制图、对比图，或保持全貌不变的动态流程图 | `references/technical-diagram-production.md` | 分配画面信息职责，建立可读机制、正交连接、稳定图层、同色流光和浏览器几何验收 |
 | 把已确认的网页、桌面应用或移动产品功能制作成有真实界面证据的宣传片 | `references/product-promo-production.md` | 使用正式 profile、页面采集、镜头配方状态、功能覆盖、计划确认与通用构建投影；拒绝把仅参考配方冒充已实现镜头 |
 | 口播需要流程、时间线、层级、因果、工具链、比较、拆解、指标、前后证据或真人分屏等解释型画面 | `references/explanatory-broll-production.md` | 由导演计划自动选择活动模板；MediaFlow Pro 对应能力就绪时优先用它装配和导出，否则保留本地完整制作 |
@@ -158,9 +162,9 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 网页视觉中使用照片、截图、产品图、生成图或视频帧 | `references/visual-asset-placement.md` | 确认素材来源，按场景槽位处理主体、文字安全区、截图完整性和各输出变体裁切 |
 | 新的或实质重做的长视频、混合视频、音频、播客，或其它跨轮高成本时间型媒体 | `references/staged-media-production.md` | 用通用五阶段提交真实成果、逐阶段验收、记录全自动授权并控制局部失效范围 |
 | 视频、音频或播客实际进入素材导入、Faster-Whisper XXL 转写、片段选择、长任务状态、审阅和分级交付 | `references/media-project-contracts.md` | 使用唯一素材账本、事实转写、原片与代理关系、项目状态、结构化审阅和机器可读交付报告 |
-| 从最终旁白、最终合并视频或已复核转写生成可交付字幕 | `references/media-project-contracts.md`、`references/subtitle-production.md` | 以最终声音为时间真源，生成唯一字幕时间线、SRT、VTT 和短语级质检报告，再交给烧录、外挂字幕与画面提示共同消费 |
+| 制作带语音的视频，或从最终旁白、最终合并视频、已复核转写生成可交付字幕 | `references/media-project-contracts.md`、`references/subtitle-production.md` | 先应用当前视频字幕基线，再以最终声音为时间真源，生成唯一字幕时间线、SRT、VTT 和短语级质检报告，交给烧录、外挂字幕与画面提示共同消费 |
 | 把网页素材交给 MediaFlow Pro 继续精调、混剪、配音、字幕、外部转写，或导出透明覆盖层与普通视频 | `references/structured-media-editor-cli.md` | 从本机配置定位公开 CLI，只调用本轮声明的网页、透明媒体、Faster-Whisper XXL 或 GPT-SoVITS 操作 |
-| 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 v5 网页包建立渲染副本，调用 HyperFrames 并核对真实成片 |
+| 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 editable-media v6 网页包建立渲染副本，调用 HyperFrames 并核对真实成片 |
 | 剪辑已有实拍、讲课、访谈、录屏或混合视频 | `references/video-post-production.md` | 先建立产品无关时间线；MediaFlow Pro 对应能力就绪时优先迁移为原生工程，否则本地完成；像素界面只承担受限操作 |
 | 建立、采用或使用无需 Live2D 的二次元中文口播角色 | `references/anime-avatar-production.md` | 从母版和唯一校准视频建立 AI 视觉口型库，或按角色名采用注册资源；验证真实语音时间轴，经 plan → confirm-plan → render 生成中等尺寸分段角色轨、连续音频和可移交片段清单 |
 | 把二次元角色轨放入底片固定圆形或方形窗口 | `references/anime-avatar-production.md` | 用同一固定裁切、遮罩、坐标和音轨装配全片；无声区间继续消费角色轨中的动态闭嘴待机 |
