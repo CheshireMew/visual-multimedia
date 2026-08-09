@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Visual Multimedia</title>
+  <desc id="desc">A neutral black-and-white VM monogram.</desc>
+  <rect x="12" y="12" width="232" height="232" rx="52" fill="#111111"/>
+  <path d="M38 68L78 188L118 68" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter"/>
+  <path d="M138 188V68L172 132L206 68V188" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>

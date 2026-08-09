@@ -1,6 +1,16 @@
 <!-- readme-header:start -->
 
 <p align="center">
+  <img src="./assets/readme/visual-multimedia-logo.svg" width="144" alt="Visual Multimedia">
+</p>
+
+<h1 align="center">Visual Multimedia</h1>
+
+<p align="center">
+  <strong>確認済みの内容や既存素材を、あとから編集でき、プレビューと書き出しができる画像・動画・音声に仕上げます。</strong>
+</p>
+
+<p align="center">
   <a href="./README.md">中文</a> · <a href="./README.en.md">English</a> · <strong>日本語</strong> | <a href="./SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
 </p>
 
@@ -18,10 +28,6 @@
 </p>
 
 <!-- readme-header:end -->
-
-# Visual Multimedia
-
-確認済みの内容や既存素材を Codex に渡し、後から編集でき、プレビューと書き出しができる画像・動画・音声へ仕上げます。
 
 Visual Multimedia はメディア制作の Agent Skill です。ソーシャルカード、図解、Web アニメーション、動画、音声番組、ポッドキャストのどれが適切かを先に判断し、その媒体に必要なタイトル、ナレーション、字幕、番組構成、付随テキストまで扱います。プレビュー、レンダリング、レビュー、納品の全工程では、編集可能な真源を一つだけ維持します。
 
@@ -68,20 +74,9 @@ Skill だけが指定され、サンプルか完成品かが明示されてい�
 | 参照動画への一致 | 正確な参照区間、対象素材、再現レベル | 完全再生またはパラメータ再構築を分離した成果と、フレーム・視聴証拠 |
 | アニメ調プレゼンター | 登録済みキャラクター、または承認済み母版・校正動画、実音声 | バージョン管理されたキャラクター素材、確認済み時間軸、全身トラックまたは固定窓 |
 | インタビュー原音の解説動画 | 選択済み原音、事実文字起こし、背景、解説 | 出典タイムコード付きの「背景→原音→解説→結論」動画と納品レポート |
+| メディア文案と話し方の参照庫 | 確認済みの主張と書き手の声、または明示的な参照庫保守依頼 | そのまま制作に使える活動文案、または Skill 外部の追跡可能な参照庫 |
 
 タスクの振り分け、必要な reference、停止条件は [SKILL.md](SKILL.md) を参照してください。
-
-## 実行プロバイダーの選び方
-
-最初に、活動中の真源が編集可能 Web パッケージ、可搬タイムライン、ネイティブ編集プロジェクト、音声源のどれかを確定します。その後、現在のマシンで実際に使える能力を検査します。選択結果は納品契約に記録され、実行時の失敗を理由に黙って別プロバイダーへ切り替えることはありません。
-
-| プロバイダー | 使用条件 | 活動真源と納品 |
-| --- | --- | --- |
-| ローカル制作 | MediaFlow Pro がない場合、または自己完結型 Web、MP4、GIF、既存素材編集、音声、字幕で完結する場合 | `editable-media` v5 または `media-timeline` v1 が編集可能な真源として残り、Playwright、ブラウザ、FFmpeg、FFprobe が成果物とレンダー記録を生成します |
-| [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) | 設定済みで必要な操作が実測で利用可能、かつネイティブ工程、デスクトップ調整、マルチトラック、版管理、受け渡しが必要な場合 | 製品非依存の真源を読み込み、成功後は `project.mfp` が唯一の活動タイムラインとなり、同じ工程から書き出します |
-| [HyperFrames](https://github.com/heygen-com/hyperframes) | 独立した無音のコード Web アニメーションについて、ユーザーが決定論的レンダリングを明示的に選んだ場合 | 同じ `editable-media` v5 の時間境界を読み、Web パッケージを真源として維持します。レンダー用コピーは派生物です |
-
-ローカル制作は仮の代替手段ではなく、完結した正式ルートです。MediaFlow Pro は公開操作と実行時能力の両方が今回の要求に対応できる場合だけ優先されます。HTML を使っているという理由だけで HyperFrames を選ぶことはありません。
 
 ## 実際の出力例
 
@@ -119,9 +114,24 @@ Skill だけが指定され、サンプルか完成品かが明示されてい�
 4. 成果物ごとに活動中の制作真源を一つだけ残します。Web は Web パッケージ、動画と音声は活動タイムラインへ戻して修正します。
 5. 実際の利用側で検証します。schema やスクリプトの成功だけでは納品完了とせず、ブラウザ、プレーヤー、編集器、書き出しチェーンで確認します。
 
-コード生成のカード、図表、アニメーションは [assets/web-media-starter](assets/web-media-starter) から始めます。`schemas/editable-media.v5.schema.json` が唯一の Web マニフェスト契約であり、ローカルレンダラー、構造化編集器、HyperFrames は同じ `window.editableMedia` と `window.__hf.duration/seek(seconds)` を読みます。
+### 動画の実行プロバイダーを選ぶ
 
-画像、動画、音声、生成素材は、ハッシュ、出典、権利、原本とプロキシの関係を持つ素材台帳へ先に登録します。`schemas/media-timeline.v1.schema.json` が可搬タイムラインを定義し、`schemas/media-delivery.v3.schema.json` が実際のプロバイダー、編集真源、レンダー記録、それぞれの SHA-256 を最終出力へ結び付けます。
+Skill は先に活動中の真源を確定し、その後で現在のマシンに実在する能力を検査します。選択結果は納品契約に記録され、実行時の失敗を理由に黙って別プロバイダーへ切り替えることはありません。
+
+| プロバイダー | 使用条件 | 活動真源と納品 |
+| --- | --- | --- |
+| ローカル制作 | MediaFlow Pro が未設定、必要な能力が利用不可、またはユーザーがローカルでの独立制作を明示的に選んだ場合 | `editable-media` v6 または `media-timeline` v1 が編集可能な真源として残り、Web、MP4、GIF、既存素材編集、音声、字幕までローカルの正式ルートだけで完結できます |
+| [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) | 設定済みで必要な操作が実測で利用可能な場合に既定で優先します。ネイティブ工程、デスクトップ調整、マルチトラック、版管理、受け渡しが必要な場合は特に適しています | 製品非依存の真源を読み込み、成功後は `project.mfp` が唯一の活動タイムラインとなり、同じ工程から書き出します |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) | 独立した無音のコード Web アニメーションについて、ユーザーが決定論的レンダリングを明示的に選んだ場合 | 同じ `editable-media` v6 の時間境界を読み、Web パッケージを真源として維持します。レンダー用コピーは派生物です |
+
+プロバイダーの選択で変わるのは、決定論的処理の実行者と受け渡し方法だけです。内容、構造、スタイル、制作判断、最終確認は常に Skill が担当します。MediaFlow Pro は必須依存ではなく、HTML を使っているという理由だけで HyperFrames が選ばれることもありません。
+
+### 編集真源と納品契約
+
+- **Web パッケージ：** 技術指定がなければ [DOM starter](assets/web-media-starter) を使います。React が指定された場合、または入力自体が React である場合は、React 19、TypeScript 5.9、Vite 7 の決定論的プロデューサーである [React starter](assets/react-media-starter) を使います。どちらも自己完結型 editable-media v6 を生成し、React は MediaFlow Pro の状態や書き出しには入りません。
+- **Web 契約：** `schemas/editable-media.v6.schema.json` が唯一のマニフェスト契約です。ローカルレンダラー、構造化編集器、HyperFrames は同じ `window.editableMedia` と `window.__hf.duration/seek(seconds)` を読みます。
+- **媒体契約：** 画像、動画、音声、生成素材は、ハッシュ、出典、権利、原本とプロキシの関係を持つ素材台帳へ先に登録します。`media-timeline` v1 が可搬タイムラインを定義し、`media-delivery` v3 がプロバイダー、編集真源、レンダー記録、SHA-256 を最終出力へ結び付けます。
+- **長期タスク：** `media-project-state.json` は制作段階、成果物ハッシュ、承認、決定、阻害要因、次の行動だけを記録し、編集器工程にはなりません。MediaFlow Pro に入った後の素材、タイムライン改訂、操作履歴は `project.mfp` だけに保存され、制作状態は関連契約と成果物だけを索引します。
 
 ## リポジトリ構成
 
@@ -172,6 +182,8 @@ editable-media、素材表現、決定論的時間、可搬タイムライン、
 ## ライセンス
 
 オリジナルのソースコード、Skill、スクリプト、schema、テンプレート、文書は [Mozilla Public License 2.0](LICENSE) で提供されます。個人アバター、キャラクター、ブランド素材、プロジェクトが所有または生成した画像・音声・動画・レンダー・プレビュー媒体は MPL-2.0 の対象外であり、[ASSET-LICENSE](ASSET-LICENSE) に従って権利が留保されます。第三者素材にはそれぞれの条件が適用されます。
+
+React starter の直接依存、正確なバージョン、ライセンスは [third-party notices](assets/react-media-starter/THIRD_PARTY_NOTICES.md) に記録され、封印された各ビルドにも同じ通知が含まれます。この starter には Remotion のソース、Composition、Renderer、その他の Remotion 実行コンポーネントは含まれていません。
 
 パスごとの適用範囲、除外、第三者資源の扱いは [LICENSING.md](LICENSING.md) が正式な説明です。
 

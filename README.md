@@ -1,6 +1,16 @@
 <!-- readme-header:start -->
 
 <p align="center">
+  <img src="./assets/readme/visual-multimedia-logo.svg" width="144" alt="Visual Multimedia">
+</p>
+
+<h1 align="center">Visual Multimedia</h1>
+
+<p align="center">
+  <strong>把已经确认的内容或现有素材，制作成可继续修改、可预览、可导出的视觉、视频或音频成品。</strong>
+</p>
+
+<p align="center">
   <strong>中文</strong> · <a href="./README.en.md">English</a> · <a href="./README.ja.md">日本語</a> | <a href="./SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
 </p>
 
@@ -19,10 +29,6 @@
 
 <!-- readme-header:end -->
 
-# Visual Multimedia
-
-把已经确认的内容或现有素材交给 Codex，得到可继续修改、可以预览并能按需导出的视觉、视频或音频成品。
-
 Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静态卡片、代码动画、视频、音频还是播客，再完成对应的标题、口播、字幕、节目结构和媒体配套文字；进入制作后，它会保留唯一的活动真源，并沿真实的预览、渲染或导出链检查最终结果。
 
 ![Visual Multimedia 把抽象机制制作成可读图解的真实案例](assets/web-card-cases/editorial-technology-diagram-cover/preview.png)
@@ -30,8 +36,6 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 <p align="center"><sub>真实网页案例：内容、构图与可编辑结构来自同一份活动真源，并由浏览器导出预览。</sub></p>
 
 它不会替用户研究主题、筛选长材料中的分享重点或编造事实，也不会默认安装工具、购买素材、上传或发布成品。
-
-如果目标是视频文件，Skill 自带两条产品无关的正式制作链：代码视觉保留 `editable-media` v5 网页包，本地逐帧导出；已有素材、声音和字幕进入 `media-timeline` v1，本地完成可复现时间线与成片。已配置的 [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) 能力就绪时优先用它建立原生工程、精调和导出；[HyperFrames](https://github.com/heygen-com/hyperframes) 只在用户明确选择独立网页动画渲染时使用。
 
 ## 快速开始
 
@@ -51,11 +55,6 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 使用 $visual-multimedia，把这份确认过的讲解稿做成可手动推进、也能连续导出的多场景 HTML 动画。
 ```
 
-```text
-使用 $visual-multimedia，把这段确认口播做成 16:9 视频。
-流程、时间线和因果段落自动选择解释型 B-roll；先确认样稿，再按真实配音时间进入活动时间线并导出。
-```
-
 如果只点名 Skill 并提供内容，却没有说明要样稿还是成品，默认流程会推荐一个首选载体、完成可确认的媒体文案，然后停下来等待决定。明确要求样稿或完整制作时，流程才会继续创建网页、处理素材或导出文件。
 
 为了减少来回确认，首次请求最好同时说明：
@@ -65,23 +64,6 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 - 想要文案、样稿还是完整成品，以及尺寸、时长或格式要求；
 - 哪些图片、录音、视频、品牌资料或参考样本可以使用；
 - 是否允许调用外部模型、安装工具、下载素材或执行导出。
-
-## 制作视频时怎样选择执行方
-
-Visual Multimedia 先判断本次活动真源是网页包、可移植时间线、原生编辑器工程还是音频源，再检查当前机器真正可用的能力。选择结果会写入交付合同；一个执行方已经选定后，失败不会触发静默换路。
-
-| 执行方 | 什么时候使用 | 活动真源与交付 |
-| --- | --- | --- |
-| 本地基础能力 | 没有 MediaFlow Pro，或只需自包含网页、MP4、GIF、现有素材剪辑、声音和字幕 | `editable-media` v5 或 `media-timeline` v1 继续作为可修改真源；Playwright、浏览器、FFmpeg 与 FFprobe 生成成品和回执 |
-| [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) | 已配置且本轮实际能力检查通过，需要原生工程、桌面精调、多轨制作、版本或交接 | 导入产品无关真源；成功后 `project.mfp` 成为唯一活动时间线，再从同一工程导出 |
-| [HyperFrames](https://github.com/heygen-com/hyperframes) | 用户明确选择把独立、无声的代码网页动画确定性渲染为视频 | 读取同一 `editable-media` v5 时间边界；网页包仍是真源，渲染副本只是派生输入 |
-
-如果还没有决定执行方，只需说明最终用途、素材类型和是否需要原生工程，让 Skill 先检查环境并给出首选路径。例如：
-
-```text
-使用 $visual-multimedia，把这份已经确认的产品介绍做成 45 秒视频。
-先判断网页包还是视频时间线更适合作为真源；MediaFlow Pro 能力就绪时优先使用，否则由本地完整制作链完成。
-```
 
 ## 可以完成什么
 
@@ -129,7 +111,7 @@ Visual Multimedia 先判断本次活动真源是网页包、可移植时间线�
   </tr>
 </table>
 
-## 制作原则
+## 怎样完成一项制作
 
 1. **先确认内容，再选择载体。** 内容真源决定主张和边界，视觉与声音只负责降低理解成本、建立节奏和增强体验。
 2. **先写媒体文案，再做画面和声音。** 用户已经确认完整文案时不擅自重写，只做载体需要的确定性拆分。
@@ -137,11 +119,25 @@ Visual Multimedia 先判断本次活动真源是网页包、可移植时间线�
 4. **每类成品只保留一个活动制作入口。** 网页视觉以网页包为真源，视频和音频以各自时间线为真源，混合项目不在后期工具中重画网页负责的内容。
 5. **正式交付必须经过真实消费者。** 源文件能打开、脚本返回成功或 schema 通过都不等于成品可用；最终文件还要由真实浏览器、播放器、编辑器或导出链读取和检查。
 
-## 可编辑网页与媒体合同
+### 制作视频时怎样选择执行方
 
-代码生成的卡片、图表和动画从 [assets/web-media-starter](assets/web-media-starter) 建立自包含网页包。`schemas/editable-media.v5.schema.json` 是网页清单的唯一结构真源；运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。本地渲染器、结构化编辑器和 HyperFrames 都读取这一个边界。
+Skill 先确定活动真源，再检查当前机器真正可用的能力。执行方一旦写入交付合同，运行失败不会触发静默换路。
+
+| 执行方 | 什么时候使用 | 活动真源与交付 |
+| --- | --- | --- |
+| 本地基础能力 | MediaFlow Pro 未配置、所需能力不可用，或用户明确选择本地独立制作 | `editable-media` v6 或 `media-timeline` v1 继续作为可修改真源；本地正式链可以完整生成网页、MP4、GIF、现有素材剪辑、声音和字幕 |
+| [MediaFlow Pro](https://github.com/CheshireMew/MediaFlow-Pro) | 已配置且本轮能力检查通过时默认优先；尤其适合原生工程、桌面精调、多轨制作、版本和交接 | 导入产品无关真源；成功后 `project.mfp` 成为唯一活动时间线，再从同一工程导出 |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) | 用户明确选择把独立、无声的代码网页动画确定性渲染为视频 | 读取同一 `editable-media` v6 时间边界；网页包仍是真源，渲染副本只是派生输入 |
+
+执行方只决定谁完成确定性处理和怎样交接。内容、结构、风格、制作判断和最终验收始终由 Skill 负责；MediaFlow Pro 不是必装依赖，HyperFrames 也不会因为页面使用 HTML 就被自动选中。
+
+### 可编辑真源与交付合同
+
+代码生成的卡片、图表和动画在未指定技术栈时从 [DOM starter](assets/web-media-starter) 建立；用户明确要求 React，或现有输入本身是 React 组件或工程时，从 [React starter](assets/react-media-starter) 建立。两种生产方式都生成自包含的 editable-media v6 网页包；`schemas/editable-media.v6.schema.json` 是网页清单的唯一结构真源，运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。本地渲染器、结构化编辑器和 HyperFrames 都读取这一个边界。
 
 图片、视频、音频和生成素材先进入带文件哈希、来源、权利、原片与代理关系的素材账本，再由网页、视频时间线或音频项目显式采用。`schemas/media-timeline.v1.schema.json` 定义本地与外部编辑器都能理解的可移植时间线，`schemas/media-delivery.v3.schema.json` 把实际提供方、真源文件、回执和 SHA-256 绑定到最终输出。导出的 PNG、GIF、MP4 或音频文件是派生结果，不会成为第二个编辑入口。
+
+跨轮长任务使用 `media-project-state.json` 记录制作阶段、成果哈希、确认、决定和下一步；它不是编辑器工程。项目进入 MediaFlow Pro 后，素材、时间线、项目修订和操作历史只保存在 `project.mfp`，制作状态只索引相关合同与成果，不复制第二份编辑状态。
 
 ## 不适用的任务
 
@@ -195,6 +191,8 @@ node scripts/check-skill.mjs --full
 ## 许可证
 
 本仓库的原创源码、Skill、脚本、Schema、模板与文档采用 [Mozilla Public License 2.0](LICENSE)。个人头像、角色、品牌资料，以及项目拥有或在项目内生成的图片、音频、视频、渲染结果和预览媒体不随 MPL-2.0 授权，并依照 [ASSET-LICENSE](ASSET-LICENSE) 保留全部权利。第三方内容继续遵守各自的许可证与声明。
+
+React 参考生产器的直接依赖、精确版本与许可证记录在 [React starter third-party notices](assets/react-media-starter/THIRD_PARTY_NOTICES.md)，同一声明会进入其封闭构建输出。该生产器不包含 Remotion 源码、Composition、Renderer 或其它 Remotion 运行组件。
 
 准确的路径范围、排除项和第三方覆盖关系以 [LICENSING.md](LICENSING.md) 为唯一说明。
 
