@@ -39,7 +39,7 @@ Visual Multimedia はメディア制作の Agent Skill です。ソーシャル�
 
 ## クイックスタート
 
-このリポジトリを Codex の Skill として読み込み、`$visual-multimedia` を指定して、確認済みの内容または素材、対象読者、必要な成果物を伝えます。
+Agent Skill に対応した Agent でこのリポジトリを読み込み、`$visual-multimedia` を指定して、確認済みの内容または素材、対象読者、必要な成果物を伝えます。
 
 ```text
 $visual-multimedia を使って、承認済みの記事を 3:4 のソーシャルカード 3 枚にしてください。
@@ -142,7 +142,7 @@ Skill は先に活動中の真源を確定し、その後で現在のマシン�
 | [assets](assets) | Web starter、実際の契約ケース、制作 profile、再利用資源 |
 | [schemas](schemas) | 素材、タイムライン、レビュー、納品、キャラクター、編集 Web の契約 |
 | [scripts](scripts) | 取り込み、検証、計画、レンダリング、レビュー、納品ツール |
-| [agents/openai.yaml](agents/openai.yaml) | Codex 上の表示名、概要、既定プロンプト |
+| [agents/](agents/) | 任意の Agent ホスト向けアダプターメタデータ |
 | [.project-steward/project.json](.project-steward/project.json) | リポジトリ運用管理の基準と版 |
 
 `archive/` は廃止済みルートと移行証拠だけを保存します。活動制作が古いプロトコルや helper をここから復元することはありません。

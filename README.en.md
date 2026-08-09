@@ -41,7 +41,7 @@ It does not research an unverified topic, invent facts, choose what matters in a
 
 ## Quick start
 
-Load this repository as a Skill in Codex, invoke `$visual-multimedia`, and provide the confirmed content or source files, the audience, and the result you need.
+Load this repository in an Agent that supports Agent Skills, invoke `$visual-multimedia`, and provide the confirmed content or source files, the audience, and the result you need.
 
 ```text
 Use $visual-multimedia to turn this approved article into three 3:4 social cards.
@@ -144,7 +144,7 @@ Provider choice changes who performs deterministic processing and how the work i
 | [assets](assets) | Web starter, real contract cases, production profiles, and reusable resources |
 | [schemas](schemas) | Contracts for sources, timelines, review, delivery, characters, and editable web packages |
 | [scripts](scripts) | Import, validation, planning, rendering, review, and delivery tools |
-| [agents/openai.yaml](agents/openai.yaml) | Codex display name, description, and default prompt |
+| [agents/](agents/) | Optional Agent-host adapter metadata |
 | [.project-steward/project.json](.project-steward/project.json) | Repository governance baseline and version |
 
 `archive/` stores retired routes and migration evidence only. Active production never restores an old protocol or helper from it.

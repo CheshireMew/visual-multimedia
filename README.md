@@ -39,7 +39,7 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 
 ## 快速开始
 
-在 Codex 中加载本仓库的 Skill 后，直接点名 `$visual-multimedia`，并提供已经确认的内容或素材、受众和希望得到的结果。例如：
+在支持 Agent Skill 的 Agent 中加载本仓库后，直接点名 `$visual-multimedia`，并提供已经确认的内容或素材、受众和希望得到的结果。例如：
 
 ```text
 使用 $visual-multimedia，把这篇已经定稿的文章做成三张 3:4 社交卡。
@@ -159,7 +159,7 @@ Skill 先确定活动真源，再检查当前机器真正可用的能力。执�
 | [assets](assets) | 网页 starter、真实合同案例、制作配方和可复用资源 |
 | [schemas](schemas) | 媒体项目、素材、审阅、角色和网页包的结构合同 |
 | [scripts](scripts) | 导入、校验、规划、渲染、审阅与交付工具 |
-| [agents/openai.yaml](agents/openai.yaml) | Codex 中的展示名称、简介和默认提示词 |
+| [agents/](agents/) | 可选的 Agent 宿主适配元数据 |
 | [.project-steward/project.json](.project-steward/project.json) | 本仓库采用的项目治理基线与版本 |
 
 `archive/` 只保存已退出路线和迁移证据，不是正常任务入口。活动流程不得从归档中恢复旧协议或旧 helper。
