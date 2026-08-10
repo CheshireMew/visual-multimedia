@@ -455,7 +455,19 @@ for (const localMediaResource of [
   "scripts/render-web-media-local.mjs",
   "scripts/self-test-media-timeline.mjs",
   "scripts/self-test-local-web-render.mjs",
+  "scripts/self-test-editable-preview.mjs",
+  "scripts/self-test-visual-variable-drift.mjs",
   "scripts/self-test-production-providers.mjs",
+  "assets/web-media-starter/editable-media-editor.css",
+  "assets/web-media-starter/editable-media-editor.js",
+  "assets/web-media-starter/typography-presets.json",
+  "assets/web-media-starter/preview-server.py",
+  "assets/web-media-starter/_start_editable_preview.bat",
+  "references/color-palette-production.md",
+  "assets/color-palette-library/catalog.json",
+  "assets/color-palette-library/index.html",
+  "assets/color-palette-library/preview.png",
+  "scripts/render-color-palette-library.mjs",
 ]) {
   ensurePath(localMediaResource);
 }
@@ -705,6 +717,63 @@ const browserProjects = [path.dirname(starterManifest)];
 const browserCaseQa = [];
 const starterRuntime = ensurePath("assets/web-media-starter/editable-media-runtime.js");
 const starterRuntimeHash = sha256File(starterRuntime);
+const starterManifestDocument = readJson(starterManifest);
+const starterIndexText = fs.readFileSync(
+  ensurePath("assets/web-media-starter/index.html"),
+  "utf8",
+);
+const starterEditorText = fs.readFileSync(
+  ensurePath("assets/web-media-starter/editable-media-editor.js"),
+  "utf8",
+);
+const starterEditorCssText = fs.readFileSync(
+  ensurePath("assets/web-media-starter/editable-media-editor.css"),
+  "utf8",
+);
+const starterTypographyPresets = readJson(
+  ensurePath("assets/web-media-starter/typography-presets.json"),
+);
+const starterLauncherText = fs.readFileSync(
+  ensurePath("assets/web-media-starter/_start_editable_preview.bat"),
+  "utf8",
+);
+const starterServerText = fs.readFileSync(
+  ensurePath("assets/web-media-starter/preview-server.py"),
+  "utf8",
+);
+if (
+  !starterManifestDocument?.resources?.includes("editable-media-editor.js")
+  || !starterManifestDocument?.resources?.includes("editable-media-editor.css")
+  || !starterManifestDocument?.resources?.includes("typography-presets.json")
+  || !starterIndexText.includes('id="editableMediaEditorMount"')
+  || !starterIndexText.includes('href="editable-media-editor.css"')
+  || !starterIndexText.includes('src="editable-media-editor.js"')
+  || !starterIndexText.includes("body.capture #editorPanel")
+  || !starterEditorText.includes('id="editorPanel"')
+  || !starterEditorText.includes('id="editorDownload"')
+  || !starterEditorText.includes('id="editorPreview"')
+  || !starterEditorText.includes("new FontFace")
+  || starterEditorText.includes("document.fonts.check")
+  || !starterEditorText.includes("data-editor-section")
+  || !starterEditorCssText.includes(".editor-preview-expanded")
+  || !starterEditorCssText.includes('[contenteditable="true"]')
+  || starterTypographyPresets?.protocol !== "visual-multimedia-typography-presets"
+  || starterTypographyPresets?.version !== 2
+  || !Array.isArray(starterTypographyPresets?.profiles)
+  || starterTypographyPresets.profiles.length < 8
+  || ["fz-shuti-display", "fz-yaoti-display", "noto-sans-sc-black", "fz-xiangli-display", "zihun-4181-warm-child-shadow"]
+    .some((id) => !starterTypographyPresets.profiles.some((profile) => profile.id === id))
+  || starterTypographyPresets.profiles.some((profile) =>
+    [profile.display, profile.body].some((role) =>
+      !Array.isArray(role?.local_names) || role.local_names.length === 0 || "check_family" in role
+    )
+  )
+  || !starterLauncherText.includes("preview-server.py")
+  || starterLauncherText.toLowerCase().includes(".ps1")
+  || !starterServerText.includes('parser.add_argument("--port", type=int, default=0)')
+) {
+  fail("DOM starter 没有保持可复用编辑器、字体预设、捕获隐藏与动态端口 BAT 预览入口");
+}
 if (!fs.readFileSync(starterRuntime, "utf8").includes("getCamera")) {
   fail("网页通用运行时没有暴露确定性 getCamera 接口");
 }
@@ -828,7 +897,32 @@ for (const item of catalog?.cases || []) {
     ) {
       fail("技术接口对比案例没有保持通用机制、静态消费者或已确认原创署名边界");
     }
-    browserCaseQa.push({ caseRoot, script: path.join(caseRoot, item.files?.qa || "qa-preview.mjs") });
+  }
+  if (item.id === "dark-icon-directory") {
+    const caseManifest = readJson(manifestPath);
+    const indexText = fs.readFileSync(path.join(caseRoot, "index.html"), "utf8");
+    const fields = new Map(
+      (caseManifest?.data_fields || []).map((field) => [field.id, field])
+    );
+    const sourceManifest = readJson(
+      path.resolve(caseRoot, item.files?.sources || "media-sources.json")
+    );
+    const iconSource = (sourceManifest?.sources || []).find(
+      (source) => source.id === "generated-icon-system"
+    );
+    if (
+      !styleProfile?.applicability?.static_composition?.includes("static-card")
+      || caseManifest?.component?.id !== "dark-icon-directory-card"
+      || caseManifest?.scenes?.[0]?.content_shape !== "hero-title-and-eight-icon-grid"
+      || fields.get("items")?.kind !== "table"
+      || fields.get("items")?.default?.length !== 8
+      || iconSource?.acquisition?.method !== "generated-in-project"
+      || iconSource?.integrity !== null
+      || ["Codex Plugins", "Computer Use", "Chrome", "HyperFrames", "GitHub", "Vercel"]
+        .some((token) => indexText.includes(token) || JSON.stringify(caseManifest).includes(token))
+    ) {
+      fail("深色图标目录案例没有保持八项可编辑目录、原创图标来源或品牌隔离边界");
+    }
   }
   if (item.id === "handdrawn-system-collaboration-flow") {
     const caseManifest = readJson(manifestPath);
@@ -863,7 +957,9 @@ for (const item of catalog?.cases || []) {
     ) {
       fail("手绘系统协同案例缺少关键状态、完整字体、图标许可或风格档案边界");
     }
-    browserCaseQa.push({ caseRoot, script: path.join(caseRoot, item.files?.qa || "qa-preview.mjs") });
+  }
+  if (item.files?.qa) {
+    browserCaseQa.push({ caseRoot, script: path.join(caseRoot, item.files.qa) });
   }
   const caseRuntime = path.join(caseRoot, "editable-media-runtime.js");
   if (!fs.existsSync(caseRuntime) || sha256File(caseRuntime) !== starterRuntimeHash) {
@@ -936,8 +1032,32 @@ if (!videoProfileValidation.ok) {
 if (failures.length === 0) {
   runChecked(
     process.execPath,
+    [path.join(scriptDir, "render-color-palette-library.mjs"), "--validate-only"],
+    "六张典型配色卡、颜色职责与文字对比度检查",
+  );
+}
+
+if (failures.length === 0) {
+  runChecked(
+    process.execPath,
     [path.join(scriptDir, "self-test-production-providers.mjs")],
     "MediaFlow Pro 优先—本地完整能力—HyperFrames 明确选择路由检查",
+  );
+}
+
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-editable-preview.mjs")],
+    "DOM starter 的 BAT 启动—可见编辑—刷新保留—恢复—导出真实用户链检查",
+  );
+}
+
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-visual-variable-drift.mjs")],
+    "真实网页包的风格档案—主题变量—画布与声明图层漂移提醒检查",
   );
 }
 

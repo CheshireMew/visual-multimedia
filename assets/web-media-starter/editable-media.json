@@ -28,7 +28,7 @@
         "x": 56,
         "y": 56,
         "width": 968,
-        "height": 38,
+        "height": 44,
         "rotation": 0
       },
       "editable": [
@@ -158,7 +158,7 @@
         "x": 56,
         "y": 740,
         "width": 472,
-        "height": 302,
+        "height": 318,
         "rotation": 0
       },
       "editable": [],
@@ -174,7 +174,7 @@
         "x": 552,
         "y": 740,
         "width": 472,
-        "height": 302,
+        "height": 318,
         "rotation": 0
       },
       "editable": [],
@@ -190,7 +190,7 @@
         "x": 56,
         "y": 740,
         "width": 472,
-        "height": 274,
+        "height": 286,
         "rotation": 0
       },
       "editable": [
@@ -220,7 +220,7 @@
         "x": 552,
         "y": 740,
         "width": 472,
-        "height": 274,
+        "height": 286,
         "rotation": 0
       },
       "editable": [
@@ -295,11 +295,42 @@
       "default": "#315efb"
     },
     {
-      "id": "font_family",
-      "name": "Font family",
+      "id": "font_display",
+      "name": "标题字体",
       "kind": "font",
-      "css_variable": "--font-family",
-      "default": "Inter, Segoe UI, Microsoft YaHei, system-ui, sans-serif"
+      "css_variable": "--font-display",
+      "default": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif"
+    },
+    {
+      "id": "font_body",
+      "name": "正文字体",
+      "kind": "font",
+      "css_variable": "--font-body",
+      "default": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif"
+    },
+    {
+      "id": "font_display_weight",
+      "name": "标题字重",
+      "kind": "number",
+      "css_variable": "--font-display-weight",
+      "default": 800,
+      "constraints": {
+        "minimum": 300,
+        "maximum": 900,
+        "step": 50
+      }
+    },
+    {
+      "id": "font_body_weight",
+      "name": "正文字重",
+      "kind": "number",
+      "css_variable": "--font-body-weight",
+      "default": 550,
+      "constraints": {
+        "minimum": 300,
+        "maximum": 800,
+        "step": 50
+      }
     },
     {
       "id": "radius",
@@ -964,7 +995,10 @@
     "remote_dependencies": "forbid"
   },
   "resources": [
-    "editable-media-runtime.js"
+    "editable-media-runtime.js",
+    "editable-media-editor.css",
+    "editable-media-editor.js",
+    "typography-presets.json"
   ],
   "frame_readiness": {
     "default_timeout_ms": 10000,

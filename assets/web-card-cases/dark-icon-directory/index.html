@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dark icon directory</title>
+  <style>
+    :root {
+      --canvas-width: 1;
+      --canvas-height: 1;
+      --background: #05070c;
+      --surface: #0b0f16;
+      --surface-edge: #3b414d;
+      --text: #f6f7fb;
+      --muted: #9297a2;
+      --icon-tile: #f4f5f7;
+      --hero-start: #55d8ff;
+      --hero-end: #635bff;
+      --font-sans: "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", "Segoe UI", sans-serif;
+      font-family: var(--font-sans);
+      color: var(--text);
+      background: #20232b;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { overflow: hidden; background: #20232b; }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .viewport {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      transform-origin: top left;
+      isolation: isolate;
+      background-color: var(--background);
+      background-image:
+        radial-gradient(ellipse 62% 24% at 50% 12%, rgb(103 116 156 / 20%), transparent 72%),
+        radial-gradient(ellipse 84% 64% at 50% 48%, rgb(64 75 101 / 10%), transparent 76%),
+        linear-gradient(180deg, rgb(255 255 255 / 1.8%), transparent 34%);
+      box-shadow: 0 44px 120px rgb(0 0 0 / 46%);
+    }
+
+    .media-canvas::before,
+    .media-canvas::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .media-canvas::before {
+      inset: -14%;
+      z-index: -1;
+      opacity: .42;
+      background:
+        radial-gradient(circle at 18% 54%, rgb(64 79 110 / 12%), transparent 27%),
+        radial-gradient(circle at 83% 41%, rgb(76 58 112 / 9%), transparent 30%);
+      filter: blur(46px);
+    }
+
+    .media-canvas::after {
+      inset: 0;
+      z-index: 20;
+      box-shadow: inset 0 0 150px rgb(0 0 0 / 42%);
+    }
+
+    .hero-mark {
+      position: absolute;
+      left: 500px;
+      top: 82px;
+      width: 200px;
+      height: 200px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgb(255 255 255 / 72%);
+      border-radius: 50px;
+      background:
+        linear-gradient(148deg, rgb(255 255 255 / 98%), rgb(226 229 235 / 96%));
+      box-shadow:
+        0 22px 58px rgb(0 0 0 / 44%),
+        inset 0 1px 0 rgb(255 255 255 / 95%),
+        inset 0 -12px 28px rgb(89 96 117 / 10%);
+    }
+
+    .hero-mark svg { width: 132px; height: 132px; overflow: visible; }
+    .hero-petal { filter: drop-shadow(0 12px 15px rgb(57 71 255 / 24%)); }
+
+    .title {
+      position: absolute;
+      left: 84px;
+      top: 326px;
+      width: 1032px;
+      height: 112px;
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      font-size: 76px;
+      font-weight: 680;
+      line-height: 104px;
+      letter-spacing: -.038em;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-shadow: 0 10px 28px rgb(0 0 0 / 44%);
+    }
+
+    .directory-grid {
+      position: absolute;
+      left: 44px;
+      top: 508px;
+      width: 1112px;
+      height: 862px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      gap: 20px 18px;
+    }
+
+    .directory-card {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      padding: 58px 16px 28px;
+      border: 1px solid color-mix(in srgb, var(--surface-edge) 92%, transparent);
+      border-radius: 42px;
+      background:
+        linear-gradient(180deg, rgb(255 255 255 / 2.6%), transparent 44%),
+        color-mix(in srgb, var(--surface) 92%, transparent);
+      box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 2.5%),
+        0 20px 48px rgb(0 0 0 / 9%);
+    }
+
+    .icon-tile {
+      width: 152px;
+      height: 152px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgb(255 255 255 / 72%);
+      border-radius: 38px;
+      color: var(--icon-start);
+      background:
+        radial-gradient(circle at 22% 12%, color-mix(in srgb, var(--icon-start) 14%, transparent), transparent 46%),
+        linear-gradient(145deg, #ffffff, var(--icon-tile));
+      box-shadow:
+        0 14px 28px rgb(0 0 0 / 26%),
+        inset 0 1px 0 rgb(255 255 255 / 92%),
+        inset 0 -10px 20px rgb(35 42 59 / 5%);
+    }
+
+    .icon-tile svg { width: 94px; height: 94px; overflow: visible; }
+    .item-name {
+      width: 100%;
+      margin: 42px 0 0;
+      overflow: hidden;
+      color: var(--text);
+      font-size: 31px;
+      font-weight: 580;
+      line-height: 42px;
+      letter-spacing: -.025em;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .item-description {
+      width: 100%;
+      margin: 11px 0 0;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 27px;
+      font-weight: 520;
+      line-height: 38px;
+      letter-spacing: .01em;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .preview-note {
+      margin: 0;
+      padding: 10px 16px;
+      border: 1px solid rgb(255 255 255 / 10%);
+      border-radius: 999px;
+      color: #d5d9e3;
+      background: rgb(25 28 35 / 88%);
+      font-size: 13px;
+      backdrop-filter: blur(12px);
+    }
+
+    body.capture {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body.capture .app {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      padding: 0;
+    }
+
+    body.capture .viewport {
+      display: block;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: visible;
+    }
+
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+    }
+
+    body.capture .media-canvas { transform: none !important; }
+    body.capture .preview-note { display: none; }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="1"
+    data-width="1200"
+    data-height="1500"
+    data-fps="1"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="深色双语图标目录卡片">
+          <div
+            class="hero-mark"
+            id="generated-icon-system"
+            data-editable-id="hero-mark"
+            aria-label="原创几何主标识"
+          >
+            <svg viewBox="0 0 132 132" aria-hidden="true">
+              <defs>
+                <linearGradient id="heroGradient" x1="22" y1="16" x2="112" y2="118" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="var(--hero-start)"/>
+                  <stop offset="1" stop-color="var(--hero-end)"/>
+                </linearGradient>
+              </defs>
+              <path class="hero-petal" fill="url(#heroGradient)" d="M66 10c14 0 22 10 24 22 12-3 25 2 31 14 7 13 2 26-8 34 8 10 8 24 0 34-9 11-24 11-35 4-7 11-20 17-33 12-13-5-19-18-17-31-13-3-23-13-24-27-1-14 8-25 20-30-4-13 1-27 13-34 11-6 23-3 29 2Z"/>
+              <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="8">
+                <path d="M47 49 35 66l12 17"/>
+                <path d="m85 49 12 17-12 17"/>
+                <path d="M72 43 59 89"/>
+              </g>
+            </svg>
+          </div>
+          <h1 class="title" data-editable-data="title" data-editable-id="title"></h1>
+          <section
+            class="directory-grid"
+            id="directoryGrid"
+            data-editable-id="directory-grid"
+            aria-label="八项双语图标目录"
+          ></section>
+        </section>
+      </div>
+    </div>
+    <p class="preview-note" id="previewNote"></p>
+  </main>
+
+  <script>
+    const directoryGrid = document.querySelector("#directoryGrid");
+
+    const iconBodies = {
+      capture: `
+        <rect x="11" y="17" width="72" height="60" rx="13" fill="none" class="icon-gradient-stroke" stroke-width="7"/>
+        <circle cx="26" cy="31" r="4" class="icon-gradient-fill"/>
+        <circle cx="39" cy="31" r="4" class="icon-gradient-fill"/>
+        <path d="M13 42h68" class="icon-gradient-stroke" stroke-width="6"/>
+      `,
+      browse: `
+        <circle cx="47" cy="47" r="34" fill="none" class="icon-gradient-stroke" stroke-width="7"/>
+        <path d="M13 47h68M47 13c12 12 17 23 17 34S59 69 47 81C35 69 30 58 30 47s5-22 17-34Z" fill="none" class="icon-gradient-stroke" stroke-width="6"/>
+      `,
+      compose: `
+        <path d="M17 24V14h20M57 14h20v20M77 57v20H57M37 77H17V57" fill="none" class="icon-gradient-stroke" stroke-linecap="round" stroke-width="7"/>
+        <path d="m39 33 35 17-18 7-7 19-10-43Z" class="icon-gradient-fill"/>
+      `,
+      animate: `
+        <rect x="10" y="14" width="74" height="66" rx="18" fill="none" class="icon-gradient-stroke" stroke-width="7"/>
+        <path d="m39 33 25 14-25 15V33Z" class="icon-gradient-fill"/>
+      `,
+      inspect: `
+        <circle cx="42" cy="40" r="23" fill="none" class="icon-gradient-stroke" stroke-width="8"/>
+        <path d="m58 57 21 21" class="icon-gradient-stroke" stroke-linecap="round" stroke-width="9"/>
+        <path d="M34 40h16M42 32v16" class="icon-gradient-stroke" stroke-linecap="round" stroke-width="5"/>
+      `,
+      connect: `
+        <path d="m38 60-8 8a16 16 0 0 1-23-23l15-15a16 16 0 0 1 23 0" fill="none" class="icon-gradient-stroke" stroke-linecap="round" stroke-width="8"/>
+        <path d="m56 34 8-8a16 16 0 1 1 23 23L72 64a16 16 0 0 1-23 0" fill="none" class="icon-gradient-stroke" stroke-linecap="round" stroke-width="8"/>
+        <path d="m34 60 27-27" class="icon-gradient-stroke" stroke-linecap="round" stroke-width="7"/>
+      `,
+      collaborate: `
+        <circle cx="36" cy="34" r="13" class="icon-gradient-fill"/>
+        <circle cx="66" cy="39" r="11" class="icon-gradient-fill" opacity=".72"/>
+        <path d="M13 76c2-17 10-25 23-25s22 8 24 25H13Z" class="icon-gradient-fill"/>
+        <path d="M54 74c2-13 7-20 16-20 10 0 16 7 18 20H54Z" class="icon-gradient-fill" opacity=".72"/>
+      `,
+      publish: `
+        <path d="M19 66v13h56V66" fill="none" class="icon-gradient-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+        <path d="M47 65V17M29 35l18-18 18 18" fill="none" class="icon-gradient-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+      `
+    };
+
+    function iconMarkup(item, index) {
+      const key = Object.hasOwn(iconBodies, item.icon_key) ? item.icon_key : "compose";
+      const start = /^#[0-9a-f]{6}$/i.test(String(item.accent || "")) ? item.accent : "#39c6ff";
+      const end = /^#[0-9a-f]{6}$/i.test(String(item.accent_2 || "")) ? item.accent_2 : "#7e69ff";
+      const body = iconBodies[key]
+        .replaceAll("class=\"icon-gradient-stroke\"", `stroke=\"url(#itemGradient-${index})\"`)
+        .replaceAll("class=\"icon-gradient-fill\"", `fill=\"url(#itemGradient-${index})\"`);
+      return `
+        <svg viewBox="0 0 94 94" aria-hidden="true">
+          <defs>
+            <linearGradient id="itemGradient-${index}" x1="12" y1="10" x2="84" y2="86" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="${start}"/>
+              <stop offset="1" stop-color="${end}"/>
+            </linearGradient>
+          </defs>
+          <g>${body}</g>
+        </svg>
+      `;
+    }
+
+    function renderItems(items) {
+      const rows = Array.isArray(items) ? items.slice(0, 8) : [];
+      directoryGrid.replaceChildren(...rows.map((item, index) => {
+        const card = document.createElement("article");
+        card.className = "directory-card";
+        card.dataset.directorySlot = String(index + 1);
+
+        const tile = document.createElement("div");
+        tile.className = "icon-tile";
+        tile.style.setProperty("--icon-start", /^#[0-9a-f]{6}$/i.test(String(item.accent || "")) ? item.accent : "#39c6ff");
+        tile.style.setProperty("--icon-end", /^#[0-9a-f]{6}$/i.test(String(item.accent_2 || "")) ? item.accent_2 : "#7e69ff");
+        tile.innerHTML = iconMarkup(item, index);
+
+        const name = document.createElement("h2");
+        name.className = "item-name";
+        name.textContent = item.name;
+
+        const description = document.createElement("p");
+        description.className = "item-description";
+        description.textContent = item.description;
+
+        card.append(tile, name, description);
+        return card;
+      }));
+    }
+
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1";
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+    let output = { width: 1, height: 1 };
+
+    if (captureMode) document.body.classList.add("capture");
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(
+        viewport.clientWidth / output.width,
+        viewport.clientHeight / output.height,
+        1
+      );
+      const fittedScale = Math.max(.1, scale);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+
+    window.addEventListener("editablemediadata", (event) => {
+      if (Array.isArray(event.detail.data.items)) renderItems(event.detail.data.items);
+    });
+  </script>
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height)
+      };
+      document.querySelector("#previewNote").textContent =
+        `固定画布 ${output.width} × ${output.height} · 网页为可编辑制作源`;
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

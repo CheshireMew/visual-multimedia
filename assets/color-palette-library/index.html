@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visual Multimedia 配色卡</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background: #E9EBEF;
+      color: #171A1F;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      padding: 52px;
+    }
+    header { display: flex; justify-content: space-between; align-items: end; margin-bottom: 32px; }
+    header h1 { margin: 0; font-size: 42px; line-height: 1; letter-spacing: -.04em; }
+    header p { margin: 0; color: #667085; font-size: 16px; }
+    main { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+    .palette {
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 12px 34px rgb(15 23 42 / .13);
+    }
+    .sample { flex: 1; padding: 34px; display: flex; flex-direction: column; }
+    .eyebrow { margin: 0 0 24px; font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+    .sample h2 { max-width: 8em; margin: 0; font-size: 42px; line-height: 1.05; letter-spacing: -.04em; }
+    .sample .body { max-width: 22em; margin: 18px 0 26px; font-size: 17px; line-height: 1.55; }
+    .signal { margin-top: auto; display: flex; align-items: center; gap: 12px; }
+    .signal strong { padding: 8px 13px; border-radius: 999px; font-size: 13px; }
+    .support-dot { width: 16px; height: 16px; border-radius: 50%; }
+    .meta { padding: 20px 24px 22px; }
+    .meta-top { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+    .meta h3 { margin: 0; font-size: 18px; }
+    .meta p { margin: 0; font-size: 12px; opacity: .75; }
+    .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin-top: 16px; }
+    .swatch { min-width: 0; }
+    .chip { height: 25px; border-radius: 7px; border: 1px solid rgb(127 127 127 / .18); }
+    .hex { margin-top: 5px; overflow: hidden; font: 9px/1.2 ui-monospace, Consolas, monospace; text-overflow: ellipsis; }
+    @media (max-width: 1100px) { main { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>典型配色卡</h1>
+    <p>只继承颜色关系，不继承模板</p>
+  </header>
+  <main id="paletteGrid" aria-label="六套典型配色卡"></main>
+  <script>
+    const roleOrder = ["background", "surface", "text", "muted", "accent", "support"];
+    const hex = (value) => String(value || "").toUpperCase();
+
+    fetch("catalog.json", {cache: "no-store"})
+      .then((response) => {
+        if (!response.ok) throw new Error(`catalog.json 返回 ${response.status}`);
+        return response.json();
+      })
+      .then((catalog) => {
+        const sample = catalog.sample;
+        const cards = catalog.palettes.map((palette) => {
+          const roles = palette.roles;
+          const swatches = roleOrder
+            .filter((role) => roles[role])
+            .map((role) => `
+              <div class="swatch" title="${role}">
+                <div class="chip" style="background:${roles[role]}"></div>
+                <div class="hex">${hex(roles[role])}</div>
+              </div>`).join("");
+          return `
+            <article class="palette" data-palette-id="${palette.id}" style="background:${roles.surface}">
+              <section class="sample" style="background:${roles.background};color:${roles.text}">
+                <p class="eyebrow" style="color:${roles.muted}">${sample.eyebrow}</p>
+                <h2>${sample.title}</h2>
+                <p class="body" style="color:${roles.muted}">${sample.body}</p>
+                <div class="signal">
+                  <strong style="background:${roles.accent};color:${roles.accent_text}">${sample.label}</strong>
+                  ${roles.support ? `<span class="support-dot" style="background:${roles.support}"></span>` : ""}
+                </div>
+              </section>
+              <footer class="meta" style="background:${roles.surface};color:${roles.text}">
+                <div class="meta-top"><h3>${palette.name}</h3><p>${palette.character}</p></div>
+                <div class="swatches">${swatches}</div>
+              </footer>
+            </article>`;
+        });
+        document.querySelector("#paletteGrid").innerHTML = cards.join("");
+        document.documentElement.dataset.ready = "true";
+      })
+      .catch((error) => {
+        document.body.textContent = `配色卡载入失败：${error.message}`;
+        document.documentElement.dataset.ready = "error";
+      });
+  </script>
+</body>
+</html>

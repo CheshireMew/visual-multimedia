@@ -14,6 +14,7 @@ import {
   assertEditableMediaPackageClosed,
   readEditableMediaPackage,
 } from "./editable-media-contract.mjs";
+import {listenOnBrowserSafePort} from "./browser-safe-server.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SKILL_ROOT = path.resolve(path.dirname(SCRIPT_PATH), "..");
@@ -130,10 +131,8 @@ async function startServer(root) {
       response.writeHead(500).end(error.message);
     }
   });
-  server.listen(0, "127.0.0.1");
-  await once(server, "listening");
-  const address = server.address();
-  return {server, origin: `http://127.0.0.1:${address.port}`};
+  const port = await listenOnBrowserSafePort(server);
+  return {server, origin: `http://127.0.0.1:${port}`};
 }
 
 function outputArguments(format, output, fps, width, height) {

@@ -932,6 +932,473 @@ function sceneStartTimeForValidation(manifest, sceneId) {
   return 0;
 }
 
+function inspectVisualVariableDriftInBrowser({
+  canvasSelector,
+  manifestLayers,
+  themeVariables,
+}) {
+  const canvas = document.querySelector(canvasSelector);
+  if (!canvas) return [];
+
+  const declaredThemeVariables = new Set(
+    (themeVariables || []).map((item) => item.css_variable).filter(Boolean)
+  );
+  const governedColors = (themeVariables || []).filter((item) => item.kind === "color");
+  const governedFonts = (themeVariables || []).filter((item) => item.kind === "font");
+  if (governedColors.length === 0 && governedFonts.length === 0) return [];
+
+  const probe = document.createElement("span");
+  probe.setAttribute("aria-hidden", "true");
+  probe.style.cssText = [
+    "position:fixed",
+    "left:-10000px",
+    "top:-10000px",
+    "display:block",
+    "visibility:hidden",
+    "pointer-events:none",
+  ].join(";");
+  document.body.appendChild(probe);
+
+  const normalizeComputed = (value) => String(value || "")
+    .trim()
+    .split(/\s+/u)
+    .join(" ")
+    .toLowerCase();
+  const normalizeColor = (value) => {
+    probe.style.color = "";
+    probe.style.color = value;
+    if (!probe.style.color) return null;
+    return normalizeComputed(getComputedStyle(probe).color);
+  };
+  const normalizeFont = (value) => {
+    probe.style.fontFamily = "";
+    probe.style.fontFamily = value;
+    if (!probe.style.fontFamily) return null;
+    return normalizeComputed(getComputedStyle(probe).fontFamily);
+  };
+  const allowedColors = new Set(
+    governedColors
+      .map((item) => normalizeColor(`var(${item.css_variable})`))
+      .filter(Boolean)
+  );
+  const allowedFonts = new Set(
+    governedFonts
+      .map((item) => normalizeFont(`var(${item.css_variable})`))
+      .filter(Boolean)
+  );
+
+  const styleRules = [];
+  let ruleOrder = 0;
+  const visitRules = (rules, source) => {
+    for (const rule of Array.from(rules || [])) {
+      if (rule.type === CSSRule.STYLE_RULE) {
+        styleRules.push({ rule, source, order: ruleOrder });
+        ruleOrder += 1;
+        continue;
+      }
+      if (rule.type === CSSRule.KEYFRAMES_RULE) continue;
+      if (rule.type === CSSRule.MEDIA_RULE
+        && !window.matchMedia(rule.conditionText).matches) continue;
+      if (rule.type === CSSRule.SUPPORTS_RULE
+        && !CSS.supports(rule.conditionText)) continue;
+      if (rule.cssRules) visitRules(rule.cssRules, source);
+    }
+  };
+  for (const [index, sheet] of Array.from(document.styleSheets).entries()) {
+    const source = sheet.href
+      ? new URL(sheet.href, location.href).pathname.split("/").filter(Boolean).at(-1)
+      : `<style:${index + 1}>`;
+    try {
+      visitRules(sheet.cssRules, source);
+    } catch {
+      // Cross-origin styles cannot be inspected. Self-contained packages normally have none.
+    }
+  }
+
+  const matchedDeclarationCache = new WeakMap();
+  const matchedDeclarations = (node) => {
+    if (matchedDeclarationCache.has(node)) return matchedDeclarationCache.get(node);
+    const declarations = [];
+    for (const item of styleRules) {
+      let matches = false;
+      try {
+        matches = node.matches(item.rule.selectorText);
+      } catch {
+        matches = false;
+      }
+      if (!matches) continue;
+      for (const property of Array.from(item.rule.style)) {
+        declarations.push({
+          property,
+          value: item.rule.style.getPropertyValue(property).trim(),
+          priority: item.rule.style.getPropertyPriority(property),
+          selector: item.rule.selectorText,
+          source: item.source,
+          order: item.order,
+        });
+      }
+    }
+    for (const property of Array.from(node.style || [])) {
+      declarations.push({
+        property,
+        value: node.style.getPropertyValue(property).trim(),
+        priority: node.style.getPropertyPriority(property),
+        selector: "style attribute",
+        source: "inline",
+        order: Number.MAX_SAFE_INTEGER,
+      });
+    }
+    matchedDeclarationCache.set(node, declarations);
+    return declarations;
+  };
+
+  const affectedBy = new Map([
+    ["color", new Set(["color"])],
+    ["background-color", new Set(["background", "background-color"])],
+    ["background-image", new Set(["background", "background-image"])],
+    ["border-top-color", new Set(["border", "border-color", "border-top", "border-top-color"])],
+    ["border-right-color", new Set(["border", "border-color", "border-right", "border-right-color"])],
+    ["border-bottom-color", new Set(["border", "border-color", "border-bottom", "border-bottom-color"])],
+    ["border-left-color", new Set(["border", "border-color", "border-left", "border-left-color"])],
+    ["outline-color", new Set(["outline", "outline-color"])],
+    ["text-decoration-color", new Set(["text-decoration", "text-decoration-color"])],
+    ["text-emphasis-color", new Set(["text-emphasis", "text-emphasis-color"])],
+    ["column-rule-color", new Set(["column-rule", "column-rule-color"])],
+    ["box-shadow", new Set(["box-shadow"])],
+    ["text-shadow", new Set(["text-shadow"])],
+    ["filter", new Set(["filter"])],
+    ["border-image-source", new Set(["border-image", "border-image-source"])],
+    ["caret-color", new Set(["caret-color"])],
+    ["accent-color", new Set(["accent-color"])],
+    ["fill", new Set(["fill"])],
+    ["stroke", new Set(["stroke"])],
+    ["stop-color", new Set(["stop-color"])],
+    ["flood-color", new Set(["flood-color"])],
+    ["lighting-color", new Set(["lighting-color"])],
+    ["-webkit-text-stroke-color", new Set(["-webkit-text-stroke", "-webkit-text-stroke-color"])],
+    ["-webkit-text-fill-color", new Set(["-webkit-text-fill-color"])],
+    ["-webkit-tap-highlight-color", new Set(["-webkit-tap-highlight-color"])],
+    ["scrollbar-color", new Set(["scrollbar-color"])],
+    ["font-family", new Set(["font", "font-family"])],
+  ]);
+  const inheritedProperties = new Set([
+    "color",
+    "font-family",
+    "fill",
+    "stroke",
+    "text-decoration-color",
+    "text-emphasis-color",
+    "-webkit-text-fill-color",
+  ]);
+  const cssWideInheritance = new Set(["inherit", "unset", "revert", "revert-layer"]);
+
+  const candidatesFor = (node, targetProperty) => {
+    const accepted = affectedBy.get(targetProperty) || new Set([targetProperty]);
+    const candidates = matchedDeclarations(node)
+      .filter((item) => accepted.has(item.property));
+    if (node.hasAttribute?.(targetProperty)) {
+      candidates.push({
+        property: targetProperty,
+        value: node.getAttribute(targetProperty),
+        priority: "",
+        selector: `${node.localName}[${targetProperty}]`,
+        source: "presentation attribute",
+        order: Number.MAX_SAFE_INTEGER - 1,
+      });
+    }
+    return candidates;
+  };
+
+  const withTemporaryDeclaration = (sourceNode, declaration, read) => {
+    const originalValue = sourceNode.style.getPropertyValue(declaration.property);
+    const originalPriority = sourceNode.style.getPropertyPriority(declaration.property);
+    sourceNode.style.setProperty(declaration.property, declaration.value, "important");
+    const result = read();
+    if (originalValue) {
+      sourceNode.style.setProperty(declaration.property, originalValue, originalPriority);
+    } else {
+      sourceNode.style.removeProperty(declaration.property);
+    }
+    return result;
+  };
+
+  const activeDeclarations = (targetNode, targetProperty) => {
+    const original = normalizeComputed(
+      getComputedStyle(targetNode).getPropertyValue(targetProperty)
+    );
+    let sourceNode = targetNode;
+    while (sourceNode) {
+      const active = candidatesFor(sourceNode, targetProperty).filter((declaration) => {
+        const resolved = withTemporaryDeclaration(sourceNode, declaration, () =>
+          normalizeComputed(getComputedStyle(targetNode).getPropertyValue(targetProperty))
+        );
+        return resolved === original;
+      });
+      const concrete = active.filter((item) =>
+        !cssWideInheritance.has(normalizeComputed(item.value))
+      );
+      if (concrete.length) {
+        return concrete.map((item) => ({ ...item, sourceNode }));
+      }
+      if (!inheritedProperties.has(targetProperty)) break;
+      sourceNode = sourceNode.parentElement;
+    }
+    return [];
+  };
+
+  const variableNames = (value) => {
+    const names = [];
+    const input = String(value || "");
+    let index = 0;
+    while (index < input.length) {
+      const start = input.indexOf("var(", index);
+      if (start < 0) break;
+      let cursor = start + 4;
+      while (cursor < input.length && /\s/u.test(input[cursor])) cursor += 1;
+      const nameStart = cursor;
+      while (cursor < input.length && input[cursor] !== "," && input[cursor] !== ")") {
+        cursor += 1;
+      }
+      const name = input.slice(nameStart, cursor).trim();
+      if (name.startsWith("--")) names.push(name);
+      index = cursor + 1;
+    }
+    return names;
+  };
+
+  const variableUsesTheme = (value, sourceNode, seen = new Set()) => {
+    for (const name of variableNames(value)) {
+      if (declaredThemeVariables.has(name)) return true;
+      if (seen.has(name)) continue;
+      const nextSeen = new Set(seen).add(name);
+      const original = normalizeComputed(getComputedStyle(sourceNode).getPropertyValue(name));
+      let current = sourceNode;
+      while (current) {
+        const definitions = matchedDeclarations(current)
+          .filter((item) => item.property === name)
+          .filter((item) => {
+            const resolved = withTemporaryDeclaration(sourceNode, item, () =>
+              normalizeComputed(getComputedStyle(sourceNode).getPropertyValue(name))
+            );
+            return resolved === original;
+          });
+        if (definitions.some((item) => variableUsesTheme(item.value, current, nextSeen))) {
+          return true;
+        }
+        if (definitions.length) break;
+        current = current.parentElement;
+      }
+    }
+    return false;
+  };
+
+  const colorFunctionNames = new Set([
+    "rgb", "rgba", "hsl", "hsla", "hwb", "lab", "lch", "oklab", "oklch",
+    "color", "color-mix", "light-dark", "device-cmyk",
+  ]);
+  const isIdentifierCharacter = (character) =>
+    Boolean(character) && /[a-z0-9_-]/iu.test(character);
+  const matchingParenthesis = (input, openIndex) => {
+    let depth = 0;
+    let quote = "";
+    for (let index = openIndex; index < input.length; index += 1) {
+      const character = input[index];
+      if (quote) {
+        if (character === quote && input[index - 1] !== "\\") quote = "";
+        continue;
+      }
+      if (character === "\"" || character === "'") {
+        quote = character;
+        continue;
+      }
+      if (character === "(") depth += 1;
+      if (character === ")") {
+        depth -= 1;
+        if (depth === 0) return index;
+      }
+    }
+    return input.length - 1;
+  };
+  const colorLiterals = (value) => {
+    const literals = [];
+    const input = String(value || "");
+    let index = 0;
+    while (index < input.length) {
+      const character = input[index];
+      if (character === "\"" || character === "'") {
+        const quote = character;
+        index += 1;
+        while (index < input.length) {
+          if (input[index] === quote && input[index - 1] !== "\\") {
+            index += 1;
+            break;
+          }
+          index += 1;
+        }
+        continue;
+      }
+      if (character === "#") {
+        let end = index + 1;
+        while (end < input.length && "0123456789abcdefABCDEF".includes(input[end])) {
+          end += 1;
+        }
+        const token = input.slice(index, end);
+        if ([4, 5, 7, 9].includes(token.length)) literals.push(token);
+        index = end;
+        continue;
+      }
+      if (isIdentifierCharacter(character)) {
+        let end = index + 1;
+        while (end < input.length && isIdentifierCharacter(input[end])) end += 1;
+        const name = input.slice(index, end);
+        if (input[end] === "(") {
+          const close = matchingParenthesis(input, end);
+          const whole = input.slice(index, close + 1);
+          const body = input.slice(end + 1, close);
+          if (name.toLowerCase() === "var") {
+            index = close + 1;
+            continue;
+          }
+          if (colorFunctionNames.has(name.toLowerCase())) {
+            if (variableNames(whole).length) literals.push(...colorLiterals(body));
+            else literals.push(whole);
+          } else {
+            literals.push(...colorLiterals(body));
+          }
+          index = close + 1;
+          continue;
+        }
+        const lower = name.toLowerCase();
+        if (!["transparent", "currentcolor", "inherit", "initial", "unset", "revert", "none"].includes(lower)
+          && CSS.supports("color", name)) {
+          literals.push(name);
+        }
+        index = end;
+        continue;
+      }
+      index += 1;
+    }
+    return literals;
+  };
+
+  const layerRoots = [];
+  for (const layer of manifestLayers || []) {
+    let nodes = [];
+    try {
+      nodes = Array.from(document.querySelectorAll(layer.selector));
+    } catch {
+      nodes = [];
+    }
+    if (nodes.length === 1) layerRoots.push({ id: layer.id, node: nodes[0] });
+  }
+  const layerIdFor = (node) => {
+    let current = node;
+    while (current && current !== canvas) {
+      const matched = layerRoots.find((item) => item.node === current);
+      if (matched) return matched.id;
+      current = current.parentElement;
+    }
+    return node === canvas ? "$canvas" : null;
+  };
+  const scopedNodes = [canvas, ...Array.from(canvas.querySelectorAll("*"))]
+    .map((node) => ({ node, layerId: layerIdFor(node) }))
+    .filter((item) => item.layerId)
+    .filter(({ node }) => {
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
+      return style.display !== "none"
+        && style.visibility !== "hidden"
+        && Number(style.opacity || 1) > 0
+        && (rect.width > 0 || rect.height > 0);
+    });
+
+  const colorProperties = [...affectedBy.keys()].filter((name) => name !== "font-family");
+  const drift = new Map();
+  const addDrift = ({ kind, layerId, property, rendered, declaration }) => {
+    const authoredProperty = declaration.property.startsWith("border-")
+      && declaration.property.endsWith("-color")
+      ? "border-color"
+      : declaration.property;
+    const key = [
+      kind,
+      declaration.source,
+      declaration.selector,
+      authoredProperty,
+      declaration.value,
+    ].join("\u0000");
+    if (!drift.has(key)) {
+      drift.set(key, {
+        kind,
+        property,
+        authored_property: authoredProperty,
+        authored_value: declaration.value,
+        rendered_values: new Set(),
+        layer_ids: new Set(),
+        selector: declaration.selector,
+        source: declaration.source,
+        order: declaration.order,
+      });
+    }
+    drift.get(key).rendered_values.add(rendered);
+    drift.get(key).layer_ids.add(layerId);
+  };
+
+  for (const { node, layerId } of scopedNodes) {
+    for (const property of colorProperties) {
+      const rendered = normalizeComputed(getComputedStyle(node).getPropertyValue(property));
+      if (!rendered || rendered === "none") continue;
+      const active = activeDeclarations(node, property);
+      if (!active.length) continue;
+      const clean = active.some((declaration) => {
+        const literals = colorLiterals(declaration.value);
+        const newLiterals = literals.filter((literal) => {
+          const normalized = normalizeColor(literal);
+          return normalized && !allowedColors.has(normalized);
+        });
+        return newLiterals.length === 0
+          && (variableUsesTheme(declaration.value, declaration.sourceNode)
+            || literals.length === 0
+            || literals.every((literal) => allowedColors.has(normalizeColor(literal))));
+      });
+      if (clean) continue;
+      const declaration = active.slice().sort((left, right) => right.order - left.order)[0];
+      addDrift({ kind: "color", layerId, property, rendered, declaration });
+    }
+
+    const renderedFont = normalizeFont(getComputedStyle(node).fontFamily);
+    if (!renderedFont || allowedFonts.has(renderedFont)) continue;
+    const activeFonts = activeDeclarations(node, "font-family");
+    if (!activeFonts.length) continue;
+    const themedFont = activeFonts.some((declaration) =>
+      variableUsesTheme(declaration.value, declaration.sourceNode)
+      && allowedFonts.has(normalizeFont(renderedFont))
+    );
+    if (themedFont) continue;
+    const declaration = activeFonts.slice().sort((left, right) => right.order - left.order)[0];
+    addDrift({
+      kind: "font",
+      layerId,
+      property: "font-family",
+      rendered: renderedFont,
+      declaration,
+    });
+  }
+
+  probe.remove();
+  return [...drift.values()]
+    .sort((left, right) => left.order - right.order)
+    .map((item) => ({
+      kind: item.kind,
+      property: item.property,
+      authored_property: item.authored_property,
+      authored_value: item.authored_value,
+      rendered_values: [...item.rendered_values].sort(),
+      layer_ids: [...item.layer_ids].sort(),
+      selector: item.selector,
+      source: item.source,
+    }));
+}
+
 async function inspectTarget(
   page,
   manifest,
@@ -1200,6 +1667,7 @@ async function inspectTarget(
       },
       selectorCounts,
       editableIdCounts,
+      runtimeBoundsKeys: Object.keys(window.editableMedia.getBounds?.() || {}).sort(),
       layers: layerResults,
       images: Array.from(document.images).map((image) => ({
         src: image.currentSrc || image.src,
@@ -1229,6 +1697,17 @@ async function inspectTarget(
       state: window.editableMedia.getState(),
     };
   }, { manifestLayers: manifest.layers || [], qualityRules: quality });
+
+  const hasLockedStyleProfile = (manifest.resources || []).some((resource) =>
+    String(resource).split("/").at(-1) === "style-profile.json"
+  );
+  inspection.visualVariableDrift = hasLockedStyleProfile
+    ? await page.evaluate(inspectVisualVariableDriftInBrowser, {
+      canvasSelector: quality.canvas_selector || ".media-canvas",
+      manifestLayers: manifest.layers || [],
+      themeVariables: manifest.theme_variables || [],
+    })
+    : [];
 
   if (inspection.missingCanvas) {
     fail("B1", `找不到画布 ${inspection.missingCanvas}`);
@@ -1532,6 +2011,18 @@ async function inspectTarget(
   Object.entries(inspection.editableIdCounts).forEach(([id, count]) => {
     if (count !== 1) fail("B4", `data-editable-id 重复：${id} × ${count}`);
   });
+  const declaredLayerIds = (manifest.layers || []).map((layer) => layer.id).sort();
+  if (JSON.stringify(inspection.runtimeBoundsKeys) !== JSON.stringify(declaredLayerIds)) {
+    const declared = new Set(declaredLayerIds);
+    const runtime = new Set(inspection.runtimeBoundsKeys || []);
+    const missing = declaredLayerIds.filter((id) => !runtime.has(id));
+    const undeclared = [...runtime].filter((id) => !declared.has(id)).sort();
+    fail(
+      "B4",
+      `window.editableMedia.getBounds() 与清单图层不一致：`
+        + `缺少 ${missing.join(", ") || "无"}；未声明 ${undeclared.join(", ") || "无"}`
+    );
+  }
 
   const tolerance = Number(quality.bounds_tolerance_px ?? 1);
   const allowOverflow = new Set(quality.allow_overflow_layer_ids || []);
@@ -1731,6 +2222,22 @@ async function inspectTarget(
     }
   }
 
+  if (inspection.visualVariableDrift.length) {
+    const examples = inspection.visualVariableDrift.slice(0, 6).map((item) => {
+      const layers = item.layer_ids.join(" / ");
+      return `${layers} 的 ${item.authored_property}: ${item.authored_value}`
+        + `（${item.source} ${item.selector}）`;
+    });
+    const remaining = inspection.visualVariableDrift.length - examples.length;
+    warn(
+      "Q12",
+      `风格档案已锁定，但正式画布或声明图层有 `
+        + `${inspection.visualVariableDrift.length} 处颜色/字体声明绕过 theme_variables：`
+        + examples.join("；")
+        + (remaining > 0 ? `；另有 ${remaining} 处见 JSON 报告` : "")
+    );
+  }
+
   if (screenshotPath) {
     fs.mkdirSync(path.dirname(screenshotPath), { recursive: true });
     const canvas = page.locator(quality.canvas_selector || ".media-canvas");
@@ -1853,6 +2360,7 @@ async function main() {
             failures: result.failures,
             warnings: result.warnings,
             measured_layers: result.inspection?.layers || [],
+            visual_variable_drift: result.inspection?.visualVariableDrift || [],
           });
         }
       }

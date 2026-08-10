@@ -1,0 +1,40 @@
+{
+  "profile_id": "dark-icon-directory",
+  "source": "user-reference",
+  "applicability": {
+    "shared_visual_core": ["static-card", "cover"],
+    "static_composition": ["static-card", "cover"],
+    "time_motion": [],
+    "interaction": []
+  },
+  "shared_visual_core": {
+    "typography": {
+      "display": "Noto Sans SC / Microsoft YaHei UI / PingFang SC / Segoe UI",
+      "body": "Noto Sans SC / Microsoft YaHei UI / PingFang SC / Segoe UI",
+      "display_weight": 680,
+      "label_weight": 580,
+      "secondary_weight": 520
+    },
+    "color": {
+      "background": "Near-black neutral canvas with a cool central spotlight",
+      "surface": "Low-contrast blue-black card surfaces",
+      "text": "Soft white primary labels and cool-gray secondary labels",
+      "accent": "Selective cyan, violet, green, coral and amber gradients live inside icon tiles only"
+    },
+    "material": "Dark matte canvas, restrained center glow, soft white icon tiles and thin cool-gray outlines",
+    "shape_and_line": "One large rounded-square hero mark and eight equal tall cards with consistent corner radii and one-pixel outlines",
+    "image_treatment": "All marks are original HTML/CSS/inline SVG geometry; the reference supplies composition and tonal strategy, not brands or trademark artwork",
+    "hierarchy_and_rhythm": "Hero mark, centered single-line title, then a four-column by two-row directory whose English and Chinese labels share fixed baselines"
+  },
+  "realizations": {
+    "static_composition": {
+      "canvas": "Fixed 1200 × 1500 portrait card",
+      "capacity": "Eight directory items arranged as four equal columns by two equal rows",
+      "hero": "A centered 200px rounded-square mark establishes the collection identity without becoming a product logo",
+      "labels": "Each card uses one compact English primary label and one shorter Chinese secondary label",
+      "thumbnail": "At 360px width the title, all eight icon tiles and the two-level label rhythm remain distinguishable"
+    },
+    "time_motion": null,
+    "interaction": null
+  }
+}

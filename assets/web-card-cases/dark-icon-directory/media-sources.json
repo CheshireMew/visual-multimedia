@@ -1,0 +1,55 @@
+{
+  "protocol": "visual-multimedia-media-sources",
+  "version": 4,
+  "sources": [
+    {
+      "id": "generated-icon-system",
+      "media_type": "generated",
+      "file": "index.html#generated-icon-system",
+      "binding": {
+        "pipeline": "browser"
+      },
+      "representation": {
+        "kind": "source",
+        "source_id": null,
+        "build": null,
+        "verification": null
+      },
+      "acquisition": {
+        "method": "generated-in-project",
+        "source_url": "",
+        "captured_at": "2026-08-10T00:00:00.000Z"
+      },
+      "rights": {
+        "status": "not-required",
+        "license": "generated-in-project",
+        "attribution": "",
+        "terms_url": ""
+      },
+      "usage": "original HTML, CSS and inline SVG icon system for the directory card",
+      "integrity": null,
+      "generation": {
+        "provider": "local-project",
+        "model": "html-css-svg",
+        "prompt": "",
+        "seed": null,
+        "created_at": "2026-08-10T00:00:00.000Z"
+      },
+      "speech": null,
+      "provenance_runs": [
+        {
+          "recorded_at": "2026-08-10T00:00:00.000Z",
+          "provider": "local-project",
+          "job_id": "",
+          "capture": null
+        }
+      ],
+      "subject": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "crops": {},
+      "notes": "图标均由案例网页内的通用几何路径生成，不复制参考图中的商标、品牌图标或文字。"
+    }
+  ]
+}

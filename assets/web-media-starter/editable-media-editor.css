@@ -1,0 +1,250 @@
+#editableMediaEditorMount {
+  display: contents;
+}
+
+.editor-panel {
+  grid-area: editor;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid #cbd1da;
+  border-radius: 18px;
+  background: #f7f8fb;
+  color: #171a21;
+  box-shadow: 0 12px 36px rgb(25 32 45 / 10%);
+  font: 500 14px/1.5 "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
+
+.editor-header {
+  padding: 22px 22px 18px;
+  border-bottom: 1px solid #d4d9e1;
+}
+
+.editor-header h2 {
+  margin: 0 0 7px;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.editor-header p,
+.editor-status {
+  margin: 0;
+  color: #66717e;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.editor-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #d4d9e1;
+}
+
+.editor-actions button,
+.editor-return {
+  min-height: 42px;
+  border: 1px solid #c3cad4;
+  border-radius: 9px;
+  padding: 8px 12px;
+  background: #ffffff;
+  color: #171a21;
+  font: 650 14px/1.2 "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  cursor: pointer;
+}
+
+.editor-actions .primary {
+  border-color: var(--accent, #5457c8);
+  background: var(--accent, #5457c8);
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.editor-actions button:hover,
+.editor-return:hover {
+  filter: brightness(1.04);
+}
+
+.editor-scroll {
+  min-height: 0;
+  overflow: auto;
+  padding: 0 18px 20px;
+  scrollbar-gutter: stable;
+}
+
+.editor-section {
+  padding: 20px 0;
+  border-bottom: 1px solid #d4d9e1;
+}
+
+.editor-section:last-of-type {
+  border-bottom: 0;
+}
+
+.editor-section > h3 {
+  margin: 0 0 14px;
+  color: var(--accent, #5457c8);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.editor-group + .editor-group {
+  margin-top: 16px;
+}
+
+.editor-group-title {
+  margin: 0 0 9px;
+  color: #242a33;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.editor-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 11px;
+  color: #697483;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.editor-field:last-child {
+  margin-bottom: 0;
+}
+
+.editor-field input,
+.editor-field textarea,
+.editor-field select {
+  width: 100%;
+  border: 1px solid #c3cad4;
+  border-radius: 9px;
+  padding: 10px 11px;
+  background: #ffffff;
+  color: #20242c;
+  font: 550 14px/1.5 "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
+
+.editor-field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.editor-color-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px 14px;
+}
+
+.editor-color-field {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: #697483;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.editor-color-field input[type="color"] {
+  width: 44px;
+  height: 38px;
+  border: 1px solid #c3cad4;
+  border-radius: 8px;
+  padding: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.editor-scene-wrap[hidden],
+.editor-section[hidden] {
+  display: none;
+}
+
+.editor-status {
+  min-height: 20px;
+  padding-top: 14px;
+}
+
+[data-editor-field][contenteditable="true"] {
+  cursor: text;
+}
+
+[data-editor-field][contenteditable="true"]:hover {
+  outline: 1px dashed color-mix(in srgb, var(--accent, #5457c8) 55%, transparent);
+  outline-offset: 5px;
+}
+
+[data-editor-field][contenteditable="true"]:focus {
+  outline: 2px solid var(--accent, #5457c8);
+  outline-offset: 6px;
+}
+
+.editor-return {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 100;
+  display: none;
+  box-shadow: 0 10px 28px rgb(25 32 45 / 18%);
+}
+
+[data-editable-media-app].editor-preview-expanded {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "viewport"
+    "controls";
+}
+
+[data-editable-media-app].editor-preview-expanded .editor-panel {
+  display: none;
+}
+
+[data-editable-media-app].editor-preview-expanded .editor-return {
+  display: block;
+}
+
+@media (max-width: 1180px) {
+  body {
+    overflow: auto;
+  }
+
+  [data-editable-media-app] {
+    height: auto;
+    min-height: 100vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(520px, 72vh) auto auto;
+    grid-template-areas:
+      "viewport"
+      "controls"
+      "editor";
+  }
+
+  .editor-panel {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 600px) {
+  [data-editable-media-app] {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .controls {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .controls input[type="range"] {
+    order: 2;
+    width: 100%;
+  }
+
+  .editor-color-grid {
+    grid-template-columns: 1fr;
+  }
+}

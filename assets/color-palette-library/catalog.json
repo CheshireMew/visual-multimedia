@@ -1,0 +1,123 @@
+{
+  "protocol": "visual-multimedia-color-palettes",
+  "version": 1,
+  "selection_policy": {
+    "priority": [
+      "user",
+      "brand",
+      "reference",
+      "confirmed-project-profile",
+      "built-in-palette"
+    ],
+    "rules": [
+      "一件作品只采用一张内置配色卡，不跨卡拼色",
+      "默认使用卡中原始色值和颜色职责；需要不同气质时改选另一张卡",
+      "配色卡不提供构图、字体、容器、圆角、阴影或题材模板",
+      "纯色只表示无纹理、无渐变、无照片，不自动等于暖白",
+      "极简文字提取没有其它视觉来源时采用 neutral-ink-red，并使用纯白底"
+    ]
+  },
+  "sample": {
+    "eyebrow": "VISUAL MULTIMEDIA · PALETTE",
+    "title": "颜色只负责关系",
+    "body": "同一套内容，用不同色彩职责建立气质与层级。",
+    "label": "关键结论"
+  },
+  "palettes": [
+    {
+      "id": "neutral-ink-red",
+      "name": "中性黑白红",
+      "character": "清楚、直接、中性",
+      "use_when": ["极简文字卡", "观点", "清单", "信息提取"],
+      "avoid_when": ["明确纸张感", "儿童内容", "深色演播室"],
+      "roles": {
+        "background": "#FFFFFF",
+        "surface": "#F2F4F7",
+        "text": "#171A1F",
+        "muted": "#667085",
+        "accent": "#C93436",
+        "accent_text": "#FFFFFF"
+      }
+    },
+    {
+      "id": "warm-paper-cinnabar",
+      "name": "暖纸朱砂",
+      "character": "人文、克制、纸张感",
+      "use_when": ["文化评论", "编辑出版", "手稿", "引用"],
+      "avoid_when": ["中性信息提取", "强科技感", "高密度数据"],
+      "roles": {
+        "background": "#F4EFE6",
+        "surface": "#E7DDCE",
+        "text": "#27231F",
+        "muted": "#6F665C",
+        "accent": "#B34331",
+        "accent_text": "#FFF9F2"
+      }
+    },
+    {
+      "id": "swiss-cobalt",
+      "name": "瑞士钴蓝",
+      "character": "理性、现代、高秩序",
+      "use_when": ["技术说明", "工具", "比较", "公共信息"],
+      "avoid_when": ["情绪照片", "手作叙事", "儿童内容"],
+      "roles": {
+        "background": "#F8F8F4",
+        "surface": "#E6E7E2",
+        "text": "#111111",
+        "muted": "#5D6269",
+        "accent": "#1D4ED8",
+        "accent_text": "#FFFFFF",
+        "support": "#E6B81E"
+      }
+    },
+    {
+      "id": "night-cyan-gold",
+      "name": "深夜青金",
+      "character": "冷静、精密、演播室感",
+      "use_when": ["科技", "财经", "数据", "机制"],
+      "avoid_when": ["生活方式", "儿童内容", "长篇正文阅读"],
+      "roles": {
+        "background": "#0B1020",
+        "surface": "#151D32",
+        "text": "#F7FAFF",
+        "muted": "#A8B2C7",
+        "accent": "#2DD4BF",
+        "accent_text": "#07130F",
+        "support": "#F0B44D"
+      }
+    },
+    {
+      "id": "playful-building-blocks",
+      "name": "童趣积木",
+      "character": "亲切、明快、有游戏感",
+      "use_when": ["儿童", "轻松科普", "亲子", "手作"],
+      "avoid_when": ["严肃财经", "正式报告", "奢华品牌"],
+      "roles": {
+        "background": "#FFF8E8",
+        "surface": "#FFFFFF",
+        "text": "#20304A",
+        "muted": "#687389",
+        "accent": "#C93F46",
+        "accent_text": "#FFFFFF",
+        "support": "#2F9FD0",
+        "highlight": "#F4C542"
+      }
+    },
+    {
+      "id": "forest-terracotta",
+      "name": "森野陶土",
+      "character": "自然、温和、沉静",
+      "use_when": ["自然", "生活方式", "可持续", "温和叙事"],
+      "avoid_when": ["强冲击促销", "赛博科技", "密集技术界面"],
+      "roles": {
+        "background": "#F3F0E7",
+        "surface": "#E1E6D6",
+        "text": "#263129",
+        "muted": "#647065",
+        "accent": "#557A55",
+        "accent_text": "#FFFFFF",
+        "support": "#B85C3E"
+      }
+    }
+  ]
+}

@@ -1,0 +1,420 @@
+{
+  "protocol": "editable-media",
+  "version": 6,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "manual",
+    "fps": 1,
+    "loop": "none",
+    "controls": {
+      "keyboard": false,
+      "wheel": false,
+      "touch": false,
+      "overview": false
+    }
+  },
+  "accessibility": {
+    "title_data_field": "title",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "production": {
+    "content_unit_id": "dark-icon-directory-demo",
+    "profile_id": "dark-icon-directory"
+  },
+  "layers": [
+    {
+      "id": "hero-mark",
+      "name": "Hero mark",
+      "kind": "group",
+      "selector": "[data-editable-id='hero-mark']",
+      "default_bounds": {
+        "x": 500,
+        "y": 82,
+        "width": 200,
+        "height": 200,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "rotation",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {}
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {
+        "x": 84,
+        "y": 326,
+        "width": 1032,
+        "height": 112,
+        "rotation": 0
+      },
+      "editable": [
+        "content",
+        "color",
+        "font_family",
+        "font_size",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {
+        "font_size": {
+          "minimum": 56,
+          "maximum": 88,
+          "step": 1
+        }
+      }
+    },
+    {
+      "id": "directory-grid",
+      "name": "Eight-item icon directory",
+      "kind": "group",
+      "selector": "[data-editable-id='directory-grid']",
+      "default_bounds": {
+        "x": 44,
+        "y": 508,
+        "width": 1112,
+        "height": 862,
+        "rotation": 0
+      },
+      "editable": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "z_index",
+        "visible"
+      ],
+      "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "dark-icon-directory-card",
+    "name": "Dark icon directory card",
+    "category": "cards",
+    "tags": [
+      "directory",
+      "icon-grid",
+      "bilingual",
+      "dark",
+      "portrait",
+      "toolkit"
+    ]
+  },
+  "theme_variables": [
+    {
+      "id": "background",
+      "name": "Background",
+      "kind": "color",
+      "css_variable": "--background",
+      "default": "#05070c"
+    },
+    {
+      "id": "surface",
+      "name": "Card surface",
+      "kind": "color",
+      "css_variable": "--surface",
+      "default": "#0b0f16"
+    },
+    {
+      "id": "surface_edge",
+      "name": "Card outline",
+      "kind": "color",
+      "css_variable": "--surface-edge",
+      "default": "#3b414d"
+    },
+    {
+      "id": "text",
+      "name": "Primary text",
+      "kind": "color",
+      "css_variable": "--text",
+      "default": "#f6f7fb"
+    },
+    {
+      "id": "muted",
+      "name": "Secondary text",
+      "kind": "color",
+      "css_variable": "--muted",
+      "default": "#9297a2"
+    },
+    {
+      "id": "icon_tile",
+      "name": "Icon tile",
+      "kind": "color",
+      "css_variable": "--icon-tile",
+      "default": "#f4f5f7"
+    },
+    {
+      "id": "hero_start",
+      "name": "Hero gradient start",
+      "kind": "color",
+      "css_variable": "--hero-start",
+      "default": "#55d8ff"
+    },
+    {
+      "id": "hero_end",
+      "name": "Hero gradient end",
+      "kind": "color",
+      "css_variable": "--hero-end",
+      "default": "#635bff"
+    },
+    {
+      "id": "font_sans",
+      "name": "Sans font",
+      "kind": "font",
+      "css_variable": "--font-sans",
+      "default": "Noto Sans SC, Microsoft YaHei UI, PingFang SC, Segoe UI, sans-serif"
+    }
+  ],
+  "parameters": [],
+  "scenes": [
+    {
+      "id": "directory",
+      "name": "Dark icon directory",
+      "page_role": "index",
+      "content_shape": "hero-title-and-eight-icon-grid",
+      "layout_id": "dark-eight-icon-directory",
+      "duration_ms": 1000,
+      "primary_blocks": 8,
+      "steps": [
+        {
+          "id": "page",
+          "at_ms": 0,
+          "label": "Page",
+          "state_kind": "start",
+          "review": false,
+          "description": "一张静态竖版卡同时呈现主标识、标题和八项双语图标目录。"
+        }
+      ],
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "用统一图标槽位和双语标签帮助观众快速扫描一个八项工具或功能集合。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {},
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "dark-eight-icon-directory",
+      "name": "Dark eight-item icon directory",
+      "page_roles": [
+        "index"
+      ],
+      "content_shapes": [
+        "hero-title-and-eight-icon-grid"
+      ],
+      "required_data_fields": [
+        "title",
+        "items"
+      ],
+      "required_layer_ids": [
+        "hero-mark",
+        "title",
+        "directory-grid"
+      ],
+      "title_layer_ids": [
+        "title"
+      ],
+      "content_layer_ids": [
+        "directory-grid"
+      ],
+      "capacity": {
+        "maximum_primary_blocks": 8
+      },
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "portrait-4x5",
+      "name": "Portrait 4:5",
+      "canvas": {
+        "width": 1200,
+        "height": 1500,
+        "background_mode": "opaque",
+        "background_color": "#05070c"
+      },
+      "layers": {}
+    }
+  ],
+  "default_variant_id": "portrait-4x5",
+  "data_fields": [
+    {
+      "id": "title",
+      "name": "Title",
+      "kind": "string",
+      "default": "Creative Toolkit"
+    },
+    {
+      "id": "items",
+      "name": "Directory items",
+      "kind": "table",
+      "default": [
+        {
+          "name": "Capture",
+          "description": "屏幕采集",
+          "icon_key": "capture",
+          "accent": "#39c6ff",
+          "accent_2": "#7e69ff"
+        },
+        {
+          "name": "Browse",
+          "description": "网页浏览",
+          "icon_key": "browse",
+          "accent": "#41d6a4",
+          "accent_2": "#2c8cff"
+        },
+        {
+          "name": "Compose",
+          "description": "页面构建",
+          "icon_key": "compose",
+          "accent": "#ffcf5a",
+          "accent_2": "#ff6d72"
+        },
+        {
+          "name": "Animate",
+          "description": "视频动效",
+          "icon_key": "animate",
+          "accent": "#27e6d6",
+          "accent_2": "#35c86e"
+        },
+        {
+          "name": "Inspect",
+          "description": "信息检查",
+          "icon_key": "inspect",
+          "accent": "#52b7ff",
+          "accent_2": "#3e77ff"
+        },
+        {
+          "name": "Connect",
+          "description": "工作连接",
+          "icon_key": "connect",
+          "accent": "#b06cff",
+          "accent_2": "#6274ff"
+        },
+        {
+          "name": "Collaborate",
+          "description": "协作管理",
+          "icon_key": "collaborate",
+          "accent": "#ff7c96",
+          "accent_2": "#ff9f4a"
+        },
+        {
+          "name": "Publish",
+          "description": "部署上线",
+          "icon_key": "publish",
+          "accent": "#86d94f",
+          "accent_2": "#1fc9a9"
+        }
+      ],
+      "columns": [
+        {
+          "id": "name",
+          "name": "Primary label",
+          "kind": "string"
+        },
+        {
+          "id": "description",
+          "name": "Secondary label",
+          "kind": "string"
+        },
+        {
+          "id": "icon_key",
+          "name": "Icon key",
+          "kind": "string"
+        },
+        {
+          "id": "accent",
+          "name": "Icon color start",
+          "kind": "string"
+        },
+        {
+          "id": "accent_2",
+          "name": "Icon color end",
+          "kind": "string"
+        }
+      ]
+    }
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {
+      "data_field": "title",
+      "layer_id": "title"
+    },
+    "required_layer_ids": [
+      "hero-mark",
+      "title",
+      "directory-grid"
+    ],
+    "bounds_tolerance_px": 1,
+    "safe_area": {
+      "top": 36,
+      "right": 36,
+      "bottom": 36,
+      "left": 36
+    },
+    "minimum_font_px": {
+      "title": 56
+    },
+    "minimum_gaps": [
+      {
+        "above": "hero-mark",
+        "below": "title",
+        "min_px": 36
+      },
+      {
+        "above": "title",
+        "below": "directory-grid",
+        "min_px": 64
+      }
+    ],
+    "content_bounds_layer_ids": [
+      "hero-mark",
+      "title",
+      "directory-grid"
+    ],
+    "minimum_content_span": 0.85,
+    "thumbnail": {
+      "width": 360,
+      "minimum_text_px": 8,
+      "text_layer_ids": [
+        "title"
+      ]
+    }
+  },
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": [
+    "editable-media-runtime.js",
+    "style-profile.json"
+  ],
+  "frame_readiness": {
+    "default_timeout_ms": 10000,
+    "maximum_timeout_ms": 30000,
+    "retry_limit": 1
+  }
+}

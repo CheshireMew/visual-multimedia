@@ -134,7 +134,7 @@ Skill 先确定活动真源，再检查当前机器真正可用的能力。执�
 
 ### 可编辑真源与交付合同
 
-代码生成的卡片、图表和动画在未指定技术栈时从 [DOM starter](assets/web-media-starter) 建立；用户明确要求 React，或现有输入本身是 React 组件或工程时，从 [React starter](assets/react-media-starter) 建立。两种生产方式都生成自包含的 editable-media v6 网页包；`schemas/editable-media.v6.schema.json` 是网页清单的唯一结构真源，运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。本地渲染器、结构化编辑器和 HyperFrames 都读取这一个边界。
+代码生成的卡片、图表和动画在未指定技术栈时从 [DOM starter](assets/web-media-starter) 建立；用户明确要求 React，或现有输入本身是 React 组件或工程时，从 [React starter](assets/react-media-starter) 建立。两种生产方式都生成自包含的 editable-media v6 网页包；`schemas/editable-media.v6.schema.json` 是网页清单的唯一结构真源，运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。本地渲染器、结构化编辑器和 HyperFrames 都读取这一个边界。DOM 网页包复用同一套画布外编辑器：右侧可以按语义分组改字、切换经本机验证的字体与字重、调色和调整样式，画布文字也能直接点击修改；修改可刷新保留、下载为结构化数据、放大预览、恢复初始值并导出当前画布。Windows 用户运行包内 `_start_editable_preview.bat` 即可在动态本地端口打开当前项目。
 
 图片、视频、音频和生成素材先进入带文件哈希、来源、权利、原片与代理关系的素材账本，再由网页、视频时间线或音频项目显式采用。`schemas/media-timeline.v1.schema.json` 定义本地与外部编辑器都能理解的可移植时间线，`schemas/media-delivery.v3.schema.json` 把实际提供方、真源文件、回执和 SHA-256 绑定到最终输出。导出的 PNG、GIF、MP4 或音频文件是派生结果，不会成为第二个编辑入口。
 

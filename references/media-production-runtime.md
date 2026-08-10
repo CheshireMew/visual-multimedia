@@ -7,7 +7,7 @@
 - 默认允许读取用户提供的本地内容与素材，并在用户要求制作时写入当前任务的明确输出位置。
 - 输出位置未说明但当前项目已有约定时遵循项目约定；没有可推断位置且文件交付是主要结果时再询问。项目命令接受相对任务、报告或输出路径时，一律相对显式项目根目录解析并拒绝越界，不能依赖进程当前目录。
 - 口播私人库只通过 `scripts/voiceover_reference_library.py` 初始化、接入、定位、保存和验证。正式根目录由用户指定；位于 Skill 目录内时只能使用已经从 Git 排除的 `口播私人库/`，不能与会发布的 references、scripts、assets 或案例混放。普通写作只运行只读 `show`、`voice-candidates` 和文本检索，明确的库维护请求才写入。
-- 代码生成视觉优先复制 `assets/web-media-starter/` 整个目录作为中性起点；`schemas/editable-media.v6.schema.json` 是唯一结构合同，`editable-media.json` 是当前包的场景、语义步骤、条件式镜头与运动、共享参数、播放方式、内容版式合同、输出比例、默认数据、主题、资源、生产关联和量化质量规则的权威配置。HTML/CSS 负责结构和渲染算法，通用运行时负责场景切换、对象与镜头时间推进、编辑状态和导航。starter 不决定当前内容的结构或风格。
+- 代码生成视觉优先复制 `assets/web-media-starter/` 整个目录作为中性起点；`schemas/editable-media.v6.schema.json` 是唯一结构合同，`editable-media.json` 是当前包的场景、语义步骤、条件式镜头与运动、共享参数、播放方式、内容版式合同、输出比例、默认数据、主题、资源、生产关联和量化质量规则的权威配置。HTML/CSS 负责结构和渲染算法，通用运行时负责场景切换、对象与镜头时间推进、编辑状态和导航。starter 同时提供画布外通用编辑器、字体预设与 Windows BAT 预览启动器：编辑器只通过 `window.editableMedia` 修改当前场景数据和主题，从清单与当前页面语义标记生成分区，并在浏览器本地保存预览覆盖；清单仍是默认状态的唯一真源。BAT 通过包内启动脚本在可用的动态本地端口服务当前目录。starter 不决定当前内容的结构或风格。
 - 网页包必须自包含：入口、运行时、素材账本和账本引用文件全部位于包目录内，不接受 `..`、盘符、绝对路径、URL、反斜杠或符号链接。实际制作网页时运行 `scripts/validate-editable-media.mjs` 检查用户要求的每个“输出比例 × 场景”，并查看脚本从同一网页真源生成的截图。校验器只测 schema、包边界、播放链路和已声明规则，不能代替人工检查内容、素材与风格。
 - `editable-media` v6 网页必须同时暴露 `window.editableMedia` 编辑接口与 `window.__hf.duration/seek(seconds)` 逐帧接口；本地渲染器、MediaFlow Pro 与 HyperFrames 只读取这一个时间边界，不能各自增加另一套动画时钟或兼容运行时。
 - 复杂网页动画必须在 `scene.steps` 中标记由语义决定的开始、变化和结果审阅状态；`scripts/validate-editable-media.mjs` 从真实运行时逐状态定位并在指定截图时生成关键状态图。只有 `motion.driver=camera|mixed` 才允许 camera；镜头根与景深层使用不可编辑外包装，持续可读文字位于镜头空间之外，运行时通过 `getCamera` 暴露同一确定性状态。
