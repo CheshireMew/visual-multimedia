@@ -398,6 +398,8 @@ for (const schema of [
   "schemas/product-promo.v1.schema.json",
   "schemas/product-ui-capture.v1.schema.json",
   "schemas/music-beat-analysis.v1.schema.json",
+  "schemas/github-project-intro.v1.schema.json",
+  "schemas/media-operation-run.v1.schema.json",
 ]) {
   readJson(ensurePath(schema));
 }
@@ -513,12 +515,24 @@ for (const productPromoResource of [
   "scripts/shot-recipe-library.mjs",
   "scripts/migrate-video-shotcraft-recipes.mjs",
   "scripts/product-promo.mjs",
+  "scripts/product_promo_runtime.mjs",
+  "scripts/mediaflow_video_common.mjs",
+  "scripts/media_operation_run.mjs",
+  "scripts/standard_video_delivery.mjs",
   "scripts/capture-product-ui.mjs",
   "scripts/analyze-music-beats.mjs",
   "scripts/self-test-product-promo.mjs",
   "scripts/browser-safe-server.mjs",
 ]) {
   ensurePath(productPromoResource);
+}
+for (const githubIntroResource of [
+  "references/github-project-intro-production.md",
+  "assets/video-production-profiles/github-project-intro/1.0.0/profile.json",
+  "scripts/github-project-intro.mjs",
+  "scripts/self-test-github-project-intro.mjs",
+]) {
+  ensurePath(githubIntroResource);
 }
 for (const videoProgressResource of [
   "references/web-visual-production.md",
@@ -976,6 +990,14 @@ if (runBrowserChecks && failures.length === 0) {
     process.execPath,
     [path.join(scriptDir, "self-test-product-promo.mjs")],
     "镜头配方—真实页面采集—产品计划—通用构建—浏览器—节拍真实链路检查",
+  );
+}
+
+if (runFullChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-github-project-intro.mjs")],
+    "GitHub 项目介绍注册语音—非 GUI/网页证据—双语字幕—MediaFlow 构建—审阅交付真实链路检查",
   );
 }
 
@@ -1457,6 +1479,13 @@ if (runFullChecks && failures.length === 0) {
   ]) {
     if (!skillText.includes(token)) fail(`SKILL.md 缺少产品宣传片正式路由：${token}`);
   }
+  for (const token of [
+    "references/github-project-intro-production.md",
+    "create → validate → plan → confirm-plan → render → review → finalize",
+    "game.honkai-star-rail.silverwolf.default",
+  ]) {
+    if (!skillText.includes(token)) fail(`SKILL.md 缺少 GitHub 项目介绍正式路由：${token}`);
+  }
 
   const videoProfileCatalog = readJson(
     path.join(skillRoot, "assets", "video-production-profiles", "catalog.json")
@@ -1479,6 +1508,16 @@ if (runFullChecks && failures.length === 0) {
     || activeProductProfiles[0]?.public_entry !== "scripts/product-promo.mjs"
   ) {
     fail("产品宣传片必须只启用通过正式项目入口消费的 1.0.0 profile");
+  }
+  const activeGithubIntroProfiles = (videoProfileCatalog?.profiles || []).filter(
+    (item) => item.id === "github-project-intro" && item.status === "active"
+  );
+  if (
+    activeGithubIntroProfiles.length !== 1
+    || activeGithubIntroProfiles[0]?.version !== "1.0.0"
+    || activeGithubIntroProfiles[0]?.public_entry !== "scripts/github-project-intro.mjs"
+  ) {
+    fail("GitHub 项目介绍必须只启用通过正式项目入口消费的 1.0.0 profile");
   }
   const activeInterviewProfile = readJson(
     path.resolve(
@@ -1525,6 +1564,12 @@ if (runFullChecks && failures.length === 0) {
     "self-test-video-progress-bar.mjs",
     "migrate-video-shotcraft-recipes.mjs",
     "product-promo.mjs",
+    "product_promo_runtime.mjs",
+    "mediaflow_video_common.mjs",
+    "media_operation_run.mjs",
+    "standard_video_delivery.mjs",
+    "github-project-intro.mjs",
+    "self-test-github-project-intro.mjs",
     "capture-product-ui.mjs",
     "analyze-music-beats.mjs",
     "self-test-product-promo.mjs",
@@ -1579,6 +1624,6 @@ if (failures.length > 0) {
 const successMessages = {
   fast: `visual-multimedia fast 通过：静态合同、schema、资源索引、许可证、${catalog?.cases?.length || 0} 个网页案例与脚本入口均通过验证`,
   browser: `visual-multimedia browser 通过：fast 档位、${browserProjects.length} 个真实网页包、确定性时间、透明视频进度条、文字动效与产品功能宣传片浏览器链路均通过验证`,
-  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、透明视频进度条、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片与采访原声讲解型完整链路均通过验证`,
+  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、透明视频进度条、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片、GitHub 项目介绍与采访原声讲解型完整链路均通过验证`,
 };
 console.log(successMessages[checkMode]);

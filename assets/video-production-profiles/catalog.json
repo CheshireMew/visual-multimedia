@@ -1,6 +1,15 @@
 {
   "profiles": [
     {
+      "id": "github-project-intro",
+      "name": "GitHub 项目介绍视频",
+      "package": "github-project-intro/1.0.0/profile.json",
+      "package_sha256": "11e4865fece105bd2901f1c4b740eb8d51fae3e8b4c670bca90bcc6a36e3eb76",
+      "public_entry": "scripts/github-project-intro.mjs",
+      "status": "active",
+      "version": "1.0.0"
+    },
+    {
       "id": "interview-explainer",
       "name": "采访原声讲解型视频",
       "package": "interview-explainer/1.4.0/profile.json",
@@ -13,7 +22,7 @@
       "id": "product-promo",
       "name": "产品功能宣传片",
       "package": "product-promo/1.0.0/profile.json",
-      "package_sha256": "58d875bd2c3d48cfd5202049adacf173bf5981c9a30faeaab06bfae40f9a42c1",
+      "package_sha256": "ba5ed7f0cc7287a19236166fbed0b6249767745c1222016e0f982b438f12ff2d",
       "public_entry": "scripts/product-promo.mjs",
       "status": "active",
       "version": "1.0.0"

@@ -21,6 +21,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 - 在用户明确要求时按指定参考视频复刻、对齐或比较成片，区分精确回放、编码后帧对齐、视觉对齐与风格参考，并用当前目标所需的证据验收。
 - 从角色图或确认设定建立二次元口播母版、校准视频、视觉口型库和版本化资源；也可以采用注册角色，用真实语音生成已复核的口播轨和角色窗。
 - 把访谈原声、必要背景、逐段解释和总结装配成保留来源时间码的采访原声讲解型视频；这只是符合明确进入条件时采用的一种视频类型，不取代其它访谈剪辑、无实拍视频或混合视频方法。
+- 把已经确认事实和证据的 GitHub 仓库制作成围绕一个核心主张、同时支持界面、终端、文档与实际输出证据的约一分钟横版介绍视频。
 
 不适用于：
 
@@ -155,7 +156,8 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 查找、注册或采用创作者素材、通用制作素材、网页组件，或从项目晋升可复用成果 | `references/reusable-media-resources.md` | 使用不可变注册版本，经现有素材账本或完整网页包边界进入项目，并保存采用与晋升证据 |
 | 图文、图表、GIF、HTML/React 动画或无实拍视觉 | `references/web-visual-production.md` | 选择 DOM/React 入口，建立 v6 真源与派生媒体 |
 | 技术概念、接口、工具或系统关系需要静态机制图、对比图，或保持全貌不变的动态流程图 | `references/technical-diagram-production.md` | 分配画面信息职责，建立可读机制、正交连接、稳定图层、同色流光和浏览器几何验收 |
-| 把已确认的网页、桌面应用或移动产品功能制作成有真实界面证据的宣传片 | `references/product-promo-production.md` | 使用正式 profile、页面采集、镜头配方状态、功能覆盖、计划确认与通用构建投影；拒绝把仅参考配方冒充已实现镜头 |
+| 把已确认的网页、桌面应用或移动产品功能制作成有真实界面证据的宣传片 | `references/product-promo-production.md` | 使用正式 profile、页面采集、镜头配方状态、功能覆盖和计划确认，并沿 `render → review → finalize` 完成真实构建、审阅与交付；拒绝把仅参考配方冒充已实现镜头 |
+| 把已经确认内容真源和真实证据的 GitHub 仓库制作成约一分钟横版介绍视频 | `references/github-project-intro-production.md` | 使用 `github-project-intro@1.0.0`，围绕一个核心主张组织 UI、终端、文档或输出证据；默认采用注册的“最近”银狼开场、1.25 倍速和中英文字幕，沿 `create → validate → plan → confirm-plan → render → review → finalize` 执行 |
 | 口播需要流程、时间线、层级、因果、工具链、比较、拆解、指标、前后证据或真人分屏等解释型画面 | `references/explanatory-broll-production.md` | 由导演计划自动选择活动模板；MediaFlow Pro 对应能力就绪时优先用它装配和导出，否则保留本地完整制作 |
 | 一段或几段话、单句观点、并列清单、名词解释、引文摘录或文字对照主要依靠文字本身成立 | `references/text-card-production.md` | 按真实阅读动作选择纯文字卡结构，分开处理原创署名、整理说明、制作水印和引用来源 |
 | 用户明确要求按参考视频复刻、匹配、逐帧对齐或比较候选成片 | `references/reference-video-alignment.md` | 确定真实参考区间、目标还原层级、精确回放或参数化重建路径，并建立资产、运行时和交付证据 |
@@ -180,11 +182,11 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 代码生成视觉共同读取表中的载体、视觉配方和网页制作说明；已有项目先继承共享视觉核心，再按当前载体使用对应实现层。纯文字卡、文字动效、声音档案、社交卡、视觉素材、透明叠加和可复用资源只在实际需要时读取各自说明；文字动效仍由 `scripts/text-motion-library.mjs` 选择效果，并把 `assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js` 物化到当前网页包。
 
-新的或实质重做的长视频、混合视频、音频和播客先读取 `references/staged-media-production.md`，再读取 `references/media-project-contracts.md` 并从 `assets/media-project-starter/` 建立项目。综合样片后的多场景或高成本视频按同一通用构建计划拆成可缓存单元，普通视频和 profile 都不得回到整片粗粒度重渲染。真实人物素材先建立绑定原片哈希并经过听音复核的事实转写，再选择片段。带声音的无实拍视频另读 `references/video-post-production.md`。二次元口播角色或固定角色窗读取 `references/anime-avatar-production.md`。已经选定真实访谈片段并明确采用“背景—原声—解释—总结”结构时，额外读取 `references/interview-explainer-production.md` 并只通过 `scripts/interview-explainer.mjs` 运行；它仍提交到通用阶段，不建立自己的批准系统。普通访谈剪辑、纯混剪、人物故事、录屏或其它视频不得自动变成这种类型。长视频或关键区间不明确时先用 `scripts/make-video-contact-sheet.py` 检查代表帧，再用 `scripts/validate-clip-selections.mjs` 检查真实选段。
+新的或实质重做的长视频、混合视频、音频和播客先读取 `references/staged-media-production.md`，再读取 `references/media-project-contracts.md` 并从 `assets/media-project-starter/` 建立项目。综合样片后的多场景或高成本视频按同一通用构建计划拆成可缓存单元，普通视频和 profile 都不得回到整片粗粒度重渲染。真实人物素材先建立绑定原片哈希并经过听音复核的事实转写，再选择片段。带声音的无实拍视频另读 `references/video-post-production.md`。二次元口播角色或固定角色窗读取 `references/anime-avatar-production.md`。已经选定真实访谈片段并明确采用“背景—原声—解释—总结”结构时，额外读取 `references/interview-explainer-production.md` 并只通过 `scripts/interview-explainer.mjs` 运行；它仍提交到通用阶段，不建立自己的批准系统。普通访谈剪辑、纯混剪、人物故事、录屏或其它视频不得自动变成这种类型。已经确认仓库内容并明确要制作 GitHub 项目介绍视频时，额外读取 `references/github-project-intro-production.md` 并只通过 `scripts/github-project-intro.mjs` 运行；profile 接受 UI、终端、文档和实际输出证据，不把没有界面的仓库伪装成产品。长视频或关键区间不明确时先用 `scripts/make-video-contact-sheet.py` 检查代表帧，再用 `scripts/validate-clip-selections.mjs` 检查真实选段。
 
 需要生成声音时读取 `references/speech-synthesis.md`；播客封面或音频可视化只让网页负责视觉部分。用户明确要求 Live Photo 时才读取 `references/live-photo-delivery.md`。明确要求参考复刻、匹配、逐帧对齐或候选比较时读取 `references/reference-video-alignment.md`；需要 MediaFlow Pro 执行机器比较时再读取 `references/structured-media-editor-cli.md`。实际生成文件时总是读取 `references/review-and-export.md`。
 
-口播声音与案例使用 `scripts/voiceover_reference_library.py`，独立钩子使用 `scripts/voiceover_hook_library.py`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用。活动角色工程使用 v4 中等母版和 v3 分段计划，完整轨用于观看，项目内片段清单用于普通视频或采访视频的局部时间线消费；角色窗链路用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型先 `list-profiles`，再沿 `plan → confirm-plan → render → review → finalize` 的唯一活动链执行。
+口播声音与案例使用 `scripts/voiceover_reference_library.py`，独立钩子使用 `scripts/voiceover_hook_library.py`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用。活动角色工程使用 v4 中等母版和 v3 分段计划，完整轨用于观看，项目内片段清单用于普通视频或采访视频的局部时间线消费；角色窗链路用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型先 `list-profiles`，再沿 `plan → confirm-plan → render → review → finalize` 的唯一活动链执行。GitHub 项目介绍沿 `create → validate → plan → confirm-plan → render → review → finalize` 执行；它会采用已注册的银狼开场语音并记录每步耗时、缓存命中与真实重试，不为当前项目复制旧项目的临时脚本链。
 
 ## 实际制作与交付边界
 

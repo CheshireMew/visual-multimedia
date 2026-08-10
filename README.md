@@ -79,6 +79,7 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 | 参考视频复刻或对齐 | 准确参考区间、目标素材与还原层级 | 分开的精确回放或参数化重建结果，以及逐帧与人工观看证据 |
 | 二次元口播角色 | 已注册角色，或确认的角色母版与校准视频；真实语音 | 版本化角色资源、已复核时间轴和完整人物口播轨或固定角色窗 |
 | 采访原声讲解型视频 | 已选原声片段、事实转写、背景与解释文案 | 保留来源时间码的“背景—原声—解释—总结”成片与交付报告 |
+| GitHub 项目介绍视频 | 已确认的仓库事实、一个核心主张，以及 UI、终端、文档或实际输出证据 | 默认采用银狼 1.25 倍速和中英文字幕的约一分钟横版视频，以及可追溯的构建、审阅与交付报告 |
 | 媒体文案与口播参考库 | 已确认主张、作者声音，或明确的参考库维护请求 | 可直接制作的活动文案，或 Skill 外部的可定位参考库 |
 
 具体任务只加载需要的制作方法。入口、适用条件和停止位置以 [SKILL.md](SKILL.md) 为准。
@@ -174,7 +175,7 @@ node scripts/check-skill.mjs --browser
 node scripts/check-skill.mjs --full
 ```
 
-`--fast` 检查 Skill、README、许可证、schema、资源索引、真实案例静态合同与脚本语法；`--browser` 在此基础上验证 Playwright 网页包、确定性时间、十类解释型 B-roll、文字动效、本地网页视频和产品功能宣传片链路；`--full` 再验证导演自动选模板、真实时间投影、可移植时间线、提供方路由、五种 B-roll 导出及其它 Node、Python 生产消费与最终交付回归。Python 不在系统命令路径中时，可以通过 `VISUAL_MULTIMEDIA_PYTHON` 指向实际解释器。
+`--fast` 检查 Skill、README、许可证、schema、资源索引、真实案例静态合同与脚本语法；`--browser` 在此基础上验证 Playwright 网页包、确定性时间、十类解释型 B-roll、文字动效、本地网页视频和产品功能宣传片链路；`--full` 再验证 GitHub 项目介绍的非 GUI 与网页证据、双语字幕、MediaFlow Pro 构建、审阅交付，以及导演自动选模板、真实时间投影、可移植时间线、提供方路由、五种 B-roll 导出和其它 Node、Python 生产消费回归。Python 不在系统命令路径中时，可以通过 `VISUAL_MULTIMEDIA_PYTHON` 指向实际解释器。
 
 涉及 `editable-media`、网页 starter、素材表示、确定性时间边界或 MediaFlow Pro 公开消费合同的改动，需要同时沿生产者、同步边界、MediaFlow Pro 消费者和最终可见结果完成迁移。准确的联动范围与验证命令见 [AGENTS.md](AGENTS.md)；公开编辑器能力的实际入口见 [references/structured-media-editor-cli.md](references/structured-media-editor-cli.md)。
 

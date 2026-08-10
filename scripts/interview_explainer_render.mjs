@@ -28,10 +28,15 @@ import {
 } from "./media_build_contract.mjs";
 import {
   loadLocalMediaEnvironment,
-  mediaFlowProDescribe,
   mediaFlowProExecute,
   mediaFlowProWaitForTask,
 } from "./local-media-environment.mjs";
+import {
+  assertMediaFlowProVideoCapabilities as assertMediaFlowProCapabilities,
+  ensureMediaFlowProVideoProject as ensureMediaFlowProProject,
+  exportEditableWebScene,
+  resolveMediaFlowArtifact,
+} from "./mediaflow_video_common.mjs";
 import {assertPlanAndConfirmation} from "./interview_explainer_plan.mjs";
 import {assertJsonSchema} from "./json_schema_contract.mjs";
 import {
@@ -344,164 +349,6 @@ function renderSourceSegment(context, segment, outputPath, cachePath, cacheKey) 
   return cache;
 }
 
-function assertMediaFlowProCapabilities(environment) {
-  const describe = mediaFlowProDescribe(environment);
-  if (describe.protocol !== "mediaflow-editor" || describe.version !== 4) {
-    throw new Error("MediaFlow Pro describe 不是当前 v4 能力合同");
-  }
-  if (describe.product !== "MediaFlow Pro") {
-    throw new Error(
-      `当前 CLI 不是 MediaFlow Pro：${JSON.stringify(describe.product)}`,
-    );
-  }
-  if (
-    typeof describe.default_project_root !== "string"
-    || !path.isAbsolute(describe.default_project_root)
-  ) {
-    throw new Error("MediaFlow Pro 没有声明绝对默认工程根目录");
-  }
-  const operations = new Map(
-    (describe.operations || []).map((item) => [item.name, item]),
-  );
-  const required = [
-    "runtime.inspect",
-    "project.create",
-    "project.inspect",
-    "asset.import",
-    "web.import",
-    "timeline.get",
-    "timeline.track.add",
-    "timeline.clip.add",
-    "timeline.clip.delete",
-    "timeline.clip.source.replace",
-    "web.clip.export",
-    "export.sequence.build",
-    "task.wait",
-  ];
-  const missing = required.filter((name) => !operations.has(name));
-  if (missing.length) {
-    throw new Error(`MediaFlow Pro 缺少正式能力：${missing.join(", ")}`);
-  }
-  for (const name of required) {
-    const operation = operations.get(name);
-    if (
-      !operation.arguments_schema
-      || !operation.result_schema
-      || !["none", "create", "read", "write"].includes(operation.project_access)
-      || !["atomic", "task"].includes(operation.execution_mode)
-      || !Array.isArray(operation.required_capabilities)
-    ) {
-      throw new Error(`MediaFlow Pro ${name} 没有完整的 v3 操作合同`);
-    }
-  }
-  const capabilityCatalog = new Map(
-    (describe.capabilities || []).map((item) => [item.id, item]),
-  );
-  const requiredCapabilityIds = new Set(
-    required.flatMap((name) => operations.get(name).required_capabilities),
-  );
-  const unknownCapabilities = [...requiredCapabilityIds].filter(
-    (id) => !capabilityCatalog.has(id),
-  );
-  if (unknownCapabilities.length) {
-    throw new Error(
-      `MediaFlow Pro 没有定义所需能力：${unknownCapabilities.join(", ")}`,
-    );
-  }
-  const runtimeRequired = [...requiredCapabilityIds].filter(
-    (id) => capabilityCatalog.get(id).availability === "runtime-inspected",
-  );
-  const runtime = mediaFlowProExecute(environment, null, "runtime.inspect", {});
-  const runtimeStatuses = new Map(
-    (runtime.capabilities || []).map((item) => [item.id, item]),
-  );
-  const unavailable = runtimeRequired.filter(
-    (id) => runtimeStatuses.get(id)?.status !== "ready",
-  );
-  if (unavailable.length) {
-    const reasons = unavailable.map(
-      (id) => `${id}: ${runtimeStatuses.get(id)?.reason || "没有检查结果"}`,
-    );
-    throw new Error(`MediaFlow Pro 运行时能力未就绪：${reasons.join("；")}`);
-  }
-  return describe;
-}
-
-function ensureMediaFlowProProject(environment, contract, projectSpec, plan) {
-  const requestedProfile = {
-    width: plan.output.width,
-    height: plan.output.height,
-    fps_numerator: plan.output.fps,
-    fps_denominator: 1,
-    color_mode: "sdr_bt709",
-    bit_depth: 8,
-    audio_sample_rate: plan.output.audio_sample_rate,
-    audio_channels: plan.output.audio_channels,
-  };
-  const created = mediaFlowProExecute(
-    environment,
-    null,
-    "project.create",
-    {
-      name: projectSpec.name,
-      directory_name: projectSpec.directoryName,
-      profile: requestedProfile,
-    },
-    projectSpec.requestId,
-  );
-  const editorProject = path.resolve(created.path || "");
-  const defaultRoot = path.resolve(contract.default_project_root);
-  const relative = path.relative(defaultRoot, editorProject);
-  if (
-    !relative
-    || relative.startsWith("..")
-    || path.isAbsolute(relative)
-    || path.dirname(relative) !== "."
-  ) {
-    throw new Error(
-      `MediaFlow Pro 工程没有直接创建在默认根目录中：${editorProject}`,
-    );
-  }
-  if (
-    !fs.statSync(
-      path.join(editorProject, "project.mfp"),
-      {throwIfNoEntry: false},
-    )?.isFile()
-  ) {
-    throw new Error(`MediaFlow Pro 没有生成工程文件：${editorProject}`);
-  }
-  const inspected = mediaFlowProExecute(
-    environment,
-    editorProject,
-    "project.inspect",
-    {},
-  );
-  if (path.resolve(inspected.path || "") !== editorProject) {
-    throw new Error("MediaFlow Pro 创建结果与重新读取的工程路径不一致");
-  }
-  const mainSequence = (inspected.sequences || []).find(
-    (item) => item.id === inspected.project?.main_sequence_id,
-  );
-  const actualProfile = mainSequence?.profile || {};
-  for (const [field, expected] of Object.entries(requestedProfile)) {
-    if (actualProfile[field] !== expected) {
-      throw new Error(
-        `MediaFlow Pro 工程 profile.${field}=${actualProfile[field]}，预期 ${expected}`,
-      );
-    }
-  }
-  return {editorProject, inspected};
-}
-
-function resolveMediaFlowArtifact(editorProject, artifact) {
-  if (!artifact) return null;
-  if (artifact.scope === "external") return path.resolve(artifact.path);
-  if (artifact.scope === "project") {
-    return path.resolve(editorProject, ...String(artifact.path).split("/"));
-  }
-  throw new Error(`MediaFlow Pro 返回未知素材范围：${JSON.stringify(artifact)}`);
-}
-
 function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
   const {
     plan,
@@ -517,7 +364,7 @@ function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
       directoryName: `interview-explainer-assembly-${buildPlanSha}`,
       requestId: `interview-explainer-assembly-project-${buildPlanSha}`,
     },
-    plan,
+    plan.output,
   );
   const editorProject = assemblyProject.editorProject;
   const sequenceId = assemblyProject.inspected.project.main_sequence_id;
@@ -672,113 +519,6 @@ function assembleWithMediaFlow(context, buildPlan, deliveryUnits, rawOutput) {
   };
 }
 
-function exportWebScene(context, segment, webOutput, cacheKey) {
-  const {projectRoot, plan, planSha, mediaflowEnvironment, editorProject} = context;
-  const packageRoot = projectPath(projectRoot, segment.content.scene_package, "scene package");
-  const imported = mediaFlowProExecute(
-    mediaflowEnvironment,
-    editorProject,
-    "web.import",
-    {source: packageRoot},
-    `${plan.project_id}-${segment.id}-web-import-${cacheKey.slice(0, 12)}`,
-  );
-  const asset = imported.asset;
-  if (!asset?.id) {
-    throw new Error(`MediaFlow Pro 没有返回 ${segment.id} 的 Web 素材`);
-  }
-  let inspected = mediaFlowProExecute(
-    mediaflowEnvironment,
-    editorProject,
-    "project.inspect",
-    {},
-  );
-  const registeredWebAsset = (inspected.web_assets || []).find(
-    (candidate) => candidate.asset_id === asset.id,
-  );
-  if (!registeredWebAsset?.source_hash) {
-    throw new Error(`MediaFlow Pro 没有登记 ${segment.id} 的 Web 素材源哈希`);
-  }
-  const sequenceId = inspected.project.main_sequence_id;
-  const trackName = `Interview explainer / ${planSha.slice(0, 12)}`;
-  let timeline = mediaFlowProExecute(
-    mediaflowEnvironment,
-    editorProject,
-    "timeline.get",
-    {sequence_id: sequenceId},
-  ).timeline;
-  let track = (timeline.tracks || []).find(
-    (candidate) => candidate.name === trackName,
-  );
-  if (!track) {
-    track = mediaFlowProExecute(
-      mediaflowEnvironment,
-      editorProject,
-      "timeline.track.add",
-      {sequence_id: sequenceId, kind: "video", name: trackName},
-      `${plan.project_id}-interview-explainer-track-${planSha.slice(0, 12)}`,
-    ).track;
-  }
-  timeline = mediaFlowProExecute(
-    mediaflowEnvironment,
-    editorProject,
-    "timeline.get",
-    {sequence_id: sequenceId},
-  ).timeline;
-  const timelineStart = (segment.order - 1) * (plan.output.fps * 600);
-  let clip = (timeline.clips || []).find(
-    (candidate) => candidate.track_id === track.id
-      && candidate.asset_id === asset.id
-      && candidate.timeline_start === timelineStart
-      && candidate.source_in === 0
-      && candidate.duration === segment.duration_frames,
-  );
-  if (!clip) {
-    clip = mediaFlowProExecute(
-      mediaflowEnvironment,
-      editorProject,
-      "timeline.clip.add",
-      {
-        sequence_id: sequenceId,
-        track_id: track.id,
-        asset_id: asset.id,
-        timeline_start: timelineStart,
-        source_in: 0,
-        duration: segment.duration_frames,
-      },
-      `${plan.project_id}-${segment.id}-web-clip-${cacheKey.slice(0, 12)}`,
-    ).clip;
-  }
-  fs.mkdirSync(path.dirname(webOutput), {recursive: true});
-  const receipt = mediaFlowProExecute(
-    mediaflowEnvironment,
-    editorProject,
-    "web.clip.export",
-    {
-      sequence_id: sequenceId,
-      clip_id: clip.id,
-      output_path: webOutput,
-      format: "video",
-      background: plan.style.background,
-      overwrite: true,
-      timeout: 1800,
-    },
-    `${plan.project_id}-${segment.id}-web-export-${cacheKey.slice(0, 12)}`,
-  );
-  const task = mediaFlowProWaitForTask(
-    mediaflowEnvironment,
-    editorProject,
-    receipt,
-    1800,
-  );
-  return {
-    sequenceId,
-    assetId: asset.id,
-    sourceHash: registeredWebAsset.source_hash,
-    clipId: clip.id,
-    task,
-  };
-}
-
 function renderNarrationSegment(context, segment, outputPath, cachePath, cacheKey) {
   const {projectRoot, plan, ffmpeg, ffprobe, sources} = context;
   const audio = sources.get(segment.content.audio_source_id);
@@ -789,7 +529,19 @@ function renderNarrationSegment(context, segment, outputPath, cachePath, cacheKe
     `working/interview-explainer/web/${segment.id}.${cacheKey.slice(0, 12)}.mp4`,
     "web scene output",
   );
-  const web = exportWebScene(context, segment, webOutput, cacheKey);
+  const web = exportEditableWebScene({
+    environment: context.mediaflowEnvironment,
+    editorProject: context.editorProject,
+    projectId: plan.project_id,
+    unitId: segment.id,
+    packageRoot: projectPath(projectRoot, segment.content.scene_package, "scene package"),
+    durationFrames: segment.duration_frames,
+    timelineStart: (segment.order - 1) * (plan.output.fps * 600),
+    outputPath: webOutput,
+    background: plan.style.background,
+    requestKey: cacheKey.slice(0, 12),
+    trackName: `Interview explainer / ${context.planSha.slice(0, 12)}`,
+  });
   const duration = segment.duration_frames / plan.output.fps;
   fs.mkdirSync(path.dirname(outputPath), {recursive: true});
   const filters = [
@@ -1276,7 +1028,7 @@ export function renderInterviewExplainer(options) {
       directoryName: `interview-explainer-${planSha}`,
       requestId: `interview-explainer-project-${planSha}`,
     },
-    plan,
+    plan.output,
   );
   const sources = sourceMap(projectRoot, plan);
   const context = {

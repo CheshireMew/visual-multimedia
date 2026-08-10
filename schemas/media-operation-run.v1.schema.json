@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-operation-run.v1",
+  "title": "Visual Multimedia Media Operation Run v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol", "version", "profile", "command", "status", "started_at",
+    "completed_at", "elapsed_ms", "attempts", "cache", "steps"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-media-operation-run"},
+    "version": {"const": 1},
+    "profile": {"type": "string", "minLength": 1},
+    "command": {"type": "string", "minLength": 1},
+    "status": {"enum": ["completed", "failed"]},
+    "started_at": {"type": "string", "format": "date-time"},
+    "completed_at": {"type": "string", "format": "date-time"},
+    "elapsed_ms": {"type": "integer", "minimum": 0},
+    "attempts": {"type": "integer", "minimum": 1},
+    "cache": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rendered", "reused"],
+      "properties": {
+        "rendered": {"type": "integer", "minimum": 0},
+        "reused": {"type": "integer", "minimum": 0}
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "elapsed_ms", "attempts"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["completed", "failed", "rendered", "reused"]},
+          "elapsed_ms": {"type": "integer", "minimum": 0},
+          "attempts": {"type": "integer", "minimum": 1}
+        }
+      }
+    }
+  }
+}

@@ -33,7 +33,8 @@
     "网页镜头只使用 window.editableMedia 与 window.__hf.duration/seek(seconds) 作为编辑状态和确定性时间边界",
     "强节拍只在已确认音乐需要驱动剪辑时启用，分析网格是派生证据而不是第二套播放时钟",
     "声音、字幕和画面都以同一构建计划和已确认计划哈希为准",
-    "机器检查、Agent 完整观看和用户观看确认分别记录"
+    "机器检查、Agent 完整观看和用户观看确认分别记录",
+    "正式入口沿 render、review、finalize 完成真实成片、结构化评审和交付验证，并记录逐步耗时与缓存命中"
   ],
   "algorithm_defaults": {
     "shot_selection": "semantic-duty-first",
@@ -42,7 +43,7 @@
     "render_sampling_divisor": 1,
     "transition": "direct-cut",
     "audio_strategy": "continuous-master",
-    "caption_mode": "burned-in",
+    "caption_mode": "none",
     "atomic_publish": true
   },
   "project_configurable": [
@@ -65,6 +66,7 @@
     "计划未确认或确认后任一生产输入发生变化",
     "任一活动镜头包无法在真实浏览器中定位并显示正确语义状态",
     "强节拍音乐未分析，或低置信度结果尚未人工复核",
+    "声音策略不是 none，但尚未按已确认声音计划生成并验证连续混音母带",
     "最终视频的帧数、声音、字幕、编码或完整观看检查失败",
     "公开交付所需素材权利仍未确认"
   ],
@@ -75,6 +77,8 @@
     "shot_recipe": "schemas/shot-recipe.v2.schema.json",
     "product_ui_capture": "schemas/product-ui-capture.v1.schema.json",
     "music_beat_analysis": "schemas/music-beat-analysis.v1.schema.json",
-    "build_plan": "schemas/media-build-plan.v1.schema.json"
+    "build_plan": "schemas/media-build-plan.v1.schema.json",
+    "build_report": "schemas/media-build-report.v2.schema.json",
+    "operation_run": "schemas/media-operation-run.v1.schema.json"
   }
 }

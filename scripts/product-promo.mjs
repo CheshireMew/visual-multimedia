@@ -16,7 +16,16 @@ import {
   writeJson,
 } from "./interview_explainer_common.mjs";
 import {readEditableMediaPackage} from "./editable-media-contract.mjs";
-import {createMediaBuildPlan, fileDependency} from "./media_build_contract.mjs";
+import {
+  createMediaBuildPlan,
+  fileDependency,
+  validateMediaBuildPlan,
+} from "./media_build_contract.mjs";
+import {renderProductPromo} from "./product_promo_runtime.mjs";
+import {
+  finalizeStandardVideo,
+  reviewStandardVideo,
+} from "./standard_video_delivery.mjs";
 import {
   loadShotRecipes,
   materializeShotRecipe,
@@ -120,7 +129,7 @@ export function createProductPromoProject(projectRoot, projectId) {
       fps: 30,
       audio_sample_rate: 48000,
       audio_channels: 2,
-      caption_strategy: "burned-in",
+      caption_strategy: "none",
     },
     sound: {strategy: "none", strong_beat: false, music_source_id: null},
     constraints: ["提交计划前替换全部待确认字段，并为必选功能绑定真实 source id。"],
@@ -301,8 +310,45 @@ export function createProductPromoBuildPlan(projectRoot, planFile, confirmationF
   return build;
 }
 
+export function loadProductPromoExecutionContext(
+  projectRoot,
+  planFile,
+  confirmationFile,
+  buildPlanFile,
+  stageTarget = "full-preview",
+) {
+  const project = path.resolve(projectRoot);
+  const {plan, brief} = validateProductPromoPlan(project, planFile);
+  const confirmation = readJson(confirmationFile);
+  assertJsonSchema(confirmation, PRODUCT_SCHEMA, "产品宣传片计划确认");
+  if (
+    confirmation.project_id !== plan.project_id
+    || confirmation.plan !== relativeProjectPath(project, planFile)
+    || confirmation.plan_sha256 !== sha256File(planFile)
+  ) throw new Error("确认记录没有绑定当前产品宣传片计划与哈希");
+  if (!fs.existsSync(buildPlanFile)) {
+    createProductPromoBuildPlan(project, planFile, confirmationFile, buildPlanFile, stageTarget);
+  }
+  const buildPlan = validateMediaBuildPlan(readJson(buildPlanFile));
+  if (
+    buildPlan.source_contract !== relativeProjectPath(project, planFile)
+    || buildPlan.source_contract_sha256 !== sha256File(planFile)
+    || buildPlan.profile !== "product-promo@1.0.0"
+  ) throw new Error("现有通用构建计划没有绑定当前产品宣传片计划");
+  return {
+    project,
+    plan,
+    brief,
+    confirmation,
+    planPath: planFile,
+    confirmationPath: confirmationFile,
+    buildPlan,
+    buildPlanPath: buildPlanFile,
+  };
+}
+
 function usage() {
-  console.error("用法：node scripts/product-promo.mjs <create-project|validate-brief|validate-plan|confirm-plan|build-plan|list-recipes|search-recipes|get-recipe|materialize-recipe> ...");
+  console.error("用法：node scripts/product-promo.mjs <create-project|validate-brief|validate-plan|confirm-plan|build-plan|render|review|finalize|list-recipes|search-recipes|get-recipe|materialize-recipe> ...");
 }
 
 async function main(argv) {
@@ -365,6 +411,61 @@ async function main(argv) {
     const output = projectPath(project, args.output || "media-build-plan.json", "build output");
     const result = createProductPromoBuildPlan(project, plan, confirmation, output, args.stage || "full-preview");
     console.log(JSON.stringify({output, units: result.units.length, frames: result.units.reduce((sum, unit) => sum + unit.duration_frames, 0)}, null, 2));
+    return;
+  }
+  if (["render", "review", "finalize"].includes(command)) {
+    const confirmation = projectPath(project, args.confirmation || "product-promo-plan-confirmation.json", "confirmation");
+    const buildPlan = projectPath(project, args["build-plan"] || "media-build-plan.json", "build plan");
+    const context = loadProductPromoExecutionContext(project, plan, confirmation, buildPlan, args.stage || "full-preview");
+    if (command === "render") {
+      const result = renderProductPromo({
+        project,
+        report: args.report,
+        operationReport: args["operation-report"],
+        ffmpeg: args.ffmpeg,
+        ffprobe: args.ffprobe,
+        localConfig: args["local-config"],
+      }, context);
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
+    if (command === "review") {
+      const result = reviewStandardVideo({
+        project,
+        profile: "product-promo@1.0.0",
+        plan: relativeProjectPath(project, plan),
+        confirmation: relativeProjectPath(project, confirmation),
+        buildReport: args.report || "reports/media-build-report.json",
+        review: args.review || "media-review.json",
+        machineReport: args["machine-report"],
+        contactSheet: args["contact-sheet"],
+        ffmpeg: args.ffmpeg,
+        ffprobe: args.ffprobe,
+        python: args.python,
+        agentStatus: args["agent-status"] || "pending",
+        agentCompleted: args["agent-status"] && args["agent-status"] !== "pending",
+        agentEvidence: args["agent-evidence"] || "",
+        userRequired: args["user-required"] === "true",
+        userStatus: args["user-status"],
+        userEvidence: args["user-evidence"] || "",
+      });
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
+    const result = finalizeStandardVideo({
+      project,
+      profile: "product-promo@1.0.0",
+      plan: relativeProjectPath(project, plan),
+      confirmation: relativeProjectPath(project, confirmation),
+      buildReport: args.report || "reports/media-build-report.json",
+      review: args.review || "media-review.json",
+      delivery: args.delivery || "media-delivery.json",
+      ffprobe: args.ffprobe,
+      python: args.python,
+      audioRequired: context.brief.sound.strategy !== "none",
+      captionsRequired: context.brief.output.caption_strategy !== "none",
+    });
+    console.log(JSON.stringify(result, null, 2));
     return;
   }
   usage();

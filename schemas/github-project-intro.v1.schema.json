@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.github-project-intro.v1",
+  "title": "Visual Multimedia GitHub Project Intro v1 Documents",
+  "oneOf": [
+    {"$ref": "#/$defs/brief"},
+    {"$ref": "#/$defs/draft"},
+    {"$ref": "#/$defs/plan"},
+    {"$ref": "#/$defs/confirmation"}
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "text": {"type": "string", "minLength": 1},
+    "sha": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "date": {"type": "string", "format": "date-time"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {"file": {"$ref": "#/$defs/localPath"}, "sha256": {"$ref": "#/$defs/sha"}}
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "width", "height", "fps", "audio_sample_rate", "audio_channels", "caption_strategy"],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "fps": {"type": "integer", "minimum": 1},
+        "audio_sample_rate": {"type": "integer", "minimum": 8000},
+        "audio_channels": {"type": "integer", "minimum": 1, "maximum": 8},
+        "caption_strategy": {"const": "burned-in"}
+      }
+    },
+    "brief": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "project_id", "profile", "repository", "content", "standards", "output"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-github-project-intro-brief"},
+        "version": {"const": 1},
+        "project_id": {"$ref": "#/$defs/id"},
+        "profile": {"type": "object", "additionalProperties": false, "required": ["id", "version"], "properties": {"id": {"const": "github-project-intro"}, "version": {"const": "1.0.0"}}},
+        "repository": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "url", "audience", "interface_kind", "evidence_source_ids"],
+          "properties": {
+            "name": {"$ref": "#/$defs/text"},
+            "url": {"type": "string", "pattern": "^https://github\\.com/[^/]+/[^/]+/?$"},
+            "audience": {"$ref": "#/$defs/text"},
+            "interface_kind": {"enum": ["ui", "cli", "documentation", "output", "mixed"]},
+            "evidence_source_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+          }
+        },
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["one_core_claim", "confirmed_facts", "call_to_action"],
+          "properties": {
+            "one_core_claim": {"$ref": "#/$defs/text"},
+            "confirmed_facts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}},
+            "call_to_action": {"type": "string"}
+          }
+        },
+        "standards": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["opening_variant", "opening_audio_source_id", "same_day_claim_confirmed", "voice_id", "speed_factor", "caption_languages", "recommended_duration_seconds", "duration_user_specified", "avatar"],
+          "properties": {
+            "opening_variant": {"enum": ["today", "recently"]},
+            "opening_audio_source_id": {"$ref": "#/$defs/id"},
+            "same_day_claim_confirmed": {"type": "boolean"},
+            "voice_id": {"const": "game.honkai-star-rail.silverwolf.default"},
+            "speed_factor": {"const": 1.25},
+            "caption_languages": {"type": "array", "prefixItems": [{"const": "zh-CN"}, {"const": "en"}], "items": false},
+            "recommended_duration_seconds": {"type": "object", "additionalProperties": false, "required": ["minimum", "maximum"], "properties": {"minimum": {"const": 60}, "maximum": {"const": 75}}},
+            "duration_user_specified": {"type": "boolean"},
+            "avatar": {"enum": ["none", "yexi", "custom"]}
+          }
+        },
+        "output": {"$ref": "#/$defs/output"}
+      }
+    },
+    "visual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source_id", "package", "package_sha256", "manifest_sha256", "scene_id"],
+      "properties": {
+        "kind": {"enum": ["editable-scene", "media-source"]},
+        "source_id": {"type": ["string", "null"], "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "package": {"oneOf": [{"$ref": "#/$defs/localPath"}, {"type": "null"}]},
+        "package_sha256": {"oneOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+        "manifest_sha256": {"oneOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+        "scene_id": {"type": ["string", "null"], "pattern": "^[a-z0-9][a-z0-9._-]*$"}
+      }
+    },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "order", "purpose", "timeline_start_frame", "duration_frames", "visual", "narration"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "order": {"type": "integer", "minimum": 1},
+        "purpose": {"$ref": "#/$defs/text"},
+        "timeline_start_frame": {"type": "integer", "minimum": 0},
+        "duration_frames": {"type": "integer", "minimum": 1},
+        "visual": {"$ref": "#/$defs/visual"},
+        "narration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["audio_source_id", "zh", "en", "voice_id", "speed_factor"],
+          "properties": {
+            "audio_source_id": {"$ref": "#/$defs/id"},
+            "zh": {"$ref": "#/$defs/text"},
+            "en": {"$ref": "#/$defs/text"},
+            "voice_id": {"const": "game.honkai-star-rail.silverwolf.default"},
+            "speed_factor": {"const": 1.25}
+          }
+        }
+      }
+    },
+    "promise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source_pointer", "promise", "expected_value"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "source_pointer": {"type": "string", "pattern": "^(|/.*)$"},
+        "promise": {"$ref": "#/$defs/text"},
+        "expected_value": {}
+      }
+    },
+    "draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "project_id", "shots", "review_promises"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-github-project-intro-draft"},
+        "version": {"const": 1},
+        "project_id": {"$ref": "#/$defs/id"},
+        "shots": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/shot"}},
+        "review_promises": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/promise"}}
+      }
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "project_id", "created_at", "profile", "brief", "draft", "shots", "review_promises", "output"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-github-project-intro-plan"},
+        "version": {"const": 1},
+        "project_id": {"$ref": "#/$defs/id"},
+        "created_at": {"$ref": "#/$defs/date"},
+        "profile": {"type": "object", "additionalProperties": false, "required": ["id", "version", "sha256"], "properties": {"id": {"const": "github-project-intro"}, "version": {"const": "1.0.0"}, "sha256": {"$ref": "#/$defs/sha"}}},
+        "brief": {"$ref": "#/$defs/binding"},
+        "draft": {"$ref": "#/$defs/binding"},
+        "shots": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/shot"}},
+        "review_promises": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/promise"}},
+        "output": {"$ref": "#/$defs/output"}
+      }
+    },
+    "confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "project_id", "plan", "plan_sha256", "confirmed_by", "confirmed_at", "evidence"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-github-project-intro-plan-confirmation"},
+        "version": {"const": 1},
+        "project_id": {"$ref": "#/$defs/id"},
+        "plan": {"$ref": "#/$defs/localPath"},
+        "plan_sha256": {"$ref": "#/$defs/sha"},
+        "confirmed_by": {"enum": ["user", "agent"]},
+        "confirmed_at": {"$ref": "#/$defs/date"},
+        "evidence": {"$ref": "#/$defs/text"}
+      }
+    }
+  }
+}

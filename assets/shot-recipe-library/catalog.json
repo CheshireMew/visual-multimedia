@@ -4731,7 +4731,7 @@
           "packaging"
         ]
       },
-      "behavior_fingerprint": "9a1e51946230e947b5c4eaafc04f723fb2f3e9b483004cd929e5f22ae3200f27",
+      "behavior_fingerprint": "f469b907ce18571103bb9e141377da95e8a7477aeb9dd2b5726e3db3fa5642ff",
       "category": "rhythm",
       "energy": "低干扰、持续可读；进度和章节状态随统一时间线推进，不加入独立表演性动画。",
       "id": "video-chapter-progress",
@@ -4745,7 +4745,7 @@
         "timeline",
         "packaging"
       ],
-      "sha256": "1747c8302ac53b50cd4b197337ffbf1ed31cad1dd2c09e6397ffdcef1c2d2525",
+      "sha256": "e9344b90e06335a8a6eae3e18583d10193d7ea4f6a51e49ce7cbcbda2191efff",
       "status": "active",
       "styles": [
         {
@@ -4777,7 +4777,7 @@
           ]
         }
       ],
-      "use": "教程、案例拆解、工作流讲解和其它具有明确章节节点的长短视频包装；作为透明覆盖层叠到真实视频之上。"
+      "use": "仅用于已经确认了多个章节节点、观众确实需要在全片持续定位当前章节、并且导航会贯穿主要时长的教程或长流程讲解；作为透明覆盖层叠到真实视频之上。普通项目介绍、单一主题短视频、局部加载反馈和纯装饰包装不得采用。"
     },
     {
       "applicability": null,

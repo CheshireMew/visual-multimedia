@@ -76,6 +76,7 @@ For fewer clarification rounds, include the confirmed source, intended audience 
 | Reference-video matching | Exact reference range, target media, and desired fidelity | A separated exact-replay or parameterized-rebuild result with frame and viewing evidence |
 | Anime presenter video | A registered character or approved master/calibration media, plus real speech | Versioned character resources, reviewed timing, and a complete presenter track or inset |
 | Interview-source explainer | Selected original clips, factual transcript, context, and explanation | A source-timecode-bound context → quote → explanation → conclusion video and delivery report |
+| GitHub project intro video | Confirmed repository facts, one core claim, and UI, terminal, documentation, or real-output evidence | An approximately one-minute landscape video with Silver Wolf speech at 1.25×, Chinese and English captions, plus traceable build, review, and delivery reports |
 | Media copy and voice-reference maintenance | Confirmed claims and authorial voice, or an explicit library-maintenance request | Production-ready active copy, or a traceable reference library outside the Skill |
 
 Task routing, required references, and stop conditions are defined in [SKILL.md](SKILL.md).
@@ -161,7 +162,7 @@ node scripts/check-skill.mjs --full
 
 `--fast` checks the Skill, README, licensing, schemas, indexes, static real-case contracts, and script syntax. `--browser` adds Playwright packages, deterministic time, explanatory B-roll, text motion, local web video, and product-promo checks.
 
-`--full` adds real producer-to-consumer chains for direction, portable timelines, provider routing, Node and Python media processing, review, and final delivery.
+`--full` adds real non-GUI and editable-web GitHub project intro cases with bilingual captions and MediaFlow Pro assembly, plus producer-to-consumer chains for direction, portable timelines, provider routing, Node and Python media processing, review, and final delivery.
 
 Changes to editable-media, source representation, deterministic time, portable timelines, delivery contracts, or MediaFlow Pro consumers must migrate every active producer and consumer together. The exact repository rules are in [AGENTS.md](AGENTS.md); public MediaFlow Pro operations are documented in [references/structured-media-editor-cli.md](references/structured-media-editor-cli.md).
 

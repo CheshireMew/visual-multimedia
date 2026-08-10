@@ -25,6 +25,7 @@ import {
   sha256File,
   writeJson,
 } from "./interview_explainer_common.mjs";
+import {decideStage, submitStage, validateProjectState} from "./media_project_state.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -86,8 +87,22 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function approveStage(project, stageId, artifact = null) {
+  const statePath = path.join(project, "media-project-state.json");
+  const state = readJson(statePath);
+  if (artifact) submitStage(state, project, stageId, [artifact]);
+  decideStage(state, stageId, "approved", `self-test 用户确认 ${stageId}`, {decidedBy: "user"});
+  writeJson(statePath, state);
+  const validation = validateProjectState(statePath);
+  if (!validation.ok) throw new Error(`${stageId} 阶段状态失败：${validation.errors.join("；")}`);
+}
+
 async function main() {
-  const project = fs.mkdtempSync(path.join(os.tmpdir(), "visual-multimedia-product-promo-"));
+  const testRoot = process.platform === "win32" && fs.existsSync("D:\\Tools")
+    ? "D:\\Tools\\visual-multimedia-tests\\product-promo"
+    : os.tmpdir();
+  fs.mkdirSync(testRoot, {recursive: true});
+  const project = fs.mkdtempSync(path.join(testRoot, "visual-multimedia-product-promo-"));
   createProductPromoProject(project, "product-promo-self-test");
   const {server, port} = await startServer(SKILL_ROOT);
   const base = `http://127.0.0.1:${port}`;
@@ -225,8 +240,35 @@ async function main() {
   if (beatConfirmation.status !== 0) throw new Error(`节拍人工复核入口失败：${beatConfirmation.stderr || beatConfirmation.stdout}`);
   assert(readJson(beatPath).review.method === "manual", "人工听音复核没有写回节拍分析合同");
 
+  approveStage(project, "content", {id: "product-content", role: "content-contract", kind: "document", file: "product-promo-brief.json"});
+  approveStage(project, "direction", {id: "product-direction", role: "direction-package", kind: "document", file: "product-promo-plan.json"});
+  fs.copyFileSync(path.join(SKILL_ROOT, "assets", "media-delivery-case", "renders", "final.mp4"), path.join(project, "integrated-sample.mp4"));
+  approveStage(project, "integrated-sample", {id: "product-sample", role: "integrated-sample", kind: "video", file: "integrated-sample.mp4"});
+  const productCli = path.join(SCRIPT_DIR, "product-promo.mjs");
+  const rendered = spawnSync(process.execPath, [productCli, "render", "--project", project], {cwd: SKILL_ROOT, encoding: "utf8", windowsHide: true, maxBuffer: 64 * 1024 * 1024});
+  if (rendered.status !== 0) throw new Error(`产品宣传片正式 render 失败：\n${rendered.stdout}\n${rendered.stderr}`);
+  assert(fs.existsSync(JSON.parse(rendered.stdout).output), "产品宣传片正式 render 没有生成成片");
+  approveStage(project, "full-preview");
+  const reviewed = spawnSync(process.execPath, [
+    productCli, "review", "--project", project,
+    "--agent-status", "passed",
+    "--agent-evidence", "self-test 完整播放产品宣传片，确认功能证据和连续画面可见。",
+  ], {cwd: SKILL_ROOT, encoding: "utf8", windowsHide: true, maxBuffer: 64 * 1024 * 1024});
+  if (reviewed.status !== 0 || JSON.parse(reviewed.stdout).status !== "passed") {
+    throw new Error(`产品宣传片正式 review 失败：\n${reviewed.stdout}\n${reviewed.stderr}`);
+  }
+  const waiting = spawnSync(process.execPath, [productCli, "finalize", "--project", project], {cwd: SKILL_ROOT, encoding: "utf8", windowsHide: true, maxBuffer: 64 * 1024 * 1024});
+  if (waiting.status !== 0 || JSON.parse(waiting.stdout).status !== "waiting-approval") {
+    throw new Error(`产品宣传片 finalize 没有停在最终批准：\n${waiting.stdout}\n${waiting.stderr}`);
+  }
+  approveStage(project, "final-delivery");
+  const finalized = spawnSync(process.execPath, [productCli, "finalize", "--project", project], {cwd: SKILL_ROOT, encoding: "utf8", windowsHide: true, maxBuffer: 64 * 1024 * 1024});
+  if (finalized.status !== 0 || JSON.parse(finalized.stdout).status !== "complete") {
+    throw new Error(`产品宣传片正式 finalize 失败：\n${finalized.stdout}\n${finalized.stderr}`);
+  }
+
   const catalog = readJson(path.join(SKILL_ROOT, "assets", "shot-recipe-library", "catalog.json"));
-  console.log(`产品宣传片真实链路通过：${catalog.recipe_count} 张配方、${catalog.reference_style_count} 个拒绝直接生产的参考变体、真实页面采集、活动配方物化、计划确认、通用构建投影、浏览器逐帧验证、120 BPM 派生分析与听音复核入口均通过。`);
+  console.log(`产品宣传片真实链路通过：${catalog.recipe_count} 张配方、${catalog.reference_style_count} 个拒绝直接生产的参考变体、真实页面采集、活动配方物化、计划确认、通用构建、浏览器逐帧验证、完整审阅、最终批准、交付验证、120 BPM 派生分析与听音复核入口均通过。`);
   console.log(`诊断项目保留在系统临时目录：${project}`);
 }
 

@@ -1,0 +1,64 @@
+{
+  "protocol": "visual-multimedia-video-production-profile",
+  "version": 1,
+  "id": "github-project-intro",
+  "name": "GitHub 项目介绍视频",
+  "profile_version": "1.0.0",
+  "status": "active",
+  "description": "把已经确认的 GitHub 仓库事实、界面或输出证据和一个核心主张制作成约一分钟的横版介绍视频。",
+  "apply_when": [
+    "用户要介绍一个已经读懂并确认事实的 GitHub 项目",
+    "需要把界面、终端、文档或实际输出证据组织成一条短视频",
+    "主要目标是让观众迅速理解这个项目解决什么问题和为什么值得看"
+  ],
+  "do_not_apply_when": [
+    "还需要研究仓库、核查功能或决定什么值得分享",
+    "用户只要文字项目介绍、README、社交卡或纯录屏教程",
+    "没有任何可以绑定哈希的项目证据"
+  ],
+  "default_sequence": ["opening", "core-claim", "proof", "proof-as-needed", "result", "call-to-action"],
+  "invariants": [
+    "整条视频只围绕一个核心主张，约一分钟仍要用足够证据讲完整，不把短帖逐句扩写成视频",
+    "没有另行指定时建议 60 至 75 秒，时长由真实旁白和整数帧计划共同决定",
+    "合成旁白固定使用 game.honkai-star-rail.silverwolf.default，speech.synthesize 直接使用 1.25 倍速",
+    "实际画面同时显示中文主字幕和英文次字幕，并相对完整画布居中",
+    "开场优先采用已注册的银狼 GitHub 开场语音；只有同日事实已经确认时才能使用‘今天’，否则使用‘最近’",
+    "UI、终端、文档与实际输出都是同等有效的证据类型，不要求仓库必须有图形界面",
+    "每个项目重新建立自己的开场卡和视觉方向，只借鉴参考的视觉语言，不继承案例坐标、文案或表面结构",
+    "夜希或其它人物窗只在用户要求或当前项目采用时加入；可编辑底片先为人物窗让位，字幕仍以完整画布为居中基准",
+    "装饰元素必须有明确的信息、结构或时间职责；不能为了填空加入意味不明的进度条",
+    "计划确认后渲染器不重新改写主张、选择证据、重排镜头或替换声音"
+  ],
+  "algorithm_defaults": {
+    "duration_seconds": {"minimum": 60, "maximum": 75},
+    "voice_id": "game.honkai-star-rail.silverwolf.default",
+    "speech_speed_factor": 1.25,
+    "caption_languages": ["zh-CN", "en"],
+    "caption_mode": "burned-in",
+    "opening_variant": "recently",
+    "avatar": "none",
+    "transition": "direct-cut",
+    "atomic_publish": true
+  },
+  "project_configurable": [
+    "opening_variant", "duration", "sequence", "number_of_proofs", "output_geometry",
+    "colors", "typography", "motion", "avatar", "call_to_action"
+  ],
+  "stop_conditions": [
+    "核心主张或仓库事实尚未确认",
+    "计划引用的画面、声音、网页包或素材账本哈希已经改变",
+    "‘今天’开场没有同日事实确认",
+    "任一旁白不是已确认声音或不是 1.25 倍速生成",
+    "任一镜头缺少中文或英文字幕",
+    "全量预览尚未完成机器检查、Agent 完整观看或所需用户确认",
+    "公开交付素材权利仍未收口"
+  ],
+  "reference": "references/github-project-intro-production.md",
+  "public_entry": "scripts/github-project-intro.mjs",
+  "schemas": {
+    "brief_draft_plan_confirmation": "schemas/github-project-intro.v1.schema.json",
+    "build_plan": "schemas/media-build-plan.v1.schema.json",
+    "build_report": "schemas/media-build-report.v2.schema.json",
+    "operation_run": "schemas/media-operation-run.v1.schema.json"
+  }
+}

@@ -11,7 +11,7 @@
 - `shot-recipe-selections/*.json` 只冻结“为什么选这个镜头职责”及物化实现包。`reference-only` 只能提供语义启发，不能进入构建计划。
 - `product-promo-plan.json` 冻结方向、功能覆盖、镜头顺序、实现包、场景、语义状态、声音和审阅承诺。
 - `product-promo-plan-confirmation.json` 绑定不可变计划哈希；确认后输入改变就重新计划和确认。
-- `media-build-plan.json` 是交给现有网页渲染、视频时间线和导出消费者的通用投影，不建立产品宣传片专用渲染器或第二套时钟。
+- `media-build-plan.json` 是正式渲染、视频时间线和导出共同消费的通用投影。`product-promo.mjs render` 只负责执行这份计划，并复用公共 MediaFlow Pro 网页镜头与时间线边界，不建立第二套时钟。
 
 先查看正式 profile 和可用镜头配方：
 
@@ -76,6 +76,8 @@ node scripts/product-promo.mjs materialize-recipe `
 
 无音乐、只用音效、音乐与音效三种策略必须在 brief 中明确。可复用的音乐、环境声、强调音和混音关系进入 `sound-profile.json`；具体切点仍由当前计划和实际声音决定。音效连接“结果出现、状态确认、切换完成”等语义事件，不复制网页绝对毫秒表。
 
+正式 `render` 只消费已经按确认计划完成并听音验证的声音结果。`none` 会为剪辑器生成不可听的结构性静音轨，保证视频单元能够稳定组装；`sfx` 或 `music-and-sfx` 在连续混音母带尚未生成和验证时必须停止，不能用这条静音轨冒充计划中的实际声音。
+
 只有用户已经确认音乐要强驱动剪辑时才分析节拍：
 
 ```powershell
@@ -104,7 +106,22 @@ node scripts/product-promo.mjs build-plan `
   --stage full-preview
 ```
 
-正式入口会核对 brief、profile、采集报告、节拍分析、选择记录、实现包、场景、语义状态、功能覆盖和连续帧范围；随后生成通用 `media-build-plan.json`。现有网页渲染或结构化编辑消费者读取这一计划，不在执行时重新选择镜头、重排功能或猜测包路径。
+正式入口会核对 brief、profile、采集报告、节拍分析、选择记录、实现包、场景、语义状态、功能覆盖和连续帧范围；随后生成通用 `media-build-plan.json`。结构化编辑消费者只读取这一计划，不在执行时重新选择镜头、重排功能或猜测包路径。
+
+综合样片确认后，沿正式入口继续执行：
+
+```powershell
+node scripts/product-promo.mjs render --project <项目目录>
+
+node scripts/product-promo.mjs review `
+  --project <项目目录> `
+  --agent-status passed `
+  --agent-evidence <完整观看依据>
+
+node scripts/product-promo.mjs finalize --project <项目目录>
+```
+
+`render` 按镜头生成可缓存单元，经 MediaFlow Pro 公开时间线装配成完整预览，并写入通用构建报告和 `reports/product-promo-render-run.json` 耗时记录。`review` 重新读取真实成片、构建报告和审阅承诺，生成联系表，同时把机器检查与 Agent 完整观看分开记录。`finalize` 只接受绑定当前成片哈希且已经通过的评审；第一次调用提交最终阶段，批准后再次调用才完成真实交付验证。
 
 ## 七、阶段验收与停止条件
 
