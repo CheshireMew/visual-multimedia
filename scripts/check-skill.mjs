@@ -472,6 +472,47 @@ for (const localMediaResource of [
 ]) {
   ensurePath(localMediaResource);
 }
+const staticCardWorkbenchPath = ensurePath("scripts/static-card-workbench.mjs");
+const staticCardWorkbenchSelfTest = ensurePath("scripts/self-test-static-card-workbench.mjs");
+const staticCardWorkbenchTemplate = ensurePath("assets/static-card-workbench/base.html");
+const staticCardWorkbenchText = fs.readFileSync(staticCardWorkbenchPath, "utf8");
+const staticCardWorkbenchTemplateText = fs.readFileSync(staticCardWorkbenchTemplate, "utf8");
+for (const token of [
+  "拒绝覆盖现有文件",
+  "minimum_display_primary_text_px",
+  "data-placeholder",
+  "style-file",
+  "listenOnBrowserSafePort",
+]) {
+  if (!staticCardWorkbenchText.includes(token)) {
+    fail(`轻量静态卡工作台缺少安全创建、真实显示检查或显式样式入口：${token}`);
+  }
+}
+for (const token of [
+  "data-card-width",
+  "data-card-height",
+  "data-display-width",
+  "id=\"card-content\"",
+  "data-placeholder=\"true\"",
+  "{{EXPLICIT_STYLE}}",
+]) {
+  if (!staticCardWorkbenchTemplateText.includes(token)) {
+    fail(`轻量静态卡起始画布缺少固定画布、空内容根或显式样式插槽：${token}`);
+  }
+}
+for (const forbidden of [
+  "PERSONAL_STYLE", "neutral-base", "--paper", "--accent", ".masthead", ".badge",
+  ".callout", ".panel", ".table", ".bar-list", ".flow", "linear-gradient", "box-shadow",
+]) {
+  if (staticCardWorkbenchTemplateText.includes(forbidden)) {
+    fail(`轻量静态卡空白底座仍携带默认视觉选择：${forbidden}`);
+  }
+}
+for (const forbidden of ["PERSONAL_STYLE", "neutral-base", "--style auto|neutral", "personal-visual/card-style/style.css"]) {
+  if (staticCardWorkbenchText.includes(forbidden)) {
+    fail(`轻量静态卡工具仍在自动选择视觉样式：${forbidden}`);
+  }
+}
 const localMediaEnvironmentText = fs.readFileSync(
   ensurePath("scripts/local-media-environment.mjs"),
   "utf8",
@@ -770,6 +811,10 @@ for (const token of [
   "一次性普通静态卡以当前 HTML 为视觉真源",
   "普通静态卡可以读取适用模板的结构",
   "不自动采用案例配色",
+  "personal-visual/card-style/",
+  "完整图像是证据真源",
+  "候选放在仓库外",
+  "不能被列成个人风格候选",
   "真实画布",
   "assets/web-layout-templates/",
   "不能依赖案例目录",
@@ -782,7 +827,8 @@ for (const token of [
   "references/visual-resource-governance.md",
   "“看看、参考、分析”等要求",
   "普通静态卡把实际采用结果保存在当前 HTML",
-  "只有结构化网页和系列复用才建立或更新风格档案",
+  "只有结构化网页和系列复用才建立项目风格档案",
+  "第一张真实完整画布作为唯一设计确认稿",
   "“太丑”本身不等于整体改版",
 ]) {
   if (!skillText.includes(token)) {
@@ -809,7 +855,8 @@ for (const token of [
   "由 `references/social-card-production.md` 唯一负责",
   "普通静态卡由轻量自包含 HTML 完成",
   "先交给 `clean-copy`",
-  "不再增加第二次完整画布确认",
+  "scripts/static-card-workbench.mjs",
+  "第一张真实完整画布作为唯一设计确认稿",
   "不检查 MediaFlow Pro",
 ]) {
   if (!skillText.includes(token)) {
@@ -817,15 +864,21 @@ for (const token of [
   }
 }
 for (const token of [
-  "提交作图前确认并停止",
-  "确认前不得创建 HTML/CSS",
-  "由当前内容量",
+  "第一张视觉稿就是唯一设计确认",
+  "用户明确说“正式作图前先展示方案”",
+  "才改走文字确认",
+  "scripts/static-card-workbench.mjs create",
+  "scripts/static-card-workbench.mjs",
+  "空白 `index.html`",
+  "不会自动读取个人 CSS",
+  "未选候选不是个人风格",
+  "尽快给用户看图",
   "真实展示宽度",
   "16px 为正文舒适目标",
-  "普通静态卡不再增加第二次完整画布确认",
+  "不再增加第二次完整画布确认",
 ]) {
   if (!socialCardReferenceText.includes(token)) {
-    fail(`静态卡说明缺少前置确认、内容决定尺寸或实际显示字号：${token}`);
+    fail(`静态卡说明缺少视觉优先确认、轻量工作台或实际显示字号：${token}`);
   }
 }
 for (const token of [
@@ -881,13 +934,15 @@ const requiredVisualRoutingScenarios = new Map([
   ["explicit-pre-drawing-confirmation-blocks-production", "pre-drawing-confirmation"],
   ["content-curation-precedes-dimensions", "clean-copy-then-confirm-size"],
   ["ordinary-static-card-uses-lightweight-html", "lightweight-static-html"],
+  ["approved-personal-style-has-priority", "personal-style-inheritance"],
+  ["missing-personal-style-does-not-invent-identity", "complete-direction-candidates-before-adoption"],
   ["data-does-not-force-graphics-or-swiss-style", "content-led-representation-choice"],
   ["explicit-graphic-reference-is-not-ignored", "adopt-requested-representation-mechanism"],
   ["structured-web-requirements-keep-v6", "structured-editable-media-v6"],
 ]);
 if (
   visualRoutingRegressions?.protocol !== "visual-multimedia-visual-resource-routing-regressions"
-  || visualRoutingRegressions?.version !== 5
+  || visualRoutingRegressions?.version !== 7
   || !Array.isArray(visualRoutingRegressions?.scenarios)
 ) {
   fail("视觉资源路由回归场景缺少活动协议或版本");
@@ -985,13 +1040,43 @@ if (
   const lightweightStatic = scenarios.get("ordinary-static-card-uses-lightweight-html");
   if (
     !lightweightStatic?.required_output?.includes("single-self-contained-html")
+    || !lightweightStatic?.required_output?.includes("first-real-content-visual-draft")
     || !lightweightStatic?.required_output?.includes("minimum-display-width-preview")
+    || !lightweightStatic?.required_actions?.includes("start-from-blank-canvas-shell")
+    || !lightweightStatic?.required_actions?.includes("avoid-default-or-neutral-style")
+    || !lightweightStatic?.required_actions?.includes("avoid-routine-multi-candidate-generation")
     || !lightweightStatic?.forbidden_outputs?.includes("editable-media-json")
     || !lightweightStatic?.forbidden_outputs?.includes("web-media-starter-copy")
     || !lightweightStatic?.forbidden_outputs?.includes("provider-inspection")
+    || !lightweightStatic?.forbidden_outputs?.includes("unrequested-text-only-pre-drawing-package")
     || !lightweightStatic?.forbidden_outputs?.includes("second-full-canvas-confirmation")
   ) {
-    fail("普通静态卡回归没有固定为单 HTML、真实展示预览和无 v6 重型产物");
+    fail("普通静态卡回归没有固定为真实内容首稿、单 HTML、实际展示预览和无 v6 重型产物");
+  }
+  const approvedPersonalStyle = scenarios.get("approved-personal-style-has-priority");
+  if (
+    !approvedPersonalStyle?.required_actions?.includes("read-approved-complete-reference-images")
+    || !approvedPersonalStyle?.required_actions?.includes("read-user-approved-adoption-scope")
+    || !approvedPersonalStyle?.required_actions?.includes("apply-approved-layers-to-real-html")
+    || !approvedPersonalStyle?.forbidden_actions?.includes("replace-complete-reference-images-with-css-summary")
+    || !approvedPersonalStyle?.forbidden_actions?.includes("auto-load-personal-css")
+    || !approvedPersonalStyle?.forbidden_actions?.includes("turn-style-into-fixed-canvas-size")
+  ) {
+    fail("已确认个人视觉资源回归没有读取完整参考与采用范围，或仍可能自动加载 CSS、锁死尺寸");
+  }
+  const missingPersonalStyle = scenarios.get("missing-personal-style-does-not-invent-identity");
+  if (
+    !missingPersonalStyle?.required_actions?.includes("use-identical-copy-and-content-derived-canvas")
+    || !missingPersonalStyle?.required_actions?.includes("create-complete-visually-distinct-candidates-outside-repository")
+    || !missingPersonalStyle?.required_actions?.includes("wait-for-user-selection-of-whole-card-or-layers")
+    || !missingPersonalStyle?.forbidden_actions?.includes("offer-production-cases-as-personal-style-candidates")
+    || !missingPersonalStyle?.forbidden_actions?.includes("adopt-candidates-before-user-selection")
+    || !missingPersonalStyle?.forbidden_actions?.includes("use-neutral-base")
+    || !missingPersonalStyle?.forbidden_actions?.includes("learn-style-from-rejected-output")
+    || !missingPersonalStyle?.forbidden_actions?.includes("learn-style-from-quality-constraints")
+    || !missingPersonalStyle?.forbidden_actions?.includes("learn-style-from-single-mechanism-reference")
+  ) {
+    fail("建立个人风格的回归没有要求完整候选、用户选择与候选隔离，或仍可能伪造风格");
   }
   const representationChoice = scenarios.get("data-does-not-force-graphics-or-swiss-style");
   if (
@@ -1595,6 +1680,14 @@ if (runFullChecks && failures.length === 0) {
     [path.join(reactStarterRoot, "scripts", "verify-reproducible-build.mjs")],
     "React editable-media 可复现构建",
     reactStarterRoot
+  );
+}
+
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [staticCardWorkbenchSelfTest],
+    "轻量静态卡单 HTML 创建—原尺寸与 360px 预览—无越界真实链路检查",
   );
 }
 

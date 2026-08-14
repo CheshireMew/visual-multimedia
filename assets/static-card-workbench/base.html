@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN" data-card-width="{{CARD_WIDTH}}" data-card-height="{{CARD_HEIGHT}}" data-display-width="{{DISPLAY_WIDTH}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Static card blank canvas</title>
+  <style>
+    :root {
+      --card-width: {{CARD_WIDTH}}px;
+      --card-height: {{CARD_HEIGHT}}px;
+      --display-width: {{DISPLAY_WIDTH}}px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    #card {
+      position: relative;
+      width: var(--card-width);
+      height: var(--card-height);
+      overflow: hidden;
+      isolation: isolate;
+    }
+    #card-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  {{EXPLICIT_STYLE}}
+</head>
+<body>
+  <article id="card" aria-label="静态网页卡片">
+    <main id="card-content" data-placeholder="true">
+      <!-- Replace this empty root with confirmed visible content and a task-specific design before capture. -->
+    </main>
+  </article>
+</body>
+</html>

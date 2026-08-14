@@ -1,6 +1,6 @@
 {
   "protocol": "visual-multimedia-visual-resource-routing-regressions",
-  "version": 5,
+  "version": 7,
   "diagnostic_evidence": [
     {
       "id": "mistaken-case-selection-20260809",
@@ -225,13 +225,21 @@
       "preserve": [
         "confirmed-visible-copy",
         "content-derived-dimensions",
-        "approved-typography-color-and-layout"
+        "explicit-visual-references",
+        "project-identity"
       ],
       "required_output": [
         "single-self-contained-html",
+        "first-real-content-visual-draft",
         "fixed-canvas-preview",
         "minimum-display-width-preview",
         "user-requested-static-export-only"
+      ],
+      "required_actions": [
+        "start-from-blank-canvas-shell",
+        "design-from-current-content-and-audience",
+        "avoid-default-or-neutral-style",
+        "avoid-routine-multi-candidate-generation"
       ],
       "forbidden_outputs": [
         "editable-media-json",
@@ -240,7 +248,58 @@
         "media-sources-json",
         "structured-editor",
         "provider-inspection",
+        "unrequested-text-only-pre-drawing-package",
         "second-full-canvas-confirmation"
+      ]
+    },
+    {
+      "id": "approved-personal-style-has-priority",
+      "input": "按我已经确认的个人卡片风格做这张，但保留本次明确指定的品牌色",
+      "existing_state": "confirmed-visible-copy-with-approved-personal-style-resource",
+      "expected_mode": "personal-style-inheritance",
+      "preserve": [
+        "confirmed-visible-copy",
+        "current-brand-color",
+        "content-led-representation"
+      ],
+      "required_actions": [
+        "read-approved-complete-reference-images",
+        "read-user-approved-adoption-scope",
+        "apply-approved-layers-to-real-html",
+        "let-current-explicit-reference-override-affected-layer"
+      ],
+      "forbidden_actions": [
+        "replace-complete-reference-images-with-css-summary",
+        "auto-load-personal-css",
+        "copy-reference-layout-coordinates",
+        "replace-current-brand-color",
+        "turn-style-into-fixed-canvas-size"
+      ]
+    },
+    {
+      "id": "missing-personal-style-does-not-invent-identity",
+      "input": "帮我建立个人卡片风格，我还没有给过认可的完整成品参考",
+      "existing_state": "confirmed-visible-copy-without-approved-personal-style-resource",
+      "expected_mode": "complete-direction-candidates-before-adoption",
+      "preserve": [
+        "confirmed-visible-copy",
+        "content-led-representation",
+        "explicit-current-references"
+      ],
+      "required_actions": [
+        "use-identical-copy-and-content-derived-canvas",
+        "create-complete-visually-distinct-candidates-outside-repository",
+        "wait-for-user-selection-of-whole-card-or-layers",
+        "keep-unselected-candidates-out-of-personal-resource"
+      ],
+      "forbidden_actions": [
+        "offer-production-cases-as-personal-style-candidates",
+        "adopt-candidates-before-user-selection",
+        "use-neutral-base",
+        "learn-style-from-rejected-output",
+        "learn-style-from-quality-constraints",
+        "learn-style-from-single-mechanism-reference",
+        "select-swiss-from-technical-topic"
       ]
     },
     {
