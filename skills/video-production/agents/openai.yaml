@@ -1,4 +1,0 @@
-interface:
-  display_name: "Video Production"
-  short_description: "剪辑和制作实拍、录屏、访谈、产品讲解与项目介绍视频"
-  default_prompt: "使用 $video-production 从已确认素材和文案制作可修改视频，并按真实时间线完成预览、导出与成片检查。"

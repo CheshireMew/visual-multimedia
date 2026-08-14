@@ -1,6 +1,6 @@
 {
   "protocol": "visual-multimedia-visual-resource-routing-regressions",
-  "version": 4,
+  "version": 5,
   "diagnostic_evidence": [
     {
       "id": "mistaken-case-selection-20260809",
@@ -175,7 +175,7 @@
         "information-order",
         "necessary-elements-and-sources",
         "proposed-content-derived-dimensions",
-        "typography-color-surface-direction"
+        "typography-color-template-surface-direction"
       ],
       "stop_before": [
         "html-css-generation",
@@ -196,13 +196,7 @@
       "id": "content-curation-precedes-dimensions",
       "input": "先把废话和对用户没用的信息去掉，图片尺寸跟着真实信息量走",
       "existing_state": "long-confirmed-research-material",
-      "expected_mode": "curate-confirm-size",
-      "preprocess_skill": "clean-copy",
-      "required_stops": [
-        "clean-copy-review",
-        "clean-copy-approval",
-        "visual-pre-drawing-confirmation"
-      ],
+      "expected_mode": "clean-copy-then-confirm-size",
       "preserve": [
         "core-conclusion",
         "necessary-support",
@@ -211,11 +205,8 @@
         "sources"
       ],
       "required_actions": [
-        "remove-ai-filler",
-        "remove-audience-irrelevant-details",
-        "remove-repeated-facts-and-numbers",
-        "keep-each-fact-once",
-        "resolve-ambiguous-references",
+        "delegate-existing-draft-to-clean-copy",
+        "receive-confirmed-visible-copy",
         "set-reading-size-before-canvas-size",
         "derive-dimensions-after-curation"
       ],
@@ -224,6 +215,97 @@
         "choose-ratio-before-curation",
         "inherit-template-source-dimensions",
         "shrink-type-to-preserve-old-canvas"
+      ]
+    },
+    {
+      "id": "ordinary-static-card-uses-lightweight-html",
+      "input": "用已经确认的文案做一张完整详细、可以继续修改的网页卡片",
+      "existing_state": "confirmed-visible-copy-without-motion-or-structured-editor",
+      "expected_mode": "lightweight-static-html",
+      "preserve": [
+        "confirmed-visible-copy",
+        "content-derived-dimensions",
+        "approved-typography-color-and-layout"
+      ],
+      "required_output": [
+        "single-self-contained-html",
+        "fixed-canvas-preview",
+        "minimum-display-width-preview",
+        "user-requested-static-export-only"
+      ],
+      "forbidden_outputs": [
+        "editable-media-json",
+        "web-media-starter-copy",
+        "style-profile-json",
+        "media-sources-json",
+        "structured-editor",
+        "provider-inspection",
+        "second-full-canvas-confirmation"
+      ]
+    },
+    {
+      "id": "data-does-not-force-graphics-or-swiss-style",
+      "input": "这组数字主要是让用户查准确值，不要求比较强弱，也没有指定视觉风格",
+      "existing_state": "confirmed-visible-copy-with-exact-values",
+      "expected_mode": "content-led-representation-choice",
+      "preserve": [
+        "confirmed-visible-copy",
+        "project-identity",
+        "unrejected-user-decisions"
+      ],
+      "required_decisions": [
+        "primary-reading-task",
+        "text-table-graphic-image-or-mixed",
+        "surface-style-after-representation"
+      ],
+      "allowed_result": [
+        "clear-table",
+        "clear-text-list"
+      ],
+      "forbidden_actions": [
+        "force-graphics-because-data-exists",
+        "select-swiss-from-technical-data-or-comparison-topic"
+      ]
+    },
+    {
+      "id": "explicit-graphic-reference-is-not-ignored",
+      "input": "这组同单位权重主要要比较大小，按参考图的横条表达并保留精确数字，不要照搬参考配色",
+      "existing_state": "confirmed-comparable-values-with-explicit-reference-mechanism",
+      "expected_mode": "adopt-requested-representation-mechanism",
+      "preserve": [
+        "confirmed-visible-copy",
+        "project-identity",
+        "unrejected-user-decisions"
+      ],
+      "required_actions": [
+        "use-requested-bar-comparison",
+        "preserve-exact-values",
+        "select-surface-style-separately"
+      ],
+      "forbidden_actions": [
+        "reduce-to-text-only-table",
+        "copy-unrequested-reference-palette",
+        "select-swiss-from-technical-data-or-comparison-topic"
+      ]
+    },
+    {
+      "id": "structured-web-requirements-keep-v6",
+      "input": "做一个多场景网页动画，交给 MediaFlow Pro 继续编辑和导出",
+      "existing_state": "confirmed-script-with-scene-and-editor-requirements",
+      "expected_mode": "structured-editable-media-v6",
+      "preserve": [
+        "confirmed-script",
+        "scene-sequence",
+        "structured-editor-requirement"
+      ],
+      "required_output": [
+        "editable-media-json",
+        "deterministic-runtime",
+        "media-sources-ledger",
+        "structured-editor-contract"
+      ],
+      "forbidden_actions": [
+        "downgrade-to-lightweight-static-html"
       ]
     }
   ]

@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="./README.md">中文</a> · <strong>English</strong> · <a href="./README.ja.md">日本語</a> | <a href="./skills/visual-multimedia/SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
+  <a href="./README.md">中文</a> · <strong>English</strong> · <a href="./README.ja.md">日本語</a> | <a href="./SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
 </p>
 
 <p align="center">
@@ -29,9 +29,9 @@
 
 <!-- readme-header:end -->
 
-Visual Multimedia is now a suite of focused media-production Skills. Static cards, web motion, video, audio, and anime-presenter work each have a direct entry point. The root `$visual-multimedia` Skill only selects and coordinates the smallest set of child Skills for carrier-selection or composite requests.
+Visual Multimedia is a media-production Agent Skill. It first decides whether the result should be a social card, diagram, web animation, video, audio program, or podcast.
 
-Approved audience-facing copy goes straight into production. A draft or proposed card/voiceover script first goes through `$clean-copy` for hierarchy, repetition, unclear references, and AI filler, then enters media production after the edits are approved.
+It then develops the title, voiceover, captions, program structure, and companion copy required by that medium, while keeping one active source of truth through preview, render, review, and delivery.
 
 ![A real Visual Multimedia case that turns an abstract mechanism into a readable diagram](assets/web-card-cases/editorial-technology-diagram-cover/preview.png)
 
@@ -41,30 +41,24 @@ It does not research an unverified topic, invent facts, choose what matters in a
 
 ## Quick start
 
-Install the suite to expose the orchestrator and all five production Skills:
-
-```powershell
-npx skills add CheshireMew/visual-multimedia --all
-```
-
-Use the matching child Skill for one output, and reserve `$visual-multimedia` for composite work.
+Load this repository in an Agent that supports Agent Skills, invoke `$visual-multimedia`, and provide the confirmed content or source files, the audience, and the result you need.
 
 ```text
-Use $visual-cards to turn this approved article into three 3:4 social cards.
-Confirm the exact visible copy, canvas dimensions, and visual direction before production.
+Use $visual-multimedia to turn this approved article into three 3:4 social cards.
+Finish the card copy and one composition sample first; export PNG only after approval.
 ```
 
 ```text
-Use $video-production to cut this interview and its reviewed transcript into a 90-second video.
+Use $visual-multimedia to cut this interview and its reviewed transcript into a 90-second video.
 Keep the speaker's original voice and show me the clip selection and narration plan first.
 ```
 
 ```text
-Use $web-motion to turn this final script into a multi-scene HTML explanation
+Use $visual-multimedia to turn this final script into a multi-scene HTML explanation
 that can be advanced manually and exported as a continuous animation.
 ```
 
-If the carrier is unknown, `$visual-multimedia` selects one route and loads only that child Skill. Static visual production stops once before drawing to confirm visible copy, hierarchy, content-derived dimensions, and visual direction unless the user explicitly skips that visual gate.
+If the request names the Skill but does not say whether it needs a sample or a finished asset, the default flow recommends one medium, prepares confirmable media copy, and stops for a decision. File creation, external services, and final export begin only when the requested scope allows them.
 
 For fewer clarification rounds, include the confirmed source, intended audience outcome, required format or dimensions, usable assets, and whether external tools, downloads, or paid generation are allowed.
 
@@ -85,7 +79,7 @@ For fewer clarification rounds, include the confirmed source, intended audience 
 | GitHub project intro video | Confirmed repository facts, one core claim, and UI, terminal, documentation, or real-output evidence | An approximately one-minute landscape video with Silver Wolf speech at 1.25×, Chinese and English captions, plus traceable build, review, and delivery reports |
 | Media copy and voice-reference maintenance | Confirmed claims and authorial voice, or an explicit library-maintenance request | Production-ready active copy, or a traceable reference library outside the Skill |
 
-Task routing, required references, and stop conditions are defined by the matching entry under [skills](skills).
+Task routing, required references, and stop conditions are defined in [SKILL.md](SKILL.md).
 
 ## Real outputs
 
@@ -146,12 +140,12 @@ Provider choice changes who performs deterministic processing and how the work i
 
 | Path | Responsibility |
 | --- | --- |
-| [skills/visual-multimedia/SKILL.md](skills/visual-multimedia/SKILL.md) | Lightweight composite routing, content gate, and artifact handoff |
+| [SKILL.md](SKILL.md) | Applicability, default workflow, task routing, and delivery standards |
 | [references](references) | Production methods loaded only for the current media task |
 | [assets](assets) | Web starter, real contract cases, production profiles, and reusable resources |
 | [schemas](schemas) | Contracts for sources, timelines, review, delivery, characters, and editable web packages |
 | [scripts](scripts) | Import, validation, planning, rendering, review, and delivery tools |
-| `skills/<name>/agents/openai.yaml` | Per-Skill Agent-host adapter metadata |
+| [agents/](agents/) | Optional Agent-host adapter metadata |
 | [.project-steward/project.json](.project-steward/project.json) | Repository governance baseline and version |
 
 `archive/` stores retired routes and migration evidence only. Active production never restores an old protocol or helper from it.

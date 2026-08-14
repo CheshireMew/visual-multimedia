@@ -1,4 +1,0 @@
-interface:
-  display_name: "Audio Production"
-  short_description: "编辑录音、旁白、对谈和播客，或从确认文案生成合成语音"
-  default_prompt: "使用 $audio-production 从已确认文案或录音制作可修改音频，并完成实际试听和交付检查。"

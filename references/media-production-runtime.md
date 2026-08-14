@@ -1,22 +1,22 @@
 # 实际媒体制作的运行边界
 
-实际写文件、处理素材、维护私人库、调用外部工具或导出媒体时读取本文件。它统一保存跨载体的动作边界、停止条件和交付检查；各任务 reference 继续决定具体做法。
+结构化网页、素材处理、私人库、外部工具、视频、音频或复杂媒体导出进入实际制作时读取本文件。普通静态卡写入自包含 HTML 或用浏览器导出图片不读取本文件，也不检查媒体提供方；它只执行静态卡和导出说明中的轻量检查。
 
 ## 工具与动作边界
 
 - 默认允许读取用户提供的本地内容与素材，并在用户要求制作时写入当前任务的明确输出位置。
 - 输出位置未说明但当前项目已有约定时遵循项目约定；没有可推断位置且文件交付是主要结果时再询问。项目命令接受相对任务、报告或输出路径时，一律相对显式项目根目录解析并拒绝越界，不能依赖进程当前目录。
 - 口播私人库只通过 `scripts/voiceover_reference_library.py` 初始化、接入、定位、保存和验证。正式根目录由用户指定；位于 Skill 目录内时只能使用已经从 Git 排除的 `口播私人库/`，不能与会发布的 references、scripts、assets 或案例混放。普通写作只运行只读 `show`、`voice-candidates` 和文本检索，明确的库维护请求才写入。
-- 代码生成视觉优先复制 `assets/web-media-starter/` 整个目录作为中性起点；`schemas/editable-media.v6.schema.json` 是唯一结构合同，`editable-media.json` 是当前包的场景、语义步骤、条件式镜头与运动、共享参数、播放方式、内容版式合同、输出比例、默认数据、主题、资源、生产关联和量化质量规则的权威配置。HTML/CSS 负责结构和渲染算法，通用运行时负责场景切换、对象与镜头时间推进、编辑状态和导航。starter 同时提供画布外通用编辑器、字体预设与 Windows BAT 预览启动器：编辑器只通过 `window.editableMedia` 修改当前场景数据和主题，从清单与当前页面语义标记生成分区，并在浏览器本地保存预览覆盖；清单仍是默认状态的唯一真源。BAT 通过包内启动脚本在可用的动态本地端口服务当前目录。starter 不决定当前内容的结构或风格。
-- 网页包必须自包含：入口、运行时、素材账本和账本引用文件全部位于包目录内，不接受 `..`、盘符、绝对路径、URL、反斜杠或符号链接。实际制作网页时运行 `scripts/validate-editable-media.mjs` 检查用户要求的每个“输出比例 × 场景”，并查看脚本从同一网页真源生成的截图。校验器只测 schema、包边界、播放链路和已声明规则，不能代替人工检查内容、素材与风格。
-- `editable-media` v6 网页必须同时暴露 `window.editableMedia` 编辑接口与 `window.__hf.duration/seek(seconds)` 逐帧接口；本地渲染器、MediaFlow Pro 与 HyperFrames 只读取这一个时间边界，不能各自增加另一套动画时钟或兼容运行时。
+- 已经由主入口判定为结构化网页时，复制 `assets/web-media-starter/` 或明确选定的 React starter；`schemas/editable-media.v6.schema.json` 是唯一结构合同，清单、通用运行时、编辑器和预览启动器沿现有合同工作。starter 不决定当前内容、尺寸或风格，也不能被普通静态卡默认复制。
+- editable-media v6 网页包必须自包含，并运行 `scripts/validate-editable-media.mjs` 检查要求的每个“输出比例 × 场景”；校验器只测结构、包边界、播放链路和已声明规则，不能代替人工检查。
+- editable-media v6 网页必须同时暴露 `window.editableMedia` 与 `window.__hf.duration/seek(seconds)`；这些接口不适用于轻量静态 HTML。
 - 复杂网页动画必须在 `scene.steps` 中标记由语义决定的开始、变化和结果审阅状态；`scripts/validate-editable-media.mjs` 从真实运行时逐状态定位并在指定截图时生成关键状态图。只有 `motion.driver=camera|mixed` 才允许 camera；镜头根与景深层使用不可编辑外包装，持续可读文字位于镜头空间之外，运行时通过 `getCamera` 暴露同一确定性状态。
 - 图层的文字、颜色、位置、尺寸、旋转、透明度、层级、显隐和进出时间继续使用标准图层字段。只有回弹强度、错峰间隔、轨道半径、镜头幅度、触发阈值等确实影响一组对象或渲染算法、又不能自然归属于单个图层的控制量，才声明为带类型、范围、单位、控件、作用域和可动画能力的 `parameters`。全局默认值、场景覆盖和参数关键帧共同使用现有场景时间线；运行时通过 `getParameters` 暴露解析后的当前值，不增加第二套参数存储或时钟。
 - 用户提供、项目自有、外部下载或项目内确定性生成的独立素材使用 `scripts/import-media-asset.mjs` 入账；普通视频、音频和角色工程继续进入通用 media-sources v3 素材账本，editable-media v6 网页包的 media-sources v4 素材账本必须在同一导入器中显式声明 `--pipeline browser|native-underlay|native-audio`，不能互相降级或猜测。外部生成服务的输出只能在费用、任务、回执、下载和校验合同通过后由正式任务管理器调用同一导入器本地化。入账后再由活动网页清单、视频时间线或音频项目显式采用；运行对应合同的校验器证明真实文件、字节数、哈希、权利、管线和代理等价关系与记录一致。代理只由 `scripts/create-media-proxy.mjs` 从已入账原片生成，并继承原片管线；消费者统一用 `scripts/resolve-media-representation.mjs` 选择预览代理或正式原片，不能散落保存第二份映射。
 - 共享的创作者媒体、通用制作素材和完整网页包只通过 `scripts/media-resource-library.mjs` 建库、注册、查询、采用和晋升。注册版本不可变且没有全局默认；文件采用必须调用现有素材导入器进入项目 v3 账本，完整网页包采用后必须重新通过真实浏览器。采用和晋升分别用 `media-resource-adoptions.json` 与 `resource-promotion-candidates.json` 记录；原始日志、未确认反馈和一次性修补不得晋升。
 - 项目或系列需要复用声音语言时只通过 `scripts/sound-production-profile.mjs` 建立、修改和校验 `sound-profile.json`。它只能引用 v3 素材账本中的真实 audio source id，并与视觉 `style-profile.json` 分开；最终视频或音频时间线仍负责实际逐轨采用和混音，声音档案不能成为第二条时间线。
 - 人物表达的事实转写使用 `scripts/import-media-transcript.mjs` 绑定原始音视频及输入哈希，并在实际听音后由 `scripts/validate-media-transcript.mjs` 通过；上屏字幕和语义片段只引用或派生这份事实，不复制另一份逐字稿。需要 Faster-Whisper XXL 时只调用 MediaFlow Pro `describe` 当前声明的 `speech.transcribe`；返回的 SRT 和分段必须由 `scripts/import-media-transcript.mjs` 绑定原片哈希后才成为事实转写。长视频、录屏或关键区间不明确时使用 `scripts/make-video-contact-sheet.py`；它只读取真实素材并生成诊断联系表，不成为新的剪辑真源。选段另用 `scripts/validate-clip-selections.mjs` 检查原片、真实时长、重复、转写覆盖和已经完成的语义边界审核，联系表不能代替试听。
-- 先用 `scripts/local-media-environment.mjs inspect` 检查本地 FFmpeg、FFprobe、浏览器和 Playwright；没有 `.env.visual-multimedia.local.json` 时仍保留自动发现的本地基础能力。需要 MediaFlow Pro、HyperFrames 或全局声音时，被 Git 忽略的 v2 配置才定位相应提供方和资源根目录，公开示例见 `assets/local-media-environment.example.json`。解析器按主入口已经确定的提供方规则返回有序候选和首选项，选定后不在执行失败时静默换路。外部引擎设置继续由 MediaFlow Pro 管理，声音内容继续由各自 `voice-reference.json` 管理。
+- 只有当前结构化网页、视频、音频或外部工具路径确实需要时，才用 `scripts/local-media-environment.mjs inspect` 检查对应能力。需要 MediaFlow Pro、HyperFrames 或全局声音时，本机配置才定位提供方和资源根目录；普通静态 HTML 不运行该检查。
 - 本地视频与音频制作使用 `schemas/media-timeline.v1.schema.json` 保存产品无关活动时间线，并由 `scripts/media-timeline.mjs` 校验、检查和渲染；它不是 MediaFlow Pro 的简化替身。明确选择原生增强时，才经公开导入操作迁移到 `project.mfp`，迁移成功后不能继续让两条时间线同时充当真源。
 - 新的或实质重做的长视频、混合视频、音频和播客用 `media-project-state.json` v3 保存通用五阶段、成果哈希、确认依据、合同入口、活动制作决策、阻塞项和下一步，并由 `scripts/media-project.mjs` 与 `scripts/validate-media-project-state.mjs` 读写同一状态逻辑。默认逐阶段展示真实成果并等待用户确认；只有用户明确授权全自动时才连续推进。具体 profile 不得建立第二套批准状态。上游变化只使受影响阶段和下游失效，未受影响的已确认阶段保留。状态不能复制内容或时间线。冻结审阅文件后用 `media-review.json` v3 绑定媒体哈希、不可变制作依据清单及摘要，并把每项承诺指回依据文件中的 JSON Pointer，再记录机器检查、完整观看和精确时间码问题；先完整审阅再修改，修改后重新建立依据并审阅。
 - 综合样片之后的多场景或长时媒体只通过 `media-build-plan.json` v1 声明独立构建单元，通过 `media-build-report.json` v2 记录真实命中、渲染、连续音频母版和装配结果。缓存键只绑定当前单元的活动依赖、共享输出与生产模块；不能把整份上游合同哈希塞进每个单元造成一处变化全片失效，也不能让调用端自报一个未变化字符串冒充时间线事实。MediaFlow Pro 时间线由当前 `describe` 声明的 `export.sequence.build` 读取真实区间内容计算指纹，画面单元和整条音频母版分开缓存，确保局部重渲染不会破坏声音连续性。最终文件和构建报告已经用当前构建计划哈希闭合时，在启动浏览器、FFmpeg、能力探测或编辑器工程之前直接返回；缓存命中不能仍支付重型运行时冷启动成本。

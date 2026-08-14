@@ -315,83 +315,11 @@ function runChecked(command, args, label, cwd = skillRoot) {
   return result;
 }
 
-const skillPath = ensurePath("skills/visual-multimedia/SKILL.md");
-const rootSkillText = fs.readFileSync(skillPath, "utf8");
-const childSkillNames = [
-  "visual-cards",
-  "web-motion",
-  "video-production",
-  "audio-production",
-  "avatar-video",
-];
-const childSkillPaths = childSkillNames.map((name) =>
-  ensurePath(`skills/${name}/SKILL.md`, `子 Skill ${name}`)
-);
-const childSkillTexts = new Map(
-  childSkillPaths.map((filePath, index) => [
-    childSkillNames[index],
-    fs.readFileSync(filePath, "utf8"),
-  ]),
-);
-const skillText = [rootSkillText, ...childSkillTexts.values()].join("\n");
+const skillPath = ensurePath("SKILL.md");
+const skillText = fs.readFileSync(skillPath, "utf8");
 const readmePath = ensurePath("README.md");
 const readmeText = fs.readFileSync(readmePath, "utf8");
 const agentsText = fs.readFileSync(ensurePath("AGENTS.md"), "utf8");
-ensurePath("assets/skill-suite-routing-regressions.json");
-ensurePath("scripts/self-test-skill-suite-routing.mjs");
-ensurePath("scripts/self-test-lightweight-visual-card.mjs");
-
-if (rootSkillText.split(/\r?\n/u).length > 220 || rootSkillText.length > 14000) {
-  fail("根 SKILL.md 必须保持在 220 行且 14000 字符以内");
-}
-for (const [name, text] of childSkillTexts) {
-  if (text.includes("[待填写")) fail(`子 Skill ${name} 仍有待填写占位`);
-  if (text.split(/\r?\n/u).length > 220 || text.length > 14000) {
-    fail(`子 Skill ${name} 超过 220 行或 14000 字符`);
-  }
-  ensurePath(`skills/${name}/agents/openai.yaml`, `子 Skill ${name} UI 元数据`);
-}
-for (const token of [
-  "$visual-cards",
-  "$web-motion",
-  "$video-production",
-  "$audio-production",
-  "$avatar-video",
-  "$clean-copy",
-  "不要为了“完整”同时读取全部子 Skill",
-]) {
-  if (!rootSkillText.includes(token)) fail(`根编排入口缺少：${token}`);
-}
-for (const forbidden of [
-  "references/social-card-production.md",
-  "references/web-visual-production.md",
-  "references/video-post-production.md",
-  "references/speech-synthesis.md",
-  "references/anime-avatar-production.md",
-]) {
-  if (rootSkillText.includes(forbidden)) {
-    fail(`根编排入口不应直接加载具体生产资源：${forbidden}`);
-  }
-}
-if (/write-this/iu.test([rootSkillText, ...childSkillTexts.values(), readmeText, agentsText].join("\n"))) {
-  fail("视觉媒体套件活动入口仍错误包含 write-this");
-}
-const visualCardsText = childSkillTexts.get("visual-cards") || "";
-for (const token of [
-  "普通单卡默认交付一份轻量、自包含、固定画布的 HTML",
-  "不要创建 `editable-media.json`",
-  "由内容量推导",
-  "$clean-copy",
-]) {
-  if (!visualCardsText.includes(token)) fail(`visual-cards 轻量路径缺少：${token}`);
-}
-if (failures.length === 0) {
-  runChecked(
-    process.execPath,
-    [path.join(scriptDir, "self-test-skill-suite-routing.mjs")],
-    "Skill 套件单项直达、clean-copy 前置与组合交接回归",
-  );
-}
 
 for (const [label, text, markers] of [
   [
@@ -412,7 +340,6 @@ for (const [label, text, markers] of [
 
 for (const filePath of [
   skillPath,
-  ...childSkillPaths,
   readmePath,
   ...fs.readdirSync(path.join(skillRoot, "references"), {withFileTypes: true})
     .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
@@ -431,9 +358,8 @@ for (const filePath of [
     }
   }
 }
-for (const match of skillText.matchAll(/`((?:\.\.\/\.\.\/)?(?:references|assets|scripts)\/[^`]+)`/g)) {
-  const suiteRelative = match[1].replace(/^\.\.\/\.\.\//u, "");
-  ensurePath(suiteRelative, `SKILL.md 引用 ${match[1]}`);
+for (const match of skillText.matchAll(/`((?:references|assets|scripts)\/[^`]+)`/g)) {
+  ensurePath(match[1], `SKILL.md 引用 ${match[1]}`);
 }
 
 const starterManifest = ensurePath("assets/web-media-starter/editable-media.json");
@@ -841,10 +767,10 @@ for (const token of [
 const visualResourceGovernancePath = ensurePath("references/visual-resource-governance.md");
 const visualResourceGovernanceText = fs.readFileSync(visualResourceGovernancePath, "utf8");
 for (const token of [
-  "evidence-only",
-  "active style-profile",
-  "case_specific_visual_fingerprints",
-  "完整画布",
+  "一次性普通静态卡以当前 HTML 为视觉真源",
+  "普通静态卡可以读取适用模板的结构",
+  "不自动采用案例配色",
+  "真实画布",
   "assets/web-layout-templates/",
   "不能依赖案例目录",
 ]) {
@@ -855,24 +781,90 @@ for (const token of [
 for (const token of [
   "references/visual-resource-governance.md",
   "“看看、参考、分析”等要求",
-  "新的或实质变化的视觉方向确认后才写入风格档案并进入这些下游",
-  "自动选择只决定待确认样稿",
+  "普通静态卡把实际采用结果保存在当前 HTML",
+  "只有结构化网页和系列复用才建立或更新风格档案",
   "“太丑”本身不等于整体改版",
 ]) {
   if (!skillText.includes(token)) {
     fail(`SKILL.md 缺少视觉参考边界或完整画布确认：${token}`);
   }
 }
+const socialCardReferenceText = fs.readFileSync(
+  ensurePath("references/social-card-production.md"),
+  "utf8",
+);
+const webVisualReferenceText = fs.readFileSync(
+  ensurePath("references/web-visual-production.md"),
+  "utf8",
+);
+const mediaProductionRuntimeText = fs.readFileSync(
+  ensurePath("references/media-production-runtime.md"),
+  "utf8",
+);
+const reviewAndExportText = fs.readFileSync(
+  ensurePath("references/review-and-export.md"),
+  "utf8",
+);
 for (const token of [
-  "独立的作图前确认",
-  "确认前不得创建网页",
-  "只有用户明确要求“跳过确认，直接作图”",
-  "最终上图文字",
-  "画布宽高由筛选后的内容",
-  "固定画布只表示成品不会随窗口响应式重排",
+  "由 `references/social-card-production.md` 唯一负责",
+  "普通静态卡由轻量自包含 HTML 完成",
+  "先交给 `clean-copy`",
+  "不再增加第二次完整画布确认",
+  "不检查 MediaFlow Pro",
 ]) {
   if (!skillText.includes(token)) {
-    fail(`SKILL.md 缺少静态作图前确认、内容筛选或内容决定尺寸合同：${token}`);
+    fail(`SKILL.md 缺少静态卡轻量入口或唯一职责：${token}`);
+  }
+}
+for (const token of [
+  "提交作图前确认并停止",
+  "确认前不得创建 HTML/CSS",
+  "由当前内容量",
+  "真实展示宽度",
+  "16px 为正文舒适目标",
+  "普通静态卡不再增加第二次完整画布确认",
+]) {
+  if (!socialCardReferenceText.includes(token)) {
+    fail(`静态卡说明缺少前置确认、内容决定尺寸或实际显示字号：${token}`);
+  }
+}
+for (const token of [
+  "默认建立一个自包含 `index.html`",
+  "普通路径不复制 starter",
+  "不建立 `editable-media.json`",
+  "出现以下任一真实需求时才进入结构化网页",
+  "用户明确要求 React 或现有真源为 React",
+]) {
+  if (!webVisualReferenceText.includes(token)) {
+    fail(`网页视觉说明没有分开轻量静态 HTML 与结构化 v6：${token}`);
+  }
+}
+for (const token of [
+  "普通静态卡写入自包含 HTML",
+  "普通静态 HTML 不运行该检查",
+]) {
+  if (!mediaProductionRuntimeText.includes(token)) {
+    fail(`媒体运行时仍可能把普通静态卡升级成重型路径：${token}`);
+  }
+}
+for (const token of [
+  "普通静态卡由真实浏览器从当前 HTML 画布导出",
+  "普通静态卡不运行该校验器",
+]) {
+  if (!reviewAndExportText.includes(token)) {
+    fail(`导出说明缺少普通静态卡的轻量真实链路：${token}`);
+  }
+}
+for (const retired of [
+  "代码生成视觉优先复制 `assets/web-media-starter/`",
+  "代码生成视觉共同读取表中的载体、视觉配方、配色卡、字体制作和网页制作说明",
+]) {
+  if (
+    skillText.includes(retired)
+    || mediaProductionRuntimeText.includes(retired)
+    || webVisualReferenceText.includes(retired)
+  ) {
+    fail(`普通静态卡重型旧入口仍然存在：${retired}`);
   }
 }
 
@@ -887,11 +879,15 @@ const requiredVisualRoutingScenarios = new Map([
   ["content-removal-recomposes-canvas", "recompose"],
   ["tiny-type-uses-display-size", "typography-first-recompose"],
   ["explicit-pre-drawing-confirmation-blocks-production", "pre-drawing-confirmation"],
-  ["content-curation-precedes-dimensions", "curate-confirm-size"],
+  ["content-curation-precedes-dimensions", "clean-copy-then-confirm-size"],
+  ["ordinary-static-card-uses-lightweight-html", "lightweight-static-html"],
+  ["data-does-not-force-graphics-or-swiss-style", "content-led-representation-choice"],
+  ["explicit-graphic-reference-is-not-ignored", "adopt-requested-representation-mechanism"],
+  ["structured-web-requirements-keep-v6", "structured-editable-media-v6"],
 ]);
 if (
   visualRoutingRegressions?.protocol !== "visual-multimedia-visual-resource-routing-regressions"
-  || visualRoutingRegressions?.version !== 4
+  || visualRoutingRegressions?.version !== 5
   || !Array.isArray(visualRoutingRegressions?.scenarios)
 ) {
   fail("视觉资源路由回归场景缺少活动协议或版本");
@@ -966,7 +962,7 @@ if (
     preDrawingConfirmation?.allowed_skip !== "explicit-skip-confirmation-only"
     || !preDrawingConfirmation?.required_output?.includes("exact-visible-copy")
     || !preDrawingConfirmation?.required_output?.includes("proposed-content-derived-dimensions")
-    || !preDrawingConfirmation?.required_output?.includes("typography-color-surface-direction")
+    || !preDrawingConfirmation?.required_output?.includes("typography-color-template-surface-direction")
     || !preDrawingConfirmation?.stop_before?.includes("html-css-generation")
     || !preDrawingConfirmation?.stop_before?.includes("image-generation")
     || !preDrawingConfirmation?.stop_before?.includes("template-instantiation")
@@ -978,19 +974,53 @@ if (
   }
   const contentCuration = scenarios.get("content-curation-precedes-dimensions");
   if (
-    contentCuration?.preprocess_skill !== "clean-copy"
-    || !contentCuration?.required_stops?.includes("clean-copy-review")
-    || !contentCuration?.required_stops?.includes("clean-copy-approval")
-    || !contentCuration?.required_stops?.includes("visual-pre-drawing-confirmation")
-    || !contentCuration?.required_actions?.includes("remove-ai-filler")
-    || !contentCuration?.required_actions?.includes("remove-audience-irrelevant-details")
-    || !contentCuration?.required_actions?.includes("remove-repeated-facts-and-numbers")
-    || !contentCuration?.required_actions?.includes("keep-each-fact-once")
+    !contentCuration?.required_actions?.includes("delegate-existing-draft-to-clean-copy")
+    || !contentCuration?.required_actions?.includes("receive-confirmed-visible-copy")
     || !contentCuration?.required_actions?.includes("derive-dimensions-after-curation")
     || !contentCuration?.forbidden_actions?.includes("include-all-source-material")
     || !contentCuration?.forbidden_actions?.includes("inherit-template-source-dimensions")
   ) {
-    fail("内容筛选—可读字号—内容决定尺寸回归没有阻止废话、重复信息和模板尺寸先行");
+    fail("clean-copy—可读字号—内容决定尺寸回归没有阻止未清理材料和模板尺寸先行");
+  }
+  const lightweightStatic = scenarios.get("ordinary-static-card-uses-lightweight-html");
+  if (
+    !lightweightStatic?.required_output?.includes("single-self-contained-html")
+    || !lightweightStatic?.required_output?.includes("minimum-display-width-preview")
+    || !lightweightStatic?.forbidden_outputs?.includes("editable-media-json")
+    || !lightweightStatic?.forbidden_outputs?.includes("web-media-starter-copy")
+    || !lightweightStatic?.forbidden_outputs?.includes("provider-inspection")
+    || !lightweightStatic?.forbidden_outputs?.includes("second-full-canvas-confirmation")
+  ) {
+    fail("普通静态卡回归没有固定为单 HTML、真实展示预览和无 v6 重型产物");
+  }
+  const representationChoice = scenarios.get("data-does-not-force-graphics-or-swiss-style");
+  if (
+    !representationChoice?.required_decisions?.includes("primary-reading-task")
+    || !representationChoice?.required_decisions?.includes("text-table-graphic-image-or-mixed")
+    || !representationChoice?.allowed_result?.includes("clear-table")
+    || !representationChoice?.forbidden_actions?.includes("force-graphics-because-data-exists")
+    || !representationChoice?.forbidden_actions?.includes("select-swiss-from-technical-data-or-comparison-topic")
+  ) {
+    fail("表达形式回归没有保留清楚表格或文字，也没有阻止数据强制图形化和题材自动瑞士化");
+  }
+  const explicitGraphicReference = scenarios.get("explicit-graphic-reference-is-not-ignored");
+  if (
+    !explicitGraphicReference?.required_actions?.includes("use-requested-bar-comparison")
+    || !explicitGraphicReference?.required_actions?.includes("preserve-exact-values")
+    || !explicitGraphicReference?.required_actions?.includes("select-surface-style-separately")
+    || !explicitGraphicReference?.forbidden_actions?.includes("reduce-to-text-only-table")
+    || !explicitGraphicReference?.forbidden_actions?.includes("copy-unrequested-reference-palette")
+  ) {
+    fail("明确图形参考回归没有保留横条比较和精确值，或仍可能无视参考、照搬未要求的配色");
+  }
+  const structuredWeb = scenarios.get("structured-web-requirements-keep-v6");
+  if (
+    !structuredWeb?.required_output?.includes("editable-media-json")
+    || !structuredWeb?.required_output?.includes("deterministic-runtime")
+    || !structuredWeb?.required_output?.includes("structured-editor-contract")
+    || !structuredWeb?.forbidden_actions?.includes("downgrade-to-lightweight-static-html")
+  ) {
+    fail("结构化网页回归没有保留 editable-media v6、确定性运行时和编辑器合同");
   }
 }
 
@@ -1524,14 +1554,6 @@ if (failures.length === 0) {
     process.execPath,
     [layoutTemplateScript, "list"],
     "案例独立的中性布局模板目录与公开实例化入口检查",
-  );
-}
-
-if (runBrowserChecks && failures.length === 0) {
-  runChecked(
-    process.execPath,
-    [path.join(scriptDir, "self-test-lightweight-visual-card.mjs")],
-    "普通静态卡单文件 HTML 与 360px 可读性真实浏览器检查",
   );
 }
 

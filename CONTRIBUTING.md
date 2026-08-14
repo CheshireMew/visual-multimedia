@@ -4,7 +4,7 @@
 
 ## 开始前
 
-1. 先阅读本次修改对应的 [skills](skills) 入口和与改动直接相关的 reference，不要一次加载无关方法；组合路由改动读取 [visual-multimedia](skills/visual-multimedia/SKILL.md)。
+1. 先阅读 [SKILL.md](SKILL.md) 和与改动直接相关的 reference，不要一次加载无关方法。
 2. 查看 [AGENTS.md](AGENTS.md) 的仓库级边界与验证分级。
 3. 从当前 `main` 建立分支，并确认工作树中哪些改动属于本次提交。
 4. 涉及第三方代码、字体、图片、音频、视频或生成素材时，先确认许可证、来源和允许分发的范围。

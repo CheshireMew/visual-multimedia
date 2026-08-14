@@ -1,4 +1,0 @@
-interface:
-  display_name: "Web Motion"
-  short_description: "制作网页动画、动态图解、GIF 与解释型 B-roll"
-  default_prompt: "使用 $web-motion 把已确认内容制作成可编辑网页动画，并从同一时间线检查关键状态和导出结果。"
