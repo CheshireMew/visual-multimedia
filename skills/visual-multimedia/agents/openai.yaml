@@ -1,0 +1,5 @@
+# Visual Multimedia suite orchestrator
+interface:
+  display_name: "Visual Multimedia"
+  short_description: "为静态卡、网页动画、视频、音频和二次元角色选择最少协作路线"
+  default_prompt: "使用 $visual-multimedia 为这个组合媒体任务选择最少的子 Skill，并只在真实文件和时间边界处协作。"

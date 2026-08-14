@@ -1,6 +1,6 @@
 {
   "protocol": "visual-multimedia-visual-resource-routing-regressions",
-  "version": 3,
+  "version": 4,
   "diagnostic_evidence": [
     {
       "id": "mistaken-case-selection-20260809",
@@ -197,6 +197,12 @@
       "input": "先把废话和对用户没用的信息去掉，图片尺寸跟着真实信息量走",
       "existing_state": "long-confirmed-research-material",
       "expected_mode": "curate-confirm-size",
+      "preprocess_skill": "clean-copy",
+      "required_stops": [
+        "clean-copy-review",
+        "clean-copy-approval",
+        "visual-pre-drawing-confirmation"
+      ],
       "preserve": [
         "core-conclusion",
         "necessary-support",

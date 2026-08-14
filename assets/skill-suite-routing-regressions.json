@@ -1,0 +1,83 @@
+{
+  "protocol": "visual-multimedia-skill-suite-routing-regressions",
+  "version": 1,
+  "available_skills": [
+    "clean-copy",
+    "visual-cards",
+    "web-motion",
+    "video-production",
+    "audio-production",
+    "avatar-video"
+  ],
+  "cases": [
+    {
+      "id": "confirmed-static-card-is-lightweight",
+      "request": "把已经确认的文案做成一张静态社交卡",
+      "copy_status": "confirmed-visible-copy",
+      "selected_skills": ["visual-cards"],
+      "production_mode": "single-self-contained-html",
+      "required_stops": ["visual-pre-drawing-confirmation"],
+      "forbidden_skills": ["clean-copy", "web-motion", "video-production", "audio-production", "avatar-video"],
+      "forbidden_outputs": ["editable-media.json", "media-timeline", "project.mfp"]
+    },
+    {
+      "id": "draft-static-card-is-cleaned-first",
+      "request": "把这份还没确认的上图草稿做成社交卡",
+      "copy_status": "draft-visible-copy",
+      "selected_skills": ["clean-copy", "visual-cards"],
+      "production_mode": "single-self-contained-html",
+      "required_stops": ["clean-copy-review", "clean-copy-approval", "visual-pre-drawing-confirmation"],
+      "forbidden_skills": ["web-motion", "video-production", "audio-production", "avatar-video"],
+      "forbidden_outputs": ["editable-media.json", "media-timeline", "project.mfp"]
+    },
+    {
+      "id": "existing-card-visual-only-change-skips-copy-review",
+      "request": "文案不变，在当前网页基础上改配色和字号",
+      "copy_status": "confirmed-visible-copy-unchanged",
+      "selected_skills": ["visual-cards"],
+      "production_mode": "revise-existing-source",
+      "required_actions": ["inspect-current-preview", "preserve-current-source", "recalculate-full-canvas"],
+      "forbidden_skills": ["clean-copy", "web-motion", "video-production", "audio-production", "avatar-video"]
+    },
+    {
+      "id": "standalone-web-animation",
+      "request": "把确认讲解稿做成可定位时间的网页动画和 GIF",
+      "copy_status": "confirmed-visible-copy",
+      "selected_skills": ["web-motion"],
+      "production_mode": "editable-media-v6",
+      "forbidden_skills": ["clean-copy", "visual-cards", "video-production", "audio-production", "avatar-video"]
+    },
+    {
+      "id": "web-animation-in-existing-footage-video",
+      "request": "制作一段动态图解并插入已有访谈视频",
+      "copy_status": "confirmed-visible-copy",
+      "selected_skills": ["web-motion", "video-production"],
+      "handoff": ["rendered-web-clip", "timeline-boundaries", "source-hash"],
+      "forbidden_skills": ["clean-copy", "visual-cards", "audio-production", "avatar-video"]
+    },
+    {
+      "id": "avatar-with-existing-speech-and-program-video",
+      "request": "用现成语音做角色口型并装进完整节目",
+      "copy_status": "confirmed-visible-copy",
+      "selected_skills": ["avatar-video", "video-production"],
+      "handoff": ["avatar-track-or-transparent-inset", "timeline-boundaries", "source-hash"],
+      "forbidden_skills": ["clean-copy", "visual-cards", "web-motion", "audio-production"]
+    },
+    {
+      "id": "avatar-with-new-speech-and-program-video",
+      "request": "为确认文案合成语音、做角色口型并装进完整节目",
+      "copy_status": "confirmed-visible-copy",
+      "selected_skills": ["audio-production", "avatar-video", "video-production"],
+      "handoff": ["speech-audio", "speech-timing", "avatar-track-or-transparent-inset", "source-hash"],
+      "forbidden_skills": ["clean-copy", "visual-cards", "web-motion"]
+    },
+    {
+      "id": "video-and-independent-cover",
+      "request": "剪一条视频，并另外做一张独立封面",
+      "copy_status": "confirmed-visible-copy",
+      "selected_skills": ["video-production", "visual-cards"],
+      "handoff": ["confirmed-copy-version", "visual-identity-reference"],
+      "forbidden_skills": ["clean-copy", "web-motion", "audio-production", "avatar-video"]
+    }
+  ]
+}

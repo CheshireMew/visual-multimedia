@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <strong>中文</strong> · <a href="./README.en.md">English</a> · <a href="./README.ja.md">日本語</a> | <a href="./SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
+  <strong>中文</strong> · <a href="./README.en.md">English</a> · <a href="./README.ja.md">日本語</a> | <a href="./skills/visual-multimedia/SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
 </p>
 
 <p align="center">
@@ -29,7 +29,9 @@
 
 <!-- readme-header:end -->
 
-Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静态卡片、代码动画、视频、音频还是播客，再完成对应的标题、口播、字幕、节目结构和媒体配套文字；进入制作后，它会保留唯一的活动真源，并沿真实的预览、渲染或导出链检查最终结果。
+Visual Multimedia 现在是一套按真实制作职责拆开的媒体 Skill。静态卡、网页动画、视频、音频和二次元角色都有可以直接调用的入口；根 `$visual-multimedia` 只在需要选择载体或组合两种以上能力时负责选路和交接，不再把所有流程塞进每一次任务。
+
+观众可见文案已经确认时直接制作；还是初稿或候选稿时，先由 `$clean-copy` 检查主次、重复、指代和 AI 式空话，确认修改后再进入视觉或媒体制作。
 
 ![Visual Multimedia 把抽象机制制作成可读图解的真实案例](assets/web-card-cases/editorial-technology-diagram-cover/preview.png)
 
@@ -39,23 +41,29 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 
 ## 快速开始
 
-在支持 Agent Skill 的 Agent 中加载本仓库后，直接点名 `$visual-multimedia`，并提供已经确认的内容或素材、受众和希望得到的结果。例如：
+安装整套 Skill 后会同时看到编排入口和五个制作 Skill：
+
+```powershell
+npx skills add CheshireMew/visual-multimedia --all
+```
+
+单项任务直接点名对应 Skill；只有组合任务才使用 `$visual-multimedia`。例如：
 
 ```text
-使用 $visual-multimedia，把这篇已经定稿的文章做成三张 3:4 社交卡。
-先完成卡片文案和一个构图样稿，确认后再导出 PNG。
+使用 $visual-cards，把这篇已经定稿的文章做成三张 3:4 社交卡。
+先提交最终上图文字、画布尺寸和视觉方向，确认后再制作并导出 PNG。
 ```
 
 ```text
-使用 $visual-multimedia，把这段访谈和现有字幕剪成 90 秒视频。
+使用 $video-production，把这段访谈和现有字幕剪成 90 秒视频。
 保留受访者原声，先给我片段选择和旁白方案。
 ```
 
 ```text
-使用 $visual-multimedia，把这份确认过的讲解稿做成可手动推进、也能连续导出的多场景 HTML 动画。
+使用 $web-motion，把这份确认过的讲解稿做成可手动推进、也能连续导出的多场景 HTML 动画。
 ```
 
-如果只点名 Skill 并提供内容，却没有说明要样稿还是成品，默认流程会推荐一个首选载体、完成可确认的媒体文案，然后停下来等待决定。明确要求样稿或完整制作时，流程才会继续创建网页、处理素材或导出文件。
+如果还不确定应该做成卡片、动画、视频还是音频，使用 `$visual-multimedia` 选择最少路线；选定后只读取对应子 Skill。静态卡在正式作图前必须先确认上图文字、层级、尺寸和视觉方向，除非用户明确要求跳过视觉确认。
 
 为了减少来回确认，首次请求最好同时说明：
 
@@ -82,7 +90,7 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 | GitHub 项目介绍视频 | 已确认的仓库事实、一个核心主张，以及 UI、终端、文档或实际输出证据 | 默认采用银狼 1.25 倍速和中英文字幕的约一分钟横版视频，以及可追溯的构建、审阅与交付报告 |
 | 媒体文案与口播参考库 | 已确认主张、作者声音，或明确的参考库维护请求 | 可直接制作的活动文案，或 Skill 外部的可定位参考库 |
 
-具体任务只加载需要的制作方法。入口、适用条件和停止位置以 [SKILL.md](SKILL.md) 为准。
+具体任务只加载需要的制作方法。入口、适用条件和停止位置以 [skills](skills) 中对应的 `SKILL.md` 为准。
 
 ### 真实输出示例
 
@@ -155,12 +163,13 @@ Skill 先确定活动真源，再检查当前机器真正可用的能力。执�
 
 | 路径 | 职责 |
 | --- | --- |
-| [SKILL.md](SKILL.md) | Skill 的适用边界、默认流程、任务路由和交付标准 |
+| [skills/visual-multimedia/SKILL.md](skills/visual-multimedia/SKILL.md) | 组合任务的轻量选路、内容前置和产物交接 |
+| [skills](skills) | 静态卡、网页动画、视频、音频和二次元角色五个直接入口 |
 | [references](references) | 按具体媒体任务加载的制作方法 |
 | [assets](assets) | 网页 starter、真实合同案例、制作配方和可复用资源 |
 | [schemas](schemas) | 媒体项目、素材、审阅、角色和网页包的结构合同 |
 | [scripts](scripts) | 导入、校验、规划、渲染、审阅与交付工具 |
-| [agents/](agents/) | 可选的 Agent 宿主适配元数据 |
+| `skills/<name>/agents/openai.yaml` | 每个 Skill 自己的 Agent 宿主适配元数据 |
 | [.project-steward/project.json](.project-steward/project.json) | 本仓库采用的项目治理基线与版本 |
 
 `archive/` 只保存已退出路线和迁移证据，不是正常任务入口。活动流程不得从归档中恢复旧协议或旧 helper。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual Cards"
+  short_description: "制作清楚可读、由真实信息量决定尺寸的静态卡片、封面和信息图"
+  default_prompt: "使用 $visual-cards 把已确认文案制作成静态卡片；先提交作图前确认，确认后再制作并检查真实展示尺寸。"

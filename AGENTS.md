@@ -6,6 +6,14 @@
 
 维护本仓库本身不等于启用 `visual-multimedia` Skill。除非用户明确要求使用 Skill，否则按普通仓库维护任务处理。
 
+## Skill 套件边界
+
+`skills/visual-multimedia/SKILL.md` 只负责组合任务选路和产物交接；单项任务直接进入 `skills/visual-cards/`、`skills/web-motion/`、`skills/video-production/`、`skills/audio-production/` 或 `skills/avatar-video/`。不得把各子 Skill 的完整流程重新堆回编排入口，也不得让编排入口为每次任务同时加载所有子 Skill。
+
+`references/`、`assets/`、`schemas/` 和 `scripts/` 是套件唯一的共享程序层。子 Skill 只引用所需资源，不复制 schema、运行时、案例或生产脚本。普通单张静态卡默认是一份轻量自包含 HTML；只有多场景、多比例批量、结构化图层、画布外编辑或后续动画等明确需求才进入 `editable-media` v6。
+
+未确认的观众可见草稿先交给外部 `$clean-copy`，视觉套件不维护第二套 AI 废话筛选器；已经明确确认的文案不重新清理。
+
 ## 共享边界与唯一真源
 
 - `schemas/editable-media.v6.schema.json` 是 `editable-media` v6 清单结构的唯一真源。

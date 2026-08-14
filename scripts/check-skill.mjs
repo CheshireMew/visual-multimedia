@@ -315,11 +315,83 @@ function runChecked(command, args, label, cwd = skillRoot) {
   return result;
 }
 
-const skillPath = ensurePath("SKILL.md");
-const skillText = fs.readFileSync(skillPath, "utf8");
+const skillPath = ensurePath("skills/visual-multimedia/SKILL.md");
+const rootSkillText = fs.readFileSync(skillPath, "utf8");
+const childSkillNames = [
+  "visual-cards",
+  "web-motion",
+  "video-production",
+  "audio-production",
+  "avatar-video",
+];
+const childSkillPaths = childSkillNames.map((name) =>
+  ensurePath(`skills/${name}/SKILL.md`, `子 Skill ${name}`)
+);
+const childSkillTexts = new Map(
+  childSkillPaths.map((filePath, index) => [
+    childSkillNames[index],
+    fs.readFileSync(filePath, "utf8"),
+  ]),
+);
+const skillText = [rootSkillText, ...childSkillTexts.values()].join("\n");
 const readmePath = ensurePath("README.md");
 const readmeText = fs.readFileSync(readmePath, "utf8");
 const agentsText = fs.readFileSync(ensurePath("AGENTS.md"), "utf8");
+ensurePath("assets/skill-suite-routing-regressions.json");
+ensurePath("scripts/self-test-skill-suite-routing.mjs");
+ensurePath("scripts/self-test-lightweight-visual-card.mjs");
+
+if (rootSkillText.split(/\r?\n/u).length > 220 || rootSkillText.length > 14000) {
+  fail("根 SKILL.md 必须保持在 220 行且 14000 字符以内");
+}
+for (const [name, text] of childSkillTexts) {
+  if (text.includes("[待填写")) fail(`子 Skill ${name} 仍有待填写占位`);
+  if (text.split(/\r?\n/u).length > 220 || text.length > 14000) {
+    fail(`子 Skill ${name} 超过 220 行或 14000 字符`);
+  }
+  ensurePath(`skills/${name}/agents/openai.yaml`, `子 Skill ${name} UI 元数据`);
+}
+for (const token of [
+  "$visual-cards",
+  "$web-motion",
+  "$video-production",
+  "$audio-production",
+  "$avatar-video",
+  "$clean-copy",
+  "不要为了“完整”同时读取全部子 Skill",
+]) {
+  if (!rootSkillText.includes(token)) fail(`根编排入口缺少：${token}`);
+}
+for (const forbidden of [
+  "references/social-card-production.md",
+  "references/web-visual-production.md",
+  "references/video-post-production.md",
+  "references/speech-synthesis.md",
+  "references/anime-avatar-production.md",
+]) {
+  if (rootSkillText.includes(forbidden)) {
+    fail(`根编排入口不应直接加载具体生产资源：${forbidden}`);
+  }
+}
+if (/write-this/iu.test([rootSkillText, ...childSkillTexts.values(), readmeText, agentsText].join("\n"))) {
+  fail("视觉媒体套件活动入口仍错误包含 write-this");
+}
+const visualCardsText = childSkillTexts.get("visual-cards") || "";
+for (const token of [
+  "普通单卡默认交付一份轻量、自包含、固定画布的 HTML",
+  "不要创建 `editable-media.json`",
+  "由内容量推导",
+  "$clean-copy",
+]) {
+  if (!visualCardsText.includes(token)) fail(`visual-cards 轻量路径缺少：${token}`);
+}
+if (failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-skill-suite-routing.mjs")],
+    "Skill 套件单项直达、clean-copy 前置与组合交接回归",
+  );
+}
 
 for (const [label, text, markers] of [
   [
@@ -340,6 +412,7 @@ for (const [label, text, markers] of [
 
 for (const filePath of [
   skillPath,
+  ...childSkillPaths,
   readmePath,
   ...fs.readdirSync(path.join(skillRoot, "references"), {withFileTypes: true})
     .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
@@ -358,8 +431,9 @@ for (const filePath of [
     }
   }
 }
-for (const match of skillText.matchAll(/`((?:references|assets|scripts)\/[^`]+)`/g)) {
-  ensurePath(match[1], `SKILL.md 引用 ${match[1]}`);
+for (const match of skillText.matchAll(/`((?:\.\.\/\.\.\/)?(?:references|assets|scripts)\/[^`]+)`/g)) {
+  const suiteRelative = match[1].replace(/^\.\.\/\.\.\//u, "");
+  ensurePath(suiteRelative, `SKILL.md 引用 ${match[1]}`);
 }
 
 const starterManifest = ensurePath("assets/web-media-starter/editable-media.json");
@@ -817,7 +891,7 @@ const requiredVisualRoutingScenarios = new Map([
 ]);
 if (
   visualRoutingRegressions?.protocol !== "visual-multimedia-visual-resource-routing-regressions"
-  || visualRoutingRegressions?.version !== 3
+  || visualRoutingRegressions?.version !== 4
   || !Array.isArray(visualRoutingRegressions?.scenarios)
 ) {
   fail("视觉资源路由回归场景缺少活动协议或版本");
@@ -904,7 +978,11 @@ if (
   }
   const contentCuration = scenarios.get("content-curation-precedes-dimensions");
   if (
-    !contentCuration?.required_actions?.includes("remove-ai-filler")
+    contentCuration?.preprocess_skill !== "clean-copy"
+    || !contentCuration?.required_stops?.includes("clean-copy-review")
+    || !contentCuration?.required_stops?.includes("clean-copy-approval")
+    || !contentCuration?.required_stops?.includes("visual-pre-drawing-confirmation")
+    || !contentCuration?.required_actions?.includes("remove-ai-filler")
     || !contentCuration?.required_actions?.includes("remove-audience-irrelevant-details")
     || !contentCuration?.required_actions?.includes("remove-repeated-facts-and-numbers")
     || !contentCuration?.required_actions?.includes("keep-each-fact-once")
@@ -1446,6 +1524,14 @@ if (failures.length === 0) {
     process.execPath,
     [layoutTemplateScript, "list"],
     "案例独立的中性布局模板目录与公开实例化入口检查",
+  );
+}
+
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-lightweight-visual-card.mjs")],
+    "普通静态卡单文件 HTML 与 360px 可读性真实浏览器检查",
   );
 }
 

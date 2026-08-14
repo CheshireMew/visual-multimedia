@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avatar Video"
+  short_description: "建立并使用二次元口播角色，校准口型、方向、状态和视频装配"
+  default_prompt: "使用 $avatar-video 建立或采用二次元口播角色，把确认声音、口型和视频装配成可检查的成品。"

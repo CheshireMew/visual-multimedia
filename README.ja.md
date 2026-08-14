@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="./README.md">中文</a> · <a href="./README.en.md">English</a> · <strong>日本語</strong> | <a href="./SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
+  <a href="./README.md">中文</a> · <a href="./README.en.md">English</a> · <strong>日本語</strong> | <a href="./skills/visual-multimedia/SKILL.md">文档</a> | <a href="./CONTRIBUTING.md">贡献</a> | <a href="https://github.com/CheshireMew/visual-multimedia/issues">反馈</a>
 </p>
 
 <p align="center">
@@ -29,7 +29,9 @@
 
 <!-- readme-header:end -->
 
-Visual Multimedia はメディア制作の Agent Skill です。ソーシャルカード、図解、Web アニメーション、動画、音声番組、ポッドキャストのどれが適切かを先に判断し、その媒体に必要なタイトル、ナレーション、字幕、番組構成、付随テキストまで扱います。プレビュー、レンダリング、レビュー、納品の全工程では、編集可能な真源を一つだけ維持します。
+Visual Multimedia は、静止カード、Web モーション、動画、音声、アニメ調プレゼンターを別々の入口で扱うメディア制作 Skill スイートです。ルートの `$visual-multimedia` は、媒体選択または複合タスクで必要最小限の子 Skill を選び、実ファイルを受け渡すときだけ使います。
+
+観客に見せる文案が確定済みならそのまま制作へ進みます。初稿や候補稿なら、先に `$clean-copy` で主従、重複、曖昧な指示語、AI 的な空文を確認し、修正が承認されてから制作へ渡します。
 
 ![抽象的な仕組みを読みやすい図解へ変換した Visual Multimedia の実例](assets/web-card-cases/editorial-technology-diagram-cover/preview.png)
 
@@ -39,24 +41,30 @@ Visual Multimedia はメディア制作の Agent Skill です。ソーシャル�
 
 ## クイックスタート
 
-Agent Skill に対応した Agent でこのリポジトリを読み込み、`$visual-multimedia` を指定して、確認済みの内容または素材、対象読者、必要な成果物を伝えます。
+スイートをインストールすると、編成用入口と 5 つの制作 Skill が同時に利用できます。
+
+```powershell
+npx skills add CheshireMew/visual-multimedia --all
+```
+
+単一成果物は対応する子 Skill を直接使い、複合タスクだけ `$visual-multimedia` を使います。
 
 ```text
-$visual-multimedia を使って、承認済みの記事を 3:4 のソーシャルカード 3 枚にしてください。
-先にカード文案と構図サンプルを 1 枚作り、確認後に PNG を書き出してください。
+$visual-cards を使って、承認済みの記事を 3:4 のソーシャルカード 3 枚にしてください。
+制作前に、表示文案、キャンバス寸法、ビジュアル方針を確認してください。
 ```
 
 ```text
-$visual-multimedia を使って、このインタビューと確認済み字幕を 90 秒の動画にしてください。
+$video-production を使って、このインタビューと確認済み字幕を 90 秒の動画にしてください。
 出演者の原音を残し、先に使用区間とナレーション案を提示してください。
 ```
 
 ```text
-$visual-multimedia を使って、完成済みの説明原稿を、手動送りと連続書き出しの両方に対応する
+$web-motion を使って、完成済みの説明原稿を、手動送りと連続書き出しの両方に対応する
 複数シーンの HTML アニメーションにしてください。
 ```
 
-Skill だけが指定され、サンプルか完成品かが明示されていない場合は、最適な媒体を一つ提案し、確認可能なメディア文案を作ったところで判断を待ちます。ファイル作成、外部サービス、最終書き出しは、依頼範囲で許可された場合にのみ実行します。
+媒体が未定なら `$visual-multimedia` が一つの経路を選び、対応する子 Skill だけを読み込みます。静止画は、ユーザーが明示的に省略しない限り、正式制作前に表示文案、階層、内容から導いた寸法、ビジュアル方針を一度確認します。
 
 確認回数を減らすには、内容真源、読者に理解してほしいこと、寸法・長さ・形式、使用可能な素材、外部ツール・ダウンロード・有料生成の可否を最初に伝えてください。
 
@@ -77,7 +85,7 @@ Skill だけが指定され、サンプルか完成品かが明示されてい�
 | GitHub プロジェクト紹介動画 | 確認済みのリポジトリ事実、一つの中心主張、UI・端末・文書・実出力のいずれかの証拠 | 銀狼音声 1.25 倍速と中国語・英語字幕を標準とする約 1 分の横動画、および追跡可能なビルド・レビュー・納品レポート |
 | メディア文案と話し方の参照庫 | 確認済みの主張と書き手の声、または明示的な参照庫保守依頼 | そのまま制作に使える活動文案、または Skill 外部の追跡可能な参照庫 |
 
-タスクの振り分け、必要な reference、停止条件は [SKILL.md](SKILL.md) を参照してください。
+タスクの振り分け、必要な reference、停止条件は [skills](skills) 内の対応する入口を参照してください。
 
 ## 実際の出力例
 
@@ -138,12 +146,12 @@ Skill は先に活動中の真源を確定し、その後で現在のマシン�
 
 | パス | 責務 |
 | --- | --- |
-| [SKILL.md](SKILL.md) | 適用範囲、標準フロー、タスク振り分け、納品基準 |
+| [skills/visual-multimedia/SKILL.md](skills/visual-multimedia/SKILL.md) | 複合タスクの軽量ルーティング、内容確認、成果物の受け渡し |
 | [references](references) | 現在の媒体タスクに必要な場合だけ読む制作方法 |
 | [assets](assets) | Web starter、実際の契約ケース、制作 profile、再利用資源 |
 | [schemas](schemas) | 素材、タイムライン、レビュー、納品、キャラクター、編集 Web の契約 |
 | [scripts](scripts) | 取り込み、検証、計画、レンダリング、レビュー、納品ツール |
-| [agents/](agents/) | 任意の Agent ホスト向けアダプターメタデータ |
+| `skills/<name>/agents/openai.yaml` | Skill ごとの Agent ホスト用メタデータ |
 | [.project-steward/project.json](.project-steward/project.json) | リポジトリ運用管理の基準と版 |
 
 `archive/` は廃止済みルートと移行証拠だけを保存します。活動制作が古いプロトコルや helper をここから復元することはありません。
