@@ -1,0 +1,109 @@
+{
+  "protocol": "visual-multimedia-web-layout-template-catalog",
+  "version": 1,
+  "templates": [
+    {
+      "id": "title-two-supports-neutral",
+      "name": "标题与双支撑区",
+      "status": "active",
+      "source_package": "assets/web-media-starter",
+      "layout_ids": [
+        "title-two-panels"
+      ],
+      "page_roles": [
+        "opening",
+        "explanation"
+      ],
+      "content_shapes": [
+        "claim-with-two-supports",
+        "state-transition"
+      ],
+      "required_data_fields": [
+        "eyebrow",
+        "title",
+        "summary",
+        "left_label",
+        "left_value",
+        "right_label",
+        "right_value"
+      ],
+      "capacity": {
+        "maximum_primary_blocks": 2,
+        "title_roles": 1,
+        "supporting_regions": 2
+      },
+      "style_policy": {
+        "visual_source": false,
+        "default_surface": "neutral-placeholder",
+        "project_rule": "只有作图前确认通过后才能实例化；实例化只采用布局合同、稳定图层和编辑能力。已有 active style-profile 必须继续生效，没有既有风格时先形成并确认当前项目方向，不能把 starter 默认表面当成项目身份"
+      },
+      "size_policy": {
+        "source_dimensions": "placeholder",
+        "project_dimensions": "derive-from-confirmed-content"
+      },
+      "case_dependency": "none",
+      "instantiate": {
+        "script": "scripts/create-web-layout-template.mjs",
+        "command": "node scripts/create-web-layout-template.mjs create --template title-two-supports-neutral --output <新目录>"
+      }
+    },
+    {
+      "id": "portrait-four-sections-neutral",
+      "name": "竖版标题与四分区",
+      "status": "active",
+      "source_package": "assets/web-layout-template-packages/portrait-four-sections-neutral",
+      "layout_ids": [
+        "portrait-four-sections"
+      ],
+      "page_roles": [
+        "explanation",
+        "evidence",
+        "comparison",
+        "action"
+      ],
+      "content_shapes": [
+        "claim-with-four-sections",
+        "multi-section-explainer",
+        "decision-field-guide"
+      ],
+      "required_data_fields": [
+        "eyebrow",
+        "title",
+        "summary",
+        "section_1_kicker",
+        "section_1_title",
+        "section_1_body",
+        "section_2_kicker",
+        "section_2_title",
+        "section_2_body",
+        "section_3_kicker",
+        "section_3_title",
+        "section_3_body",
+        "section_4_kicker",
+        "section_4_title",
+        "section_4_body",
+        "footer"
+      ],
+      "capacity": {
+        "minimum_primary_blocks": 3,
+        "maximum_primary_blocks": 4,
+        "title_roles": 1,
+        "supporting_regions": 4
+      },
+      "style_policy": {
+        "visual_source": false,
+        "default_surface": "neutral-placeholder",
+        "project_rule": "只有作图前确认通过后才能实例化；实例化只采用竖向四分区结构、稳定图层、容量和可读性合同，不采用模板源宽高。当前项目仍须选择并确认自己的字体、颜色、材质和身份。主要阅读文字在 360px 展示宽度不得低于 14px，默认模板以约 14–16px 的实际显示字号验证。"
+      },
+      "size_policy": {
+        "source_dimensions": "placeholder",
+        "project_dimensions": "derive-from-confirmed-content"
+      },
+      "case_dependency": "none",
+      "instantiate": {
+        "script": "scripts/create-web-layout-template.mjs",
+        "command": "node scripts/create-web-layout-template.mjs create --template portrait-four-sections-neutral --output <新目录>"
+      }
+    }
+  ]
+}

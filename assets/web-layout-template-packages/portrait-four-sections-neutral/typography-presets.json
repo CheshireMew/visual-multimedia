@@ -1,0 +1,182 @@
+{
+  "protocol": "visual-multimedia-typography-presets",
+  "version": 2,
+  "profiles": [
+    {
+      "id": "modern-cn",
+      "name": "现代中文",
+      "description": "适合社交卡、技术说明、清单和界面信息",
+      "use_when": ["社交卡", "技术说明", "清单", "界面信息"],
+      "avoid_when": ["需要书写感", "需要传统隶意"],
+      "source": {
+        "kind": "system-local",
+        "license_note": "Noto 字体按 SIL Open Font License 1.1 使用；分发时随项目保留许可证。",
+        "source_url": "https://fonts.google.com/noto/specimen/Noto+Sans+SC"
+      },
+      "display": {
+        "family": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC"],
+        "weight": 800
+      },
+      "body": {
+        "family": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC"],
+        "weight": 550
+      }
+    },
+    {
+      "id": "editorial-cn",
+      "name": "编辑阅读",
+      "description": "适合评论、引用、文化与出版感内容",
+      "use_when": ["评论", "引用", "文化", "出版"],
+      "avoid_when": ["高密度界面", "儿童内容"],
+      "source": {
+        "kind": "system-local",
+        "license_note": "仅在当前机器已安装标题与正文字体时启用；对外分发前核对实际字体许可证。"
+      },
+      "display": {
+        "family": "\"Noto Serif SC\", \"Source Han Serif SC\", SimSun, serif",
+        "local_names": ["Noto Serif SC", "Source Han Serif SC"],
+        "weight": 700
+      },
+      "body": {
+        "family": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC"],
+        "weight": 550
+      }
+    },
+    {
+      "id": "windows-cn",
+      "name": "Windows 通用中文",
+      "description": "适合缺少 Noto 字体时的本机制作",
+      "use_when": ["Windows 本机制作", "通用无衬线"],
+      "avoid_when": ["需要跨机器携带字体", "需要鲜明展示气质"],
+      "source": {
+        "kind": "system-local",
+        "license_note": "Windows 系统字体只作为本机来源，不复制进可分发网页包。"
+      },
+      "display": {
+        "family": "\"Microsoft YaHei\", sans-serif",
+        "local_names": ["Microsoft YaHei"],
+        "weight": 700
+      },
+      "body": {
+        "family": "\"Microsoft YaHei\", sans-serif",
+        "local_names": ["Microsoft YaHei"],
+        "weight": 550
+      }
+    },
+    {
+      "id": "fz-shuti-display",
+      "name": "方正舒体",
+      "description": "舒展、有书写感的标题字，正文保持清楚的现代中文",
+      "use_when": ["轻松标题", "传统文化", "短句卡片", "手写气质"],
+      "avoid_when": ["长正文", "高密度数据", "严肃制度文本"],
+      "source": {
+        "kind": "system-local",
+        "license_note": "只检测当前机器安装状态，不随网页包分发；商用、发布或嵌入前按方正字库授权范围核对。",
+        "source_url": "https://www.foundertype.com/index.php/FontInfo/index/id/152.html"
+      },
+      "display": {
+        "family": "\"方正舒体\", \"FZShuTi\", cursive",
+        "local_names": ["方正舒体", "FZShuTi"],
+        "weight": 400
+      },
+      "body": {
+        "family": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC"],
+        "weight": 550
+      }
+    },
+    {
+      "id": "fz-yaoti-display",
+      "name": "方正姚体",
+      "description": "有装饰性而仍然端正的标题字，正文使用现代中文",
+      "use_when": ["文化标题", "节庆", "醒目标语", "短篇封面"],
+      "avoid_when": ["长正文", "小字号标签", "代码与数据"],
+      "source": {
+        "kind": "system-local",
+        "license_note": "只检测当前机器安装状态，不随网页包分发；商用、发布或嵌入前按方正字库授权范围核对。",
+        "source_url": "https://www.foundertype.com/index.php/FontInfo/index/id/170.html"
+      },
+      "display": {
+        "family": "\"方正姚体\", \"FZYaoTi\", serif",
+        "local_names": ["方正姚体", "FZYaoTi"],
+        "weight": 400
+      },
+      "body": {
+        "family": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC"],
+        "weight": 550
+      }
+    },
+    {
+      "id": "noto-sans-sc-black",
+      "name": "Noto Sans SC Black",
+      "description": "高字重、清楚直接的中文标题，适合需要强层级的现代视觉",
+      "use_when": ["强标题", "观点卡", "现代封面", "高对比信息"],
+      "avoid_when": ["柔和阅读", "古典书写感", "大段正文"],
+      "source": {
+        "kind": "system-local",
+        "license_note": "按 SIL Open Font License 1.1 使用；分发时随项目保留许可证。",
+        "source_url": "https://fonts.google.com/noto/specimen/Noto+Sans+SC"
+      },
+      "display": {
+        "family": "\"Noto Sans SC\", \"Noto Sans SC Black\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC", "Noto Sans SC Black"],
+        "weight": 900
+      },
+      "body": {
+        "family": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC"],
+        "weight": 550
+      }
+    },
+    {
+      "id": "fz-xiangli-display",
+      "name": "方正祥隶",
+      "description": "带隶意与装饰性的完整标题字体；只有本机存在完整字库时启用",
+      "use_when": ["传统标题", "民俗", "短句海报", "参考图需要隶意"],
+      "avoid_when": ["长正文", "高密度数据", "缺少完整字体文件"],
+      "unavailable_label": "未安装完整字体",
+      "source": {
+        "kind": "system-local",
+        "license_note": "只检测完整本机字体，不把少数字形子集冒充完整字库；商用、发布或嵌入前按方正字库授权范围核对。",
+        "source_url": "https://www.foundertype.com/index.php/FontInfo/index/id/163.html"
+      },
+      "display": {
+        "family": "\"方正祥隶简体\", \"方正祥隶\", \"FZXiangLiJW--GB1-0\", serif",
+        "local_names": ["方正祥隶简体", "方正祥隶", "FZXiangLiJW--GB1-0", "FZXIANGLJW--GB1-0"],
+        "weight": 400
+      },
+      "body": {
+        "family": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC"],
+        "weight": 550
+      }
+    },
+    {
+      "id": "zihun-4181-warm-child-shadow",
+      "name": "字魂4181温暖童稚影体",
+      "description": "童趣、圆润、带投影感的标题字体；只有精确字体存在时启用",
+      "use_when": ["儿童", "亲子", "轻松标题", "童趣卡片"],
+      "avoid_when": ["严肃报告", "长正文", "缺少精确字体文件"],
+      "unavailable_label": "未安装精确字体",
+      "source": {
+        "kind": "system-local",
+        "license_note": "登记用户指定的精确名称，不用相似字体或名称近似字体替代；采用前核对字魂授权与实际字体文件。",
+        "source_url": "https://izihun.com/"
+      },
+      "display": {
+        "family": "\"字魂4181温暖童稚影体\", \"字魂4181号-温暖童稚影体\", cursive",
+        "local_names": ["字魂4181温暖童稚影体", "字魂4181号-温暖童稚影体"],
+        "weight": 400
+      },
+      "body": {
+        "family": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+        "local_names": ["Noto Sans SC"],
+        "weight": 550
+      }
+    }
+  ]
+}

@@ -853,6 +853,7 @@ function structuralChecks(manifest, manifestPath) {
   }
 
   const quality = manifest.quality || {};
+  const staticCard = isStaticCardManifest(manifest);
   if (manifest.accessibility?.title_data_field
     && !(manifest.data_fields || []).some(
       (field) => field.id === manifest.accessibility.title_data_field
@@ -910,9 +911,101 @@ function structuralChecks(manifest, manifestPath) {
       }
     }
   }
-  if (!manifest.quality) warn("S7", "未声明 quality；只执行通用结构和浏览器检查");
+  if (staticCard) {
+    if (!quality.minimum_font_px
+      || Object.keys(quality.minimum_font_px).length === 0) {
+      fail("S7", "静态卡必须声明非空 quality.minimum_font_px");
+    }
+    if (!Array.isArray(quality.content_bounds_layer_ids)
+      || quality.content_bounds_layer_ids.length === 0) {
+      fail("S7", "静态卡必须声明非空 quality.content_bounds_layer_ids");
+    }
+    const minimumContentSpan = Number(quality.minimum_content_span);
+    if (!Number.isFinite(minimumContentSpan)
+      || minimumContentSpan <= 0
+      || minimumContentSpan > 1) {
+      fail("S7", "静态卡必须声明 0–1 之间的 quality.minimum_content_span");
+    }
+    const validateThumbnail = (label, thumbnail, checkedScenes) => {
+      if (!thumbnail
+        || !Number.isFinite(Number(thumbnail.width))
+        || Number(thumbnail.width) <= 0
+        || !Number.isFinite(Number(thumbnail.minimum_text_px))
+        || Number(thumbnail.minimum_text_px) <= 0
+        || !Array.isArray(thumbnail.text_layer_ids)
+        || thumbnail.text_layer_ids.length === 0) {
+        fail(
+          "S7",
+          `${label} 必须声明完整 thumbnail（width、minimum_text_px 和非空 text_layer_ids）`
+        );
+        return;
+      }
+      const thumbnailLayerIds = new Set(thumbnail.text_layer_ids);
+      for (const scene of checkedScenes) {
+        const contract = contractById.get(scene.layout_id);
+        if (!contract) continue;
+        const missingTitleIds = (contract.title_layer_ids || [])
+          .filter((id) => !thumbnailLayerIds.has(id));
+        if (missingTitleIds.length > 0) {
+          fail(
+            "S7",
+            `${label} 在场景 ${scene.id} 未覆盖标题图层：${missingTitleIds.join(" / ")}`
+          );
+        }
+        const contentLayerIds = contract.content_layer_ids || [];
+        const coveredContentCount = contentLayerIds
+          .filter((id) => thumbnailLayerIds.has(id)).length;
+        const requiredContentCount = Math.min(
+          Number(scene.primary_blocks || 1),
+          contentLayerIds.length
+        );
+        if (coveredContentCount < requiredContentCount) {
+          fail(
+            "S7",
+            `${label} 在场景 ${scene.id} 只覆盖 `
+              + `${coveredContentCount}/${requiredContentCount} 个主要内容区`
+          );
+        }
+      }
+    };
+    validateThumbnail("quality.thumbnail", quality.thumbnail, scenes);
+    for (const [variantId, rules] of Object.entries(quality.variant_overrides || {})) {
+      if (rules.thumbnail) {
+        validateThumbnail(
+          `quality.variant_overrides.${variantId}.thumbnail`,
+          rules.thumbnail,
+          scenes
+        );
+      }
+    }
+    for (const [sceneId, rules] of Object.entries(quality.scene_overrides || {})) {
+      if (!rules.thumbnail) continue;
+      const checkedScene = scenes.find((scene) => scene.id === sceneId);
+      if (checkedScene) {
+        validateThumbnail(
+          `quality.scene_overrides.${sceneId}.thumbnail`,
+          rules.thumbnail,
+          [checkedScene]
+        );
+      }
+    }
+  } else if (!manifest.quality) {
+    warn("S7", "未声明 quality；只执行通用结构和浏览器检查");
+  }
 
   return { failures, warnings, variants, scenes };
+}
+
+function isStaticCardManifest(manifest) {
+  const component = manifest.component || {};
+  const classification = [
+    component.category,
+    ...(Array.isArray(component.tags) ? component.tags : []),
+  ].join(" ").toLowerCase();
+  const scenes = Array.isArray(manifest.scenes) ? manifest.scenes : [];
+  return /(?:card|cover)/.test(classification)
+    && scenes.length > 0
+    && scenes.some((scene) => scene.motion?.complexity === "static");
 }
 
 function screenshotPathForTarget(basePath, variantId, sceneId, multiple) {
@@ -1631,6 +1724,22 @@ async function inspectTarget(
         && Number(style.opacity) > 0
         && rect.width > 0
         && rect.height > 0;
+      const textBearingNodes = [node, ...node.querySelectorAll("*")]
+        .filter((candidate) => Array.from(candidate.childNodes).some(
+          (child) => child.nodeType === Node.TEXT_NODE && child.textContent.trim()
+        ))
+        .filter((candidate) => {
+          const candidateStyle = getComputedStyle(candidate);
+          const candidateRect = candidate.getBoundingClientRect();
+          return candidateStyle.display !== "none"
+            && candidateStyle.visibility !== "hidden"
+            && Number(candidateStyle.opacity) > 0
+            && candidateRect.width > 0
+            && candidateRect.height > 0;
+        });
+      const visibleTextFontSizes = textBearingNodes
+        .map((candidate) => Number.parseFloat(getComputedStyle(candidate).fontSize) || 0)
+        .filter((fontSize) => fontSize > 0);
       layerResults.push({
         id: layer.id,
         kind: layer.kind,
@@ -1645,6 +1754,9 @@ async function inspectTarget(
           bottom: rect.bottom - canvasRect.top,
         },
         fontSize: Number.parseFloat(style.fontSize) || 0,
+        minimumVisibleTextFontSize: visibleTextFontSizes.length > 0
+          ? Math.min(...visibleTextFontSizes)
+          : 0,
         constrainedOverflow: {
           x: (computedWidth != null && computedWidth !== "auto")
             || ["hidden", "clip", "scroll", "auto"].includes(style.overflowX),
@@ -2164,11 +2276,13 @@ async function inspectTarget(
     const scale = thumbnailWidth / expectedWidth;
     for (const id of quality.thumbnail.text_layer_ids || []) {
       const layer = byId.get(id);
-      if (layer?.visible && layer.fontSize * scale < minimumDisplayFont) {
-        warn(
+      const representativeFontSize = layer?.minimumVisibleTextFontSize || layer?.fontSize || 0;
+      if (layer?.visible && representativeFontSize * scale < minimumDisplayFont) {
+        const reportIssue = isStaticCardManifest(manifest) ? fail : warn;
+        reportIssue(
           "Q7",
           `缩到 ${thumbnailWidth}px 宽时，${id} 约为 `
-          + `${(layer.fontSize * scale).toFixed(1)}px，小于 ${minimumDisplayFont}px`
+          + `${(representativeFontSize * scale).toFixed(1)}px，小于 ${minimumDisplayFont}px`
         );
       }
     }
@@ -2378,6 +2492,10 @@ async function main() {
     + report.targets.reduce((sum, target) => sum + target.warnings.length, 0);
   report.summary = {
     passed: failureCount === 0,
+    technical_passed: failureCount === 0,
+    content_review: "not_evaluated_by_validator",
+    visual_review: "requires_user_confirmation",
+    result_scope: "technical-contract-only",
     failures: failureCount,
     warnings: warningCount,
   };
@@ -2402,12 +2520,12 @@ async function main() {
     );
     target.failures.forEach((item) => console.log(`FAIL ${item.rule}  ${item.message}`));
     target.warnings.forEach((item) => console.log(`WARN ${item.rule}  ${item.message}`));
-    if (target.failures.length === 0) console.log("PASS 浏览器结构、播放与量化检查");
+    if (target.failures.length === 0) console.log("PASS 浏览器结构、播放与量化技术检查");
   }
   console.log(
     report.summary.passed
-      ? `通过：0 个失败，${warningCount} 个提醒`
-      : `未通过：${failureCount} 个失败，${warningCount} 个提醒`
+      ? `技术合同通过：0 个失败，${warningCount} 个提醒；内容与视觉结论需单独审查`
+      : `技术合同未通过：${failureCount} 个失败，${warningCount} 个提醒`
   );
   process.exitCode = report.summary.passed ? 0 : 1;
 }

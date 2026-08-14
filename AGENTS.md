@@ -9,7 +9,7 @@
 ## 共享边界与唯一真源
 
 - `schemas/editable-media.v6.schema.json` 是 `editable-media` v6 清单结构的唯一真源。
-- `assets/web-media-starter/` 和 `assets/web-card-cases/` 是生产者真实输出及跨仓库合同案例的唯一来源。消费端不得手写等价假数据代替这些输出。
+- `assets/web-media-starter/` 和 `assets/web-card-cases/` 是生产者真实输出及跨仓库合同案例的唯一来源。`assets/web-layout-templates/catalog.json` 是可实例化布局模板的唯一目录；模板只能引用生产者包，不能反向把案例变成默认模板或视觉源。消费端不得手写等价假数据代替这些输出。
 - `window.editableMedia` 是结构化编辑状态入口，`window.__hf.duration/seek(seconds)` 是确定性逐帧时间入口。运行时、校验器和消费者必须读取同一边界，不能增加第二套时钟或恢复逻辑。
 - `references/structured-media-editor-cli.md` 只记录 Skill 如何使用公开编辑器能力。MediaFlow Pro 的操作名称、参数和功能可用性以实际 `mediaflow-cli describe` 输出为真源，本仓库不得复制维护另一份 CLI 定义。
 - MediaFlow Pro 内嵌的 schema 和测试案例是本仓库真源的同步快照，只能通过 `scripts/sync_visual_multimedia_fixture.py` 从本仓库单向更新。
@@ -44,7 +44,7 @@
 
 先根据本次实际改动、失败代价和验收主张选择验证档位；默认从直接覆盖改动的最低完整档位开始，只有目标检查失败、影响范围扩大或下列条件成立时才升级，不把最重链路机械套给所有修改。
 
-- 只改 README、许可证、致谢、普通说明、Skill 路由文字或不改变运行输入输出的元数据时，运行 `node scripts/check-skill.mjs --fast`。核对相应文档、许可、资源索引和入口后停止，不启动无关浏览器或最终媒体生产。
+- 只改 README、许可证、致谢、普通说明、Skill 路由文字、案例证据目录、布局模板目录或不改变运行输入输出的元数据时，运行 `node scripts/check-skill.mjs --fast`。核对相应文档、许可、资源索引和入口后停止，不启动无关浏览器或最终媒体生产。新增或修改模板实例化入口时，另用真实命令写入一个全新目录并运行活动 editable-media 校验器。
 - 修改网页案例的视觉、交互、运行时、文字动效、产品宣传片网页采集、确定性时间或其它浏览器可观察结果，但没有改变共享合同和 MediaFlow Pro 消费边界时，运行 `node scripts/check-skill.mjs --browser`，并查看本次改动涉及的真实画面或关键状态。
 - 修改 schema、公共运行时、正式生产者、媒体项目或交付链、跨仓库共享边界，准备发布相关运行能力，或者目标测试暴露系统性影响时，运行 `node scripts/check-skill.mjs --full`；穿过 MediaFlow Pro 共享边界时继续执行下一节的跨仓库验证。
 - 修改 `scripts/check-skill.mjs` 的档位选择或调度逻辑时，分别运行 `--fast`、`--browser` 和 `--full`，证明低档位没有执行高档位链路，完整档位仍覆盖原有生产和消费结果。

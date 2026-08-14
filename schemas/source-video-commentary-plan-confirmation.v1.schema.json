@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.source-video-commentary-plan-confirmation.v1",
+  "title": "Source Video Commentary Plan Confirmation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "project_id", "profile", "plan", "plan_sha256", "confirmed_by", "confirmed_at", "evidence"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-source-video-commentary-plan-confirmation"},
+    "version": {"const": 1},
+    "project_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "profile": {"const": "source-video-commentary@1.0.0"},
+    "plan": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"},
+    "plan_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "confirmed_by": {"enum": ["user", "agent"]},
+    "confirmed_at": {"type": "string", "format": "date-time"},
+    "evidence": {"type": "string", "minLength": 1}
+  }
+}

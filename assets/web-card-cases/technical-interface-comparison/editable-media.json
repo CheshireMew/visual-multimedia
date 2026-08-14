@@ -548,10 +548,14 @@
     ],
     "minimum_content_span": 0.92,
     "thumbnail": {
-      "width": 480,
+      "width": 1280,
       "minimum_text_px": 8,
       "text_layer_ids": [
-        "title-primary"
+        "title-primary",
+        "mcp-panel",
+        "cli-panel",
+        "api-panel",
+        "core-rail"
       ]
     }
   },

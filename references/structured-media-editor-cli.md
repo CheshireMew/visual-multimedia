@@ -11,11 +11,13 @@
 ```powershell
 node scripts/local-media-environment.mjs inspect
 node scripts/local-media-environment.mjs mediaflow describe
+node scripts/local-media-environment.mjs mediaflow describe --operation <操作名>
+node scripts/local-media-environment.mjs mediaflow describe --catalog <字段目录名>
 ```
 
 `.env.visual-multimedia.local.json` v2 是当前机器的可选提供方与资源定位文件，实际值不随 Skill 发布；公开结构见 `assets/local-media-environment.example.json`。其中 `providers.mediaflow` 只定位 MediaFlow Pro Python、源码根目录和设置入口，`resources.voice_reference_roots` 单独定位全局声音。读取器只用这些值启动公开 CLI 并解析声音；XXL、GPT-SoVITS、模型和设备路径仍由 MediaFlow Pro 自己的设置管理，单个声音的音频、准确文本、哈希和审核状态仍由 `voice-reference.json` 管理。MediaFlow Pro 配置缺失或路径失效时只停止这个增强分支，本地基础制作仍可继续；不能回退到旧环境变量、PATH 中的同名 CLI 或硬编码安装位置。
 
-先确认 `describe` 返回的 `product` 精确等于 `MediaFlow Pro`，再根据 `protocol`、`version`、`default_project_root`、`capabilities`、`operations` 以及每项操作的 `project_access`、`execution_mode`、`idempotency`、`required_capabilities`、`arguments_schema` 和 `result_schema` 组装请求。需要网页协作时确认当前所需的 `web.*` 操作；需要外部转写或声音克隆时分别确认 `speech.transcribe` 或 `speech.synthesize`。随后通过同一读取器提交 `runtime.inspect`，确认操作依赖的 `runtime-inspected` 能力当前为 `ready`；缺少任一必要能力时保留当前真源并说明缺口，不猜测内部字段，也不直接改 `project.mfp`。文档里的操作名只说明当前工作流，实际可用性、参数和结果仍以本次 `describe` 为准。
+默认 `mediaflow describe` 只读取摘要。先确认它返回的 `product` 精确等于 `MediaFlow Pro`，再根据 `protocol`、`version`、`default_project_root`、`capabilities`、字段目录名称和操作摘要判断本轮实际需要的操作。选中操作后，用 `mediaflow describe --operation <操作名>` 只读取该操作的 `arguments_schema` 与 `result_schema`，再结合摘要中的 `project_access`、`execution_mode`、`idempotency` 和 `required_capabilities` 组装请求；需要视觉或音频效果目录时再用 `--catalog` 读取指定目录。完整 `describe` 只通过 `mediaflow describe --full` 用于诊断和合同归档，不是正式生产的默认入口。需要网页协作时确认当前所需的 `web.*` 操作；需要外部转写或声音克隆时分别确认 `speech.transcribe` 或 `speech.synthesize`。随后通过同一读取器提交 `runtime.inspect`，确认操作依赖的 `runtime-inspected` 能力当前为 `ready`；缺少任一必要能力时保留当前真源并说明缺口，不猜测内部字段，也不直接改 `project.mfp`。文档里的操作名只说明当前工作流，实际可用性、参数和结果仍以本轮摘要及按需读取的精确操作合同为准。
 
 新建工程时，`project.create` 提交合同声明的目录名、显示名称和完整工程 `profile`，不传 `project` 路径。`profile` 是输出尺寸、分数帧率、色彩、位深、48 kHz 音频和声道数的唯一创建边界；时间型生产者必须让它与已经确认的制作计划一致，不能创建默认工程后再把计划帧当成另一种帧率。MediaFlow Pro 在 `default_project_root` 下创建工程并返回绝对 `path`；后续操作只使用这个返回值。自动化调用端不得另设工程根目录，也不得先在媒体项目、缓存或临时目录建立工程后再移动或复制。桌面端只有在用户主动选择其它目录时才偏离默认根目录，自动化不能把这种人工选择推断成自己的权限。
 

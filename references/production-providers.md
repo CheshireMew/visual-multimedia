@@ -42,7 +42,7 @@ node scripts/local-media-environment.mjs resolve --need export
 
 结果按默认优先级列出候选，并给出 `preferred_provider`：
 
-1. 已配置 MediaFlow Pro 时，路由器实际读取它的 `describe` 与 `runtime.inspect`，同时核对正式操作和运行时状态；所需能力确实就绪才把 MediaFlow Pro 放在第一候选，用它完成网页渲染、剪辑、字幕、声音、语音识别、语音合成、预览、导出、参考视频比较和工程交接。不能仅凭配置文件中出现了 MediaFlow Pro 就假定它能做。
+1. 已配置 MediaFlow Pro 时，路由器实际读取它的 `describe` 摘要；确定本轮操作后再按需读取精确操作合同并调用 `runtime.inspect`，同时核对正式操作和运行时状态。所需能力确实就绪才把 MediaFlow Pro 放在第一候选，用它完成网页渲染、剪辑、字幕、声音、语音识别、语音合成、预览、导出、参考视频比较和工程交接。不能仅凭配置文件中出现了 MediaFlow Pro 就假定它能做，也不能把完整合同作为每次探测的默认输入。
 2. 没有 MediaFlow Pro，或检查后确认它不提供本次所需能力时，使用本地完整能力，不把这条路径写成残缺降级。
 3. 用户明确指定 HyperFrames 渲染独立网页动画时，选择 HyperFrames。
 

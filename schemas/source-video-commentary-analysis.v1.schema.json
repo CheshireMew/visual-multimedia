@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.source-video-commentary-analysis.v1",
+  "title": "Source Video Commentary Analysis v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "project_id",
+    "profile",
+    "created_at",
+    "source",
+    "options",
+    "scene_candidates",
+    "visual_evidence",
+    "transcript",
+    "authoring_packet"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-source-video-commentary-analysis"},
+    "version": {"const": 1},
+    "project_id": {"$ref": "#/$defs/id"},
+    "profile": {"const": "source-video-commentary@1.0.0"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "file", "sha256", "duration_seconds", "width", "height", "frame_rate", "has_audio"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "frame_rate": {"type": "number", "exclusiveMinimum": 0},
+        "has_audio": {"type": "boolean"}
+      }
+    },
+    "options": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scene_threshold", "maximum_candidates", "contact_sheet_frames", "transcription_mode", "requested_language"],
+      "properties": {
+        "scene_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximum_candidates": {"type": "integer", "minimum": 1},
+        "contact_sheet_frames": {"type": "integer", "minimum": 4},
+        "transcription_mode": {"enum": ["auto", "required", "skip"]},
+        "requested_language": {"type": ["string", "null"]}
+      }
+    },
+    "scene_candidates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "start_seconds", "end_seconds", "representative_seconds", "transition_score", "status"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "start_seconds": {"type": "number", "minimum": 0},
+          "end_seconds": {"type": "number", "exclusiveMinimum": 0},
+          "representative_seconds": {"type": "number", "minimum": 0},
+          "transition_score": {"type": "number", "minimum": 0, "maximum": 1},
+          "status": {"const": "suggestion-only"}
+        }
+      }
+    },
+    "visual_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contact_sheet", "contact_sheet_metadata"],
+      "properties": {
+        "contact_sheet": {"$ref": "#/$defs/binding"},
+        "contact_sheet_metadata": {"$ref": "#/$defs/binding"}
+      }
+    },
+    "transcript": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file", "sha256", "review_status", "language", "segment_count", "provider_receipt"],
+          "properties": {
+            "file": {"$ref": "#/$defs/localPath"},
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "review_status": {"enum": ["pending", "passed", "failed"]},
+            "language": {"type": "string", "minLength": 1},
+            "segment_count": {"type": "integer", "minimum": 1},
+            "provider_receipt": {"oneOf": [{"$ref": "#/$defs/binding"}, {"type": "null"}]}
+          }
+        }
+      ]
+    },
+    "authoring_packet": {"$ref": "#/$defs/binding"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"},
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

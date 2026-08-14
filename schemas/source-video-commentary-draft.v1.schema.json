@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.source-video-commentary-draft.v1",
+  "title": "Source Video Commentary Draft v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "project_id", "profile", "target", "script", "contracts", "background_music", "integrated_sample", "segments"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-source-video-commentary-draft"},
+    "version": {"const": 1},
+    "project_id": {"$ref": "#/$defs/id"},
+    "profile": {"const": "source-video-commentary@1.0.0"},
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["audience", "editorial_angle", "audience_outcome", "width", "height", "fps", "audio_sample_rate", "audio_channels", "background", "caption_mode"],
+      "properties": {
+        "audience": {"type": "string", "minLength": 1},
+        "editorial_angle": {"type": "string", "minLength": 1},
+        "audience_outcome": {"type": "string", "minLength": 1},
+        "width": {"type": "integer", "minimum": 16},
+        "height": {"type": "integer", "minimum": 16},
+        "fps": {"type": "integer", "minimum": 1},
+        "audio_sample_rate": {"type": "integer", "minimum": 8000},
+        "audio_channels": {"enum": [1, 2]},
+        "background": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+        "caption_mode": {"enum": ["burned-in", "embedded-track", "sidecar", "none"]}
+      }
+    },
+    "script": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "confirmed_by", "confirmed_at", "confirmation_evidence"],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "confirmed_by": {"enum": ["user", "agent"]},
+        "confirmed_at": {"type": "string", "format": "date-time"},
+        "confirmation_evidence": {"type": "string", "minLength": 1}
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["media_sources", "transcript", "clip_selections", "narration_bundle", "video_direction_plan"],
+      "properties": {
+        "media_sources": {"$ref": "#/$defs/localPath"},
+        "transcript": {"oneOf": [{"$ref": "#/$defs/localPath"}, {"type": "null"}]},
+        "clip_selections": {"$ref": "#/$defs/localPath"},
+        "narration_bundle": {"$ref": "#/$defs/localPath"},
+        "video_direction_plan": {"oneOf": [{"$ref": "#/$defs/localPath"}, {"type": "null"}]}
+      }
+    },
+    "background_music": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_id", "loop", "base_gain_db", "narration_reduction_db", "source_only_reduction_db", "fade_in_seconds", "fade_out_seconds"],
+          "properties": {
+            "source_id": {"$ref": "#/$defs/id"},
+            "loop": {"type": "boolean"},
+            "base_gain_db": {"type": "number", "maximum": 0},
+            "narration_reduction_db": {"type": "number", "maximum": 0},
+            "source_only_reduction_db": {"type": "number", "maximum": 0},
+            "fade_in_seconds": {"type": "number", "minimum": 0},
+            "fade_out_seconds": {"type": "number", "minimum": 0}
+          }
+        }
+      ]
+    },
+    "integrated_sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["segment_ids", "reason"],
+      "properties": {
+        "segment_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/segment"}
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"},
+    "visual": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "clip_selection_id", "fit", "freeze_when_shorter"],
+          "properties": {
+            "kind": {"const": "source-clip"},
+            "clip_selection_id": {"$ref": "#/$defs/id"},
+            "fit": {"enum": ["contain", "cover", "stretch"]},
+            "freeze_when_shorter": {"type": "boolean"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "clip_selection_id", "fit", "frame"],
+          "properties": {
+            "kind": {"const": "source-freeze"},
+            "clip_selection_id": {"$ref": "#/$defs/id"},
+            "fit": {"enum": ["contain", "cover", "stretch"]},
+            "frame": {"enum": ["start", "middle", "end"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "package", "variant", "fit"],
+          "properties": {
+            "kind": {"const": "editable-scene"},
+            "package": {"$ref": "#/$defs/localPath"},
+            "variant": {"type": ["string", "null"]},
+            "fit": {"enum": ["contain", "cover", "stretch"]}
+          }
+        }
+      ]
+    },
+    "audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "source_gain_db"],
+      "properties": {
+        "mode": {"enum": ["narration-only", "source-only", "narration-with-source-bed"]},
+        "source_gain_db": {"type": "number", "maximum": 12}
+      }
+    },
+    "caption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "start_offset_seconds", "end_offset_seconds", "text", "language", "source_kind", "source_segment_ids"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "start_offset_seconds": {"type": "number", "minimum": 0},
+        "end_offset_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "text": {"type": "string", "minLength": 1},
+        "language": {"type": "string", "minLength": 2},
+        "source_kind": {"enum": ["narration", "transcript", "editorial"]},
+        "source_segment_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+      }
+    },
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "order", "purpose", "visual_role", "visual", "narration_segment_id", "audio", "captions"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "order": {"type": "integer", "minimum": 1},
+        "purpose": {"type": "string", "minLength": 1},
+        "visual_role": {"enum": ["hook", "setup", "evidence", "development", "turn", "payoff", "summary", "bridge"]},
+        "visual": {"$ref": "#/$defs/visual"},
+        "narration_segment_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "audio": {"$ref": "#/$defs/audio"},
+        "captions": {"type": "array", "items": {"$ref": "#/$defs/caption"}}
+      }
+    }
+  }
+}

@@ -728,10 +728,12 @@
     ],
     "minimum_content_span": 0.9,
     "thumbnail": {
-      "width": 360,
+      "width": 1000,
       "minimum_text_px": 8,
       "text_layer_ids": [
-        "title"
+        "title",
+        "summary",
+        "list-panel"
       ]
     }
   },

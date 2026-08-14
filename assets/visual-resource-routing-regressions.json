@@ -1,0 +1,224 @@
+{
+  "protocol": "visual-multimedia-visual-resource-routing-regressions",
+  "version": 3,
+  "diagnostic_evidence": [
+    {
+      "id": "mistaken-case-selection-20260809",
+      "path": "archive/mistaken-case-selection-20260809",
+      "use": "historical-diagnostic-only",
+      "runtime_source": false
+    },
+    {
+      "id": "current-feedback-chain",
+      "path": null,
+      "use": "generalized-into-regression-scenarios",
+      "runtime_source": false
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "inspect-another-project-after-negative-feedback",
+      "input": "太简陋太丑了，看看模板里的另一个 GitHub 项目",
+      "existing_state": "active-style-profile-confirmed",
+      "expected_mode": "evidence-only",
+      "preserve": [
+        "confirmed-content",
+        "active-style-profile",
+        "project-identity",
+        "unaffected-constraints"
+      ],
+      "allowed_reference_output": [
+        "transferable-mechanisms",
+        "quality-gaps",
+        "verification-methods"
+      ],
+      "forbidden_reference_output": [
+        "case-palette",
+        "case-layout-coordinates",
+        "case-typography",
+        "case-identity"
+      ],
+      "full_canvas_sample_before_export": true
+    },
+    {
+      "id": "content-similarity-is-not-adoption",
+      "input": "这个也是 GitHub 项目清单，找个相似案例参考",
+      "existing_state": "active-style-profile-confirmed",
+      "expected_mode": "evidence-only",
+      "preserve": [
+        "confirmed-content",
+        "active-style-profile"
+      ],
+      "allowed_reference_output": [
+        "capacity",
+        "shared-alignment-mechanism",
+        "verification-methods"
+      ],
+      "forbidden_reference_output": [
+        "case-palette",
+        "case-layout-coordinates",
+        "case-visual-fingerprint"
+      ],
+      "full_canvas_sample_before_export": false
+    },
+    {
+      "id": "explicit-visual-adoption",
+      "input": "采用 warm-paper-project-list 的视觉语言，按这个风格重做",
+      "existing_state": "active-style-profile-confirmed",
+      "expected_mode": "explicit-visual-adoption",
+      "required_decision": [
+        "adopted-case-id",
+        "adopted-visual-layers",
+        "replaced-active-style-scope"
+      ],
+      "preserve": [
+        "confirmed-content",
+        "project-facts",
+        "rights-and-identity-boundaries"
+      ],
+      "full_canvas_sample_before_export": true
+    },
+    {
+      "id": "layout-template-does-not-set-style",
+      "input": "用标题与双支撑区模板开始做",
+      "existing_state": "active-style-profile-confirmed",
+      "expected_mode": "layout-template-instantiation",
+      "preserve": [
+        "active-style-profile",
+        "confirmed-content",
+        "project-identity"
+      ],
+      "forbidden_reference_output": [
+        "starter-default-surface-as-project-style",
+        "case-visual-fingerprint"
+      ],
+      "full_canvas_sample_before_export": false
+    },
+    {
+      "id": "ugly-current-basis-is-not-redesign",
+      "input": "太丑了，在当前这个基础上优化",
+      "existing_state": "editable-source-with-partly-valid-composition",
+      "expected_mode": "recompose-or-restyle",
+      "preserve": [
+        "editable-source",
+        "confirmed-content",
+        "project-identity",
+        "unrejected-visual-layers"
+      ],
+      "required_diagnosis": [
+        "observable-problem",
+        "preserved-layers",
+        "replaced-layers"
+      ],
+      "forbidden_actions": [
+        "replace-layout-template-without-evidence",
+        "restart-from-blank",
+        "rewrite-confirmed-content"
+      ],
+      "full_canvas_sample_before_export": true
+    },
+    {
+      "id": "content-removal-recomposes-canvas",
+      "input": "这些内容删掉，为什么布局还是原来的空白和双横线",
+      "existing_state": "editable-source-with-removed-visible-content",
+      "expected_mode": "recompose",
+      "preserve": [
+        "editable-source",
+        "active-visual-direction",
+        "remaining-confirmed-content"
+      ],
+      "required_actions": [
+        "recalculate-full-canvas",
+        "remove-retired-dividers",
+        "remove-retired-layout-branches"
+      ],
+      "forbidden_actions": [
+        "leave-empty-structural-slots",
+        "replace-active-style"
+      ],
+      "full_canvas_sample_before_export": true
+    },
+    {
+      "id": "tiny-type-uses-display-size",
+      "input": "字小得看不清，不要再按模板把内容塞进去",
+      "existing_state": "static-card-at-phone-display-width",
+      "expected_mode": "typography-first-recompose",
+      "preserve": [
+        "confirmed-content-priority",
+        "project-identity"
+      ],
+      "required_actions": [
+        "measure-minimum-display-width",
+        "set-reading-size-before-source-canvas-size",
+        "change-capacity-or-ratio-before-shrinking-type"
+      ],
+      "minimum_primary_text_px": 14,
+      "comfortable_primary_text_px": 16,
+      "forbidden_actions": [
+        "treat-source-pixels-as-display-pixels",
+        "use-10px-technical-visibility-as-reading-quality"
+      ],
+      "full_canvas_sample_before_export": true
+    },
+    {
+      "id": "explicit-pre-drawing-confirmation-blocks-production",
+      "input": "正式作图前先展示给我确认，再做一张完整详细的网页卡片",
+      "existing_state": "confirmed-source-material-without-confirmed-visible-copy",
+      "expected_mode": "pre-drawing-confirmation",
+      "preserve": [
+        "confirmed-facts",
+        "source-boundaries",
+        "user-required-confirmation-gate"
+      ],
+      "required_output": [
+        "exact-visible-copy",
+        "information-order",
+        "necessary-elements-and-sources",
+        "proposed-content-derived-dimensions",
+        "typography-color-surface-direction"
+      ],
+      "stop_before": [
+        "html-css-generation",
+        "image-generation",
+        "template-instantiation",
+        "canvas-drawing",
+        "image-export"
+      ],
+      "allowed_skip": "explicit-skip-confirmation-only",
+      "forbidden_interpretations": [
+        "complete-means-skip-confirmation",
+        "detailed-means-skip-confirmation",
+        "finished-means-skip-confirmation",
+        "later-vague-request-overrides-explicit-confirmation"
+      ]
+    },
+    {
+      "id": "content-curation-precedes-dimensions",
+      "input": "先把废话和对用户没用的信息去掉，图片尺寸跟着真实信息量走",
+      "existing_state": "long-confirmed-research-material",
+      "expected_mode": "curate-confirm-size",
+      "preserve": [
+        "core-conclusion",
+        "necessary-support",
+        "meaning-changing-boundaries",
+        "user-useful-results-or-actions",
+        "sources"
+      ],
+      "required_actions": [
+        "remove-ai-filler",
+        "remove-audience-irrelevant-details",
+        "remove-repeated-facts-and-numbers",
+        "keep-each-fact-once",
+        "resolve-ambiguous-references",
+        "set-reading-size-before-canvas-size",
+        "derive-dimensions-after-curation"
+      ],
+      "forbidden_actions": [
+        "include-all-source-material",
+        "choose-ratio-before-curation",
+        "inherit-template-source-dimensions",
+        "shrink-type-to-preserve-old-canvas"
+      ]
+    }
+  ]
+}

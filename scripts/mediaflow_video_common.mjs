@@ -40,12 +40,10 @@ export function assertMediaFlowProVideoCapabilities(environment) {
   for (const name of REQUIRED_VIDEO_OPERATIONS) {
     const operation = operations.get(name);
     if (
-      !operation.arguments_schema
-      || !operation.result_schema
-      || !["none", "create", "read", "write"].includes(operation.project_access)
+      !["none", "create", "read", "write"].includes(operation.project_access)
       || !["atomic", "task"].includes(operation.execution_mode)
       || !Array.isArray(operation.required_capabilities)
-    ) throw new Error(`MediaFlow Pro ${name} 没有完整的 v4 操作合同`);
+    ) throw new Error(`MediaFlow Pro ${name} 没有完整的 v4 操作摘要`);
   }
   const capabilityCatalog = new Map((describe.capabilities || []).map((item) => [item.id, item]));
   const requiredCapabilityIds = new Set(

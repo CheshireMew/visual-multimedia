@@ -51,7 +51,7 @@ edge-tts --file narration.txt --voice <voice> --rate=<rate> --volume=<volume> --
 
 ## 四、使用 GPT-SoVITS v2Pro 克隆已授权声音
 
-通过 `scripts/local-media-environment.mjs` 检查本机配置并运行本次 `mediaflow-cli describe`，确认公开操作中存在 `speech.synthesize`，再运行 `runtime.inspect`，确认 `gpt-sovits-v2pro` 为 `ready`。请求参数和结果字段完全以本次 `describe` 返回的 schema 为准；语义上必须提供确认后的目标文本及语言、参考音频、参考音频的准确文本及语言、WAV 输出位置，并按需提供辅助参考音频、语速、随机种子、超时和覆盖选择。Skill 不直接启动 `api_v2.py`，不维持后台服务，也不读取 GPT-SoVITS 内部配置。
+通过 `scripts/local-media-environment.mjs` 检查本机配置并读取本轮 `describe` 摘要，确认公开操作中存在 `speech.synthesize`；选中后只读取它的精确操作合同，再运行 `runtime.inspect`，确认 `gpt-sovits-v2pro` 为 `ready`。请求参数和结果字段完全以这份精确合同返回的 schema 为准；语义上必须提供确认后的目标文本及语言、参考音频、参考音频的准确文本及语言、WAV 输出位置，并按需提供辅助参考音频、语速、随机种子、超时和覆盖选择。Skill 不直接启动 `api_v2.py`，不维持后台服务，也不读取 GPT-SoVITS 内部配置。
 
 用户点名已注册的全局声音，或主入口已经给出当前视频默认声音时，用 `voice-resolve --voice <id、名称或别名>` 从本机配置声明的声音根目录唯一解析。解析结果中的参考音频、准确文本、语言和哈希是本次请求的同一组输入，不从当前项目复制参考音频，也不把视频基线扩展成音频、播客或其它项目的默认。没有匹配或出现歧义时停止；`manual_voice_review` 尚未通过时先交付短试听并等待真实听音，不能因为技术验证通过就直接宣布声音身份已经确认。
 

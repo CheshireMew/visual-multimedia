@@ -1,0 +1,32 @@
+{
+  "protocol": "visual-multimedia-narration-bundle",
+  "version": 1,
+  "media_sources": "media-sources.json",
+  "language": "zh-CN",
+  "segments": [
+    {
+      "id": "replace-with-narration-segment-id",
+      "title": "替换为语义片段名称",
+      "text": "替换为已经确认且实际合成或录制的旁白文本",
+      "text_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "audio_source_id": "replace-with-audio-source-id",
+      "audio_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "timing_file": "replace-with-reviewed-timing.vtt",
+      "timing_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "duration_seconds": 1,
+      "voice": {
+        "kind": "synthetic",
+        "provider": "replace-with-provider",
+        "provider_voice_id": "replace-with-exact-voice-id",
+        "voice_name": "替换为真实声音名称",
+        "parameters": {}
+      },
+      "review": {
+        "listened": true,
+        "text_matches_audio": true,
+        "natural_speed": true,
+        "notes": "替换为真实试听记录"
+      }
+    }
+  ]
+}

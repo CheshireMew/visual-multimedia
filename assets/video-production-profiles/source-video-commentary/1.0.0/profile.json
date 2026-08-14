@@ -1,0 +1,90 @@
+{
+  "protocol": "visual-multimedia-video-production-profile",
+  "version": 1,
+  "id": "source-video-commentary",
+  "name": "素材解说型视频",
+  "profile_version": "1.0.0",
+  "status": "active",
+  "description": "从一条未经处理但已确认权利边界的源视频开始，完成镜头与声音分析、转写、解说写作、选段、真实配音、背景音乐、混音、可编辑 MediaFlow 工程、预览与最终成片。",
+  "apply_when": [
+    "用户要用旁白解释电影片段、纪录素材、游戏录像、课程、产品实拍、活动记录或录屏",
+    "用户只有一条原始视频，希望由 Agent 完成分析、写稿、选段、配音和制作",
+    "同一条视频需要混用旁白覆盖、关键原声和旁白下的低电平原声",
+    "成片之后仍要保留可修改的时间线、素材关系、字幕和声音职责"
+  ],
+  "do_not_apply_when": [
+    "还需要研究主题、核查事实或从长材料中决定什么值得分享",
+    "主要结构必须以真实人物同期声为证据并采用原声—解释节奏；这类任务使用 interview-explainer",
+    "用户只要纯文字解说稿、单独配音、拍摄规划或远程生成的一条不可编辑 MP4"
+  ],
+  "default_sequence": ["hook", "setup", "evidence", "development", "turn", "payoff", "summary"],
+  "invariants": [
+    "声音职责属于每个语义片段；同一项目可以混用 narration-only、source-only 和 narration-with-source-bed，不建立 Fast/Standard 顶层分叉",
+    "prepare 必须从真实源片生成媒体检查、候选场景、联系表和可用转写；候选场景只是写作证据，正式入点和出点仍只进入 clip-selections.json",
+    "Agent 必须查看实际联系表、转写和必要原片后创建 authoring；authoring 冻结完整稿、选段、声音与背景音乐选择并由用户确认，不能把空模板交给用户补完",
+    "合成旁白只通过当前公开 speech.synthesize 操作和唯一解析的已注册声音生成；真实 WAV、回执、声音身份与文本哈希入账后还要完整试听",
+    "背景音乐必须是已入账且权利收口的真实 audio source；独立音乐轨按片段声音职责避让人声，循环、增益和淡入淡出进入确认计划",
+    "源素材真实入点和出点只保存在 clip-selections.json；节目时间只由 portable timeline 或 project.mfp 负责，解说计划不复制第二套剪辑时间线",
+    "人物表达片段必须引用同一原始素材的已听音转写和已通过语义边界复核的 clip selection",
+    "旁白片段必须引用已听过、文本匹配且自然速度通过的 narration-bundle segment",
+    "字幕是呈现层文案并记录来源，不替代事实转写；源原声字幕只能来自已审核 transcript 或明确标记的编辑字幕",
+    "计划确认后才能生成综合样片；综合样片确认后才能生成全量预览；全量预览完整审看通过后才能最终交付",
+    "综合样片使用 integrated-sample 阶段，不能由单镜头静帧或未混音片段代替",
+    "MediaFlow Pro 可用时导入通用 portable timeline，导入后 project.mfp 是唯一活动编辑真源；否则 portable timeline 保持完整本地真源",
+    "最终交付同时包含解说稿、旁白与字幕合同、可编辑制作真源、预览或母版、评审和哈希回执",
+    "电影专用数据源、静态资源编号、远程 MP4 回执和供应商任务状态不能成为本 profile 的项目真源"
+  ],
+  "algorithm_defaults": {
+    "output_geometry": {"width": 1920, "height": 1080, "fps": 30},
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "caption_mode": "burned-in",
+    "source_bed_gain_db": -18,
+    "source_only_gain_db": 0,
+    "voice_id": "game.honkai-star-rail.silverwolf.default",
+    "speech_speed_factor": 1.25,
+    "background_music_base_gain_db": -22,
+    "background_music_narration_reduction_db": -8,
+    "freeze_when_source_is_shorter": true,
+    "transition": "direct-cut",
+    "provider": "auto"
+  },
+  "project_configurable": [
+    "audience", "editorial_angle", "sequence", "duration", "output_geometry",
+    "caption_mode", "subtitle_style", "source_bed_gain_db", "source_only_gain_db",
+    "voice_id", "speech_speed_factor", "background_music", "background_music_mix",
+    "freeze_when_source_is_shorter", "editable_explanation_scenes", "provider"
+  ],
+  "stop_conditions": [
+    "解说角度、完整解说稿或内容阶段尚未确认",
+    "源片尚未正式入账，或 Agent 尚未查看分析联系表、转写和实际相关片段",
+    "authoring 未确认，声音无法唯一解析，语音合成能力未就绪，或旁白尚未完整试听",
+    "采用了背景音乐但其来源、权利、循环或人声避让关系尚未确认",
+    "素材账本、片段选择、转写、旁白包、导演计划或已确认计划的任一哈希已经变化",
+    "人物原声片段缺少已听音转写或语义边界复核",
+    "旁白音频没有实际试听、文本不匹配或使用了未确认声音",
+    "逐段声音职责、字幕来源或可编辑交付真源没有明确记录",
+    "综合样片或全量预览尚未获得所需确认",
+    "Agent 没有完整播放最终预览，或正式采用素材的权利状态尚未收口"
+  ],
+  "reference": "references/source-video-commentary-production.md",
+  "public_entry": "scripts/source-video-commentary.mjs",
+  "schemas": {
+    "analysis": "schemas/source-video-commentary-analysis.v1.schema.json",
+    "authoring": "schemas/source-video-commentary-authoring.v1.schema.json",
+    "authoring_confirmation": "schemas/source-video-commentary-authoring-confirmation.v1.schema.json",
+    "narration_candidates": "schemas/source-video-commentary-narration-candidates.v1.schema.json",
+    "draft": "schemas/source-video-commentary-draft.v1.schema.json",
+    "plan": "schemas/source-video-commentary-plan.v1.schema.json",
+    "plan_confirmation": "schemas/source-video-commentary-plan-confirmation.v1.schema.json",
+    "media_sources": "schemas/media-sources.v3.schema.json",
+    "transcript": "schemas/media-transcript.v1.schema.json",
+    "clip_selections": "schemas/clip-selections.v2.schema.json",
+    "narration_bundle": "schemas/narration-bundle.v1.schema.json",
+    "portable_timeline": "schemas/media-timeline.v1.schema.json",
+    "build_plan": "schemas/media-build-plan.v1.schema.json",
+    "build_report": "schemas/media-build-report.v2.schema.json",
+    "review": "schemas/media-review.v3.schema.json",
+    "delivery": "schemas/media-delivery.v3.schema.json"
+  }
+}

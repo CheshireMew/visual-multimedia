@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>竖版四分区中性卡片</title>
+  <style>
+    :root {
+      --canvas-width: 1080;
+      --canvas-height: 1440;
+      --background: #ffffff;
+      --surface: #f2f3f5;
+      --text: #171a1f;
+      --muted: #667085;
+      --rule: #d0d5dd;
+      --accent: #315efb;
+      --font-display: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      --font-body: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      --font-display-weight: 760;
+      --font-body-weight: 520;
+      font-family: var(--font-body);
+      font-weight: var(--font-body-weight);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #dfe2e7;
+      color: var(--text);
+    }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      grid-template-areas: "viewport editor";
+      gap: 20px;
+      padding: 24px;
+    }
+
+    .viewport {
+      grid-area: viewport;
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      transform-origin: top left;
+      background: var(--background);
+      isolation: isolate;
+    }
+
+    [data-editable-id] { position: absolute; }
+
+    .eyebrow {
+      left: 60px;
+      top: 48px;
+      width: 960px;
+      height: 44px;
+      margin: 0;
+      color: var(--accent);
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: var(--font-display-weight);
+      letter-spacing: .09em;
+    }
+
+    h1 {
+      left: 60px;
+      top: 92px;
+      width: 960px;
+      height: 88px;
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 64px;
+      font-weight: var(--font-display-weight);
+      line-height: 1.12;
+      letter-spacing: -.025em;
+      text-wrap: balance;
+    }
+
+    .summary {
+      left: 60px;
+      top: 196px;
+      width: 960px;
+      height: 120px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 42px;
+      line-height: 1.35;
+      text-wrap: pretty;
+    }
+
+    .content-section {
+      left: 60px;
+      width: 960px;
+      height: 214px;
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      align-content: start;
+      gap: 24px;
+      padding: 18px 0 14px;
+      border-top: 2px solid var(--rule);
+      font-size: 42px;
+    }
+
+    [data-editable-id="section-1"] { top: 352px; }
+    [data-editable-id="section-2"] { top: 586px; }
+    [data-editable-id="section-3"] { top: 820px; }
+    [data-editable-id="section-4"] { top: 1054px; }
+
+    .section-kicker {
+      margin: 0;
+      color: var(--accent);
+      font-size: 42px;
+      font-weight: 760;
+      line-height: 1.35;
+      word-break: keep-all;
+      overflow-wrap: normal;
+    }
+
+    .section-copy { min-width: 0; }
+    .section-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 46px;
+      font-weight: var(--font-display-weight);
+      line-height: 1.22;
+    }
+
+    .section-body {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: inherit;
+      line-height: 1.42;
+      text-wrap: pretty;
+    }
+
+    .footer {
+      left: 60px;
+      top: 1332px;
+      width: 960px;
+      height: 52px;
+      margin: 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--rule);
+      color: var(--muted);
+      font-size: 30px;
+      line-height: 1.2;
+    }
+
+    body.capture .app { display: block; padding: 0; }
+    body.capture .viewport { display: block; overflow: visible; }
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+    }
+    body.capture .media-canvas { transform: none !important; }
+    body.capture #editorPanel,
+    body.capture #editorReturn { display: none; }
+  </style>
+  <link rel="stylesheet" href="editable-media-editor.css">
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-app
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="1"
+    data-width="1080"
+    data-height="1440"
+    data-fps="30"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="竖版四分区卡片">
+          <p class="eyebrow" data-editable-id="eyebrow" data-editable-data="eyebrow" data-editor-section="标题"></p>
+          <h1 data-editable-id="title" data-editable-data="title" data-editor-section="标题"></h1>
+          <p class="summary" data-editable-id="summary" data-editable-data="summary" data-editor-section="标题"></p>
+
+          <article class="content-section" data-editable-id="section-1">
+            <p class="section-kicker" data-editable-data="section_1_kicker" data-editor-section="第一分区"></p>
+            <div class="section-copy">
+              <h2 class="section-title" data-editable-data="section_1_title" data-editor-section="第一分区"></h2>
+              <p class="section-body" data-editable-data="section_1_body" data-editor-section="第一分区"></p>
+            </div>
+          </article>
+
+          <article class="content-section" data-editable-id="section-2">
+            <p class="section-kicker" data-editable-data="section_2_kicker" data-editor-section="第二分区"></p>
+            <div class="section-copy">
+              <h2 class="section-title" data-editable-data="section_2_title" data-editor-section="第二分区"></h2>
+              <p class="section-body" data-editable-data="section_2_body" data-editor-section="第二分区"></p>
+            </div>
+          </article>
+
+          <article class="content-section" data-editable-id="section-3">
+            <p class="section-kicker" data-editable-data="section_3_kicker" data-editor-section="第三分区"></p>
+            <div class="section-copy">
+              <h2 class="section-title" data-editable-data="section_3_title" data-editor-section="第三分区"></h2>
+              <p class="section-body" data-editable-data="section_3_body" data-editor-section="第三分区"></p>
+            </div>
+          </article>
+
+          <article class="content-section" data-editable-id="section-4">
+            <p class="section-kicker" data-editable-data="section_4_kicker" data-editor-section="第四分区"></p>
+            <div class="section-copy">
+              <h2 class="section-title" data-editable-data="section_4_title" data-editor-section="第四分区"></h2>
+              <p class="section-body" data-editable-data="section_4_body" data-editor-section="第四分区"></p>
+            </div>
+          </article>
+
+          <p class="footer" data-editable-id="footer" data-editable-data="footer" data-editor-section="页脚"></p>
+        </section>
+      </div>
+    </div>
+    <div id="editableMediaEditorMount"></div>
+  </main>
+
+  <script src="editable-media-runtime.js"></script>
+  <script src="editable-media-editor.js"></script>
+  <script>
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const viewport = document.querySelector("#viewport");
+    const query = new URLSearchParams(location.search);
+    const captureMode = query.get("capture") === "1"
+      || document.body.classList.contains("capture");
+    let output = { width: 1080, height: 1440 };
+
+    if (captureMode) document.body.classList.add("capture");
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(
+        viewport.clientWidth / output.width,
+        viewport.clientHeight / output.height,
+        1
+      );
+      const fittedScale = Math.max(scale, 0.1);
+      canvasShell.style.width = `${output.width * fittedScale}px`;
+      canvasShell.style.height = `${output.height * fittedScale}px`;
+      mediaCanvas.style.transform = `scale(${fittedScale})`;
+    }
+
+    editableMedia.ready.then(() => {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height)
+      };
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

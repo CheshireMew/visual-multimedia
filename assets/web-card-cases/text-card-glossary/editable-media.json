@@ -680,7 +680,8 @@
       "width": 360,
       "minimum_text_px": 8,
       "text_layer_ids": [
-        "title"
+        "title",
+        "list-panel"
       ]
     }
   },

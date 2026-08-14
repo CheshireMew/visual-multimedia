@@ -88,7 +88,7 @@ node scripts/import-media-transcript.mjs `
   --kind user-subtitles
 ```
 
-需要 Faster-Whisper XXL 生产 SRT 时，由本轮 `mediaflow-cli describe` 声明的 `speech.transcribe` 生成真实 SRT、输入输出哈希和分段结果；Skill 不直接调用引擎可执行文件，也不把 MediaFlow Pro 设置路径写入项目。ASR 结果使用 `--kind asr`。自动转写一律从 `pending` 开始；实际听过并处理完专有名词、数字和不确定词后，才可用 `--reviewed` 与说明写入通过状态。校验命令：
+需要 Faster-Whisper XXL 生产 SRT 时，先由本轮 `describe` 摘要发现 `speech.transcribe`，再读取它的精确操作合同并生成真实 SRT、输入输出哈希和分段结果；Skill 不直接调用引擎可执行文件，也不把 MediaFlow Pro 设置路径写入项目。ASR 结果使用 `--kind asr`。自动转写一律从 `pending` 开始；实际听过并处理完专有名词、数字和不确定词后，才可用 `--reviewed` 与说明写入通过状态。校验命令：
 
 ```powershell
 node scripts/validate-media-transcript.mjs <项目目录>/transcript.json

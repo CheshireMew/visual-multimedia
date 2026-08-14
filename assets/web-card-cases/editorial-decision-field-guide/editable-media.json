@@ -155,7 +155,7 @@
     ],
     "content_bounds_layer_ids": ["eyebrow", "title", "intro", "header-callout", "boundary-section", "methods-section", "decision-section", "agency", "production-watermark"],
     "minimum_content_span": 0.95,
-    "thumbnail": {"width": 360, "minimum_text_px": 8, "text_layer_ids": ["title", "intro", "header-callout"]}
+    "thumbnail": {"width": 720, "minimum_text_px": 8, "text_layer_ids": ["title", "intro", "header-callout", "boundary-section"]}
   },
   "delivery": {"preview": "local-server", "remote_dependencies": "forbid"},
   "resources": ["editable-media-runtime.js", "style-profile.json"]

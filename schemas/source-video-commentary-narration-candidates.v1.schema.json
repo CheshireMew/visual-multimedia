@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.source-video-commentary-narration-candidates.v1",
+  "title": "Source Video Commentary Narration Candidates v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "project_id", "profile", "authoring", "authoring_sha256", "media_sources", "language", "voice", "segments", "created_at"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-source-video-commentary-narration-candidates"},
+    "version": {"const": 1},
+    "project_id": {"$ref": "#/$defs/id"},
+    "profile": {"const": "source-video-commentary@1.0.0"},
+    "authoring": {"$ref": "#/$defs/localPath"},
+    "authoring_sha256": {"$ref": "#/$defs/sha256"},
+    "media_sources": {"$ref": "#/$defs/localPath"},
+    "language": {"type": "string", "minLength": 1},
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "provider", "provider_voice_id", "voice_name", "parameters", "reference_audio_sha256"],
+      "properties": {
+        "kind": {"const": "synthetic"},
+        "provider": {"const": "mediaflow-gpt-sovits-v2pro"},
+        "provider_voice_id": {"type": "string", "minLength": 1},
+        "voice_name": {"type": "string", "minLength": 1},
+        "parameters": {"type": "object"},
+        "reference_audio_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "text", "text_sha256", "audio_source_id", "audio_sha256", "timing_file", "timing_sha256", "duration_seconds", "provider_receipt"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "title": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1},
+          "text_sha256": {"$ref": "#/$defs/sha256"},
+          "audio_source_id": {"$ref": "#/$defs/id"},
+          "audio_sha256": {"$ref": "#/$defs/sha256"},
+          "timing_file": {"$ref": "#/$defs/localPath"},
+          "timing_sha256": {"$ref": "#/$defs/sha256"},
+          "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+          "provider_receipt": {"$ref": "#/$defs/binding"}
+        }
+      }
+    },
+    "created_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"},
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {"file": {"$ref": "#/$defs/localPath"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    }
+  }
+}

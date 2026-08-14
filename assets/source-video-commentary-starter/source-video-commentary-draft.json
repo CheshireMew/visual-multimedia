@@ -1,0 +1,67 @@
+{
+  "protocol": "visual-multimedia-source-video-commentary-draft",
+  "version": 1,
+  "project_id": "replace-with-project-id",
+  "profile": "source-video-commentary@1.0.0",
+  "target": {
+    "audience": "填写目标观众",
+    "editorial_angle": "填写这条解说真正要讲清的角度",
+    "audience_outcome": "填写观众看完应理解、感受或采取的行动",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "background": "#000000",
+    "caption_mode": "burned-in"
+  },
+  "script": {
+    "file": "source-video-commentary-script.md",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "confirmed_by": "user",
+    "confirmed_at": "2026-08-11T00:00:00.000Z",
+    "confirmation_evidence": "替换为真实确认依据"
+  },
+  "contracts": {
+    "media_sources": "media-sources.json",
+    "transcript": null,
+    "clip_selections": "clip-selections.json",
+    "narration_bundle": "narration-bundle.json",
+    "video_direction_plan": null
+  },
+  "background_music": null,
+  "integrated_sample": {
+    "segment_ids": ["segment-01"],
+    "reason": "选择最能同时暴露画面、声音和字幕关系的代表性片段"
+  },
+  "segments": [
+    {
+      "id": "segment-01",
+      "order": 1,
+      "purpose": "填写这一段必须讲清的内容",
+      "visual_role": "hook",
+      "visual": {
+        "kind": "source-clip",
+        "clip_selection_id": "replace-with-reviewed-clip-id",
+        "fit": "cover",
+        "freeze_when_shorter": true
+      },
+      "narration_segment_id": null,
+      "audio": {
+        "mode": "source-only",
+        "source_gain_db": 0
+      },
+      "captions": [
+        {
+          "id": "segment-01-caption-01",
+          "start_offset_seconds": 0,
+          "end_offset_seconds": 1,
+          "text": "替换为来自已审核转写或明确编辑的字幕",
+          "language": "zh-CN",
+          "source_kind": "editorial",
+          "source_segment_ids": []
+        }
+      ]
+    }
+  ]
+}

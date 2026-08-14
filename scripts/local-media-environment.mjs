@@ -303,19 +303,103 @@ function mediaFlowResult(environment, args, input = undefined) {
   return response;
 }
 
-let mediaFlowContract = null;
+const mediaFlowDiscoveryCaches = new WeakMap();
 const mediaFlowProjectRevisions = new Map();
 
-export function mediaFlowProDescribe(environment) {
-  const response = mediaFlowResult(environment, ["describe"]);
+function mediaFlowDiscoveryCache(environment) {
+  let cache = mediaFlowDiscoveryCaches.get(environment);
+  if (!cache) {
+    cache = {
+      summary: null,
+      operations: new Map(),
+      catalogs: new Map(),
+    };
+    mediaFlowDiscoveryCaches.set(environment, cache);
+  }
+  return cache;
+}
+
+function mediaFlowDescription(environment, args, expectedView) {
+  const response = mediaFlowResult(environment, args);
   if (!response.ok) {
     fail(`MediaFlow Pro describe 失败：${JSON.stringify(response.error)}`);
   }
   if (response.protocol !== "mediaflow-editor" || response.version !== 4) {
     fail("MediaFlow Pro 没有返回当前 v4 响应合同");
   }
-  mediaFlowContract = response.result;
-  return mediaFlowContract;
+  const description = response.result;
+  if (
+    !description
+    || description.product !== "MediaFlow Pro"
+    || description.protocol !== "mediaflow-editor"
+    || description.version !== 4
+    || description.view !== expectedView
+  ) {
+    fail(`MediaFlow Pro 没有返回 ${expectedView} 能力描述`);
+  }
+  return description;
+}
+
+export function mediaFlowProDescribe(environment) {
+  const cache = mediaFlowDiscoveryCache(environment);
+  if (!cache.summary) {
+    const summary = mediaFlowDescription(
+      environment,
+      ["describe", "--summary"],
+      "summary",
+    );
+    if (!Array.isArray(summary.operations) || !Array.isArray(summary.capabilities)) {
+      fail("MediaFlow Pro 摘要缺少操作或能力目录");
+    }
+    cache.summary = summary;
+  }
+  return cache.summary;
+}
+
+export function mediaFlowProDescribeOperation(environment, operation) {
+  const name = requiredString(operation, "MediaFlow Pro operation");
+  const cache = mediaFlowDiscoveryCache(environment);
+  if (cache.operations.has(name)) return cache.operations.get(name);
+  const summary = mediaFlowProDescribe(environment);
+  if (!(summary.operations || []).some((item) => item.name === name)) {
+    fail(`MediaFlow Pro describe 摘要没有声明操作：${name}`);
+  }
+  const description = mediaFlowDescription(
+    environment,
+    ["describe", "--operation", name],
+    "operation",
+  );
+  const contract = description.operation;
+  if (
+    !contract
+    || contract.name !== name
+    || !contract.arguments_schema
+    || !contract.result_schema
+  ) {
+    fail(`MediaFlow Pro ${name} 没有返回精确参数与结果合同`);
+  }
+  cache.operations.set(name, contract);
+  return contract;
+}
+
+export function mediaFlowProDescribeCatalog(environment, catalog) {
+  const name = requiredString(catalog, "MediaFlow Pro editor field catalog");
+  const cache = mediaFlowDiscoveryCache(environment);
+  if (cache.catalogs.has(name)) return cache.catalogs.get(name);
+  const summary = mediaFlowProDescribe(environment);
+  if (!(summary.editor_field_catalogs || []).includes(name)) {
+    fail(`MediaFlow Pro describe 摘要没有声明字段目录：${name}`);
+  }
+  const description = mediaFlowDescription(
+    environment,
+    ["describe", "--catalog", name],
+    "catalog",
+  );
+  if (description.name !== name || !description.catalog) {
+    fail(`MediaFlow Pro ${name} 没有返回精确字段目录`);
+  }
+  cache.catalogs.set(name, description.catalog);
+  return description.catalog;
 }
 
 export function mediaFlowProExecute(
@@ -325,7 +409,8 @@ export function mediaFlowProExecute(
   argumentsValue,
   requestId = null,
 ) {
-  if (!mediaFlowContract) mediaFlowProDescribe(environment);
+  mediaFlowProDescribe(environment);
+  const operationContract = mediaFlowProDescribeOperation(environment, operation);
   const request = {
     protocol: "mediaflow-editor",
     version: 4,
@@ -340,12 +425,6 @@ export function mediaFlowProExecute(
     client_id: "visual-multimedia",
   };
   if (requestId) request.request_id = requestId;
-  const operationContract = (mediaFlowContract?.operations || []).find(
-    (item) => item.name === operation,
-  );
-  if (!operationContract) {
-    fail(`MediaFlow Pro describe 没有声明操作：${operation}`);
-  }
   if (operationContract.project_access === "write" && !requestId) {
     fail(`MediaFlow Pro ${operation} 写入必须提供稳定 request_id`);
   }
@@ -539,7 +618,7 @@ export function inspectLocalMediaCapabilities(environment) {
       if (mediaflow.probe) {
         mediaFlowProbe = mediaflow.probe;
       } else {
-        const contract = mediaFlowProDescribe(environment);
+        const summary = mediaFlowProDescribe(environment);
         const runtime = mediaFlowProExecute(
           environment,
           null,
@@ -547,8 +626,8 @@ export function inspectLocalMediaCapabilities(environment) {
           {},
         );
         mediaFlowProbe = {
-          operations: (contract.operations || []).map((item) => item.name),
-          built_in_capabilities: (contract.capabilities || [])
+          operations: (summary.operations || []).map((item) => item.name),
+          built_in_capabilities: (summary.capabilities || [])
             .filter((item) => item.availability === "built-in")
             .map((item) => item.id),
           runtime_capabilities: (runtime.capabilities || [])
@@ -718,6 +797,7 @@ export function resolveProviderNeed(environment, need) {
 
 function parseOptions(argv) {
   const options = {_: []};
+  const booleanOptions = new Set(["full", "summary"]);
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (!token.startsWith("--")) {
@@ -725,6 +805,10 @@ function parseOptions(argv) {
       continue;
     }
     const name = token.slice(2);
+    if (booleanOptions.has(name)) {
+      options[name] = true;
+      continue;
+    }
     const value = argv[index + 1];
     if (value == null || value.startsWith("--")) fail(`--${name} 缺少值`);
     options[name] = value;
@@ -740,7 +824,7 @@ node scripts/local-media-environment.mjs resolve --need timeline-edit|timeline-r
 node scripts/local-media-environment.mjs cache-root [--config <路径>]
 node scripts/local-media-environment.mjs voice-list [--config <路径>]
 node scripts/local-media-environment.mjs voice-resolve --voice <id或名称> [--config <路径>]
-node scripts/local-media-environment.mjs mediaflow describe [--config <路径>]
+node scripts/local-media-environment.mjs mediaflow describe [--summary|--full|--operation <名称>|--catalog <名称>] [--config <路径>]
 node scripts/local-media-environment.mjs mediaflow execute --request <JSON文件或-> [--config <路径>]
 `);
 }
@@ -793,7 +877,23 @@ function main(argv) {
     return;
   }
   if (command === "mediaflow" && subcommand === "describe") {
-    printJson(mediaFlowResult(environment, ["describe"]));
+    const selectedViews = [
+      options.summary ? "summary" : null,
+      options.full ? "full" : null,
+      options.operation ? "operation" : null,
+      options.catalog ? "catalog" : null,
+    ].filter(Boolean);
+    if (selectedViews.length > 1) {
+      fail("MediaFlow Pro describe 每次只能选择 summary、full、operation 或 catalog 之一");
+    }
+    const describeArgs = options.full
+      ? ["describe"]
+      : options.operation
+        ? ["describe", "--operation", options.operation]
+        : options.catalog
+          ? ["describe", "--catalog", options.catalog]
+          : ["describe", "--summary"];
+    printJson(mediaFlowResult(environment, describeArgs));
     return;
   }
   if (command === "mediaflow" && subcommand === "execute") {

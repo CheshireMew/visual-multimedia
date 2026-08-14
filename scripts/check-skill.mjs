@@ -22,6 +22,7 @@ import { validateMediaReview } from "./validate-media-review.mjs";
 import { validateTextMotionLibrary } from "./text-motion-library.mjs";
 import { validateShotRecipeLibrary } from "./shot-recipe-library.mjs";
 import { validateVideoProductionProfileCatalog } from "./video-production-profile-catalog.mjs";
+import { validateJsonSchema } from "./json_schema_contract.mjs";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const skillRoot = path.dirname(scriptDir);
@@ -471,6 +472,35 @@ for (const localMediaResource of [
 ]) {
   ensurePath(localMediaResource);
 }
+const localMediaEnvironmentText = fs.readFileSync(
+  ensurePath("scripts/local-media-environment.mjs"),
+  "utf8",
+);
+for (const token of [
+  '["describe", "--summary"]',
+  '["describe", "--operation", name]',
+  '["describe", "--catalog", name]',
+  "mediaFlowProDescribeOperation(environment, operation)",
+  "mediaFlowDiscoveryCaches",
+]) {
+  if (!localMediaEnvironmentText.includes(token)) {
+    fail(`MediaFlow Pro 渐进式能力读取缺少：${token}`);
+  }
+}
+const structuredMediaEditorCliText = fs.readFileSync(
+  ensurePath("references/structured-media-editor-cli.md"),
+  "utf8",
+);
+for (const token of [
+  "mediaflow describe --operation <操作名>",
+  "mediaflow describe --catalog <字段目录名>",
+  "mediaflow describe --full",
+  "不是正式生产的默认入口",
+]) {
+  if (!structuredMediaEditorCliText.includes(token)) {
+    fail(`结构化编辑器说明缺少渐进式能力发现边界：${token}`);
+  }
+}
 for (const mediaBuildResource of [
   "scripts/media_build_contract.mjs",
   "scripts/self-test-media-build-contract.mjs",
@@ -545,6 +575,29 @@ for (const githubIntroResource of [
   "scripts/self-test-github-project-intro.mjs",
 ]) {
   ensurePath(githubIntroResource);
+}
+for (const sourceCommentaryResource of [
+  "references/source-video-commentary-production.md",
+  "assets/video-production-profiles/source-video-commentary/1.0.0/profile.json",
+  "assets/source-video-commentary-starter/README.md",
+  "assets/source-video-commentary-starter/source-video-commentary-script.md",
+  "assets/source-video-commentary-starter/source-video-commentary-draft.json",
+  "assets/source-video-commentary-starter/narration-bundle.json",
+  "schemas/source-video-commentary-analysis.v1.schema.json",
+  "schemas/source-video-commentary-authoring.v1.schema.json",
+  "schemas/source-video-commentary-authoring-confirmation.v1.schema.json",
+  "schemas/source-video-commentary-narration-candidates.v1.schema.json",
+  "schemas/source-video-commentary-draft.v1.schema.json",
+  "schemas/source-video-commentary-plan.v1.schema.json",
+  "schemas/source-video-commentary-plan-confirmation.v1.schema.json",
+  "scripts/source-video-commentary.mjs",
+  "scripts/source_video_commentary_preproduction.mjs",
+  "scripts/source_video_commentary_contract.mjs",
+  "scripts/source_video_commentary_render.mjs",
+  "scripts/self-test-source-video-commentary-preproduction.mjs",
+  "scripts/self-test-source-video-commentary.mjs",
+]) {
+  ensurePath(sourceCommentaryResource);
 }
 for (const videoProgressResource of [
   "references/web-visual-production.md",
@@ -711,9 +764,293 @@ for (const token of [
   }
 }
 
+const visualResourceGovernancePath = ensurePath("references/visual-resource-governance.md");
+const visualResourceGovernanceText = fs.readFileSync(visualResourceGovernancePath, "utf8");
+for (const token of [
+  "evidence-only",
+  "active style-profile",
+  "case_specific_visual_fingerprints",
+  "完整画布",
+  "assets/web-layout-templates/",
+  "不能依赖案例目录",
+]) {
+  if (!visualResourceGovernanceText.includes(token)) {
+    fail(`视觉资源治理缺少案例—模板—项目风格边界：${token}`);
+  }
+}
+for (const token of [
+  "references/visual-resource-governance.md",
+  "“看看、参考、分析”等要求",
+  "新的或实质变化的视觉方向确认后才写入风格档案并进入这些下游",
+  "自动选择只决定待确认样稿",
+  "“太丑”本身不等于整体改版",
+]) {
+  if (!skillText.includes(token)) {
+    fail(`SKILL.md 缺少视觉参考边界或完整画布确认：${token}`);
+  }
+}
+for (const token of [
+  "独立的作图前确认",
+  "确认前不得创建网页",
+  "只有用户明确要求“跳过确认，直接作图”",
+  "最终上图文字",
+  "画布宽高由筛选后的内容",
+  "固定画布只表示成品不会随窗口响应式重排",
+]) {
+  if (!skillText.includes(token)) {
+    fail(`SKILL.md 缺少静态作图前确认、内容筛选或内容决定尺寸合同：${token}`);
+  }
+}
+
+const visualRoutingRegressionPath = ensurePath("assets/visual-resource-routing-regressions.json");
+const visualRoutingRegressions = readJson(visualRoutingRegressionPath);
+const requiredVisualRoutingScenarios = new Map([
+  ["inspect-another-project-after-negative-feedback", "evidence-only"],
+  ["content-similarity-is-not-adoption", "evidence-only"],
+  ["explicit-visual-adoption", "explicit-visual-adoption"],
+  ["layout-template-does-not-set-style", "layout-template-instantiation"],
+  ["ugly-current-basis-is-not-redesign", "recompose-or-restyle"],
+  ["content-removal-recomposes-canvas", "recompose"],
+  ["tiny-type-uses-display-size", "typography-first-recompose"],
+  ["explicit-pre-drawing-confirmation-blocks-production", "pre-drawing-confirmation"],
+  ["content-curation-precedes-dimensions", "curate-confirm-size"],
+]);
+if (
+  visualRoutingRegressions?.protocol !== "visual-multimedia-visual-resource-routing-regressions"
+  || visualRoutingRegressions?.version !== 3
+  || !Array.isArray(visualRoutingRegressions?.scenarios)
+) {
+  fail("视觉资源路由回归场景缺少活动协议或版本");
+} else {
+  const diagnosticEvidence = new Map(
+    (visualRoutingRegressions.diagnostic_evidence || []).map((item) => [item.id, item]),
+  );
+  const mistakenSelectionEvidence = diagnosticEvidence.get("mistaken-case-selection-20260809");
+  const currentFeedbackEvidence = diagnosticEvidence.get("current-feedback-chain");
+  if (
+    mistakenSelectionEvidence?.use !== "historical-diagnostic-only"
+    || mistakenSelectionEvidence?.runtime_source !== false
+    || currentFeedbackEvidence?.use !== "generalized-into-regression-scenarios"
+    || currentFeedbackEvidence?.runtime_source !== false
+  ) {
+    fail("视觉资源路由回归没有把历史误选和当前反馈限定为诊断证据");
+  } else {
+    ensurePath(
+      mistakenSelectionEvidence.path,
+      "历史案例误选诊断证据",
+    );
+  }
+  const scenarios = new Map(
+    visualRoutingRegressions.scenarios.map((item) => [item.id, item]),
+  );
+  for (const [id, mode] of requiredVisualRoutingScenarios) {
+    const scenario = scenarios.get(id);
+    if (!scenario || scenario.expected_mode !== mode) {
+      fail(`视觉资源路由回归缺少 ${id} → ${mode}`);
+      continue;
+    }
+    if (!Array.isArray(scenario.preserve) || scenario.preserve.length === 0) {
+      fail(`视觉资源路由回归 ${id} 没有声明必须保留的活动项目状态`);
+    }
+  }
+  const inspectScenario = scenarios.get("inspect-another-project-after-negative-feedback");
+  if (
+    inspectScenario?.full_canvas_sample_before_export !== true
+    || !inspectScenario?.preserve?.includes("active-style-profile")
+    || !inspectScenario?.forbidden_reference_output?.includes("case-palette")
+    || !inspectScenario?.forbidden_reference_output?.includes("case-layout-coordinates")
+  ) {
+    fail("负面反馈—查看另一项目回归没有保留活动风格、隔离案例表面并要求完整画布确认");
+  }
+  const uglyCurrentBasis = scenarios.get("ugly-current-basis-is-not-redesign");
+  if (
+    uglyCurrentBasis?.full_canvas_sample_before_export !== true
+    || !uglyCurrentBasis?.preserve?.includes("editable-source")
+    || !uglyCurrentBasis?.forbidden_actions?.includes("restart-from-blank")
+    || !uglyCurrentBasis?.forbidden_actions?.includes("replace-layout-template-without-evidence")
+  ) {
+    fail("当前基础上的负面视觉反馈没有固定为诊断后重排或局部换装");
+  }
+  const contentRemoval = scenarios.get("content-removal-recomposes-canvas");
+  if (
+    !contentRemoval?.required_actions?.includes("recalculate-full-canvas")
+    || !contentRemoval?.required_actions?.includes("remove-retired-dividers")
+    || !contentRemoval?.required_actions?.includes("remove-retired-layout-branches")
+  ) {
+    fail("删减内容后的回归没有要求整张重排并退出旧分隔线与版式分支");
+  }
+  const tinyType = scenarios.get("tiny-type-uses-display-size");
+  if (
+    Number(tinyType?.minimum_primary_text_px) < 14
+    || Number(tinyType?.comfortable_primary_text_px) < 16
+    || !tinyType?.forbidden_actions?.includes("use-10px-technical-visibility-as-reading-quality")
+  ) {
+    fail("静态卡字号回归没有以实际展示宽度、14px 下限和 16px 舒适目标约束主要文字");
+  }
+  const preDrawingConfirmation = scenarios.get("explicit-pre-drawing-confirmation-blocks-production");
+  if (
+    preDrawingConfirmation?.allowed_skip !== "explicit-skip-confirmation-only"
+    || !preDrawingConfirmation?.required_output?.includes("exact-visible-copy")
+    || !preDrawingConfirmation?.required_output?.includes("proposed-content-derived-dimensions")
+    || !preDrawingConfirmation?.required_output?.includes("typography-color-surface-direction")
+    || !preDrawingConfirmation?.stop_before?.includes("html-css-generation")
+    || !preDrawingConfirmation?.stop_before?.includes("image-generation")
+    || !preDrawingConfirmation?.stop_before?.includes("template-instantiation")
+    || !preDrawingConfirmation?.stop_before?.includes("canvas-drawing")
+    || !preDrawingConfirmation?.forbidden_interpretations?.includes("complete-means-skip-confirmation")
+    || !preDrawingConfirmation?.forbidden_interpretations?.includes("later-vague-request-overrides-explicit-confirmation")
+  ) {
+    fail("正式作图前确认回归没有提交完整确认包、停止生产或限制为显式跳过");
+  }
+  const contentCuration = scenarios.get("content-curation-precedes-dimensions");
+  if (
+    !contentCuration?.required_actions?.includes("remove-ai-filler")
+    || !contentCuration?.required_actions?.includes("remove-audience-irrelevant-details")
+    || !contentCuration?.required_actions?.includes("remove-repeated-facts-and-numbers")
+    || !contentCuration?.required_actions?.includes("keep-each-fact-once")
+    || !contentCuration?.required_actions?.includes("derive-dimensions-after-curation")
+    || !contentCuration?.forbidden_actions?.includes("include-all-source-material")
+    || !contentCuration?.forbidden_actions?.includes("inherit-template-source-dimensions")
+  ) {
+    fail("内容筛选—可读字号—内容决定尺寸回归没有阻止废话、重复信息和模板尺寸先行");
+  }
+}
+
 const catalogPath = ensurePath("assets/web-card-cases/catalog.json");
 const catalog = readJson(catalogPath);
-const browserProjects = [path.dirname(starterManifest)];
+if (
+  catalog?.protocol !== "visual-multimedia-web-card-case-catalog"
+  || catalog?.version !== 2
+  || catalog?.default_role !== "production-evidence"
+  || !catalog?.adoption_policies?.["explicit-visual-adoption-only"]
+) {
+  fail("网页案例目录没有使用 production-evidence v2 与显式视觉采用策略");
+}
+const legacyCaseCatalogFields = ["use_when", "reuse", "adapt"];
+const caseIds = new Set();
+for (const item of catalog?.cases || []) {
+  if (!String(item.id || "").trim() || caseIds.has(item.id)) {
+    fail(`网页案例目录存在空白或重复 id：${item.id || "<empty>"}`);
+  }
+  caseIds.add(item.id);
+  for (const legacyField of legacyCaseCatalogFields) {
+    if (Object.hasOwn(item, legacyField)) {
+      fail(`案例 ${item.id} 仍保留会把内容匹配误写成视觉选择的旧字段 ${legacyField}`);
+    }
+  }
+  if (
+    !String(item.evidence_when || "").trim()
+    || !Array.isArray(item.transferable_mechanisms)
+    || item.transferable_mechanisms.length === 0
+    || !Array.isArray(item.current_project_decisions)
+    || item.current_project_decisions.length === 0
+    || !Array.isArray(item.case_specific_visual_fingerprints)
+    || item.case_specific_visual_fingerprints.length < 2
+    || item.adoption_policy !== "explicit-visual-adoption-only"
+    || !Array.isArray(item.verify)
+    || item.verify.length === 0
+  ) {
+    fail(`案例 ${item.id} 缺少证据职责、可迁移机制、当前项目决定、案例指纹、采用策略或验收项`);
+  }
+}
+const warmPaperCatalogEntry = (catalog?.cases || []).find(
+  (item) => item.id === "warm-paper-project-list",
+);
+const warmPaperFingerprints = JSON.stringify(
+  warmPaperCatalogEntry?.case_specific_visual_fingerprints || [],
+);
+for (const token of ["暖纸纹理", "超大描边期号", "金色星标", "整理贡献说明"]) {
+  if (!warmPaperFingerprints.includes(token)) {
+    fail(`暖纸项目清单案例没有登记会误导复刻的专属视觉指纹：${token}`);
+  }
+}
+
+const layoutTemplateCatalogPath = ensurePath("assets/web-layout-templates/catalog.json");
+const layoutTemplateCatalog = readJson(layoutTemplateCatalogPath);
+const layoutTemplateScript = ensurePath("scripts/create-web-layout-template.mjs");
+const staticCardQualitySelfTest = ensurePath("scripts/self-test-static-card-quality.mjs");
+const layoutTemplateScriptText = fs.readFileSync(layoutTemplateScript, "utf8");
+if (
+  layoutTemplateCatalog?.protocol !== "visual-multimedia-web-layout-template-catalog"
+  || layoutTemplateCatalog?.version !== 1
+  || !Array.isArray(layoutTemplateCatalog?.templates)
+  || layoutTemplateCatalog.templates.length === 0
+) {
+  fail("布局模板目录缺少活动协议、版本或真实模板");
+}
+if (
+  !layoutTemplateScriptText.includes("fs.cpSync")
+  || !layoutTemplateScriptText.includes("拒绝覆盖或合并")
+  || !layoutTemplateScriptText.includes("visual_source: false")
+) {
+  fail("布局模板实例化入口没有复制真实包、拒绝覆盖现有项目或声明不提供视觉身份");
+}
+const layoutTemplateIds = new Set();
+const layoutTemplateSourceProjects = [];
+for (const item of layoutTemplateCatalog?.templates || []) {
+  if (!String(item.id || "").trim() || layoutTemplateIds.has(item.id)) {
+    fail(`布局模板目录存在空白或重复 id：${item.id || "<empty>"}`);
+  }
+  layoutTemplateIds.add(item.id);
+  const relativeSource = String(item.source_package || "");
+  const sourceRoot = path.resolve(skillRoot, relativeSource);
+  const relativeToSkill = path.relative(skillRoot, sourceRoot);
+  if (
+    !relativeSource
+    || relativeToSkill.startsWith("..")
+    || path.isAbsolute(relativeToSkill)
+    || relativeSource.replaceAll("\\", "/").includes("assets/web-card-cases/")
+    || item.case_dependency !== "none"
+    || item.style_policy?.visual_source !== false
+    || item.style_policy?.default_surface !== "neutral-placeholder"
+    || item.size_policy?.source_dimensions !== "placeholder"
+    || item.size_policy?.project_dimensions !== "derive-from-confirmed-content"
+    || item.instantiate?.script !== "scripts/create-web-layout-template.mjs"
+  ) {
+    fail(`布局模板 ${item.id} 没有保持 Skill 内来源、案例独立、视觉中性、内容决定项目尺寸或唯一实例化入口`);
+    continue;
+  }
+  layoutTemplateSourceProjects.push(sourceRoot);
+  const sourceManifestPath = path.join(sourceRoot, "editable-media.json");
+  if (!fs.existsSync(sourceManifestPath)) {
+    fail(`布局模板 ${item.id} 的真实源包缺少 editable-media.json：${sourceManifestPath}`);
+    continue;
+  }
+  checkManifest(sourceManifestPath);
+  const sourceManifest = readJson(sourceManifestPath);
+  const sourceLayoutIds = new Set(
+    (sourceManifest?.layout_contracts || []).map((contract) => contract.id),
+  );
+  const sourceFieldIds = new Set(
+    (sourceManifest?.data_fields || []).map((field) => field.id),
+  );
+  if (
+    !Array.isArray(item.layout_ids)
+    || item.layout_ids.length === 0
+    || item.layout_ids.some((id) => !sourceLayoutIds.has(id))
+    || !Array.isArray(item.required_data_fields)
+    || item.required_data_fields.some((id) => !sourceFieldIds.has(id))
+    || !Number.isInteger(item.capacity?.maximum_primary_blocks)
+  ) {
+    fail(`布局模板 ${item.id} 的版式、字段或容量与真实源包不一致`);
+  }
+  if ((sourceManifest?.component?.tags || []).includes("static-card")) {
+    const thumbnail = sourceManifest?.quality?.thumbnail;
+    if (
+      !thumbnail
+      || Number(thumbnail.width) <= 0
+      || Number(thumbnail.minimum_text_px) < 14
+      || !Array.isArray(thumbnail.text_layer_ids)
+      || thumbnail.text_layer_ids.length === 0
+    ) {
+      fail(`静态卡布局模板 ${item.id} 没有声明实际展示宽度与至少 14px 的主要阅读文字下限`);
+    }
+  }
+}
+const browserProjects = Array.from(new Set([
+  path.dirname(starterManifest),
+  ...layoutTemplateSourceProjects,
+]));
 const browserCaseQa = [];
 const starterRuntime = ensurePath("assets/web-media-starter/editable-media-runtime.js");
 const starterRuntimeHash = sha256File(starterRuntime);
@@ -1029,6 +1366,65 @@ if (!videoProfileValidation.ok) {
   videoProfileValidation.errors.forEach((message) => fail(`视频生产 profile：${message}`));
 }
 
+{
+  const commentaryProfiles = (videoProfileValidation.catalog?.profiles || []).filter(
+    (item) => item.id === "source-video-commentary" && item.status === "active",
+  );
+  if (
+    commentaryProfiles.length !== 1
+    || commentaryProfiles[0]?.version !== "1.0.0"
+    || commentaryProfiles[0]?.public_entry !== "scripts/source-video-commentary.mjs"
+  ) {
+    fail("素材解说型视频必须只启用通过正式项目入口消费的 1.0.0 profile");
+  }
+  const commentaryProfile = readJson(
+    path.join(skillRoot, "assets", "video-production-profiles", "source-video-commentary", "1.0.0", "profile.json"),
+  );
+  const profileText = JSON.stringify(commentaryProfile);
+  for (const token of [
+    "narration-only",
+    "source-only",
+    "narration-with-source-bed",
+    "clip-selections.json",
+    "project.mfp",
+    "integrated-sample",
+    "speech.synthesize",
+    "background_music",
+    "source-video-commentary-analysis.v1.schema.json",
+  ]) {
+    if (!profileText.includes(token)) fail(`素材解说型 profile 缺少活动边界：${token}`);
+  }
+  for (const token of [
+    "references/source-video-commentary-production.md",
+    "source-video-commentary@1.0.0",
+  ]) {
+    if (!skillText.includes(token)) fail(`SKILL.md 缺少素材解说型正式路由：${token}`);
+  }
+  const draftStarter = readJson(path.join(skillRoot, "assets", "source-video-commentary-starter", "source-video-commentary-draft.json"));
+  const narrationStarter = readJson(path.join(skillRoot, "assets", "source-video-commentary-starter", "narration-bundle.json"));
+  for (const message of validateJsonSchema(draftStarter, path.join(skillRoot, "schemas", "source-video-commentary-draft.v1.schema.json"))) {
+    fail(`素材解说 draft starter：${message}`);
+  }
+  for (const message of validateJsonSchema(narrationStarter, path.join(skillRoot, "schemas", "narration-bundle.v1.schema.json"))) {
+    fail(`素材解说 narration starter：${message}`);
+  }
+  const planSchemaText = fs.readFileSync(path.join(skillRoot, "schemas", "source-video-commentary-plan.v1.schema.json"), "utf8");
+  if (planSchemaText.includes('"start_seconds"') || planSchemaText.includes('"end_seconds"')) {
+    fail("素材解说 production plan schema 复制了 clip selection 的源素材入点或出点");
+  }
+  for (const script of [
+    "source-video-commentary.mjs",
+    "source_video_commentary_preproduction.mjs",
+    "source_video_commentary_contract.mjs",
+    "source_video_commentary_render.mjs",
+    "self-test-source-video-commentary-preproduction.mjs",
+    "self-test-source-video-commentary.mjs",
+  ]) {
+    runChecked(process.execPath, ["--check", path.join(scriptDir, script)], `素材解说型脚本语法检查：${script}`);
+  }
+  runChecked(process.execPath, [path.join(scriptDir, "source-video-commentary.mjs"), "list-profiles"], "素材解说型公开 profile 入口检查");
+}
+
 if (failures.length === 0) {
   runChecked(
     process.execPath,
@@ -1042,6 +1438,14 @@ if (failures.length === 0) {
     process.execPath,
     [path.join(scriptDir, "self-test-production-providers.mjs")],
     "MediaFlow Pro 优先—本地完整能力—HyperFrames 明确选择路由检查",
+  );
+}
+
+if (failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [layoutTemplateScript, "list"],
+    "案例独立的中性布局模板目录与公开实例化入口检查",
   );
 }
 
@@ -1072,6 +1476,14 @@ if (runBrowserChecks && failures.length === 0) {
 if (runFullChecks && failures.length === 0) {
   runChecked(
     process.execPath,
+    [path.join(scriptDir, "self-test-source-video-commentary-preproduction.mjs")],
+    "素材解说型原始源片入账—镜头分析—写作包—音乐—authoring—profile 迁移检查",
+  );
+}
+
+if (runFullChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
     [path.join(reactStarterRoot, "scripts", "verify-reproducible-build.mjs")],
     "React editable-media 可复现构建",
     reactStarterRoot
@@ -1080,6 +1492,11 @@ if (runFullChecks && failures.length === 0) {
 
 if (runBrowserChecks && failures.length === 0) {
   const validator = path.join(scriptDir, "validate-editable-media.mjs");
+  runChecked(
+    process.execPath,
+    [staticCardQualitySelfTest],
+    "静态卡完整缩略图合同与实际显示字号硬失败回归"
+  );
   for (const project of browserProjects) {
     runChecked(process.execPath, [validator, project], `浏览器验证：${project}`);
   }
@@ -1118,6 +1535,14 @@ if (runFullChecks && failures.length === 0) {
     process.execPath,
     [path.join(scriptDir, "self-test-github-project-intro.mjs")],
     "GitHub 项目介绍注册语音—非 GUI/网页证据—双语字幕—MediaFlow 构建—审阅交付真实链路检查",
+  );
+}
+
+if (runFullChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-source-video-commentary.mjs"), "--provider", "local"],
+    "素材解说型三种逐段声音职责—综合样片—portable timeline—完整审看—source bundle 交付真实链路检查",
   );
 }
 
@@ -1742,8 +2167,8 @@ if (failures.length > 0) {
 }
 
 const successMessages = {
-  fast: `visual-multimedia fast 通过：静态合同、schema、资源索引、许可证、${catalog?.cases?.length || 0} 个网页案例与脚本入口均通过验证`,
+  fast: `visual-multimedia fast 通过：静态合同、schema、资源索引、许可证、${catalog?.cases?.length || 0} 个网页案例、${layoutTemplateCatalog?.templates?.length || 0} 个中性布局模板与脚本入口均通过验证`,
   browser: `visual-multimedia browser 通过：fast 档位、${browserProjects.length} 个真实网页包、确定性时间、透明视频进度条、文字动效与产品功能宣传片浏览器链路均通过验证`,
-  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、透明视频进度条、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片、GitHub 项目介绍与采访原声讲解型完整链路均通过验证`,
+  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、透明视频进度条、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片、GitHub 项目介绍、素材解说型与采访原声讲解型完整链路均通过验证`,
 };
 console.log(successMessages[checkMode]);

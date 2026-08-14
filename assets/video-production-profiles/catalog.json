@@ -26,6 +26,15 @@
       "public_entry": "scripts/product-promo.mjs",
       "status": "active",
       "version": "1.0.0"
+    },
+    {
+      "id": "source-video-commentary",
+      "name": "素材解说型视频",
+      "package": "source-video-commentary/1.0.0/profile.json",
+      "package_sha256": "5f26ee2ff7f4387de25d713b5bff1e3a6ab618a9c6659cc13cc32be48d8d022b",
+      "public_entry": "scripts/source-video-commentary.mjs",
+      "status": "active",
+      "version": "1.0.0"
     }
   ],
   "protocol": "visual-multimedia-video-production-profile-catalog",

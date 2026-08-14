@@ -853,12 +853,14 @@
       "creator-name": 16
     },
     "thumbnail": {
-      "width": 360,
+      "width": 480,
       "minimum_text_px": 8,
       "text_layer_ids": [
         "title",
         "short-title",
-        "deck"
+        "deck",
+        "evidence-stage",
+        "takeaway"
       ]
     },
     "variant_overrides": {
@@ -937,10 +939,14 @@
         "band_occupancy": null,
         "minimum_content_span": 0.88,
         "thumbnail": {
-          "width": 360,
+          "width": 960,
           "minimum_text_px": 8,
           "text_layer_ids": [
-            "title"
+            "title",
+            "short-title",
+            "deck",
+            "evidence-stage",
+            "takeaway"
           ]
         }
       },
@@ -981,7 +987,18 @@
             "min_px": 34
           }
         ],
-        "band_occupancy": null
+        "band_occupancy": null,
+        "thumbnail": {
+          "width": 600,
+          "minimum_text_px": 8,
+          "text_layer_ids": [
+            "title",
+            "short-title",
+            "deck",
+            "evidence-stage",
+            "takeaway"
+          ]
+        }
       }
     }
   },

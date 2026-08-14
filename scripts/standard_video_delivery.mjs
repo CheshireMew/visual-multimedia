@@ -223,23 +223,31 @@ export function finalizeStandardVideo(options) {
   assertStageApproved(state, "full-preview");
   const machine = readJson(projectPath(projectRoot, review.machine_review.report, "machine report"));
   const captionFile = report.captions.file || "";
+  const production = options.production || {
+    provider: "mediaflow",
+    truth_kind: "flat-render",
+    truth_files: [],
+    render_receipt: null,
+  };
+  const editability = options.editability || {
+    classification: "flat_render",
+    native_project: null,
+    limitations: ["最终 MP4 不能反向恢复独立网页镜头与时间线；继续编辑应使用项目中的计划、素材账本和源包。"],
+  };
+  const adoptedSourceIds = options.adoptedSourceIds || (readJson(sourcesPath).sources || []).map((item) => item.id);
   const delivery = {
     protocol: "visual-multimedia-delivery",
     version: 3,
     profile: "final",
     output: {file: relativeProjectPath(projectRoot, output)},
-    production: {provider: "mediaflow", truth_kind: "flat-render", truth_files: [], render_receipt: null},
-    editability: {
-      classification: "flat_render",
-      native_project: null,
-      limitations: ["最终 MP4 不能反向恢复独立网页镜头与时间线；继续编辑应使用项目中的计划、素材账本和源包。"],
-    },
+    production,
+    editability,
     project_state: relativeProjectPath(projectRoot, statePath),
     media_sources: relativeProjectPath(projectRoot, sourcesPath),
-    transcript: null,
-    clip_selections: null,
+    transcript: options.transcript ?? null,
+    clip_selections: options.clipSelections ?? null,
     media_review: relativeProjectPath(projectRoot, reviewPath),
-    adopted_source_ids: (readJson(sourcesPath).sources || []).map((item) => item.id),
+    adopted_source_ids: adoptedSourceIds,
     expected: {
       media_kind: "video",
       audio_required: options.audioRequired === true,
@@ -258,14 +266,14 @@ export function finalizeStandardVideo(options) {
     evidence: {
       captions: {required: options.captionsRequired === true, file: captionFile, font_status: captionFile ? "verified" : "not-applicable"},
       contact_sheet: {file: machine.contact_sheet, frames: 12, columns: 4},
-      rights_review: {status: "passed", notes: "素材账本已通过合同检查，正式采用项由当前项目记录。"},
+      rights_review: {status: "passed", notes: options.rightsReviewNotes || "素材账本已通过合同检查，正式采用项由当前项目记录。"},
     },
     report: `reports/media-delivery-report.${report.output.sha256.slice(0, 12)}.json`,
   };
   assertJsonSchema(delivery, DELIVERY_SCHEMA, "媒体交付");
   writeJson(deliveryPath, delivery);
   state.profile = options.profile;
-  state.contracts.timeline = relativeProjectPath(projectRoot, planPath);
+  state.contracts.timeline = options.timelineContract || relativeProjectPath(projectRoot, planPath);
   state.contracts.review = relativeProjectPath(projectRoot, reviewPath);
   state.contracts.delivery = relativeProjectPath(projectRoot, deliveryPath);
   state.blockers = [];

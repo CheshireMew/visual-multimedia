@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.source-video-commentary-plan.v1",
+  "title": "Source Video Commentary Production Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "project_id", "profile", "created_at", "inputs", "output", "background_music", "integrated_sample", "segments", "total_frames", "review_promises"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-source-video-commentary-plan"},
+    "version": {"const": 1},
+    "project_id": {"$ref": "#/$defs/id"},
+    "profile": {"const": "source-video-commentary@1.0.0"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "inputs": {"type": "array", "minItems": 5, "items": {"$ref": "#/$defs/input"}},
+    "output": {"$ref": "#/$defs/output"},
+    "background_music": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_id", "audio", "duration_seconds", "loop", "base_gain_db", "narration_reduction_db", "source_only_reduction_db", "fade_in_seconds", "fade_out_seconds"],
+          "properties": {
+            "source_id": {"$ref": "#/$defs/id"},
+            "audio": {"$ref": "#/$defs/binding"},
+            "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+            "loop": {"type": "boolean"},
+            "base_gain_db": {"type": "number", "maximum": 0},
+            "narration_reduction_db": {"type": "number", "maximum": 0},
+            "source_only_reduction_db": {"type": "number", "maximum": 0},
+            "fade_in_seconds": {"type": "number", "minimum": 0},
+            "fade_out_seconds": {"type": "number", "minimum": 0}
+          }
+        }
+      ]
+    },
+    "integrated_sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["segment_ids", "reason"],
+      "properties": {
+        "segment_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "segments": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/segment"}},
+    "total_frames": {"type": "integer", "minimum": 1},
+    "review_promises": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/promise"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"},
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "file", "sha256"],
+      "properties": {
+        "role": {"type": "string", "minLength": 1},
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "width", "height", "fps", "audio_sample_rate", "audio_channels", "background", "caption_mode"],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "width": {"type": "integer", "minimum": 16},
+        "height": {"type": "integer", "minimum": 16},
+        "fps": {"type": "integer", "minimum": 1},
+        "audio_sample_rate": {"type": "integer", "minimum": 8000},
+        "audio_channels": {"enum": [1, 2]},
+        "background": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+        "caption_mode": {"enum": ["burned-in", "embedded-track", "sidecar", "none"]}
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {"file": {"$ref": "#/$defs/localPath"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "visual": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "clip_selection_id", "source_id", "source", "fit", "freeze_when_shorter"],
+          "properties": {
+            "kind": {"const": "source-clip"}, "clip_selection_id": {"$ref": "#/$defs/id"}, "source_id": {"$ref": "#/$defs/id"},
+            "source": {"$ref": "#/$defs/binding"}, "fit": {"enum": ["contain", "cover", "stretch"]}, "freeze_when_shorter": {"type": "boolean"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "clip_selection_id", "source_id", "source", "fit", "frame"],
+          "properties": {
+            "kind": {"const": "source-freeze"}, "clip_selection_id": {"$ref": "#/$defs/id"}, "source_id": {"$ref": "#/$defs/id"},
+            "source": {"$ref": "#/$defs/binding"}, "fit": {"enum": ["contain", "cover", "stretch"]}, "frame": {"enum": ["start", "middle", "end"]}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "package", "manifest_sha256", "package_sha256", "variant", "fit"],
+          "properties": {
+            "kind": {"const": "editable-scene"}, "package": {"$ref": "#/$defs/localPath"}, "manifest_sha256": {"$ref": "#/$defs/sha256"},
+            "package_sha256": {"$ref": "#/$defs/sha256"}, "variant": {"type": ["string", "null"]}, "fit": {"enum": ["contain", "cover", "stretch"]}
+          }
+        }
+      ]
+    },
+    "narration": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["segment_id", "audio_source_id", "audio", "text_sha256", "duration_seconds"],
+          "properties": {
+            "segment_id": {"$ref": "#/$defs/id"}, "audio_source_id": {"$ref": "#/$defs/id"}, "audio": {"$ref": "#/$defs/binding"},
+            "text_sha256": {"$ref": "#/$defs/sha256"}, "duration_seconds": {"type": "number", "exclusiveMinimum": 0}
+          }
+        }
+      ]
+    },
+    "audio": {
+      "type": "object", "additionalProperties": false, "required": ["mode", "source_gain_db"],
+      "properties": {"mode": {"enum": ["narration-only", "source-only", "narration-with-source-bed"]}, "source_gain_db": {"type": "number", "maximum": 12}}
+    },
+    "caption": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "start_frame", "end_frame", "text", "language", "source_kind", "source_segment_ids"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "start_frame": {"type": "integer", "minimum": 0}, "end_frame": {"type": "integer", "minimum": 1},
+        "text": {"type": "string", "minLength": 1}, "language": {"type": "string", "minLength": 2},
+        "source_kind": {"enum": ["narration", "transcript", "editorial"]}, "source_segment_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+      }
+    },
+    "segment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "order", "purpose", "visual_role", "timeline_start_frame", "duration_frames", "visual", "narration", "audio", "captions"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "order": {"type": "integer", "minimum": 1}, "purpose": {"type": "string", "minLength": 1},
+        "visual_role": {"enum": ["hook", "setup", "evidence", "development", "turn", "payoff", "summary", "bridge"]},
+        "timeline_start_frame": {"type": "integer", "minimum": 0}, "duration_frames": {"type": "integer", "minimum": 1},
+        "visual": {"$ref": "#/$defs/visual"}, "narration": {"$ref": "#/$defs/narration"}, "audio": {"$ref": "#/$defs/audio"},
+        "captions": {"type": "array", "items": {"$ref": "#/$defs/caption"}}
+      }
+    },
+    "promise": {
+      "type": "object", "additionalProperties": false, "required": ["id", "source_pointer", "promise", "expected_value"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "source_pointer": {"type": "string", "pattern": "^/"}, "promise": {"type": "string", "minLength": 1}, "expected_value": {}}
+    }
+  }
+}

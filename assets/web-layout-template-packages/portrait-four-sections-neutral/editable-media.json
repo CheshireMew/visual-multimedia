@@ -1,0 +1,253 @@
+{
+  "protocol": "editable-media",
+  "version": 6,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "manual",
+    "fps": 30,
+    "loop": "none",
+    "controls": {
+      "keyboard": false,
+      "wheel": false,
+      "touch": false,
+      "overview": false
+    }
+  },
+  "accessibility": {
+    "title_data_field": "title",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "eyebrow",
+      "name": "眉题",
+      "kind": "text",
+      "selector": "[data-editable-id='eyebrow']",
+      "default_bounds": {"x": 60, "y": 48, "width": 960, "height": 44, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "title",
+      "name": "标题",
+      "kind": "text",
+      "selector": "[data-editable-id='title']",
+      "default_bounds": {"x": 60, "y": 92, "width": 960, "height": 88, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "summary",
+      "name": "导语",
+      "kind": "text",
+      "selector": "[data-editable-id='summary']",
+      "default_bounds": {"x": 60, "y": 196, "width": 960, "height": 120, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "section-1",
+      "name": "第一分区",
+      "kind": "group",
+      "selector": "[data-editable-id='section-1']",
+      "default_bounds": {"x": 60, "y": 352, "width": 960, "height": 214, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "section-2",
+      "name": "第二分区",
+      "kind": "group",
+      "selector": "[data-editable-id='section-2']",
+      "default_bounds": {"x": 60, "y": 586, "width": 960, "height": 214, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "section-3",
+      "name": "第三分区",
+      "kind": "group",
+      "selector": "[data-editable-id='section-3']",
+      "default_bounds": {"x": 60, "y": 820, "width": 960, "height": 214, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "section-4",
+      "name": "第四分区",
+      "kind": "group",
+      "selector": "[data-editable-id='section-4']",
+      "default_bounds": {"x": 60, "y": 1054, "width": 960, "height": 214, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "footer",
+      "name": "页脚",
+      "kind": "text",
+      "selector": "[data-editable-id='footer']",
+      "default_bounds": {"x": 60, "y": 1332, "width": 960, "height": 52, "rotation": 0},
+      "editable": ["x", "y", "width", "height", "opacity", "z_index", "visible"],
+      "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "portrait-four-sections-neutral",
+    "name": "竖版四分区中性卡片",
+    "category": "cards",
+    "tags": ["social-card", "static-card", "portrait", "multi-section", "neutral-template"]
+  },
+  "theme_variables": [
+    {"id": "background", "name": "背景", "kind": "color", "css_variable": "--background", "default": "#FFFFFF"},
+    {"id": "surface", "name": "内容底面", "kind": "color", "css_variable": "--surface", "default": "#F2F3F5"},
+    {"id": "text", "name": "正文", "kind": "color", "css_variable": "--text", "default": "#171A1F"},
+    {"id": "muted", "name": "次级文字", "kind": "color", "css_variable": "--muted", "default": "#667085"},
+    {"id": "rule", "name": "分隔线", "kind": "color", "css_variable": "--rule", "default": "#D0D5DD"},
+    {"id": "accent", "name": "占位强调色", "kind": "color", "css_variable": "--accent", "default": "#315EFB"},
+    {"id": "font_display", "name": "标题字体", "kind": "font", "css_variable": "--font-display", "default": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif"},
+    {"id": "font_body", "name": "正文字体", "kind": "font", "css_variable": "--font-body", "default": "\"Noto Sans SC\", \"Microsoft YaHei\", sans-serif"},
+    {"id": "font_display_weight", "name": "标题字重", "kind": "number", "css_variable": "--font-display-weight", "default": 760, "constraints": {"minimum": 500, "maximum": 900, "step": 20}},
+    {"id": "font_body_weight", "name": "正文字重", "kind": "number", "css_variable": "--font-body-weight", "default": 520, "constraints": {"minimum": 400, "maximum": 700, "step": 20}}
+  ],
+  "parameters": [],
+  "scenes": [
+    {
+      "id": "full-card",
+      "name": "完整卡片",
+      "page_role": "explanation",
+      "content_shape": "claim-with-four-sections",
+      "layout_id": "portrait-four-sections",
+      "duration_ms": 1000,
+      "primary_blocks": 4,
+      "steps": [
+        {
+          "id": "complete",
+          "at_ms": 0,
+          "label": "完整内容",
+          "state_kind": "start",
+          "review": false,
+          "description": "固定竖版画布同时展示标题、导语、四个一级分区和页脚。"
+        }
+      ],
+      "motion": {
+        "complexity": "static",
+        "driver": "none",
+        "semantic_purpose": "静态卡片按单一阅读顺序承载四个一级分区。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {},
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "portrait-four-sections",
+      "name": "竖版标题与四分区",
+      "page_roles": ["explanation", "evidence", "comparison", "action"],
+      "content_shapes": ["claim-with-four-sections", "multi-section-explainer", "decision-field-guide"],
+      "required_data_fields": [
+        "eyebrow", "title", "summary",
+        "section_1_kicker", "section_1_title", "section_1_body",
+        "section_2_kicker", "section_2_title", "section_2_body",
+        "section_3_kicker", "section_3_title", "section_3_body",
+        "section_4_kicker", "section_4_title", "section_4_body",
+        "footer"
+      ],
+      "required_layer_ids": ["eyebrow", "title", "summary", "section-1", "section-2", "section-3", "section-4", "footer"],
+      "title_layer_ids": ["title"],
+      "content_layer_ids": ["summary", "section-1", "section-2", "section-3", "section-4", "footer"],
+      "capacity": {
+        "maximum_primary_blocks": 4
+      },
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "portrait",
+      "name": "1080 × 1440 竖版",
+      "canvas": {
+        "width": 1080,
+        "height": 1440,
+        "background_mode": "opaque",
+        "background_color": "#FFFFFF"
+      },
+      "layers": {}
+    }
+  ],
+  "default_variant_id": "portrait",
+  "data_fields": [
+    {"id": "eyebrow", "name": "眉题", "kind": "string", "default": "PORTRAIT EXPLAINER"},
+    {"id": "title", "name": "标题", "kind": "string", "default": "一张卡讲清一个完整判断"},
+    {"id": "summary", "name": "导语", "kind": "string", "default": "标题先给出结论，四个分区分别承担必要证据、解释、边界和行动。"},
+    {"id": "section_1_kicker", "name": "第一分区标签", "kind": "string", "default": "01 发生了什么"},
+    {"id": "section_1_title", "name": "第一分区标题", "kind": "string", "default": "先交代最重要的变化"},
+    {"id": "section_1_body", "name": "第一分区正文", "kind": "string", "default": "正文保留足以支撑结论的事实，不把原始材料全部塞进画布。"},
+    {"id": "section_2_kicker", "name": "第二分区标签", "kind": "string", "default": "02 为什么重要"},
+    {"id": "section_2_title", "name": "第二分区标题", "kind": "string", "default": "解释事实与结论之间的关系"},
+    {"id": "section_2_body", "name": "第二分区正文", "kind": "string", "default": "每条信息只保留一个主要位置，注释紧挨它真正解释的对象。"},
+    {"id": "section_3_kicker", "name": "第三分区标签", "kind": "string", "default": "03 需要注意"},
+    {"id": "section_3_title", "name": "第三分区标题", "kind": "string", "default": "保留会改变理解的边界"},
+    {"id": "section_3_body", "name": "第三分区正文", "kind": "string", "default": "边界直接说明条件和未知，不使用只有内部人员才能理解的缩写。"},
+    {"id": "section_4_kicker", "name": "第四分区标签", "kind": "string", "default": "04 怎么使用"},
+    {"id": "section_4_title", "name": "第四分区标题", "kind": "string", "default": "最后给出读者真正能采取的行动"},
+    {"id": "section_4_body", "name": "第四分区正文", "kind": "string", "default": "内容超出容量时改比例、压缩次要信息或拆页，不通过缩小字号解决。"},
+    {"id": "footer", "name": "页脚", "kind": "string", "default": "来源、署名或必要说明"}
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title", "layer_id": "title"},
+    "required_layer_ids": ["eyebrow", "title", "summary", "section-1", "section-2", "section-3", "section-4", "footer"],
+    "bounds_tolerance_px": 1,
+    "minimum_font_px": {
+      "eyebrow": 28,
+      "title": 56,
+      "summary": 42,
+      "section-1": 42,
+      "section-2": 42,
+      "section-3": 42,
+      "section-4": 42,
+      "footer": 28
+    },
+    "minimum_gaps": [
+      {"above": "summary", "below": "section-1", "min_px": 32},
+      {"above": "section-1", "below": "section-2", "min_px": 20},
+      {"above": "section-2", "below": "section-3", "min_px": 20},
+      {"above": "section-3", "below": "section-4", "min_px": 20},
+      {"above": "section-4", "below": "footer", "min_px": 40}
+    ],
+    "content_bounds_layer_ids": ["eyebrow", "title", "summary", "section-1", "section-2", "section-3", "section-4", "footer"],
+    "minimum_content_span": 0.92,
+    "thumbnail": {
+      "width": 360,
+      "minimum_text_px": 14,
+      "text_layer_ids": ["title", "summary", "section-1", "section-2", "section-3", "section-4"]
+    },
+    "navigation_safe_area": {
+      "bottom": 36,
+      "layer_ids": ["footer"]
+    },
+    "bottom_whitespace": {
+      "content_layer_ids": ["footer"],
+      "maximum_ratio": 0.04
+    }
+  },
+  "delivery": {
+    "preview": "local-server",
+    "remote_dependencies": "forbid"
+  },
+  "resources": [
+    "editable-media-runtime.js",
+    "editable-media-editor.css",
+    "editable-media-editor.js",
+    "typography-presets.json"
+  ],
+  "frame_readiness": {
+    "default_timeout_ms": 10000,
+    "maximum_timeout_ms": 30000,
+    "retry_limit": 1
+  }
+}
