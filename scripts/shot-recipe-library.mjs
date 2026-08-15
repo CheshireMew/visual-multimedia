@@ -14,6 +14,7 @@ import {
   EDITABLE_MEDIA_SOURCES_CONTRACT,
   validateMediaSources,
 } from "./validate-media-sources.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -427,7 +428,7 @@ export function materializeShotRecipe({
   aspectRatio,
   selectionReason,
 }) {
-  const project = path.resolve(projectRoot || "");
+  const project = assertSkillTaskPath(path.resolve(projectRoot || ""), "projectRoot");
   if (!fs.existsSync(project) || !fs.statSync(project).isDirectory()) throw new Error(`项目目录不存在：${project}`);
   if (typeof selectionReason !== "string" || !selectionReason.trim()) {
     throw new Error("物化活动镜头必须提供 selectionReason");

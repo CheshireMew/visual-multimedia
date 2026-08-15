@@ -11,6 +11,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from media_task_workspace import assert_skill_task_path
+
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -161,17 +163,10 @@ def probe_video(source: Path, ffprobe: str) -> dict[str, Any]:
     return probe
 
 
-def ensure_external_project(project: str | Path) -> Path:
-    root = Path(project).expanduser().resolve()
+def ensure_skill_task_project(project: str | Path) -> Path:
+    root = assert_skill_task_path(project, "角色源素材项目")
     if not root.is_dir():
         raise FileNotFoundError(f"媒体项目目录不存在：{root}")
-    skill_root = SKILL_ROOT.resolve()
-    try:
-        root.relative_to(skill_root)
-    except ValueError:
-        pass
-    else:
-        raise ValueError("可变角色项目必须位于 Skill 源码目录之外")
     manifest = root / "media-sources.json"
     if not manifest.is_file():
         raise FileNotFoundError(f"项目目录缺少 media-sources.json：{root}")

@@ -167,7 +167,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--project",
-        help="检查一个由 adopt-library 建立的全新外部项目是否实际解析注册资源",
+        help="检查一个由 adopt-library 建立的全新 Skill 任务项目是否实际解析注册资源",
     )
     return parser.parse_args()
 

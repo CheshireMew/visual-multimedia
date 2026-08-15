@@ -6,6 +6,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { assertJsonSchema } from "./json_schema_contract.mjs";
 import { validateMediaSources } from "./validate-media-sources.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SCHEMA_PATH = path.resolve(
@@ -230,7 +231,7 @@ function validateOrThrow(profilePath, projectRoot) {
 }
 
 function createProfile(args) {
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   mediaSources(projectRoot);
   const profilePath = relativeProfilePath(projectRoot, args);
   const scope = required(args, "scope");
@@ -275,7 +276,7 @@ function createProfile(args) {
 }
 
 function addCue(args) {
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   const profilePath = relativeProfilePath(projectRoot, args);
   const profile = readProfile(profilePath);
   const cueId = requireId(required(args, "cue-id"), "cue id");
@@ -312,7 +313,7 @@ function addCue(args) {
 }
 
 function setDucking(args) {
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   const profilePath = relativeProfilePath(projectRoot, args);
   const profile = readProfile(profilePath);
   const enabled = boolean(required(args, "enabled"), "--enabled");
@@ -336,7 +337,7 @@ function setDucking(args) {
 }
 
 function linkMotion(args) {
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   const profilePath = relativeProfilePath(projectRoot, args);
   const profile = readProfile(profilePath);
   const cueId = requireId(required(args, "cue-id"), "cue id");
@@ -366,7 +367,7 @@ function linkMotion(args) {
 }
 
 function validateCommand(args) {
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   return validateOrThrow(relativeProfilePath(projectRoot, args), projectRoot);
 }
 

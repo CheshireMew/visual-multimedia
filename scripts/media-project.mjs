@@ -19,6 +19,7 @@ import {
   validateProjectState,
   writeJson,
 } from "./media_project_state.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 function usage() {
   console.log(`用法：
@@ -76,7 +77,7 @@ function required(args, name) {
 }
 
 function projectPaths(args) {
-  const project = path.resolve(required(args, "project"));
+  const project = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   return {
     project,
     state: path.join(project, "media-project-state.json"),

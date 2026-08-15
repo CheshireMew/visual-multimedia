@@ -18,7 +18,7 @@ from anime_avatar_media import (
     VERSION_RE,
     contact_sheet,
     ensure_crop,
-    ensure_external_project,
+    ensure_skill_task_project,
     executable,
     file_sha256,
     load_cropped_frames,
@@ -30,6 +30,7 @@ from anime_avatar_media import (
     validate_media_manifest,
     write_json,
 )
+from media_task_workspace import assert_skill_task_path
 
 
 PROJECT_PROTOCOL = "visual-multimedia-anime-avatar-source-project"
@@ -44,14 +45,7 @@ def utc_now() -> str:
 
 
 def project_for_init(value: str) -> Path:
-    root = Path(value).expanduser().resolve()
-    skill_root = SKILL_ROOT.resolve()
-    try:
-        root.relative_to(skill_root)
-    except ValueError:
-        pass
-    else:
-        raise ValueError("可变角色项目必须位于 Skill 源码目录之外")
+    root = assert_skill_task_path(value, "角色源素材项目")
     root.mkdir(parents=True, exist_ok=True)
     manifest = root / "media-sources.json"
     if not manifest.exists():
@@ -411,7 +405,7 @@ def init_command(args: argparse.Namespace) -> int:
 
 
 def configure_command(args: argparse.Namespace) -> int:
-    root = ensure_external_project(args.project)
+    root = ensure_skill_task_project(args.project)
     project = validate_project_record(read_json(project_file(root)))
     if project["kind"] != "project":
         raise ValueError("已采用注册资源的项目不能改写注册包")
@@ -472,7 +466,7 @@ def configure_command(args: argparse.Namespace) -> int:
 
 
 def prepare_review_command(args: argparse.Namespace) -> int:
-    root = ensure_external_project(args.project)
+    root = ensure_skill_task_project(args.project)
     package, package_path, package_root = resolve_package(root)
     if package_path != local_package_file(root):
         raise ValueError("已注册资源只读；请在候选项目中准备审阅")
@@ -590,7 +584,7 @@ def prepare_review_command(args: argparse.Namespace) -> int:
 
 
 def confirm_review_command(args: argparse.Namespace) -> int:
-    root = ensure_external_project(args.project)
+    root = ensure_skill_task_project(args.project)
     package, package_path, package_root = resolve_package(root)
     if package_path != local_package_file(root):
         raise ValueError("已注册资源只读")
@@ -629,7 +623,7 @@ def confirm_review_command(args: argparse.Namespace) -> int:
 
 
 def validate_command(args: argparse.Namespace) -> int:
-    root = ensure_external_project(args.project)
+    root = ensure_skill_task_project(args.project)
     package, package_path, package_root = resolve_package(root)
     resolved = validate_source_set(
         package,
@@ -728,7 +722,7 @@ def _copy_registered_files(
 def register_command(args: argparse.Namespace) -> int:
     if not args.confirm_long_term_reuse:
         raise ValueError("注册共享资源必须显式传入 --confirm-long-term-reuse")
-    root = ensure_external_project(args.project)
+    root = ensure_skill_task_project(args.project)
     project = validate_project_record(read_json(project_file(root)))
     if project["kind"] != "project":
         raise ValueError("当前项目已经采用注册资源")

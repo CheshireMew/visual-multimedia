@@ -13,11 +13,9 @@ const require = createRequire(import.meta.url);
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.resolve(SCRIPT_DIR, "..");
 const PACKAGE_ROOT = path.join(SKILL_ROOT, "assets", "web-media-starter");
-const TEST_PARENT = process.platform === "win32" && fs.existsSync("D:\\Tools")
-  ? "D:\\Tools\\visual-multimedia-tests"
-  : os.tmpdir();
+const TEST_PARENT = path.join(SKILL_ROOT, "artifacts", "self-tests");
 const ROOT = path.join(
-  path.resolve(process.env.VISUAL_MULTIMEDIA_TEST_ROOT || TEST_PARENT),
+  TEST_PARENT,
   "editable-preview",
   `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
 );

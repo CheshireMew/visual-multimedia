@@ -82,7 +82,9 @@ function runValidator(packageRoot) {
 }
 
 async function main() {
-  const testRoot = fs.mkdtempSync(path.join(os.tmpdir(), "visual-multimedia-progress-bar-"));
+  const testParent = path.join(SKILL_ROOT, "artifacts", "self-tests");
+  fs.mkdirSync(testParent, {recursive: true});
+  const testRoot = fs.mkdtempSync(path.join(testParent, "video-progress-bar-"));
   const specPath = path.join(testRoot, "spec.json");
   const outputRoot = path.join(testRoot, "generated");
   const spec = {

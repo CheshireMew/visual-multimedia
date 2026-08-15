@@ -44,6 +44,7 @@ import {createOperationRun} from "./media_operation_run.mjs";
 import {assertStageApproved, submitStage, validateProjectState} from "./media_project_state.mjs";
 import {finalizeStandardVideo, reviewStandardVideo} from "./standard_video_delivery.mjs";
 import {sha256Tree} from "./shot-recipe-library.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -107,7 +108,7 @@ function adoptOpeningAudio(projectRoot, projectId, registry, variant) {
 }
 
 export function createGithubProjectIntro(options) {
-  const projectRoot = path.resolve(options.project);
+  const projectRoot = assertSkillTaskPath(path.resolve(options.project), "project");
   const projectId = ensureProjectId(options.projectId);
   const openingVariant = options.openingVariant || "recently";
   if (!new Set(["today", "recently"]).has(openingVariant)) throw new Error("opening variant 只能是 today 或 recently");
@@ -653,7 +654,7 @@ async function main(argv) {
     process.exitCode = 2;
     return;
   }
-  const project = path.resolve(requireArg(args, "project"));
+  const project = assertSkillTaskPath(path.resolve(requireArg(args, "project")), "--project");
   if (command === "create") {
     const result = createGithubProjectIntro({
       project,

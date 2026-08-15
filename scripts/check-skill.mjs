@@ -475,7 +475,10 @@ for (const localMediaResource of [
 const staticCardWorkbenchPath = ensurePath("scripts/static-card-workbench.mjs");
 const staticCardWorkbenchSelfTest = ensurePath("scripts/self-test-static-card-workbench.mjs");
 const staticCardWorkbenchTemplate = ensurePath("assets/static-card-workbench/base.html");
+const mediaTaskWorkspacePath = ensurePath("scripts/media-task-workspace.mjs");
+ensurePath("scripts/media_task_workspace.py");
 const staticCardWorkbenchText = fs.readFileSync(staticCardWorkbenchPath, "utf8");
+const mediaTaskWorkspaceText = fs.readFileSync(mediaTaskWorkspacePath, "utf8");
 const staticCardWorkbenchTemplateText = fs.readFileSync(staticCardWorkbenchTemplate, "utf8");
 for (const token of [
   "拒绝覆盖现有文件",
@@ -483,9 +486,56 @@ for (const token of [
   "data-placeholder",
   "style-file",
   "listenOnBrowserSafePort",
+  "assertSkillTaskPath",
 ]) {
   if (!staticCardWorkbenchText.includes(token)) {
     fail(`轻量静态卡工作台缺少安全创建、真实显示检查或显式样式入口：${token}`);
+  }
+}
+for (const token of ["TASK_WORKSPACE_ROOT", "artifacts", "assertSkillTaskPath", "ensureTaskWorkspace"]) {
+  if (!mediaTaskWorkspaceText.includes(token)) {
+    fail(`任务工作区解析器缺少固定 Skill 内生产边界：${token}`);
+  }
+}
+for (const writer of [
+  "analyze-music-beats.mjs",
+  "capture-product-ui.mjs",
+  "create-media-proxy.mjs",
+  "create-video-direction-plan.mjs",
+  "create-video-progress-bar.mjs",
+  "create-web-layout-template.mjs",
+  "explanatory-broll-studio.mjs",
+  "github-project-intro.mjs",
+  "import-media-asset.mjs",
+  "import-media-transcript.mjs",
+  "interview-explainer.mjs",
+  "manage-generation-job.mjs",
+  "media-project.mjs",
+  "media-resource-library.mjs",
+  "media-timeline.mjs",
+  "prepare-hyperframes-render.mjs",
+  "product-promo.mjs",
+  "production-captions.mjs",
+  "render-web-media-local.mjs",
+  "shot-recipe-library.mjs",
+  "sound-production-profile.mjs",
+  "source-video-commentary.mjs",
+  "static-card-workbench.mjs",
+  "text-motion-library.mjs",
+]) {
+  if (!fs.readFileSync(path.join(scriptDir, writer), "utf8").includes("assertSkillTaskPath")) {
+    fail(`公共生产入口没有使用 Skill 任务工作区校验：${writer}`);
+  }
+}
+for (const writer of [
+  "anime_avatar_common.py",
+  "anime_avatar_media.py",
+  "anime-avatar-source.py",
+  "compose-anime-avatar-inset.py",
+  "synthesize-avatar-speech.py",
+]) {
+  if (!fs.readFileSync(path.join(scriptDir, writer), "utf8").includes("assert_skill_task_path")) {
+    fail(`Python 公共生产入口没有使用 Skill 任务工作区校验：${writer}`);
   }
 }
 for (const token of [
@@ -813,7 +863,7 @@ for (const token of [
   "不自动采用案例配色",
   "personal-visual/card-style/",
   "完整图像是证据真源",
-  "候选放在仓库外",
+  "候选放在当前 Skill",
   "不能被列成个人风格候选",
   "真实画布",
   "assets/web-layout-templates/",
@@ -830,6 +880,8 @@ for (const token of [
   "只有结构化网页和系列复用才建立项目风格档案",
   "第一张真实完整画布作为唯一设计确认稿",
   "“太丑”本身不等于整体改版",
+  "artifacts/<task-id>/",
+  "当前终端目录、活动 Git 仓库",
 ]) {
   if (!skillText.includes(token)) {
     fail(`SKILL.md 缺少视觉参考边界或完整画布确认：${token}`);
@@ -869,7 +921,7 @@ for (const token of [
   "才改走文字确认",
   "scripts/static-card-workbench.mjs create",
   "scripts/static-card-workbench.mjs",
-  "空白 `index.html`",
+  "空白 `static-card/index.html`",
   "不会自动读取个人 CSS",
   "未选候选不是个人风格",
   "尽快给用户看图",
@@ -1789,8 +1841,10 @@ if (runFullChecks && failures.length === 0) {
     "可移植时间线—画面—定格—音频—双语字幕—改真源再导出检查",
   );
   const mediaCaseSource = ensurePath("assets/media-delivery-case");
-  const mediaCase = fs.mkdtempSync(
-    path.join(os.tmpdir(), "visual-multimedia-media-delivery-case-")
+  const mediaCase = path.join(
+    skillRoot,
+    "artifacts",
+    `mc-${Date.now().toString(36)}-${process.pid}`,
   );
   fs.cpSync(mediaCaseSource, mediaCase, { recursive: true });
   const caseManifest = path.join(mediaCase, "media-sources.json");
@@ -2290,7 +2344,7 @@ if (runFullChecks && failures.length === 0) {
   }
 
   if (fs.existsSync(path.join(skillRoot, "plans"))) {
-    fail("Skill 源码根目录仍含项目运行计划；采访和角色计划必须只存在于 Skill 外部项目");
+    fail("Skill 源码根目录仍含项目运行计划；采访和角色计划必须只存在于 artifacts/<task-id>/");
   }
 
   for (const script of [
@@ -2338,8 +2392,11 @@ if (runFullChecks && failures.length === 0) {
       "正式素材导入—听音转写—选段—网页场景—采访 v2 计划消费者检查"
     );
 
-    const coldStartRoot = fs.mkdtempSync(
-      path.join(os.tmpdir(), "visual-multimedia-interview-starter-")
+    const coldStartRoot = path.join(
+      skillRoot,
+      "artifacts",
+      "self-tests",
+      `interview-starter-${Date.now()}-${process.pid}`,
     );
     runChecked(
       process.execPath,
@@ -2351,7 +2408,7 @@ if (runFullChecks && failures.length === 0) {
         "--project-id",
         "interview-starter-contract-check",
       ],
-      "Skill 外部采访原声讲解型项目生产入口检查"
+      "Skill 内采访原声讲解型项目生产入口检查"
     );
     for (const packageId of ["context", "explanation-01", "summary"]) {
       checkManifest(

@@ -16,6 +16,7 @@ import {
 } from "./local-media-environment.mjs";
 import {materializeShotRecipe, sha256Tree} from "./shot-recipe-library.mjs";
 import {validateVideoDirectionPlan} from "./validate-video-direction-plan.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.resolve(SCRIPT_DIR, "..");
@@ -748,7 +749,7 @@ async function main(argv) {
     usage();
     return args.help || args.h ? 0 : 1;
   }
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   if (!fs.statSync(projectRoot, {throwIfNoEntry: false})?.isDirectory()) {
     throw new Error(`媒体项目目录不存在：${projectRoot}`);
   }

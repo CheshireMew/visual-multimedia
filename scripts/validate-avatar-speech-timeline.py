@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from anime_avatar_media import (
-    ensure_external_project,
+    ensure_skill_task_project,
     executable,
     file_sha256,
     probe_media,
@@ -189,7 +189,7 @@ def main() -> int:
     parser.add_argument("--output-report")
     parser.add_argument("--ffprobe")
     args = parser.parse_args()
-    root = ensure_external_project(args.project)
+    root = ensure_skill_task_project(args.project)
     timeline_path = Path(args.timeline).expanduser()
     if not timeline_path.is_absolute():
         timeline_path = root / timeline_path

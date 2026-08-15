@@ -16,6 +16,7 @@ import {
   sha256File,
   writeJson,
 } from "./interview_explainer_common.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -106,7 +107,7 @@ function fitGrid(envelope, minimumBpm, maximumBpm) {
 }
 
 export function analyzeMusicBeats({projectRoot, inputPath, outputPath, ffmpegPath = null, minimumBpm = 70, maximumBpm = 180}) {
-  const project = path.resolve(projectRoot);
+  const project = assertSkillTaskPath(path.resolve(projectRoot), "projectRoot");
   const input = path.resolve(inputPath);
   const output = path.resolve(outputPath);
   relativeProjectPath(project, input);

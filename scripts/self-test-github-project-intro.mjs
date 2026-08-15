@@ -22,10 +22,8 @@ import {sha256Tree} from "./shot-recipe-library.mjs";
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
 const SKILL_ROOT = path.resolve(SCRIPT_DIR, "..");
-const ROOT = process.platform === "win32" && fs.existsSync("D:\\Tools")
-  ? "D:\\Tools\\visual-multimedia-tests"
-  : process.env.TEMP;
-const RUN_ROOT = path.join(ROOT, "github-project-intro", `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`);
+const ROOT = path.join(SKILL_ROOT, "artifacts");
+const RUN_ROOT = path.join(ROOT, `gh-${Date.now().toString(36)}-${crypto.randomBytes(3).toString("hex")}`);
 const IMPORTER = path.join(SCRIPT_DIR, "import-media-asset.mjs");
 
 function assert(condition, message) {

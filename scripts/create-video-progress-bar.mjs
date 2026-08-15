@@ -13,6 +13,7 @@ import {
   EDITABLE_MEDIA_SOURCES_CONTRACT,
   validateMediaSources,
 } from "./validate-media-sources.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -192,7 +193,7 @@ export function createVideoProgressBar(specPath, outputPath) {
   const errors = validateSpec(spec);
   if (errors.length) throw new Error(`进度条参数无效：\n- ${errors.join("\n- ")}`);
 
-  const output = path.resolve(outputPath);
+  const output = assertSkillTaskPath(path.resolve(outputPath), "--output");
   if (fs.existsSync(output)) throw new Error(`输出目录已经存在，拒绝覆盖：${output}`);
   const parent = path.dirname(output);
   fs.mkdirSync(parent, {recursive: true});

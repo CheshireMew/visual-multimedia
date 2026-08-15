@@ -17,6 +17,7 @@ import {
   sha256File,
   writeJson,
 } from "./interview_explainer_common.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -59,7 +60,7 @@ function ensureNewFile(filePath, label) {
 }
 
 export async function captureProductUi({projectRoot, specPath, reportPath, executablePath = null}) {
-  const project = path.resolve(projectRoot);
+  const project = assertSkillTaskPath(path.resolve(projectRoot), "projectRoot");
   const specFile = path.resolve(specPath);
   const reportFile = path.resolve(reportPath);
   const spec = readJson(specFile);

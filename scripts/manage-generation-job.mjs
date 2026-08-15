@@ -13,6 +13,7 @@ import {
   validateGenerationJobs,
 } from "./validate-generation-jobs.mjs";
 import { validateVideoDirectionPlan } from "./validate-video-direction-plan.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
@@ -818,7 +819,7 @@ function main() {
   }
   const command = argv[0];
   const args = parseArgs(argv.slice(1));
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   if (!fs.existsSync(projectRoot) || !fs.statSync(projectRoot).isDirectory()) {
     throw new Error(`项目目录不存在：${projectRoot}`);
   }

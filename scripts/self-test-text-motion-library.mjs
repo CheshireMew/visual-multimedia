@@ -130,8 +130,10 @@ async function main() {
     "中文语义搜索没有找到符合分段和能量条件的效果"
   );
   const skillRoot = path.resolve(libraryRoot, "..", "..");
+  const testRoot = path.join(skillRoot, "artifacts", "self-tests");
+  fs.mkdirSync(testRoot, {recursive: true});
   const materializedRoot = fs.mkdtempSync(
-    path.join(os.tmpdir(), "visual-multimedia-text-motion-")
+    path.join(testRoot, "text-motion-")
   );
   fs.cpSync(
     path.join(skillRoot, "assets", "web-media-starter"),

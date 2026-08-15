@@ -85,10 +85,7 @@ function assertValidation(validation, label) {
 
 function main() {
   const runId = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
-  const preferredTestRoot = process.env.VISUAL_MULTIMEDIA_TEST_ROOT
-    || (process.platform === "win32" && fs.existsSync("D:\\Tools")
-      ? "D:\\Tools\\visual-multimedia-tests"
-      : os.tmpdir());
+  const preferredTestRoot = path.join(skillRoot, "artifacts", "self-tests");
   const projectRoot = path.join(
     preferredTestRoot,
     "visual-multimedia-video-generation-chain",

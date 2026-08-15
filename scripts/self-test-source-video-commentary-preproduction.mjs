@@ -13,13 +13,10 @@ import {validateSourceVideoCommentaryAuthoring} from "./source_video_commentary_
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.resolve(SCRIPT_DIR, "..");
 const CLI = path.join(SCRIPT_DIR, "source-video-commentary.mjs");
-const TEST_PARENT = process.platform === "win32" && fs.existsSync("D:\\Tools")
-  ? "D:\\Tools\\visual-multimedia-tests"
-  : os.tmpdir();
+const TEST_PARENT = path.join(SKILL_ROOT, "artifacts");
 const ROOT = path.join(
-  path.resolve(process.env.VISUAL_MULTIMEDIA_TEST_ROOT || TEST_PARENT),
-  "source-video-commentary-preproduction",
-  `contract-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
+  TEST_PARENT,
+  `sp-${Date.now().toString(36)}-${crypto.randomBytes(3).toString("hex")}`,
 );
 const PROJECT = path.join(ROOT, "project");
 const INPUTS = path.join(ROOT, "inputs");

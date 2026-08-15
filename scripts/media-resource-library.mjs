@@ -15,6 +15,7 @@ import {
   EDITABLE_MEDIA_SOURCES_CONTRACT,
   validateMediaSources,
 } from "./validate-media-sources.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.dirname(SCRIPT_DIR);
@@ -774,7 +775,7 @@ function registeredItem(args) {
 
 function adoptResource(args) {
   const selected = registeredItem(args);
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   if (!fs.existsSync(projectRoot) || !fs.statSync(projectRoot).isDirectory()) {
     throw new Error(`项目目录不存在：${projectRoot}`);
   }
@@ -961,7 +962,7 @@ export function validateResourcePromotionCandidates(
 }
 
 function proposePromotion(args) {
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   const projectId = loadProjectId(projectRoot, args);
   const candidateId = requireId(required(args, "candidate-id"), "candidate id");
   const targetKind = required(args, "target-kind");
@@ -1036,7 +1037,7 @@ function projectMediaSource(projectRoot, sourceId) {
 }
 
 function promoteFile(args) {
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   const projectId = loadProjectId(projectRoot, args);
   const loaded = loadPromotions(projectRoot, projectId);
   const candidateId = requireId(required(args, "candidate-id"), "candidate id");
@@ -1115,7 +1116,7 @@ function promoteFile(args) {
 }
 
 function decidePromotion(args) {
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   const projectId = loadProjectId(projectRoot, args);
   const loaded = loadPromotions(projectRoot, projectId);
   const candidateId = requireId(required(args, "candidate-id"), "candidate id");

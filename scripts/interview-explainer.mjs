@@ -22,6 +22,7 @@ import {
   finalizeInterviewExplainer,
   reviewInterviewExplainer,
 } from "./interview_explainer_review.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.dirname(SCRIPT_DIR);
@@ -187,7 +188,7 @@ function configureScenePackage(packageRoot, segmentId, name, output) {
 }
 
 function createProject(args) {
-  const project = path.resolve(requireArg(args, "project"));
+  const project = assertSkillTaskPath(path.resolve(requireArg(args, "project")), "--project");
   const projectId = requireArg(args, "project-id");
   if (!/^[a-z0-9][a-z0-9._-]*$/.test(projectId)) {
     throw new Error("project-id 只允许小写字母、数字、点、下划线和连字符");
@@ -268,7 +269,7 @@ function main() {
     createProject(args);
     return 0;
   }
-  const project = requireArg(args, "project");
+  const project = assertSkillTaskPath(path.resolve(requireArg(args, "project")), "--project");
   let result;
   if (command === "plan") {
     result = createInterviewExplainerPlan({

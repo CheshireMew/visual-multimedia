@@ -50,6 +50,7 @@ import {
   synthesizeSourceVideoCommentaryNarration,
   validateSourceVideoCommentaryAuthoring,
 } from "./source_video_commentary_preproduction.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
@@ -107,7 +108,7 @@ function ffprobeFor(args) {
 }
 
 function commandProject(args) {
-  return path.resolve(requireArg(args, "project"));
+  return assertSkillTaskPath(path.resolve(requireArg(args, "project")), "--project");
 }
 
 function confirmFinalDelivery(projectRoot, evidence, confirmedBy) {

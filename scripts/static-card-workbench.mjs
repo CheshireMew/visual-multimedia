@@ -8,6 +8,7 @@ import {createRequire} from "node:module";
 import {fileURLToPath} from "node:url";
 
 import {listenOnBrowserSafePort} from "./browser-safe-server.mjs";
+import {assertSkillTaskPath, resolveTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SKILL_ROOT = path.resolve(path.dirname(SCRIPT_PATH), "..");
@@ -68,7 +69,9 @@ function resolveStyle(args) {
 }
 
 function createCard(args) {
-  const output = absolutePath(required(args, "output"), "output");
+  const output = args.output
+    ? assertSkillTaskPath(absolutePath(required(args, "output"), "output"), "--output")
+    : resolveTaskPath(required(args, "task-id"), "static-card/index.html");
   if (path.extname(output).toLowerCase() !== ".html") fail("--output 必须指向 .html 文件");
   if (fs.existsSync(output)) fail(`拒绝覆盖现有文件：${output}`);
   const width = positiveInteger(required(args, "width"), "width");
@@ -181,8 +184,12 @@ function browserExecutable(args) {
 }
 
 async function captureCard(args) {
-  const input = absolutePath(required(args, "input"), "input");
-  const outputDir = absolutePath(required(args, "output-dir"), "output-dir");
+  const input = args.input
+    ? assertSkillTaskPath(absolutePath(required(args, "input"), "input"), "--input")
+    : resolveTaskPath(required(args, "task-id"), "static-card/index.html");
+  const outputDir = args["output-dir"]
+    ? assertSkillTaskPath(absolutePath(required(args, "output-dir"), "output-dir"), "--output-dir")
+    : resolveTaskPath(required(args, "task-id"), "static-card/previews");
   if (!fs.existsSync(input) || !fs.statSync(input).isFile()) fail(`HTML 不存在：${input}`);
   fs.mkdirSync(outputDir, {recursive: true});
 
@@ -289,8 +296,9 @@ async function captureCard(args) {
 function usage() {
   return [
     "用法：",
-    "  node scripts/static-card-workbench.mjs create --output <绝对路径/index.html> --width <px> --height <px> [--display-width 360] [--style-file <绝对路径>]",
-    "  node scripts/static-card-workbench.mjs capture --input <绝对路径/index.html> --output-dir <绝对路径> [--browser <绝对路径>]",
+    "  node scripts/static-card-workbench.mjs create --task-id <id> --width <px> --height <px> [--display-width 360] [--style-file <绝对路径>]",
+    "  node scripts/static-card-workbench.mjs capture --task-id <id> [--browser <绝对路径>]",
+    "  --output、--input 与 --output-dir 只用于 Skill 内任务目录的显式子路径；不会接受外部生产路径。",
   ].join("\n");
 }
 

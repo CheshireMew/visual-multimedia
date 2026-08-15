@@ -7,6 +7,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { validateMediaSources } from "./validate-media-sources.mjs";
 import { validateMediaTranscript } from "./validate-media-transcript.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 function usage() {
   console.log(`用法：
@@ -95,7 +96,7 @@ function main() {
     return argv.length === 0 ? 1 : 0;
   }
   const args = parseArgs(argv);
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   const sourceId = required(args, "source-id");
   const inputPath = path.resolve(required(args, "input"));
   const language = required(args, "language");

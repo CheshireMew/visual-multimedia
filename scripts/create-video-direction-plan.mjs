@@ -6,6 +6,7 @@ import path from "node:path";
 import process from "node:process";
 import { validateVideoDirectionPlan } from "./validate-video-direction-plan.mjs";
 import { materializeShotRecipe } from "./shot-recipe-library.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 const DRAFT_FIELDS = [
   "media_project_id",
@@ -196,7 +197,7 @@ function main() {
     return argv.length === 0 ? 1 : 0;
   }
   const args = parseArgs(argv);
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   if (!fs.existsSync(projectRoot) || !fs.statSync(projectRoot).isDirectory()) {
     throw new Error(`项目目录不存在：${projectRoot}`);
   }

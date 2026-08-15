@@ -12,6 +12,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from media_task_workspace import assert_skill_task_path
+
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -192,21 +194,13 @@ def project_paths(project_root: Path) -> dict[str, Path]:
     }
 
 
-def ensure_external_media_project_root(project_root: Path) -> Path:
-    root = project_root.expanduser().resolve()
-    try:
-        root.relative_to(SKILL_ROOT)
-    except ValueError:
-        return root
-    raise ValueError(
-        "角色媒体项目不能建立在 visual-multimedia Skill 源码目录内。"
-        "请把 avatar-project.json、素材、working、reports、plans 和 renders "
-        "放到独立媒体项目目录。"
-    )
+def ensure_skill_task_project_root(project_root: Path) -> Path:
+    """Require a role-media project below this Skill's task workspace."""
+    return assert_skill_task_path(project_root, "角色媒体项目")
 
 
 def load_project(project_root: Path) -> tuple[dict[str, Any], dict[str, Path]]:
-    paths = project_paths(ensure_external_media_project_root(project_root))
+    paths = project_paths(ensure_skill_task_project_root(project_root))
     project = read_json(paths["project"])
     errors: list[str] = []
     if project.get("protocol") != "visual-multimedia-anime-avatar-project":

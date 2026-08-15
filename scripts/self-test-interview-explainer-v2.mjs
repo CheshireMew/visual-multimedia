@@ -285,8 +285,11 @@ function main() {
   const ffmpeg = executable("ffmpeg");
   const ffprobe = executable("ffprobe");
   const automaticTemp = options.project == null;
-  const project = options.project || fs.mkdtempSync(
-    path.join(os.tmpdir(), "visual-multimedia-interview-v2-"),
+  const testRoot = path.join(skillRoot, "artifacts");
+  fs.mkdirSync(testRoot, {recursive: true});
+  const project = options.project || path.join(
+    testRoot,
+    `iv-${Date.now().toString(36)}-${process.pid}`,
   );
   prepareProject(project, ffmpeg);
   const stateValidation = validateProjectState(path.join(project, "media-project-state.json"));

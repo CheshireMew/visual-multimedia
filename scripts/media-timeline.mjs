@@ -6,6 +6,7 @@ import path from "node:path";
 import process from "node:process";
 import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SKILL_ROOT = path.resolve(path.dirname(SCRIPT_PATH), "..");
@@ -636,7 +637,7 @@ function compileTimeline(validation, ffprobe, outputPath) {
 
 function render(args) {
   const timelinePath = path.resolve(required(args, "timeline"));
-  const outputPath = path.resolve(required(args, "output"));
+  const outputPath = assertSkillTaskPath(path.resolve(required(args, "output")), "--output");
   if (path.extname(outputPath).toLowerCase() !== ".mp4") {
     fail("可移植时间线 v1 当前正式输出必须是 .mp4；网页 GIF 使用本地网页渲染路线");
   }
@@ -655,7 +656,7 @@ function render(args) {
   }
   run(ffmpeg, ["-v", "error", "-i", outputPath, "-f", "null", "-"], "解码最终视频");
   const reportPath = args.report
-    ? path.resolve(String(args.report))
+    ? assertSkillTaskPath(path.resolve(String(args.report)), "--report")
     : `${outputPath}.render.json`;
   const report = {
     protocol: "visual-multimedia-local-timeline-render",

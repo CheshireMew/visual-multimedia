@@ -6,6 +6,7 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { validateJsonSchema } from "./json_schema_contract.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const scriptDir = path.dirname(scriptPath);
@@ -404,7 +405,7 @@ function projectPath(projectRoot, relativePath) {
 }
 
 export function materializeTextMotion({ projectRoot, effectId, operation }) {
-  const resolvedProject = path.resolve(projectRoot || "");
+  const resolvedProject = assertSkillTaskPath(path.resolve(projectRoot || ""), "projectRoot");
   const manifestPath = projectPath(resolvedProject, "editable-media.json");
   if (!fs.existsSync(manifestPath)) {
     throw new Error(`目标目录缺少 editable-media.json：${resolvedProject}`);

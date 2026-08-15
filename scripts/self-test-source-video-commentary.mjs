@@ -11,15 +11,12 @@ import {fileURLToPath} from "node:url";
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.resolve(SCRIPT_DIR, "..");
 const CLI = path.join(SCRIPT_DIR, "source-video-commentary.mjs");
-const TEST_PARENT = process.platform === "win32" && fs.existsSync("D:\\Tools")
-  ? "D:\\Tools\\visual-multimedia-tests"
-  : os.tmpdir();
+const TEST_PARENT = path.join(SKILL_ROOT, "artifacts");
 const providerIndex = process.argv.indexOf("--provider");
 const PROVIDER = providerIndex >= 0 ? process.argv[providerIndex + 1] : "local";
 const ROOT = path.join(
-  path.resolve(process.env.VISUAL_MULTIMEDIA_TEST_ROOT || TEST_PARENT),
-  "source-video-commentary",
-  `${PROVIDER}-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
+  TEST_PARENT,
+  `sc-${PROVIDER}-${Date.now().toString(36)}-${crypto.randomBytes(3).toString("hex")}`,
 );
 
 function commandPath(name) {

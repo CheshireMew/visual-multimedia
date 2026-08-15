@@ -18,11 +18,9 @@ import { validateSoundProductionProfile } from "./sound-production-profile.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.dirname(SCRIPT_DIR);
-const defaultRoot = process.platform === "win32" && fs.existsSync("D:\\Tools")
-  ? "D:\\Tools\\visual-multimedia-tests"
-  : os.tmpdir();
+const defaultRoot = path.join(SKILL_ROOT, "artifacts", "self-tests");
 const runRoot = path.join(
-  path.resolve(process.env.VISUAL_MULTIMEDIA_TEST_ROOT || defaultRoot),
+  defaultRoot,
   "reusable-production-resources",
   `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
 );

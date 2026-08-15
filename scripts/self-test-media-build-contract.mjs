@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 
 import {
   assemblyCacheKey,
@@ -13,7 +14,10 @@ import {
 } from "./media_build_contract.mjs";
 
 const sha = (value) => crypto.createHash("sha256").update(String(value)).digest("hex");
-const root = fs.mkdtempSync(path.join(os.tmpdir(), "visual-media-build-contract-"));
+const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const testRoot = path.join(skillRoot, "artifacts", "self-tests");
+fs.mkdirSync(testRoot, {recursive: true});
+const root = fs.mkdtempSync(path.join(testRoot, "media-build-contract-"));
 
 const units = ["opening", "middle", "ending"].map((id, index) => ({
   id,

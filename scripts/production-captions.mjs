@@ -7,6 +7,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { assertJsonSchema } from "./json_schema_contract.mjs";
 import { validateMediaTranscript } from "./validate-media-transcript.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 const scriptRoot = path.dirname(fileURLToPath(import.meta.url));
 const skillRoot = path.dirname(scriptRoot);
@@ -195,7 +196,7 @@ function addIssue(issues, severity, code, cueIds, message) {
 export function buildProductionCaptions(options) {
   const transcriptPath = path.resolve(options.transcript);
   const inputSrtPath = path.resolve(options.inputSrt);
-  const outputDir = path.resolve(options.outputDir);
+  const outputDir = assertSkillTaskPath(path.resolve(options.outputDir), "--output-dir");
   const thresholds = {
     minimum_duration_seconds: options.minimumDuration ?? 0.5,
     minimum_reading_units: options.minimumUnits ?? 2,

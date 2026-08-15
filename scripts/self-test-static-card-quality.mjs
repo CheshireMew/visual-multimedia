@@ -12,7 +12,7 @@ const source = path.join(
   "web-layout-template-packages",
   "portrait-four-sections-neutral"
 );
-const testRoot = "D:\\Tools\\visual-multimedia-tests\\static-card-quality";
+const testRoot = path.join(skillRoot, "artifacts", "self-tests", "static-card-quality");
 
 const sourceManifest = JSON.parse(
   fs.readFileSync(path.join(source, "editable-media.json"), "utf8")

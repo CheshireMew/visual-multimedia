@@ -16,6 +16,7 @@ import edge_tts
 import numpy as np
 
 from anime_avatar_media import executable, file_sha256, write_json
+from media_task_workspace import assert_skill_task_path
 
 
 def chinese_characters(text: str) -> str:
@@ -233,10 +234,10 @@ def main() -> int:
     text = text_path.read_text(encoding="utf-8").strip()
     if not chinese_characters(text):
         raise ValueError("当前二次元口型时间轴至少需要一个普通话汉字")
-    output_audio = Path(args.output_audio).expanduser().resolve()
-    output_timeline = Path(args.output_timeline).expanduser().resolve()
+    output_audio = assert_skill_task_path(args.output_audio, "--output-audio")
+    output_timeline = assert_skill_task_path(args.output_timeline, "--output-timeline")
     output_boundaries = (
-        Path(args.output_boundaries).expanduser().resolve()
+        assert_skill_task_path(args.output_boundaries, "--output-boundaries")
         if args.output_boundaries
         else output_timeline.with_name(output_timeline.stem + "-provider-boundaries.json")
     )

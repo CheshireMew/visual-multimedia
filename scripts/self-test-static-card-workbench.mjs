@@ -10,7 +10,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const skillRoot = path.resolve(scriptDir, "..");
 const workbench = path.join(scriptDir, "static-card-workbench.mjs");
 const baseTemplate = path.join(skillRoot, "assets", "static-card-workbench", "base.html");
-const testBase = "D:\\Tools\\visual-multimedia-tests\\static-card-workbench";
+const testBase = path.join(skillRoot, "artifacts", "self-tests", "static-card-workbench");
 const runRoot = path.join(testBase, `run-${Date.now()}-${process.pid}`);
 const unrelatedCwd = path.join(runRoot, "unrelated-cwd");
 
@@ -27,6 +27,18 @@ function run(args) {
     throw new Error(`命令失败：${args.join(" ")}\n${result.stdout || ""}\n${result.stderr || ""}`);
   }
   return JSON.parse(result.stdout);
+}
+
+function runExpectFailure(args, expected) {
+  const result = spawnSync(process.execPath, [workbench, ...args], {
+    cwd: unrelatedCwd,
+    encoding: "utf8",
+    windowsHide: true,
+    env: process.env,
+  });
+  if (result.status === 0 || !`${result.stdout || ""}\n${result.stderr || ""}`.includes(expected)) {
+    throw new Error(`命令没有按预期失败：${args.join(" ")}\n${result.stdout || ""}\n${result.stderr || ""}`);
+  }
 }
 
 const base = fs.readFileSync(baseTemplate, "utf8");
@@ -127,6 +139,13 @@ for (const fixture of fixtures) {
   results.push({name: fixture.name, previews: report.previews, minimum_text_px: report.minimum_display_primary_text_px});
 }
 
+runExpectFailure([
+  "create",
+  "--output", path.join(skillRoot, "outside-task-output.html"),
+  "--width", "1080",
+  "--height", "1350",
+], "必须位于");
+
 if (fs.readdirSync(unrelatedCwd).length !== 0) {
   throw new Error("工作台向无关当前目录写入了文件");
 }
@@ -136,5 +155,6 @@ console.log(JSON.stringify({
   run_root: runRoot,
   blank_base: true,
   unrelated_cwd_clean: true,
+  external_production_path_rejected: true,
   fixtures: results,
 }, null, 2));

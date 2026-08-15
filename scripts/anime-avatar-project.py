@@ -22,7 +22,7 @@ from anime_avatar_common import (
     bgr_to_pil,
     contact_sheet,
     ensure_crop,
-    ensure_external_media_project_root,
+    ensure_skill_task_project_root,
     executable,
     frame_cells,
     load_cropped_frames,
@@ -93,7 +93,7 @@ def _xywh_argument(value: str) -> list[int]:
 
 
 def init_project(args: argparse.Namespace) -> dict:
-    paths = project_paths(ensure_external_media_project_root(Path(args.project)))
+    paths = project_paths(ensure_skill_task_project_root(Path(args.project)))
     root = paths["root"]
     root.mkdir(parents=True, exist_ok=True)
     if paths["project"].exists():
@@ -208,7 +208,7 @@ def init_project(args: argparse.Namespace) -> dict:
 
 
 def configure_source(args: argparse.Namespace) -> dict:
-    project_root = ensure_external_media_project_root(Path(args.project))
+    project_root = ensure_skill_task_project_root(Path(args.project))
     project, paths = load_project(project_root)
     if project["library"]["kind"] != "project":
         raise ValueError("configure-source 只修改 init 建立的项目内候选角色")
@@ -770,7 +770,7 @@ def list_libraries(_: argparse.Namespace) -> dict:
 
 
 def adopt_library(args: argparse.Namespace) -> dict:
-    paths = project_paths(ensure_external_media_project_root(Path(args.project)))
+    paths = project_paths(ensure_skill_task_project_root(Path(args.project)))
     root = paths["root"]
     root.mkdir(parents=True, exist_ok=True)
     if paths["project"].exists():
@@ -1220,7 +1220,7 @@ def migrate_library(args: argparse.Namespace) -> dict:
 
 
 def migrate_project_v3(args: argparse.Namespace) -> dict:
-    paths = project_paths(ensure_external_media_project_root(Path(args.project)))
+    paths = project_paths(ensure_skill_task_project_root(Path(args.project)))
     legacy = read_json(paths["project"])
     if (
         legacy.get("protocol") != "visual-multimedia-anime-avatar-project"
@@ -1307,7 +1307,7 @@ def parse_args() -> argparse.Namespace:
 
     adopt_parser = subparsers.add_parser(
         "adopt-library",
-        help="在全新外部项目中按角色名、别名或 id 采用已注册角色素材库",
+        help="在全新 Skill 任务项目中按角色名、别名或 id 采用已注册角色素材库",
     )
     adopt_parser.add_argument("--project", required=True)
     adopt_parser.add_argument("--library", required=True)

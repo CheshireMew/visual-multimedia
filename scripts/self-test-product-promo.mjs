@@ -98,11 +98,9 @@ function approveStage(project, stageId, artifact = null) {
 }
 
 async function main() {
-  const testRoot = process.platform === "win32" && fs.existsSync("D:\\Tools")
-    ? "D:\\Tools\\visual-multimedia-tests\\product-promo"
-    : os.tmpdir();
+  const testRoot = path.join(SKILL_ROOT, "artifacts");
   fs.mkdirSync(testRoot, {recursive: true});
-  const project = fs.mkdtempSync(path.join(testRoot, "visual-multimedia-product-promo-"));
+  const project = path.join(testRoot, `pp-${Date.now().toString(36)}-${process.pid}`);
   createProductPromoProject(project, "product-promo-self-test");
   const {server, port} = await startServer(SKILL_ROOT);
   const base = `http://127.0.0.1:${port}`;
@@ -269,7 +267,7 @@ async function main() {
 
   const catalog = readJson(path.join(SKILL_ROOT, "assets", "shot-recipe-library", "catalog.json"));
   console.log(`产品宣传片真实链路通过：${catalog.recipe_count} 张配方、${catalog.reference_style_count} 个拒绝直接生产的参考变体、真实页面采集、活动配方物化、计划确认、通用构建、浏览器逐帧验证、完整审阅、最终批准、交付验证、120 BPM 派生分析与听音复核入口均通过。`);
-  console.log(`诊断项目保留在系统临时目录：${project}`);
+  console.log(`诊断项目保留在 Skill 任务工作区：${project}`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === SCRIPT_PATH) {

@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const skillRoot = path.dirname(scriptDir);
@@ -85,7 +86,7 @@ if (!`${sourceRoot}${path.sep}`.toLowerCase().startsWith(skillPrefix)) {
 }
 if (!fs.statSync(sourceRoot).isDirectory()) fail(`模板源不是目录：${sourceRoot}`);
 
-const outputRoot = path.resolve(outputOption);
+const outputRoot = assertSkillTaskPath(path.resolve(outputOption), "--output");
 if (fs.existsSync(outputRoot)) {
   fail(`输出目录已经存在，拒绝覆盖或合并：${outputRoot}`);
 }

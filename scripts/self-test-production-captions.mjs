@@ -18,7 +18,9 @@ function normalizedBytes(filePath) {
   return fs.readFileSync(filePath, "utf8").replace(/\r\n/gu, "\n");
 }
 
-const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "visual-caption-test-"));
+const testRoot = path.join(skillRoot, "artifacts", "self-tests");
+fs.mkdirSync(testRoot, {recursive: true});
+const temporary = fs.mkdtempSync(path.join(testRoot, "production-captions-"));
 try {
   const result = buildProductionCaptions({transcript, inputSrt: sourceSrt, outputDir: temporary});
   assert.equal(result.ok, true);

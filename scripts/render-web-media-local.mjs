@@ -15,6 +15,7 @@ import {
   readEditableMediaPackage,
 } from "./editable-media-contract.mjs";
 import {listenOnBrowserSafePort} from "./browser-safe-server.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SKILL_ROOT = path.resolve(path.dirname(SCRIPT_PATH), "..");
@@ -178,7 +179,7 @@ async function waitForChild(child, label) {
 
 async function render(args) {
   const source = path.resolve(required(args, "package"));
-  const output = path.resolve(required(args, "output"));
+  const output = assertSkillTaskPath(path.resolve(required(args, "output")), "--output");
   const format = String(args.format || path.extname(output).slice(1)).toLowerCase();
   if (!new Set(["mp4", "gif"]).has(format)) fail("输出格式必须是 mp4 或 gif");
   if (fs.existsSync(output) && !args.overwrite) {
@@ -266,7 +267,9 @@ async function render(args) {
     windowsHide: true,
   });
   if (decode.status !== 0) fail(`本地网页渲染输出无法解码：${decode.stderr}`);
-  const reportPath = args.report ? path.resolve(String(args.report)) : `${output}.render.json`;
+  const reportPath = args.report
+    ? assertSkillTaskPath(path.resolve(String(args.report)), "--report")
+    : `${output}.render.json`;
   const report = {
     protocol: "visual-multimedia-local-web-render",
     version: 1,

@@ -32,6 +32,7 @@ import {
   searchShotRecipes,
   sha256Tree,
 } from "./shot-recipe-library.mjs";
+import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -84,7 +85,7 @@ function planPath(args, projectRoot) {
 }
 
 export function createProductPromoProject(projectRoot, projectId) {
-  const project = path.resolve(projectRoot || "");
+  const project = assertSkillTaskPath(path.resolve(projectRoot || ""), "projectRoot");
   if (!/^[a-z0-9][a-z0-9._-]*$/u.test(projectId || "")) throw new Error("--project-id 只能使用小写字母、数字、点、下划线和连字符");
   fs.mkdirSync(project, {recursive: true});
   for (const entry of fs.readdirSync(STARTER_ROOT, {withFileTypes: true})) {
@@ -368,7 +369,7 @@ async function main(argv) {
     console.log(JSON.stringify(item.document, null, 2));
     return;
   }
-  const project = path.resolve(requireArg(args, "project"));
+  const project = assertSkillTaskPath(path.resolve(requireArg(args, "project")), "--project");
   if (command === "create-project") {
     console.log(JSON.stringify(createProductPromoProject(project, requireArg(args, "project-id")), null, 2));
     return;

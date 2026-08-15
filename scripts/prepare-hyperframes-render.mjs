@@ -9,6 +9,7 @@ import {
   readEditableMediaPackage,
   resolvePackageReference,
 } from "./editable-media-contract.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 function usage() {
   console.log(
@@ -68,7 +69,7 @@ function prepare(sourceValue, variantId, outputValue) {
   ) / 1000;
   if (!(durationSeconds > 0)) throw new Error("网页包总时长必须大于 0");
 
-  const outputRoot = path.resolve(outputValue);
+  const outputRoot = assertSkillTaskPath(path.resolve(outputValue), "--output");
   if (fs.existsSync(outputRoot)) {
     throw new Error(`输出目录已经存在：${outputRoot}`);
   }

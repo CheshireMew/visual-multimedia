@@ -25,6 +25,7 @@ from anime_avatar_media import (
     write_json,
 )
 from anime_avatar_common import resolve_project_path
+from media_task_workspace import assert_skill_task_path
 
 
 PROTOCOL = "visual-multimedia-anime-avatar-inset"
@@ -104,7 +105,7 @@ def stable_id(value: Any, field: str) -> str:
 
 
 def project_root(value: str) -> Path:
-    root = Path(value).expanduser().resolve()
+    root = assert_skill_task_path(value, "--project")
     manifest = root / "media-sources.json"
     if not root.is_dir() or not manifest.is_file():
         raise FileNotFoundError(f"项目目录缺少 media-sources.json：{root}")

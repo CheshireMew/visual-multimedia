@@ -11,11 +11,9 @@ import {fileURLToPath} from "node:url";
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.resolve(SCRIPT_DIR, "..");
 const CLI = path.join(SCRIPT_DIR, "media-project.mjs");
-const DEFAULT_ROOT = process.platform === "win32" && fs.existsSync("D:\\Tools")
-  ? "D:\\Tools\\visual-multimedia-tests"
-  : os.tmpdir();
+const DEFAULT_ROOT = path.join(SKILL_ROOT, "artifacts", "self-tests");
 const RUN_ROOT = path.join(
-  path.resolve(process.env.VISUAL_MULTIMEDIA_TEST_ROOT || DEFAULT_ROOT),
+  DEFAULT_ROOT,
   "media-project-stages",
   `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
 );

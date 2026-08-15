@@ -147,7 +147,9 @@ def main() -> int:
     ffmpeg = executable("ffmpeg")
     ffprobe = executable("ffprobe")
     node = executable("node")
-    with tempfile.TemporaryDirectory(prefix="visual-multimedia-avatar-inset-") as temp:
+    test_root = SKILL_ROOT / "artifacts" / "self-tests"
+    test_root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="avatar-inset-", dir=test_root) as temp:
         project = Path(temp) / "project"
         project.mkdir()
         shutil.copy2(STARTER_MANIFEST, project / "media-sources.json")

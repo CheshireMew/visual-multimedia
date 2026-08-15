@@ -9,6 +9,7 @@ import {
   mediaSourcesContractForVersion,
   validateMediaSources,
 } from "./validate-media-sources.mjs";
+import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 
 function usage() {
   console.log(`用法：
@@ -101,7 +102,7 @@ function main() {
     return argv.length === 0 ? 1 : 0;
   }
   const args = parseArgs(argv);
-  const projectRoot = path.resolve(required(args, "project"));
+  const projectRoot = assertSkillTaskPath(path.resolve(required(args, "project")), "--project");
   const sourceId = required(args, "source-id");
   const proxyId = required(args, "proxy-id");
   const height = numeric(args, "height", 720, 2, true);

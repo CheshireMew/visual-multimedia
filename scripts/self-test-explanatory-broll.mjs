@@ -137,11 +137,10 @@ async function browserChain() {
 }
 
 function mediaFlowChain() {
-  const base = process.platform === "win32" && fs.existsSync("D:\\Tools")
-    ? "D:\\Tools\\visual-multimedia-tests"
-    : path.join(process.cwd(), ".visual-multimedia-tests");
+  const base = path.join(SKILL_ROOT, "artifacts");
   fs.mkdirSync(base, {recursive: true});
-  const projectRoot = fs.mkdtempSync(path.join(base, "explanatory-broll-"));
+  const projectRoot = path.join(base, `eb-${Date.now().toString(36)}-${process.pid}`);
+  fs.mkdirSync(projectRoot, {recursive: true});
   for (const name of ["source.md", "direction-draft.json"]) {
     fs.copyFileSync(path.join(CASE_ROOT, name), path.join(projectRoot, name), fs.constants.COPYFILE_EXCL);
   }

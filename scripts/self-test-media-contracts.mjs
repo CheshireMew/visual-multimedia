@@ -21,14 +21,7 @@ import {
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const skillRoot = path.dirname(scriptDir);
-const defaultTestRoot = (
-  process.platform === "win32" && fs.existsSync("D:\\Tools")
-)
-  ? "D:\\Tools\\visual-multimedia-tests"
-  : os.tmpdir();
-const testRoot = path.resolve(
-  process.env.VISUAL_MULTIMEDIA_TEST_ROOT || defaultTestRoot
-);
+const testRoot = path.join(skillRoot, "artifacts", "self-tests");
 const projectRoot = path.join(
   testRoot,
   "visual-multimedia-media-contracts",
