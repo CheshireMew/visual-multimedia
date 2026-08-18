@@ -29,7 +29,7 @@
 
 <!-- readme-header:end -->
 
-Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静态卡片、代码动画、视频、音频还是播客，再完成对应的标题、口播、字幕、节目结构和媒体配套文字；进入制作后，它会保留唯一的活动真源，并沿真实的预览、渲染或导出链检查最终结果。
+Visual Multimedia 是一个媒体制作 Skill。它会在技术图解、代码动画、视频、音频和播客中判断合适载体，再完成对应的标题、口播、字幕、节目结构和媒体配套文字；进入制作后，它会保留唯一的活动真源，并沿真实的预览、渲染或导出链检查最终结果。独立静态卡、社交卡、纯文字卡、轮播图和独立封面已经退出，不会被自动改成动画或视频。
 
 ![Visual Multimedia 把抽象机制制作成可读图解的真实案例](assets/web-card-cases/editorial-technology-diagram-cover/preview.png)
 
@@ -42,8 +42,8 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 在支持 Agent Skill 的 Agent 中加载本仓库后，直接点名 `$visual-multimedia`，并提供已经确认的内容或素材、受众和希望得到的结果。例如：
 
 ```text
-使用 $visual-multimedia，把这篇已经定稿的文章做成三张 3:4 社交卡。
-先完成卡片文案和一个构图样稿，确认后再导出 PNG。
+使用 $visual-multimedia，把这份已经确认的系统说明做成一张可编辑技术图解。
+保留节点、接口和数据流关系，并导出 PNG 供文档使用。
 ```
 
 ```text
@@ -69,7 +69,6 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 
 | 需求 | 主要输入 | 可观察结果 |
 | --- | --- | --- |
-| 社交卡、封面、轮播图、图表 | 已确认内容、尺寸与可用素材 | 可编辑网页真源、逐比例预览和指定图片 |
 | 技术机制对比与系统流程图 | 已确认概念、节点关系、参考风格与静态/动态要求 | 可编辑机制图、稳定全貌动画、关键状态检查图和指定图片或视频 |
 | GIF、动态图解、代码动画 | 内容关系、语义步骤与播放方式 | 可定位关键状态的网页动画，以及指定 GIF 或视频 |
 | 解释型 B-roll 与视频包装 | 确认口播、内容关系、布局比例与真实声音时间 | 自动配方选择、十类可编辑活动模板、活动时间线片段和 PNG/GIF/视频/透明输出 |
@@ -87,19 +86,6 @@ Visual Multimedia 是一个媒体制作 Skill。它会先判断内容适合静�
 建立自己的二次元口播角色时，不要先随意生成一段人物动作视频。尚未生成素材时，先使用完整的 [15 秒校准视频提示词](assets/anime-avatar-prompts/motion-source-video.md)；已经提供视频时，由 Agent 检查固定机位、人物漂移、口型覆盖、闭嘴待机、字幕和水印，并负责后续抽帧、视觉标注、机器文件与验证。用户不需要逐帧排列素材、编辑 JSON 或运行内部命令。当前完整帧方案适合动作克制、普通话口型大体同步的角色；明显人物动作与高精度口型需要在制作前选择其它音频驱动或分层、骨骼方案。
 
 ### 真实输出示例
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <img src="assets/web-card-cases/warm-paper-project-list/preview.png" alt="暖纸风格项目列表社交卡">
-      <br><sub>社交卡：适合纵向阅读的暖纸风格项目列表。</sub>
-    </td>
-    <td width="50%" valign="top">
-      <img src="assets/web-card-cases/social-evidence-variants/preview-landscape-21x9.png" alt="同一内容的宽屏社交证据卡变体">
-      <br><sub>多比例变体：同一结构化内容可以重排为宽屏画面。</sub>
-    </td>
-  </tr>
-</table>
 
 <table>
   <tr>
@@ -136,7 +122,7 @@ Skill 先确定活动真源，再检查当前机器真正可用的能力。执�
 
 ### 可编辑真源与交付合同
 
-代码生成的卡片、图表和动画在未指定技术栈时从 [DOM starter](assets/web-media-starter) 建立；用户明确要求 React，或现有输入本身是 React 组件或工程时，从 [React starter](assets/react-media-starter) 建立。两种生产方式都生成自包含的 editable-media v6 网页包；`schemas/editable-media.v6.schema.json` 是网页清单的唯一结构真源，运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。本地渲染器、结构化编辑器和 HyperFrames 都读取这一个边界。DOM 网页包复用同一套画布外编辑器：右侧可以按语义分组改字、切换经本机验证的字体与字重、调色和调整样式，画布文字也能直接点击修改；修改可刷新保留、下载为结构化数据、放大预览、恢复初始值并导出当前画布。Windows 用户运行包内 `_start_editable_preview.bat` 即可在动态本地端口打开当前项目。
+代码生成的技术图解、图表和动画在未指定技术栈时从 [DOM starter](assets/web-media-starter) 建立；用户明确要求 React，或现有输入本身是 React 组件或工程时，从 [React starter](assets/react-media-starter) 建立。两种生产方式都生成自包含的 editable-media v6 网页包；`schemas/editable-media.v6.schema.json` 是网页清单的唯一结构真源，运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。本地渲染器、结构化编辑器和 HyperFrames 都读取这一个边界。DOM 网页包复用同一套画布外编辑器：右侧可以按语义分组改字、切换经本机验证的字体与字重、调色和调整样式，画布文字也能直接点击修改；修改可刷新保留、下载为结构化数据、放大预览、恢复初始值并导出当前画布。Windows 用户运行包内 `_start_editable_preview.bat` 即可在动态本地端口打开当前项目。
 
 图片、视频、音频和生成素材先进入带文件哈希、来源、权利、原片与代理关系的素材账本，再由网页、视频时间线或音频项目显式采用。`schemas/media-timeline.v1.schema.json` 定义本地与外部编辑器都能理解的可移植时间线，`schemas/media-delivery.v3.schema.json` 把实际提供方、真源文件、回执和 SHA-256 绑定到最终输出。导出的 PNG、GIF、MP4 或音频文件是派生结果，不会成为第二个编辑入口。
 
@@ -144,6 +130,7 @@ Skill 先确定活动真源，再检查当前机器真正可用的能力。执�
 
 ## 不适用的任务
 
+- 独立静态卡、社交卡、纯文字卡、轮播图或独立封面的策划、制作、修改和导出；
 - 通读课程、书籍或长材料后判断什么值得分享；
 - 主动研究主题、补充事实、撰写长文或 Newsletter；
 - 只交付能够脱离媒体独立成立的短帖或 Thread；

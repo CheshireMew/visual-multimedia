@@ -1,4 +1,4 @@
 interface:
   display_name: "Visual Multimedia"
-  short_description: "制作可编辑视觉、网页动画、视频、音频与播客，支持本地和外部增强"
-  default_prompt: "使用 $visual-multimedia 把已确认内容制作成可编辑媒体；普通静态卡从内容决定尺寸的空白单 HTML 画布开始，不套默认风格，结构化网页和时间型媒体再选择本地能力、MediaFlow Pro 或明确点名的 HyperFrames。"
+  short_description: "制作技术图解、网页动画、视频、音频与播客，保留可编辑真源"
+  default_prompt: "使用 $visual-multimedia 把已确认内容制作成技术图解、网页动画、视频、音频或播客，并保留可编辑真源。"

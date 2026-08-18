@@ -29,7 +29,7 @@
       "id": "neutral-ink-red",
       "name": "中性黑白红",
       "character": "清楚、直接、中性",
-      "use_when": ["极简文字卡", "观点", "清单", "信息提取"],
+      "use_when": ["极简文字画面", "观点", "清单", "信息提取"],
       "avoid_when": ["明确纸张感", "儿童内容", "深色演播室"],
       "roles": {
         "background": "#FFFFFF",

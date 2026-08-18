@@ -29,7 +29,7 @@
 
 <!-- readme-header:end -->
 
-Visual Multimedia is a media-production Agent Skill. It first decides whether the result should be a social card, diagram, web animation, video, audio program, or podcast.
+Visual Multimedia is a media-production Agent Skill. It chooses among technical diagrams, web animation, video, audio programs, and podcasts. Standalone static cards, social cards, text cards, carousels, and standalone covers have been retired; the Skill does not silently turn those requests into animation or video.
 
 It then develops the title, voiceover, captions, program structure, and companion copy required by that medium, while keeping one active source of truth through preview, render, review, and delivery.
 
@@ -44,8 +44,8 @@ It does not research an unverified topic, invent facts, choose what matters in a
 Load this repository in an Agent that supports Agent Skills, invoke `$visual-multimedia`, and provide the confirmed content or source files, the audience, and the result you need.
 
 ```text
-Use $visual-multimedia to turn this approved article into three 3:4 social cards.
-Finish the card copy and one composition sample first; export PNG only after approval.
+Use $visual-multimedia to turn this approved system description into an editable technical diagram.
+Preserve the nodes, interfaces, and data-flow relationships, then export a PNG for the documentation.
 ```
 
 ```text
@@ -66,7 +66,6 @@ For fewer clarification rounds, include the confirmed source, intended audience 
 
 | Need | Main input | Observable result |
 | --- | --- | --- |
-| Social cards, covers, carousels, and charts | Confirmed content, dimensions, and licensed assets | Editable web source, per-ratio previews, and requested images |
 | Technical comparisons and system diagrams | Confirmed concepts, relationships, and visual direction | Readable static mechanism diagrams or stable-overview animations with inspected states |
 | GIFs, explainers, and code animation | Semantic steps and playback behavior | A deterministic web timeline plus requested GIF or video |
 | Explanatory B-roll and packaging | Final voiceover, content relationships, layout, and real audio timing | Selected active templates, timeline-ready segments, and PNG, GIF, video, or transparent outputs |
@@ -82,19 +81,6 @@ For fewer clarification rounds, include the confirmed source, intended audience 
 Task routing, required references, and stop conditions are defined in [SKILL.md](SKILL.md).
 
 ## Real outputs
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <img src="assets/web-card-cases/warm-paper-project-list/preview.png" alt="Warm paper-style project-list social card">
-      <br><sub>Social card: a dense project list reorganized for vertical reading.</sub>
-    </td>
-    <td width="50%" valign="top">
-      <img src="assets/web-card-cases/social-evidence-variants/preview-landscape-21x9.png" alt="Landscape variant of a structured social-evidence card">
-      <br><sub>Multi-ratio output: the same structured content is recomposed for a wide canvas.</sub>
-    </td>
-  </tr>
-</table>
 
 <table>
   <tr>
@@ -168,6 +154,7 @@ Changes to editable-media, source representation, deterministic time, portable t
 
 ## Not a fit for
 
+- planning, producing, modifying, or exporting standalone static cards, social cards, text cards, carousels, or standalone covers;
 - researching a topic or deciding what matters in a long source;
 - writing a standalone long-form article, newsletter, short post, or thread;
 - planning a physical shoot, crew, equipment, or production day;

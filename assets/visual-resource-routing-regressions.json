@@ -1,6 +1,6 @@
 {
   "protocol": "visual-multimedia-visual-resource-routing-regressions",
-  "version": 7,
+  "version": 8,
   "diagnostic_evidence": [
     {
       "id": "mistaken-case-selection-20260809",
@@ -139,172 +139,22 @@
       "full_canvas_sample_before_export": true
     },
     {
-      "id": "tiny-type-uses-display-size",
-      "input": "字小得看不清，不要再按模板把内容塞进去",
-      "existing_state": "static-card-at-phone-display-width",
-      "expected_mode": "typography-first-recompose",
+      "id": "standalone-static-request-stops-without-substitution",
+      "input": "把这份已确认文案做成一张社交卡",
+      "existing_state": "confirmed-visible-copy",
+      "expected_mode": "out-of-scope-stop",
       "preserve": [
-        "confirmed-content-priority",
-        "project-identity"
+        "confirmed-visible-copy"
       ],
       "required_actions": [
-        "measure-minimum-display-width",
-        "set-reading-size-before-source-canvas-size",
-        "change-capacity-or-ratio-before-shrinking-type"
-      ],
-      "minimum_primary_text_px": 14,
-      "comfortable_primary_text_px": 16,
-      "forbidden_actions": [
-        "treat-source-pixels-as-display-pixels",
-        "use-10px-technical-visibility-as-reading-quality"
-      ],
-      "full_canvas_sample_before_export": true
-    },
-    {
-      "id": "explicit-pre-drawing-confirmation-blocks-production",
-      "input": "正式作图前先展示给我确认，再做一张完整详细的网页卡片",
-      "existing_state": "confirmed-source-material-without-confirmed-visible-copy",
-      "expected_mode": "pre-drawing-confirmation",
-      "preserve": [
-        "confirmed-facts",
-        "source-boundaries",
-        "user-required-confirmation-gate"
-      ],
-      "required_output": [
-        "exact-visible-copy",
-        "information-order",
-        "necessary-elements-and-sources",
-        "proposed-content-derived-dimensions",
-        "typography-color-template-surface-direction"
-      ],
-      "stop_before": [
-        "html-css-generation",
-        "image-generation",
-        "template-instantiation",
-        "canvas-drawing",
-        "image-export"
-      ],
-      "allowed_skip": "explicit-skip-confirmation-only",
-      "forbidden_interpretations": [
-        "complete-means-skip-confirmation",
-        "detailed-means-skip-confirmation",
-        "finished-means-skip-confirmation",
-        "later-vague-request-overrides-explicit-confirmation"
-      ]
-    },
-    {
-      "id": "content-curation-precedes-dimensions",
-      "input": "先把废话和对用户没用的信息去掉，图片尺寸跟着真实信息量走",
-      "existing_state": "long-confirmed-research-material",
-      "expected_mode": "clean-copy-then-confirm-size",
-      "preserve": [
-        "core-conclusion",
-        "necessary-support",
-        "meaning-changing-boundaries",
-        "user-useful-results-or-actions",
-        "sources"
-      ],
-      "required_actions": [
-        "delegate-existing-draft-to-clean-copy",
-        "receive-confirmed-visible-copy",
-        "set-reading-size-before-canvas-size",
-        "derive-dimensions-after-curation"
-      ],
-      "forbidden_actions": [
-        "include-all-source-material",
-        "choose-ratio-before-curation",
-        "inherit-template-source-dimensions",
-        "shrink-type-to-preserve-old-canvas"
-      ]
-    },
-    {
-      "id": "ordinary-static-card-uses-lightweight-html",
-      "input": "用已经确认的文案做一张完整详细、可以继续修改的网页卡片",
-      "existing_state": "confirmed-visible-copy-without-motion-or-structured-editor",
-      "expected_mode": "lightweight-static-html",
-      "preserve": [
-        "confirmed-visible-copy",
-        "content-derived-dimensions",
-        "explicit-visual-references",
-        "project-identity"
-      ],
-      "required_output": [
-        "single-self-contained-html",
-        "first-real-content-visual-draft",
-        "fixed-canvas-preview",
-        "minimum-display-width-preview",
-        "user-requested-static-export-only"
-      ],
-      "required_actions": [
-        "require-confirmed-complete-positive-reference",
-        "start-from-blank-canvas-shell",
-        "design-from-current-content-and-audience",
-        "avoid-default-or-neutral-style",
-        "avoid-routine-multi-candidate-generation"
+        "explain-standalone-static-capability-retired",
+        "stop-without-production"
       ],
       "forbidden_outputs": [
+        "html-canvas",
+        "static-image",
         "editable-media-json",
-        "web-media-starter-copy",
-        "style-profile-json",
-        "media-sources-json",
-        "structured-editor",
-        "provider-inspection",
-        "unrequested-text-only-pre-drawing-package",
-        "second-full-canvas-confirmation"
-      ],
-      "forbidden_actions": [
-        "auto-generate-without-confirmed-positive-reference",
-        "substitute-built-in-profile-for-reference"
-      ]
-    },
-    {
-      "id": "approved-personal-style-has-priority",
-      "input": "按我已经确认的个人卡片风格做这张，但保留本次明确指定的品牌色",
-      "existing_state": "confirmed-visible-copy-with-approved-personal-style-resource",
-      "expected_mode": "personal-style-inheritance",
-      "preserve": [
-        "confirmed-visible-copy",
-        "current-brand-color",
-        "content-led-representation"
-      ],
-      "required_actions": [
-        "read-approved-complete-reference-images",
-        "read-user-approved-adoption-scope",
-        "apply-approved-layers-to-real-html",
-        "let-current-explicit-reference-override-affected-layer"
-      ],
-      "forbidden_actions": [
-        "replace-complete-reference-images-with-css-summary",
-        "auto-load-personal-css",
-        "copy-reference-layout-coordinates",
-        "replace-current-brand-color",
-        "turn-style-into-fixed-canvas-size"
-      ]
-    },
-    {
-      "id": "missing-personal-style-does-not-invent-identity",
-      "input": "帮我建立个人卡片风格，我还没有给过认可的完整成品参考",
-      "existing_state": "confirmed-visible-copy-without-approved-personal-style-resource",
-      "expected_mode": "positive-reference-required-before-adoption",
-      "preserve": [
-        "confirmed-visible-copy",
-        "content-led-representation",
-        "explicit-current-references"
-      ],
-      "required_actions": [
-        "explain-required-reference-coverage",
-        "wait-for-user-provided-or-selected-complete-positive-reference",
-        "keep-confirmed-copy-unrendered-until-reference-confirmation"
-      ],
-      "forbidden_actions": [
-        "generate-style-candidates-without-positive-reference",
-        "offer-production-cases-as-personal-style-candidates",
-        "adopt-candidates-before-user-selection",
-        "use-neutral-base",
-        "learn-style-from-rejected-output",
-        "learn-style-from-quality-constraints",
-        "learn-style-from-single-mechanism-reference",
-        "select-swiss-from-technical-topic"
+        "automatic-animation-or-video-substitute"
       ]
     },
     {

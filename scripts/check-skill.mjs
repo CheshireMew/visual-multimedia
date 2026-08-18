@@ -529,26 +529,9 @@ for (const localMediaResource of [
 ]) {
   ensurePath(localMediaResource);
 }
-const staticCardWorkbenchPath = ensurePath("scripts/static-card-workbench.mjs");
-const staticCardWorkbenchSelfTest = ensurePath("scripts/self-test-static-card-workbench.mjs");
-const staticCardWorkbenchTemplate = ensurePath("assets/static-card-workbench/base.html");
 const mediaTaskWorkspacePath = ensurePath("scripts/media-task-workspace.mjs");
 ensurePath("scripts/media_task_workspace.py");
-const staticCardWorkbenchText = fs.readFileSync(staticCardWorkbenchPath, "utf8");
 const mediaTaskWorkspaceText = fs.readFileSync(mediaTaskWorkspacePath, "utf8");
-const staticCardWorkbenchTemplateText = fs.readFileSync(staticCardWorkbenchTemplate, "utf8");
-for (const token of [
-  "拒绝覆盖现有文件",
-  "minimum_display_primary_text_px",
-  "data-placeholder",
-  "style-file",
-  "listenOnBrowserSafePort",
-  "assertSkillTaskPath",
-]) {
-  if (!staticCardWorkbenchText.includes(token)) {
-    fail(`轻量静态卡工作台缺少安全创建、真实显示检查或显式样式入口：${token}`);
-  }
-}
 for (const token of [
   "TASK_WORKSPACE_ROOT",
   "artifacts",
@@ -588,7 +571,6 @@ for (const writer of [
   "shot-recipe-library.mjs",
   "sound-production-profile.mjs",
   "source-video-commentary.mjs",
-  "static-card-workbench.mjs",
   "text-motion-library.mjs",
 ]) {
   if (!fs.readFileSync(path.join(scriptDir, writer), "utf8").includes("assertSkillTaskPath")) {
@@ -604,31 +586,6 @@ for (const writer of [
 ]) {
   if (!fs.readFileSync(path.join(scriptDir, writer), "utf8").includes("assert_skill_task_path")) {
     fail(`Python 公共生产入口没有使用 Skill 任务工作区校验：${writer}`);
-  }
-}
-for (const token of [
-  "data-card-width",
-  "data-card-height",
-  "data-display-width",
-  "id=\"card-content\"",
-  "data-placeholder=\"true\"",
-  "{{EXPLICIT_STYLE}}",
-]) {
-  if (!staticCardWorkbenchTemplateText.includes(token)) {
-    fail(`轻量静态卡起始画布缺少固定画布、空内容根或显式样式插槽：${token}`);
-  }
-}
-for (const forbidden of [
-  "PERSONAL_STYLE", "neutral-base", "--paper", "--accent", ".masthead", ".badge",
-  ".callout", ".panel", ".table", ".bar-list", ".flow", "linear-gradient", "box-shadow",
-]) {
-  if (staticCardWorkbenchTemplateText.includes(forbidden)) {
-    fail(`轻量静态卡空白底座仍携带默认视觉选择：${forbidden}`);
-  }
-}
-for (const forbidden of ["PERSONAL_STYLE", "neutral-base", "--style auto|neutral", "personal-visual/card-style/style.css"]) {
-  if (staticCardWorkbenchText.includes(forbidden)) {
-    fail(`轻量静态卡工具仍在自动选择视觉样式：${forbidden}`);
   }
 }
 const localMediaEnvironmentText = fs.readFileSync(
@@ -884,25 +841,6 @@ if (
 if (Object.hasOwn(creatorIdentity || {}, "use")) {
   fail("创作者身份档案仍保留含混的默认作者 use 字段");
 }
-const textCardReferencePath = ensurePath("references/text-card-production.md");
-if (!skillText.includes("references/text-card-production.md")) {
-  fail("SKILL.md 缺少纯文字卡正式路由：references/text-card-production.md");
-}
-const textCardReferenceText = fs.readFileSync(textCardReferencePath, "utf8");
-for (const token of [
-  "单句观点卡",
-  "段落文字卡",
-  "并列清单卡",
-  "名词解释卡",
-  "引文摘录卡",
-  "文字对照卡",
-  "production_watermark",
-]) {
-  if (!textCardReferenceText.includes(token)) {
-    fail(`纯文字卡制作说明缺少正式分型或身份语义：${token}`);
-  }
-}
-
 const technicalDiagramReferencePath = ensurePath("references/technical-diagram-production.md");
 if (!skillText.includes("references/technical-diagram-production.md")) {
   fail("SKILL.md 缺少技术图解正式路由：references/technical-diagram-production.md");
@@ -926,8 +864,8 @@ for (const token of [
 const visualResourceGovernancePath = ensurePath("references/visual-resource-governance.md");
 const visualResourceGovernanceText = fs.readFileSync(visualResourceGovernancePath, "utf8");
 for (const token of [
-  "一次性普通静态卡以当前 HTML 为视觉真源",
-  "普通静态卡可以读取适用模板的结构",
+  "资源目录不能绕过根入口恢复这些成品",
+  "不创建独立静态卡路由",
   "不自动采用案例配色",
   "personal-visual/card-style/",
   "完整图像是证据真源",
@@ -941,22 +879,18 @@ for (const token of [
     fail(`视觉资源治理缺少案例—模板—项目风格边界：${token}`);
   }
 }
-const socialCardReferenceText = fs.readFileSync(
-  ensurePath("references/social-card-production.md"),
-  "utf8",
-);
 for (const token of [
-  "references/visual-resource-governance.md",
-  "完整正向视觉参考确认",
-  "没有完整正向参考时停止",
-  "普通静态卡把实际采用结果保存在当前 HTML",
-  "只有结构化网页和系列复用才建立项目风格档案",
-  "“太丑”本身不等于整体改版",
+  "不适用于独立静态卡、社交卡、纯文字卡、轮播图或独立封面",
+  "说明本 Skill 不再提供该能力并停止",
+  "不自动换成动画、视频或其它载体",
+  "不创建 HTML、画布或图片",
+  "也不把请求升级成结构化网页",
+  "案例和模板本身不创建独立静态卡入口",
   "artifacts/<task-id>/",
   "当前终端目录、活动 Git 仓库",
 ]) {
   if (!skillText.includes(token)) {
-    fail(`SKILL.md 缺少完整正向参考边界：${token}`);
+    fail(`SKILL.md 缺少独立静态卡退出边界或任务工作区约束：${token}`);
   }
 }
 const webVisualReferenceText = fs.readFileSync(
@@ -972,73 +906,56 @@ const reviewAndExportText = fs.readFileSync(
   "utf8",
 );
 for (const token of [
-  "由 `references/social-card-production.md` 唯一负责",
-  "普通静态卡由轻量自包含 HTML 完成",
-  "先交给 `clean-copy`",
-  "scripts/static-card-workbench.mjs",
-  "完整正向参考确认通过后",
-  "不检查 MediaFlow Pro",
-]) {
-  if (!skillText.includes(token)) {
-    fail(`SKILL.md 缺少静态卡轻量入口或唯一职责：${token}`);
-  }
-}
-for (const token of [
-  "完整正向参考确认是固定停止点",
-  "没有完整正向参考时停止",
-  "不得用内置配方",
-  "第一张真实画布仍是唯一设计确认稿",
-  "“正式作图前先展示方案”",
-  "scripts/static-card-workbench.mjs create",
-  "scripts/static-card-workbench.mjs",
-  "空白 `static-card/index.html`",
-  "不会自动读取个人 CSS",
-  "不自动生成多方向候选",
-  "真实展示宽度",
-  "16px 为正文舒适目标",
-  "不再增加第二次完整画布确认",
-]) {
-  if (!socialCardReferenceText.includes(token)) {
-    fail(`静态卡说明缺少完整正向参考门槛、轻量工作台或实际显示字号：${token}`);
-  }
-}
-for (const token of [
-  "默认建立一个自包含 `index.html`",
-  "普通路径不复制 starter",
-  "不建立 `editable-media.json`",
-  "出现以下任一真实需求时才进入结构化网页",
-  "用户明确要求 React 或现有真源为 React",
+  "统一建立 editable-media v6 网页包",
+  "不在本文恢复轻量实现",
+  "不把案例恢复成独立静态卡入口",
 ]) {
   if (!webVisualReferenceText.includes(token)) {
-    fail(`网页视觉说明没有分开轻量静态 HTML 与结构化 v6：${token}`);
+    fail(`网页视觉说明缺少统一 v6 路径或独立静态卡退出边界：${token}`);
   }
 }
 for (const token of [
-  "普通静态卡写入自包含 HTML",
-  "普通静态 HTML 不运行该检查",
+  "已经由根入口退出",
+  "不在这里恢复另一条制作或导出路径",
+  "不另建轻量静态 HTML 协议",
 ]) {
   if (!mediaProductionRuntimeText.includes(token)) {
-    fail(`媒体运行时仍可能把普通静态卡升级成重型路径：${token}`);
+    fail(`媒体运行时可能恢复已经退出的独立静态卡路径：${token}`);
   }
 }
 for (const token of [
-  "普通静态卡由真实浏览器从当前 HTML 画布导出",
-  "普通静态卡不运行该校验器",
+  "没有另一条导出入口",
+  "不在这里制作新的独立封面",
+  "项目声明的实际展示预览",
 ]) {
   if (!reviewAndExportText.includes(token)) {
-    fail(`导出说明缺少普通静态卡的轻量真实链路：${token}`);
+    fail(`导出说明可能恢复已经退出的独立静态成品：${token}`);
   }
 }
-for (const retired of [
-  "代码生成视觉优先复制 `assets/web-media-starter/`",
-  "代码生成视觉共同读取表中的载体、视觉配方、配色卡、字体制作和网页制作说明",
+for (const retiredPath of [
+  "references/social-card-production.md",
+  "references/text-card-production.md",
+  "scripts/static-card-workbench.mjs",
+  "scripts/self-test-static-card-workbench.mjs",
+  "scripts/self-test-static-card-quality.mjs",
+  "assets/static-card-workbench/base.html",
+]) {
+  if (fs.existsSync(path.join(skillRoot, retiredPath))) {
+    fail(`已经退出的独立静态卡文件仍然存在：${retiredPath}`);
+  }
+}
+for (const retiredRoute of [
+  "references/social-card-production.md",
+  "references/text-card-production.md",
+  "scripts/static-card-workbench.mjs",
 ]) {
   if (
-    skillText.includes(retired)
-    || mediaProductionRuntimeText.includes(retired)
-    || webVisualReferenceText.includes(retired)
+    skillText.includes(retiredRoute)
+    || mediaProductionRuntimeText.includes(retiredRoute)
+    || webVisualReferenceText.includes(retiredRoute)
+    || reviewAndExportText.includes(retiredRoute)
   ) {
-    fail(`普通静态卡重型旧入口仍然存在：${retired}`);
+    fail(`活动说明仍引用已经退出的独立静态卡入口：${retiredRoute}`);
   }
 }
 
@@ -1051,19 +968,14 @@ const requiredVisualRoutingScenarios = new Map([
   ["layout-template-does-not-set-style", "layout-template-instantiation"],
   ["ugly-current-basis-is-not-redesign", "recompose-or-restyle"],
   ["content-removal-recomposes-canvas", "recompose"],
-  ["tiny-type-uses-display-size", "typography-first-recompose"],
-  ["explicit-pre-drawing-confirmation-blocks-production", "pre-drawing-confirmation"],
-  ["content-curation-precedes-dimensions", "clean-copy-then-confirm-size"],
-  ["ordinary-static-card-uses-lightweight-html", "lightweight-static-html"],
-  ["approved-personal-style-has-priority", "personal-style-inheritance"],
-  ["missing-personal-style-does-not-invent-identity", "positive-reference-required-before-adoption"],
+  ["standalone-static-request-stops-without-substitution", "out-of-scope-stop"],
   ["data-does-not-force-graphics-or-swiss-style", "content-led-representation-choice"],
   ["explicit-graphic-reference-is-not-ignored", "adopt-requested-representation-mechanism"],
   ["structured-web-requirements-keep-v6", "structured-editable-media-v6"],
 ]);
 if (
   visualRoutingRegressions?.protocol !== "visual-multimedia-visual-resource-routing-regressions"
-  || visualRoutingRegressions?.version !== 7
+  || visualRoutingRegressions?.version !== 8
   || !Array.isArray(visualRoutingRegressions?.scenarios)
 ) {
   fail("视觉资源路由回归场景缺少活动协议或版本");
@@ -1125,83 +1037,16 @@ if (
   ) {
     fail("删减内容后的回归没有要求整张重排并退出旧分隔线与版式分支");
   }
-  const tinyType = scenarios.get("tiny-type-uses-display-size");
+  const retiredStandaloneStatic = scenarios.get("standalone-static-request-stops-without-substitution");
   if (
-    Number(tinyType?.minimum_primary_text_px) < 14
-    || Number(tinyType?.comfortable_primary_text_px) < 16
-    || !tinyType?.forbidden_actions?.includes("use-10px-technical-visibility-as-reading-quality")
+    !retiredStandaloneStatic?.required_actions?.includes("explain-standalone-static-capability-retired")
+    || !retiredStandaloneStatic?.required_actions?.includes("stop-without-production")
+    || !retiredStandaloneStatic?.forbidden_outputs?.includes("html-canvas")
+    || !retiredStandaloneStatic?.forbidden_outputs?.includes("static-image")
+    || !retiredStandaloneStatic?.forbidden_outputs?.includes("editable-media-json")
+    || !retiredStandaloneStatic?.forbidden_outputs?.includes("automatic-animation-or-video-substitute")
   ) {
-    fail("静态卡字号回归没有以实际展示宽度、14px 下限和 16px 舒适目标约束主要文字");
-  }
-  const preDrawingConfirmation = scenarios.get("explicit-pre-drawing-confirmation-blocks-production");
-  if (
-    preDrawingConfirmation?.allowed_skip !== "explicit-skip-confirmation-only"
-    || !preDrawingConfirmation?.required_output?.includes("exact-visible-copy")
-    || !preDrawingConfirmation?.required_output?.includes("proposed-content-derived-dimensions")
-    || !preDrawingConfirmation?.required_output?.includes("typography-color-template-surface-direction")
-    || !preDrawingConfirmation?.stop_before?.includes("html-css-generation")
-    || !preDrawingConfirmation?.stop_before?.includes("image-generation")
-    || !preDrawingConfirmation?.stop_before?.includes("template-instantiation")
-    || !preDrawingConfirmation?.stop_before?.includes("canvas-drawing")
-    || !preDrawingConfirmation?.forbidden_interpretations?.includes("complete-means-skip-confirmation")
-    || !preDrawingConfirmation?.forbidden_interpretations?.includes("later-vague-request-overrides-explicit-confirmation")
-  ) {
-    fail("正式作图前确认回归没有提交完整确认包、停止生产或限制为显式跳过");
-  }
-  const contentCuration = scenarios.get("content-curation-precedes-dimensions");
-  if (
-    !contentCuration?.required_actions?.includes("delegate-existing-draft-to-clean-copy")
-    || !contentCuration?.required_actions?.includes("receive-confirmed-visible-copy")
-    || !contentCuration?.required_actions?.includes("derive-dimensions-after-curation")
-    || !contentCuration?.forbidden_actions?.includes("include-all-source-material")
-    || !contentCuration?.forbidden_actions?.includes("inherit-template-source-dimensions")
-  ) {
-    fail("clean-copy—可读字号—内容决定尺寸回归没有阻止未清理材料和模板尺寸先行");
-  }
-  const lightweightStatic = scenarios.get("ordinary-static-card-uses-lightweight-html");
-  if (
-    !lightweightStatic?.required_output?.includes("single-self-contained-html")
-    || !lightweightStatic?.required_output?.includes("first-real-content-visual-draft")
-    || !lightweightStatic?.required_output?.includes("minimum-display-width-preview")
-    || !lightweightStatic?.required_actions?.includes("require-confirmed-complete-positive-reference")
-    || !lightweightStatic?.required_actions?.includes("start-from-blank-canvas-shell")
-    || !lightweightStatic?.required_actions?.includes("avoid-default-or-neutral-style")
-    || !lightweightStatic?.required_actions?.includes("avoid-routine-multi-candidate-generation")
-    || !lightweightStatic?.forbidden_outputs?.includes("editable-media-json")
-    || !lightweightStatic?.forbidden_outputs?.includes("web-media-starter-copy")
-    || !lightweightStatic?.forbidden_outputs?.includes("provider-inspection")
-    || !lightweightStatic?.forbidden_outputs?.includes("unrequested-text-only-pre-drawing-package")
-    || !lightweightStatic?.forbidden_outputs?.includes("second-full-canvas-confirmation")
-    || !lightweightStatic?.forbidden_actions?.includes("auto-generate-without-confirmed-positive-reference")
-    || !lightweightStatic?.forbidden_actions?.includes("substitute-built-in-profile-for-reference")
-  ) {
-    fail("普通静态卡回归没有固定完整正向参考门槛、真实内容首稿、单 HTML、实际展示预览和无 v6 重型产物");
-  }
-  const approvedPersonalStyle = scenarios.get("approved-personal-style-has-priority");
-  if (
-    !approvedPersonalStyle?.required_actions?.includes("read-approved-complete-reference-images")
-    || !approvedPersonalStyle?.required_actions?.includes("read-user-approved-adoption-scope")
-    || !approvedPersonalStyle?.required_actions?.includes("apply-approved-layers-to-real-html")
-    || !approvedPersonalStyle?.forbidden_actions?.includes("replace-complete-reference-images-with-css-summary")
-    || !approvedPersonalStyle?.forbidden_actions?.includes("auto-load-personal-css")
-    || !approvedPersonalStyle?.forbidden_actions?.includes("turn-style-into-fixed-canvas-size")
-  ) {
-    fail("已确认个人视觉资源回归没有读取完整参考与采用范围，或仍可能自动加载 CSS、锁死尺寸");
-  }
-  const missingPersonalStyle = scenarios.get("missing-personal-style-does-not-invent-identity");
-  if (
-    !missingPersonalStyle?.required_actions?.includes("explain-required-reference-coverage")
-    || !missingPersonalStyle?.required_actions?.includes("wait-for-user-provided-or-selected-complete-positive-reference")
-    || !missingPersonalStyle?.required_actions?.includes("keep-confirmed-copy-unrendered-until-reference-confirmation")
-    || !missingPersonalStyle?.forbidden_actions?.includes("generate-style-candidates-without-positive-reference")
-    || !missingPersonalStyle?.forbidden_actions?.includes("offer-production-cases-as-personal-style-candidates")
-    || !missingPersonalStyle?.forbidden_actions?.includes("adopt-candidates-before-user-selection")
-    || !missingPersonalStyle?.forbidden_actions?.includes("use-neutral-base")
-    || !missingPersonalStyle?.forbidden_actions?.includes("learn-style-from-rejected-output")
-    || !missingPersonalStyle?.forbidden_actions?.includes("learn-style-from-quality-constraints")
-    || !missingPersonalStyle?.forbidden_actions?.includes("learn-style-from-single-mechanism-reference")
-  ) {
-    fail("建立个人风格的回归没有要求先确认完整正向参考，或仍可能无参考生成候选并伪造风格");
+    fail("独立静态卡退出回归没有固定说明边界、停止生产和禁止自动替换载体");
   }
   const representationChoice = scenarios.get("data-does-not-force-graphics-or-swiss-style");
   if (
@@ -1286,7 +1131,9 @@ for (const token of ["暖纸纹理", "超大描边期号", "金色星标", "整�
 const layoutTemplateCatalogPath = ensurePath("assets/web-layout-templates/catalog.json");
 const layoutTemplateCatalog = readJson(layoutTemplateCatalogPath);
 const layoutTemplateScript = ensurePath("scripts/create-web-layout-template.mjs");
-const staticCardQualitySelfTest = ensurePath("scripts/self-test-static-card-quality.mjs");
+const structuredWebThumbnailQualitySelfTest = ensurePath(
+  "scripts/self-test-structured-web-thumbnail-quality.mjs",
+);
 const layoutTemplateScriptText = fs.readFileSync(layoutTemplateScript, "utf8");
 if (
   layoutTemplateCatalog?.protocol !== "visual-multimedia-web-layout-template-catalog"
@@ -1361,7 +1208,7 @@ for (const item of layoutTemplateCatalog?.templates || []) {
       || !Array.isArray(thumbnail.text_layer_ids)
       || thumbnail.text_layer_ids.length === 0
     ) {
-      fail(`静态卡布局模板 ${item.id} 没有声明实际展示宽度与至少 14px 的主要阅读文字下限`);
+      fail(`结构化网页布局模板 ${item.id} 没有声明实际展示宽度与至少 14px 的主要阅读文字下限`);
     }
   }
 }
@@ -1809,19 +1656,11 @@ if (runFullChecks && failures.length === 0) {
 }
 
 if (runBrowserChecks && failures.length === 0) {
-  runChecked(
-    process.execPath,
-    [staticCardWorkbenchSelfTest],
-    "轻量静态卡单 HTML 创建—原尺寸与 360px 预览—无越界真实链路检查",
-  );
-}
-
-if (runBrowserChecks && failures.length === 0) {
   const validator = path.join(scriptDir, "validate-editable-media.mjs");
   runChecked(
     process.execPath,
-    [staticCardQualitySelfTest],
-    "静态卡完整缩略图合同与实际显示字号硬失败回归"
+    [structuredWebThumbnailQualitySelfTest],
+    "结构化网页完整缩略图合同与实际显示字号硬失败回归"
   );
   for (const project of browserProjects) {
     runChecked(process.execPath, [validator, project], `浏览器验证：${project}`);
