@@ -873,24 +873,24 @@ for (const token of [
     fail(`视觉资源治理缺少案例—模板—项目风格边界：${token}`);
   }
 }
+const socialCardReferenceText = fs.readFileSync(
+  ensurePath("references/social-card-production.md"),
+  "utf8",
+);
 for (const token of [
   "references/visual-resource-governance.md",
-  "“看看、参考、分析”等要求",
+  "完整正向视觉参考确认",
+  "没有完整正向参考时停止",
   "普通静态卡把实际采用结果保存在当前 HTML",
   "只有结构化网页和系列复用才建立项目风格档案",
-  "第一张真实完整画布作为唯一设计确认稿",
   "“太丑”本身不等于整体改版",
   "artifacts/<task-id>/",
   "当前终端目录、活动 Git 仓库",
 ]) {
   if (!skillText.includes(token)) {
-    fail(`SKILL.md 缺少视觉参考边界或完整画布确认：${token}`);
+    fail(`SKILL.md 缺少完整正向参考边界：${token}`);
   }
 }
-const socialCardReferenceText = fs.readFileSync(
-  ensurePath("references/social-card-production.md"),
-  "utf8",
-);
 const webVisualReferenceText = fs.readFileSync(
   ensurePath("references/web-visual-production.md"),
   "utf8",
@@ -908,7 +908,7 @@ for (const token of [
   "普通静态卡由轻量自包含 HTML 完成",
   "先交给 `clean-copy`",
   "scripts/static-card-workbench.mjs",
-  "第一张真实完整画布作为唯一设计确认稿",
+  "完整正向参考确认通过后",
   "不检查 MediaFlow Pro",
 ]) {
   if (!skillText.includes(token)) {
@@ -916,21 +916,22 @@ for (const token of [
   }
 }
 for (const token of [
-  "第一张视觉稿就是唯一设计确认",
-  "用户明确说“正式作图前先展示方案”",
-  "才改走文字确认",
+  "完整正向参考确认是固定停止点",
+  "没有完整正向参考时停止",
+  "不得用内置配方",
+  "第一张真实画布仍是唯一设计确认稿",
+  "“正式作图前先展示方案”",
   "scripts/static-card-workbench.mjs create",
   "scripts/static-card-workbench.mjs",
   "空白 `static-card/index.html`",
   "不会自动读取个人 CSS",
-  "未选候选不是个人风格",
-  "尽快给用户看图",
+  "不自动生成多方向候选",
   "真实展示宽度",
   "16px 为正文舒适目标",
   "不再增加第二次完整画布确认",
 ]) {
   if (!socialCardReferenceText.includes(token)) {
-    fail(`静态卡说明缺少视觉优先确认、轻量工作台或实际显示字号：${token}`);
+    fail(`静态卡说明缺少完整正向参考门槛、轻量工作台或实际显示字号：${token}`);
   }
 }
 for (const token of [
@@ -987,7 +988,7 @@ const requiredVisualRoutingScenarios = new Map([
   ["content-curation-precedes-dimensions", "clean-copy-then-confirm-size"],
   ["ordinary-static-card-uses-lightweight-html", "lightweight-static-html"],
   ["approved-personal-style-has-priority", "personal-style-inheritance"],
-  ["missing-personal-style-does-not-invent-identity", "complete-direction-candidates-before-adoption"],
+  ["missing-personal-style-does-not-invent-identity", "positive-reference-required-before-adoption"],
   ["data-does-not-force-graphics-or-swiss-style", "content-led-representation-choice"],
   ["explicit-graphic-reference-is-not-ignored", "adopt-requested-representation-mechanism"],
   ["structured-web-requirements-keep-v6", "structured-editable-media-v6"],
@@ -1094,6 +1095,7 @@ if (
     !lightweightStatic?.required_output?.includes("single-self-contained-html")
     || !lightweightStatic?.required_output?.includes("first-real-content-visual-draft")
     || !lightweightStatic?.required_output?.includes("minimum-display-width-preview")
+    || !lightweightStatic?.required_actions?.includes("require-confirmed-complete-positive-reference")
     || !lightweightStatic?.required_actions?.includes("start-from-blank-canvas-shell")
     || !lightweightStatic?.required_actions?.includes("avoid-default-or-neutral-style")
     || !lightweightStatic?.required_actions?.includes("avoid-routine-multi-candidate-generation")
@@ -1102,8 +1104,10 @@ if (
     || !lightweightStatic?.forbidden_outputs?.includes("provider-inspection")
     || !lightweightStatic?.forbidden_outputs?.includes("unrequested-text-only-pre-drawing-package")
     || !lightweightStatic?.forbidden_outputs?.includes("second-full-canvas-confirmation")
+    || !lightweightStatic?.forbidden_actions?.includes("auto-generate-without-confirmed-positive-reference")
+    || !lightweightStatic?.forbidden_actions?.includes("substitute-built-in-profile-for-reference")
   ) {
-    fail("普通静态卡回归没有固定为真实内容首稿、单 HTML、实际展示预览和无 v6 重型产物");
+    fail("普通静态卡回归没有固定完整正向参考门槛、真实内容首稿、单 HTML、实际展示预览和无 v6 重型产物");
   }
   const approvedPersonalStyle = scenarios.get("approved-personal-style-has-priority");
   if (
@@ -1118,9 +1122,10 @@ if (
   }
   const missingPersonalStyle = scenarios.get("missing-personal-style-does-not-invent-identity");
   if (
-    !missingPersonalStyle?.required_actions?.includes("use-identical-copy-and-content-derived-canvas")
-    || !missingPersonalStyle?.required_actions?.includes("create-complete-visually-distinct-candidates-outside-repository")
-    || !missingPersonalStyle?.required_actions?.includes("wait-for-user-selection-of-whole-card-or-layers")
+    !missingPersonalStyle?.required_actions?.includes("explain-required-reference-coverage")
+    || !missingPersonalStyle?.required_actions?.includes("wait-for-user-provided-or-selected-complete-positive-reference")
+    || !missingPersonalStyle?.required_actions?.includes("keep-confirmed-copy-unrendered-until-reference-confirmation")
+    || !missingPersonalStyle?.forbidden_actions?.includes("generate-style-candidates-without-positive-reference")
     || !missingPersonalStyle?.forbidden_actions?.includes("offer-production-cases-as-personal-style-candidates")
     || !missingPersonalStyle?.forbidden_actions?.includes("adopt-candidates-before-user-selection")
     || !missingPersonalStyle?.forbidden_actions?.includes("use-neutral-base")
@@ -1128,7 +1133,7 @@ if (
     || !missingPersonalStyle?.forbidden_actions?.includes("learn-style-from-quality-constraints")
     || !missingPersonalStyle?.forbidden_actions?.includes("learn-style-from-single-mechanism-reference")
   ) {
-    fail("建立个人风格的回归没有要求完整候选、用户选择与候选隔离，或仍可能伪造风格");
+    fail("建立个人风格的回归没有要求先确认完整正向参考，或仍可能无参考生成候选并伪造风格");
   }
   const representationChoice = scenarios.get("data-does-not-force-graphics-or-swiss-style");
   if (

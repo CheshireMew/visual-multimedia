@@ -236,6 +236,7 @@
         "user-requested-static-export-only"
       ],
       "required_actions": [
+        "require-confirmed-complete-positive-reference",
         "start-from-blank-canvas-shell",
         "design-from-current-content-and-audience",
         "avoid-default-or-neutral-style",
@@ -250,6 +251,10 @@
         "provider-inspection",
         "unrequested-text-only-pre-drawing-package",
         "second-full-canvas-confirmation"
+      ],
+      "forbidden_actions": [
+        "auto-generate-without-confirmed-positive-reference",
+        "substitute-built-in-profile-for-reference"
       ]
     },
     {
@@ -280,19 +285,19 @@
       "id": "missing-personal-style-does-not-invent-identity",
       "input": "帮我建立个人卡片风格，我还没有给过认可的完整成品参考",
       "existing_state": "confirmed-visible-copy-without-approved-personal-style-resource",
-      "expected_mode": "complete-direction-candidates-before-adoption",
+      "expected_mode": "positive-reference-required-before-adoption",
       "preserve": [
         "confirmed-visible-copy",
         "content-led-representation",
         "explicit-current-references"
       ],
       "required_actions": [
-        "use-identical-copy-and-content-derived-canvas",
-        "create-complete-visually-distinct-candidates-outside-repository",
-        "wait-for-user-selection-of-whole-card-or-layers",
-        "keep-unselected-candidates-out-of-personal-resource"
+        "explain-required-reference-coverage",
+        "wait-for-user-provided-or-selected-complete-positive-reference",
+        "keep-confirmed-copy-unrendered-until-reference-confirmation"
       ],
       "forbidden_actions": [
+        "generate-style-candidates-without-positive-reference",
         "offer-production-cases-as-personal-style-candidates",
         "adopt-candidates-before-user-selection",
         "use-neutral-base",
