@@ -9,6 +9,7 @@ import gc
 import hashlib
 import json
 import math
+import os
 import shutil
 import subprocess
 import sys
@@ -38,11 +39,13 @@ from anime_avatar_common import (
     read_json,
     resolve_avatar_library,
     resolve_media_cache_root,
+    resolve_media_storage_policy,
     resolve_project_path,
     resolve_source,
     validate_library_payload,
     validate_media_manifest,
     write_json,
+    require_storage_budget,
 )
 from anime_avatar_motion import plan_gesture_motion
 from anime_avatar_segments import plan_unit_ranges
@@ -559,6 +562,7 @@ def build_disk_backed_source_store(
         dtype=np.float32,
     )
     decoded = 0
+    completed = False
     try:
         while decoded < expected_frame_count:
             ok, frame = capture.read()
@@ -586,9 +590,14 @@ def build_disk_backed_source_store(
                 "校准视频实际帧数多于视觉口型库声明："
                 f"声明 {expected_frame_count}"
             )
+        completed = True
     finally:
         capture.release()
         frames.flush()
+        if not completed:
+            failed_mmap_handle = getattr(frames, "_mmap", None)
+            if failed_mmap_handle is not None:
+                failed_mmap_handle.close()
     if fps <= 0:
         raise ValueError(f"校准视频没有有效帧率：{source}")
     shape = (expected_frame_count, height, width, 3)
@@ -602,6 +611,207 @@ def build_disk_backed_source_store(
         mode="r",
         shape=shape,
     )
+
+
+SOURCE_FRAME_STORE_PROTOCOL = "visual-multimedia-anime-avatar-source-frame-store"
+SOURCE_FRAME_STORE_VERSION = 1
+
+
+def source_frame_store_specification(
+    source: Path,
+    crop: tuple[int, int, int, int],
+    mouth_crop: tuple[int, int, int, int],
+    expected_frame_count: int,
+) -> dict[str, Any]:
+    return {
+        "version": SOURCE_FRAME_STORE_VERSION,
+        "source_sha256": file_sha256(source),
+        "crop_xywh": list(crop),
+        "mouth_crop_xywh": list(mouth_crop),
+        "expected_frame_count": expected_frame_count,
+        "pixel_format": "bgr-u8",
+        "descriptor": "lab-32x32-mouth-masked-f32-v1",
+    }
+
+
+def open_shared_source_frame_store(
+    source: Path,
+    crop: tuple[int, int, int, int],
+    mouth_crop: tuple[int, int, int, int],
+    expected_frame_count: int,
+    storage_policy: dict[str, Any],
+) -> tuple[np.memmap, float, np.ndarray, dict[str, Any]]:
+    specification = source_frame_store_specification(
+        source,
+        crop,
+        mouth_crop,
+        expected_frame_count,
+    )
+    cache_key = hashlib.sha256(
+        json.dumps(
+            specification,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    cache_root = Path(storage_policy["cache_root"]).resolve()
+    entry = cache_root / "anime-avatar-source-frames" / "v1" / cache_key
+    frames_path = entry / "frames-bgr-u8.bin"
+    descriptors_path = entry / "descriptors-f32.npy"
+    manifest_path = entry / "manifest.json"
+    run_manifest_path = entry / "run-result.json"
+    _, _, width, height = crop
+    shape = (expected_frame_count, height, width, 3)
+    frame_bytes = expected_frame_count * height * width * 3
+    descriptor_shape = (expected_frame_count, 32 * 32 * 3)
+
+    if entry.exists():
+        try:
+            manifest = read_json(manifest_path)
+            if (
+                manifest.get("protocol") != SOURCE_FRAME_STORE_PROTOCOL
+                or manifest.get("version") != SOURCE_FRAME_STORE_VERSION
+                or manifest.get("cache_key") != cache_key
+                or manifest.get("specification") != specification
+                or manifest.get("shape") != list(shape)
+                or manifest.get("descriptor_shape") != list(descriptor_shape)
+                or not frames_path.is_file()
+                or frames_path.stat().st_size != frame_bytes
+                or not descriptors_path.is_file()
+            ):
+                raise ValueError("共享原始帧缓存清单或内容不完整")
+            descriptors = np.load(descriptors_path, mmap_mode="r", allow_pickle=False)
+            if descriptors.shape != descriptor_shape or descriptors.dtype != np.float32:
+                raise ValueError("共享原始帧描述符身份不一致")
+            frames = np.memmap(
+                frames_path,
+                dtype=np.uint8,
+                mode="r",
+                shape=shape,
+            )
+            return (
+                frames,
+                float(manifest["fps"]),
+                descriptors,
+                {
+                    "storage": "shared-content-addressed-disk-backed-uint8-memmap",
+                    "status": "reused",
+                    "cache_key": cache_key,
+                    "path": str(frames_path),
+                    "manifest": str(manifest_path),
+                    "shape": list(shape),
+                    "bytes": frame_bytes,
+                    "descriptor_shape": list(descriptor_shape),
+                    "duplicate_task_copy_bytes": 0,
+                },
+            )
+        except (FileNotFoundError, KeyError, OSError, TypeError, ValueError) as error:
+            raise RuntimeError(
+                "共享原始帧缓存存在但未达到可复用终态；不会归档、覆盖或另建任务副本。"
+                f"请先审查：{entry}\n{error}"
+            ) from error
+
+    estimated_descriptor_bytes = expected_frame_count * 32 * 32 * 3 * 4
+    preflight = require_storage_budget(
+        cache_root,
+        expected_new_bytes=frame_bytes + estimated_descriptor_bytes,
+        maximum_managed_bytes=int(storage_policy["cache_max_bytes"]),
+        minimum_free_bytes=int(storage_policy["minimum_free_bytes"]),
+        label="角色共享原始帧缓存",
+    )
+    entry.mkdir(parents=True, exist_ok=False)
+    write_json(
+        run_manifest_path,
+        {
+            "protocol": "visual-multimedia-storage-run",
+            "version": 1,
+            "producer": "anime-avatar-source-frame-store",
+            "cache_key": cache_key,
+            "status": "running",
+            "owner_pid": os.getpid(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
+            "preflight": preflight,
+        },
+    )
+    frames = None
+    try:
+        frames, fps, descriptors, source_report = build_disk_backed_source_store(
+            source,
+            crop,
+            mouth_crop,
+            expected_frame_count,
+            frames_path,
+        )
+        np.save(descriptors_path, descriptors, allow_pickle=False)
+        manifest = {
+            "protocol": SOURCE_FRAME_STORE_PROTOCOL,
+            "version": SOURCE_FRAME_STORE_VERSION,
+            "cache_key": cache_key,
+            "specification": specification,
+            "fps": fps,
+            "shape": list(shape),
+            "descriptor_shape": list(descriptor_shape),
+            "frames_file": frames_path.name,
+            "descriptors_file": descriptors_path.name,
+            "bytes": frame_bytes,
+        }
+        write_json(manifest_path, manifest)
+        write_json(
+            run_manifest_path,
+            {
+                "protocol": "visual-multimedia-storage-run",
+                "version": 1,
+                "producer": "anime-avatar-source-frame-store",
+                "cache_key": cache_key,
+                "status": "completed",
+                "owner_pid": os.getpid(),
+                "finished_at": datetime.now(timezone.utc).isoformat(),
+                "preflight": preflight,
+                "retained": {
+                    "frames": {"path": str(frames_path), "bytes": frame_bytes},
+                    "descriptors": {
+                        "path": str(descriptors_path),
+                        "bytes": descriptors_path.stat().st_size,
+                    },
+                },
+                "cleanup_candidates": [],
+                "cleanup": "report-only-until-authorized",
+            },
+        )
+        source_report.update(
+            {
+                "storage": "shared-content-addressed-disk-backed-uint8-memmap",
+                "status": "generated",
+                "cache_key": cache_key,
+                "manifest": str(manifest_path),
+                "preflight": preflight,
+                "duplicate_task_copy_bytes": 0,
+            }
+        )
+        return frames, fps, descriptors, source_report
+    except BaseException as error:
+        if isinstance(frames, np.memmap):
+            mmap_handle = getattr(frames, "_mmap", None)
+            if mmap_handle is not None:
+                mmap_handle.close()
+        write_json(
+            run_manifest_path,
+            {
+                "protocol": "visual-multimedia-storage-run",
+                "version": 1,
+                "producer": "anime-avatar-source-frame-store",
+                "cache_key": cache_key,
+                "status": "failed",
+                "owner_pid": os.getpid(),
+                "finished_at": datetime.now(timezone.utc).isoformat(),
+                "preflight": preflight,
+                "error": {"type": type(error).__name__, "message": str(error)},
+                "cleanup_candidates": [str(entry)],
+                "cleanup": "report-only-until-authorized",
+            },
+        )
+        raise
     return (
         frames,
         fps,
@@ -1773,8 +1983,9 @@ def ensure_medium_master(
     crop: tuple[int, int, int, int],
     master_size: tuple[int, int],
     fps: int,
+    storage_policy: dict[str, Any],
 ) -> dict[str, Any]:
-    cache_root = resolve_media_cache_root()
+    cache_root = Path(storage_policy["cache_root"]).resolve()
     specification = {
         "version": MASTER_CACHE_VERSION,
         "motion_source_sha256": file_sha256(motion_path),
@@ -1827,6 +2038,13 @@ def ensure_medium_master(
     existing = inspect_existing()
     if existing is not None:
         return existing
+    preflight = require_storage_budget(
+        cache_root,
+        expected_new_bytes=max(512 * 1024**2, motion_path.stat().st_size * 2),
+        maximum_managed_bytes=int(storage_policy["cache_max_bytes"]),
+        minimum_free_bytes=int(storage_policy["minimum_free_bytes"]),
+        label="角色共享中等尺寸母版缓存",
+    )
     entry.mkdir(parents=True, exist_ok=False)
     pending = entry / f"master.pending.{uuid.uuid4().hex}.mp4"
     x, y, width, height = crop
@@ -1890,6 +2108,7 @@ def ensure_medium_master(
         "cache_key": cache_key,
         "probe": probe,
         "status": "generated",
+        "storage_preflight": preflight,
     }
 
 
@@ -2502,6 +2721,33 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         )
     master_size = tuple(int(value) for value in render_config["master_size"])
     width, height = master_size
+    library = library_context["library"]
+    expected_source_frame_count = int(library["source_frame_count"])
+    storage_policy = resolve_media_storage_policy()
+    estimated_duration = (
+        float(args.duration_seconds)
+        if planning and args.duration_seconds is not None
+        else (
+            float(approved_plan["execution"]["duration_seconds"])
+            if approved_plan is not None
+            else float(speech_units[-1].end)
+        )
+    )
+    estimated_total_frames = max(1, int(math.ceil(estimated_duration * fps - 1e-9)))
+    task_storage_preflight = require_storage_budget(
+        paths["root"],
+        expected_new_bytes=estimated_total_frames * width * height * 3 * 2,
+        maximum_managed_bytes=int(storage_policy["task_max_bytes"]),
+        minimum_free_bytes=int(storage_policy["minimum_free_bytes"]),
+        label="角色项目任务工作区",
+    )
+    artifacts_storage_preflight = require_storage_budget(
+        Path(storage_policy["artifacts_root"]),
+        expected_new_bytes=estimated_total_frames * width * height * 3 * 2,
+        maximum_managed_bytes=int(storage_policy["artifacts_max_bytes"]),
+        minimum_free_bytes=int(storage_policy["minimum_free_bytes"]),
+        label="visual-multimedia 全部任务产物",
+    )
     motion_path = library_context["motion_source_path"]
     crop = parse_xywh(
         motion_source.get("source_crop_xywh"),
@@ -2561,6 +2807,7 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         crop,
         master_size,
         fps,
+        storage_policy,
     )
     audio_master = ensure_audio_master(
         ffmpeg,
@@ -2595,8 +2842,6 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("目标角色轨时长必须覆盖完整连续音频母版")
     total_frames = int(math.ceil(requested_duration * fps - 1e-9))
 
-    library = library_context["library"]
-    expected_source_frame_count = int(library["source_frame_count"])
     source_labels, source_levels, source_takes = source_annotation(
         library,
         expected_source_frame_count,
@@ -2613,12 +2858,12 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         master_crop = (0, 0, width, height)
         master_mouth_crop = scaled_mouth_crop(mouth_crop, crop, master_size)
         source_frames, source_fps, descriptors, source_store_report = (
-            build_disk_backed_source_store(
+            open_shared_source_frame_store(
                 master["path"],
                 master_crop,
                 master_mouth_crop,
                 expected_source_frame_count,
-                working / "source-frames-bgr-u8.bin",
+                storage_policy,
             )
         )
         validation = validate_library_payload(
@@ -3028,6 +3273,8 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
                 "internal_fps": fps,
                 "delivery_fps": delivery_fps,
                 "master_size": list(master_size),
+                "storage_preflight": task_storage_preflight,
+                "artifacts_storage_preflight": artifacts_storage_preflight,
             },
             "master": {
                 "cache_key": master["cache_key"],
@@ -3037,6 +3284,7 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
                 "height": height,
                 "fps": float(master["probe"]["fps"]),
             },
+            "source_frame_store": source_store_report,
             "units": unit_payloads,
             "seams": seam_payloads,
             "summary": {
@@ -3071,6 +3319,10 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         write_json(plan_path, render_plan)
         if sampler is not None:
             sampler.close()
+        if isinstance(descriptors, np.memmap):
+            descriptor_mmap = getattr(descriptors, "_mmap", None)
+            if descriptor_mmap is not None:
+                descriptor_mmap.close()
         validate_render_plan_payload(render_plan, require_confirmed=False)
         if plan_status == "rejected":
             raise RuntimeError(
@@ -3236,6 +3488,10 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
             )
     if sampler is not None:
         sampler.close()
+    if isinstance(descriptors, np.memmap):
+        descriptor_mmap = getattr(descriptors, "_mmap", None)
+        if descriptor_mmap is not None:
+            descriptor_mmap.close()
     completed_cores = [item for item in core_results if item is not None]
     completed_seams = [item for item in seam_results if item is not None]
     if len(completed_cores) != len(units) or len(completed_seams) != len(
@@ -3414,6 +3670,12 @@ def run_segmented_avatar_pipeline(args: argparse.Namespace) -> dict[str, Any]:
             "cache_key": master["cache_key"],
             "status": master["status"],
             "content_sha256": master["content_sha256"],
+        },
+        "storage": {
+            "task_preflight": task_storage_preflight,
+            "artifacts_preflight": artifacts_storage_preflight,
+            "source_frame_store": source_store_report,
+            "cleanup": "report-only-until-authorized",
         },
         "continuous_audio_master": {
             "cache_key": audio_master["cache_key"],

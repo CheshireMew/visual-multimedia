@@ -23,6 +23,11 @@ import { validateTextMotionLibrary } from "./text-motion-library.mjs";
 import { validateShotRecipeLibrary } from "./shot-recipe-library.mjs";
 import { validateVideoProductionProfileCatalog } from "./video-production-profile-catalog.mjs";
 import { validateJsonSchema } from "./json_schema_contract.mjs";
+import {
+  ensureTaskWorkspace,
+  finalizeTaskWorkspace,
+  reviewTaskWorkspaceRoot,
+} from "./media-task-workspace.mjs";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const skillRoot = path.dirname(scriptDir);
@@ -54,6 +59,58 @@ function parseCheckMode(args) {
 const checkMode = parseCheckMode(process.argv.slice(2));
 const runBrowserChecks = checkMode === "browser" || checkMode === "full";
 const runFullChecks = checkMode === "full";
+
+const validationTaskId = runBrowserChecks
+  ? `check-${checkMode}-${Date.now().toString(36)}-${process.pid}`
+  : null;
+const validationStartReview = runBrowserChecks ? reviewTaskWorkspaceRoot() : null;
+const validationWorkspace = runBrowserChecks
+  ? ensureTaskWorkspace(
+    validationTaskId,
+    runFullChecks ? 8 * 1024 ** 3 : 2 * 1024 ** 3,
+  )
+  : null;
+
+function finishValidationStorage(status) {
+  if (!validationTaskId || !validationWorkspace || !validationStartReview) return;
+  const endReview = reviewTaskWorkspaceRoot();
+  const before = validationStartReview.inventory.categories;
+  const after = endReview.inventory.categories;
+  const createdPaths = [];
+  const changedPaths = [];
+  for (const [name, record] of Object.entries(after)) {
+    if (name === validationTaskId) continue;
+    const previous = before[name];
+    const deltaBytes = record.bytes - (previous?.bytes || 0);
+    if (!previous) createdPaths.push({path: name, bytes: record.bytes, delta_bytes: deltaBytes});
+    else if (deltaBytes !== 0) {
+      changedPaths.push({
+        path: name,
+        before_bytes: previous.bytes,
+        after_bytes: record.bytes,
+        delta_bytes: deltaBytes,
+      });
+    }
+  }
+  const reportDirectory = path.join(validationWorkspace.path, "reports");
+  fs.mkdirSync(reportDirectory, {recursive: true});
+  fs.writeFileSync(
+    path.join(reportDirectory, "artifact-delta.json"),
+    `${JSON.stringify({
+      protocol: "visual-multimedia-artifact-delta",
+      version: 1,
+      producer: `check-skill-${checkMode}`,
+      status,
+      preflight: validationWorkspace.preflight,
+      created_paths: createdPaths,
+      changed_paths: changedPaths,
+      cleanup_candidates: createdPaths,
+      cleanup: "report-only-until-authorized",
+    }, null, 2)}\n`,
+    "utf8",
+  );
+  finalizeTaskWorkspace(validationTaskId, status);
+}
 
 function fail(message) {
   failures.push(message);
@@ -492,7 +549,18 @@ for (const token of [
     fail(`轻量静态卡工作台缺少安全创建、真实显示检查或显式样式入口：${token}`);
   }
 }
-for (const token of ["TASK_WORKSPACE_ROOT", "artifacts", "assertSkillTaskPath", "ensureTaskWorkspace"]) {
+for (const token of [
+  "TASK_WORKSPACE_ROOT",
+  "artifacts",
+  "assertSkillTaskPath",
+  "preflightTaskWorkspace",
+  "ensureTaskWorkspace",
+  "inventoryTaskWorkspace",
+  "reviewTaskWorkspaceRoot",
+  "finalizeTaskWorkspace",
+  "minimumFreeBytes",
+  "report-only-until-authorized",
+]) {
   if (!mediaTaskWorkspaceText.includes(token)) {
     fail(`任务工作区解析器缺少固定 Skill 内生产边界：${token}`);
   }
@@ -2228,6 +2296,11 @@ if (runFullChecks && failures.length === 0) {
       [path.join(scriptDir, "self-test-anime-avatar-inset.py")],
       "素材导入—固定角色窗—音轨默认—项目相对输出—真实成片检查"
     );
+    runChecked(
+      avatarPython,
+      [path.join(scriptDir, "self-test-anime-avatar-storage.py")],
+      "二次元口播共享原始帧缓存与写入前存储预算检查"
+    );
   }
 
   if (runFullChecks && failures.length === 0) {
@@ -2251,6 +2324,10 @@ if (runFullChecks && failures.length === 0) {
     "run_segmented_avatar_pipeline",
     "anime-avatar-medium-master-v1",
     "anime-avatar-segment-cache-v1",
+    "open_shared_source_frame_store",
+    "anime-avatar-source-frames",
+    "require_storage_budget",
+    "duplicate_task_copy_bytes",
     "avatar-track-clips.json",
     "continuous-audio.wav",
   ]) {
@@ -2261,8 +2338,9 @@ if (runFullChecks && failures.length === 0) {
   if (
     avatarRenderSource.includes("def run_avatar_pipeline(")
     || avatarRenderSource.includes('render_config["output_size"]')
+    || avatarRenderSource.includes('working / "source-frames-bgr-u8.bin"')
   ) {
-    fail("二次元口播旧整轨渲染架构仍留在活动脚本");
+    fail("二次元口播旧整轨渲染架构或任务内原始帧重复副本仍留在活动脚本");
   }
 
   const requiredInterviewTokens = [
@@ -2424,6 +2502,7 @@ if (runFullChecks && failures.length === 0) {
 }
 
 if (failures.length > 0) {
+  finishValidationStorage("failed");
   failures.forEach((message) => console.error(`FAIL ${message}`));
   console.error(`visual-multimedia 未通过：${failures.length} 个问题`);
   process.exit(1);
@@ -2434,4 +2513,5 @@ const successMessages = {
   browser: `visual-multimedia browser 通过：fast 档位、${browserProjects.length} 个真实网页包、确定性时间、透明视频进度条、文字动效与产品功能宣传片浏览器链路均通过验证`,
   full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、透明视频进度条、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片、GitHub 项目介绍、素材解说型与采访原声讲解型完整链路均通过验证`,
 };
+finishValidationStorage("completed");
 console.log(successMessages[checkMode]);

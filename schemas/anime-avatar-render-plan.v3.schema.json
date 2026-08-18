@@ -33,7 +33,9 @@
           "type": "array",
           "prefixItems": [{"type": "integer"}, {"type": "integer"}],
           "items": false
-        }
+        },
+        "storage_preflight": {"type": "object"},
+        "artifacts_storage_preflight": {"type": "object"}
       }
     },
     "master": {
@@ -51,6 +53,7 @@
         "fps": {"type": "number", "exclusiveMinimum": 0}
       }
     },
+    "source_frame_store": {"type": ["object", "null"]},
     "units": {
       "type": "array",
       "minItems": 1,

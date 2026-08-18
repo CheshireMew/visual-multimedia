@@ -4,7 +4,7 @@
 
 ## 工具与动作边界
 
-- 默认允许读取用户提供的本地内容与素材；开始制作前用 `node scripts/media-task-workspace.mjs ensure --task-id <稳定任务-id>` 建立 `artifacts/<task-id>/`，全部制作真源、项目、中间文件、预览、报告、渲染和成品都写入这里。
+- 默认允许读取用户提供的本地内容与素材；开始制作前先估算新增与峰值字节，依次运行 `node scripts/media-task-workspace.mjs preflight --task-id <稳定任务-id> --expected-bytes <字节>` 和带相同参数的 `ensure`，只有单任务上限、全部任务产物上限和磁盘安全线都通过才建立 `artifacts/<task-id>/`。全部制作真源、项目、中间文件、预览、报告、渲染和成品都写入这里；可跨任务复用的大型缓存写入本机配置声明的有界缓存根，任务项目只记录缓存身份。结束时运行 `inventory` 与 `finalize`，按真实终态记录实际占用和清理候选；`review` 可列出全部任务、可审查清理候选和缺少旧清单的未知目录，但不会自动删除。
 - 当前目录、活动仓库、输入项目和外部交付位置都不是生产根。项目命令接受相对任务、报告或输出路径时，一律相对 Skill 内显式项目根解析并拒绝越界；公共创建、渲染和导出入口还会拒绝 `artifacts/<task-id>/` 之外的路径。用户明确要求外部交付时，真实结果通过后只复制点名成品，不能把外部目录改成活动项目。
 - 口播私人库只通过 `scripts/voiceover_reference_library.py` 初始化、接入、定位、保存和验证。正式根目录由用户指定；位于 Skill 目录内时只能使用已经从 Git 排除的 `口播私人库/`，不能与会发布的 references、scripts、assets 或案例混放。普通写作只运行只读 `show`、`voice-candidates` 和文本检索，明确的库维护请求才写入。
 - 已经由主入口判定为结构化网页时，复制 `assets/web-media-starter/` 或明确选定的 React starter；`schemas/editable-media.v6.schema.json` 是唯一结构合同，清单、通用运行时、编辑器和预览启动器沿现有合同工作。starter 不决定当前内容、尺寸或风格，也不能被普通静态卡默认复制。

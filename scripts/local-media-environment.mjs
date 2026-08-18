@@ -77,6 +77,19 @@ function defaultCacheRoot() {
   return path.join(os.tmpdir(), "visual-multimedia-cache");
 }
 
+const DEFAULT_CACHE_MAX_BYTES = 16 * 1024 ** 3;
+const DEFAULT_TASK_MAX_BYTES = 32 * 1024 ** 3;
+const DEFAULT_ARTIFACTS_MAX_BYTES = 64 * 1024 ** 3;
+const DEFAULT_MINIMUM_FREE_BYTES = 80 * 1024 ** 3;
+
+function positiveInteger(value, fallback, label) {
+  const selected = value == null ? fallback : value;
+  if (!Number.isSafeInteger(selected) || selected <= 0) {
+    fail(`${label} 必须是正整数安全字节数`);
+  }
+  return selected;
+}
+
 function detectPlaywright(configuredRoot = null) {
   const candidates = [
     configuredRoot,
@@ -172,7 +185,13 @@ export function loadLocalMediaEnvironment(configOverride = null) {
       version: 2,
       providers: {local: {}},
       resources: {voice_reference_roots: []},
-      runtime: {cache_root: defaultCacheRoot()},
+      runtime: {
+        cache_root: defaultCacheRoot(),
+        cache_max_bytes: DEFAULT_CACHE_MAX_BYTES,
+        task_max_bytes: DEFAULT_TASK_MAX_BYTES,
+        artifacts_max_bytes: DEFAULT_ARTIFACTS_MAX_BYTES,
+        minimum_free_bytes: DEFAULT_MINIMUM_FREE_BYTES,
+      },
     };
   if (
     document.protocol !== "visual-multimedia-local-environment"
@@ -249,13 +268,33 @@ export function loadLocalMediaEnvironment(configOverride = null) {
   const cacheRoot = hasConfig
     ? existingDirectory(document.runtime.cache_root, "runtime.cache_root")
     : absolutePath(document.runtime.cache_root, "runtime.cache_root");
+  const cacheMaxBytes = positiveInteger(
+    document.runtime.cache_max_bytes,
+    DEFAULT_CACHE_MAX_BYTES,
+    "runtime.cache_max_bytes",
+  );
+  const taskMaxBytes = positiveInteger(
+    document.runtime.task_max_bytes,
+    DEFAULT_TASK_MAX_BYTES,
+    "runtime.task_max_bytes",
+  );
+  const artifactsMaxBytes = positiveInteger(
+    document.runtime.artifacts_max_bytes,
+    DEFAULT_ARTIFACTS_MAX_BYTES,
+    "runtime.artifacts_max_bytes",
+  );
+  const minimumFreeBytes = positiveInteger(
+    document.runtime.minimum_free_bytes,
+    DEFAULT_MINIMUM_FREE_BYTES,
+    "runtime.minimum_free_bytes",
+  );
   return {
     configPath: hasConfig ? configPath : null,
     protocol: document.protocol,
     version: document.version,
     providers: {local, mediaflow, hyperframes},
     voiceReferenceRoots,
-    runtime: {cacheRoot},
+    runtime: {cacheRoot, cacheMaxBytes, taskMaxBytes, artifactsMaxBytes, minimumFreeBytes},
   };
 }
 
@@ -743,6 +782,14 @@ export function inspectLocalMediaCapabilities(environment) {
     version: 1,
     config_path: environment.configPath,
     cache_root: environment.runtime.cacheRoot,
+    storage_policy: {
+      cache_max_bytes: environment.runtime.cacheMaxBytes,
+      task_max_bytes: environment.runtime.taskMaxBytes,
+      artifacts_max_bytes: environment.runtime.artifactsMaxBytes,
+      minimum_free_bytes: environment.runtime.minimumFreeBytes,
+      over_budget: "block-before-large-write",
+      cleanup: "report-only-until-authorized",
+    },
     providers,
   };
 }
@@ -822,6 +869,7 @@ function printHelp() {
 node scripts/local-media-environment.mjs inspect [--config <路径>]
 node scripts/local-media-environment.mjs resolve --need timeline-edit|timeline-render|web-render|subtitle-edit|audio-edit|speech-transcribe|speech-synthesize|preview|export|reference-compare|native-project|desktop-handoff [--config <路径>]
 node scripts/local-media-environment.mjs cache-root [--config <路径>]
+node scripts/local-media-environment.mjs storage-policy [--config <路径>]
 node scripts/local-media-environment.mjs voice-list [--config <路径>]
 node scripts/local-media-environment.mjs voice-resolve --voice <id或名称> [--config <路径>]
 node scripts/local-media-environment.mjs mediaflow describe [--summary|--full|--operation <名称>|--catalog <名称>] [--config <路径>]
@@ -866,6 +914,18 @@ function main(argv) {
   }
   if (command === "cache-root") {
     printJson({cache_root: environment.runtime.cacheRoot});
+    return;
+  }
+  if (command === "storage-policy") {
+    printJson({
+      cache_root: environment.runtime.cacheRoot,
+      cache_max_bytes: environment.runtime.cacheMaxBytes,
+      task_max_bytes: environment.runtime.taskMaxBytes,
+      artifacts_max_bytes: environment.runtime.artifactsMaxBytes,
+      minimum_free_bytes: environment.runtime.minimumFreeBytes,
+      over_budget: "block-before-large-write",
+      cleanup: "report-only-until-authorized",
+    });
     return;
   }
   if (command === "voice-list") {

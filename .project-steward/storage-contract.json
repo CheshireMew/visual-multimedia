@@ -1,0 +1,149 @@
+{
+  "protocol": "project-steward-production-storage-contract",
+  "version": 1,
+  "project_id": "visual-multimedia",
+  "policy": {
+    "unknown_peak": "block",
+    "outside_owned_roots": "block",
+    "over_budget": "block",
+    "cleanup_without_authorization": "report-only"
+  },
+  "producers": [
+    {
+      "id": "task-workspace",
+      "root_source": {
+        "kind": "project-relative",
+        "value": "artifacts/<task-id>"
+      },
+      "artifact_classes": [
+        "truth",
+        "deliverable",
+        "temporary",
+        "evidence"
+      ],
+      "peak_estimate": {
+        "source": "public producer passes expected bytes to preflightTaskWorkspace",
+        "unknown_behavior": "block"
+      },
+      "budget": {
+        "maximum_managed_bytes_source": "runtime.task_max_bytes and runtime.artifacts_max_bytes",
+        "minimum_free_bytes_source": "runtime.minimum_free_bytes"
+      },
+      "reuse": {
+        "required": false
+      },
+      "lifecycle": {
+        "preflight": "preflightTaskWorkspace runs before task creation",
+        "finalization": "finalizeTaskWorkspace records completed or failed inventory",
+        "interruption": "finalizeTaskWorkspace records interrupted inventory without deletion"
+      },
+      "implementation_files": [
+        "scripts/local-media-environment.mjs",
+        "scripts/media-task-workspace.mjs"
+      ],
+      "test_files": [
+        "scripts/check-skill.mjs"
+      ],
+      "enforcement": {
+        "file": "scripts/media-task-workspace.mjs",
+        "tokens": [
+          "preflightTaskWorkspace",
+          "inventoryTaskWorkspace",
+          "reviewTaskWorkspaceRoot",
+          "finalizeTaskWorkspace",
+          "report-only-until-authorized"
+        ]
+      }
+    },
+    {
+      "id": "anime-avatar-source-frames",
+      "root_source": {
+        "kind": "runtime-config",
+        "value": "runtime.cache_root"
+      },
+      "artifact_classes": [
+        "cache",
+        "evidence"
+      ],
+      "peak_estimate": {
+        "source": "frame dimensions, frame count, pixel format and descriptor dimensions",
+        "unknown_behavior": "block"
+      },
+      "budget": {
+        "maximum_managed_bytes_source": "runtime.cache_max_bytes",
+        "minimum_free_bytes_source": "runtime.minimum_free_bytes"
+      },
+      "reuse": {
+        "required": true,
+        "identity": "source sha256, crop, mouth crop, frame count, pixel and descriptor versions"
+      },
+      "lifecycle": {
+        "preflight": "require_storage_budget runs before the content-addressed entry is created",
+        "finalization": "run-result and manifest record completed identity and retained bytes",
+        "interruption": "incomplete entries remain owned cleanup candidates and block replacement"
+      },
+      "implementation_files": [
+        "scripts/anime_avatar_common.py",
+        "scripts/local-media-environment.mjs",
+        "scripts/render-anime-avatar.py"
+      ],
+      "test_files": [
+        "scripts/check-skill.mjs",
+        "scripts/self-test-anime-avatar-storage.py"
+      ],
+      "enforcement": {
+        "file": "scripts/render-anime-avatar.py",
+        "tokens": [
+          "open_shared_source_frame_store",
+          "anime-avatar-source-frames",
+          "require_storage_budget",
+          "duplicate_task_copy_bytes"
+        ]
+      }
+    },
+    {
+      "id": "repository-validation-evidence",
+      "root_source": {
+        "kind": "project-relative",
+        "value": "artifacts"
+      },
+      "artifact_classes": [
+        "temporary",
+        "evidence"
+      ],
+      "peak_estimate": {
+        "source": "check-skill browser reserves two GiB and full reserves eight GiB before validation",
+        "unknown_behavior": "block"
+      },
+      "budget": {
+        "maximum_managed_bytes_source": "runtime.artifacts_max_bytes",
+        "minimum_free_bytes_source": "runtime.minimum_free_bytes"
+      },
+      "reuse": {
+        "required": false
+      },
+      "lifecycle": {
+        "preflight": "check-skill creates a managed validation task before browser or full producers run",
+        "finalization": "artifact-delta records created and changed roots before task finalization",
+        "interruption": "an unfinalized active task retains its owner process and preflight evidence"
+      },
+      "implementation_files": [
+        "scripts/check-skill.mjs",
+        "scripts/media-task-workspace.mjs"
+      ],
+      "test_files": [
+        "scripts/check-skill.mjs",
+        "scripts/self-test-anime-avatar-storage.py"
+      ],
+      "enforcement": {
+        "file": "scripts/check-skill.mjs",
+        "tokens": [
+          "ensureTaskWorkspace",
+          "finishValidationStorage",
+          "visual-multimedia-artifact-delta",
+          "report-only-until-authorized"
+        ]
+      }
+    }
+  ]
+}

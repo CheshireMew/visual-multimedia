@@ -71,10 +71,14 @@ def executable(name: str, override: str | None = None) -> str:
 
 
 def resolve_media_cache_root() -> Path:
+    return resolve_media_storage_policy()["cache_root"]
+
+
+def resolve_media_storage_policy() -> dict[str, Any]:
     node = executable("node")
     reader = SKILL_ROOT / "scripts" / "local-media-environment.mjs"
     result = subprocess.run(
-        [node, str(reader), "cache-root"],
+        [node, str(reader), "storage-policy"],
         cwd=str(SKILL_ROOT),
         check=False,
         capture_output=True,
@@ -92,7 +96,79 @@ def resolve_media_cache_root() -> Path:
     cache_root = Path(str(payload.get("cache_root") or "")).resolve()
     if not cache_root.is_dir():
         raise FileNotFoundError(f"缓存根目录不存在：{cache_root}")
-    return cache_root
+    values = {}
+    for field in (
+        "cache_max_bytes",
+        "task_max_bytes",
+        "artifacts_max_bytes",
+        "minimum_free_bytes",
+    ):
+        value = payload.get(field)
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ValueError(f"本机存储策略 {field} 必须是正整数字节数")
+        values[field] = value
+    return {
+        "cache_root": cache_root,
+        "artifacts_root": (SKILL_ROOT / "artifacts").resolve(),
+        **values,
+        "over_budget": payload.get("over_budget"),
+        "cleanup": payload.get("cleanup"),
+    }
+
+
+def managed_directory_bytes(root: Path) -> int:
+    total = 0
+    if not root.exists():
+        return 0
+    for path in root.rglob("*"):
+        if path.is_symlink() or not path.is_file():
+            continue
+        try:
+            total += path.stat().st_size
+        except OSError:
+            continue
+    return total
+
+
+def require_storage_budget(
+    root: Path,
+    *,
+    expected_new_bytes: int,
+    maximum_managed_bytes: int,
+    minimum_free_bytes: int,
+    label: str,
+) -> dict[str, Any]:
+    if expected_new_bytes < 0:
+        raise ValueError("预计新增字节数不能为负数")
+    resolved = root.expanduser().resolve()
+    resolved.mkdir(parents=True, exist_ok=True)
+    current_bytes = managed_directory_bytes(resolved)
+    usage = shutil.disk_usage(resolved)
+    projected_bytes = current_bytes + expected_new_bytes
+    projected_free_bytes = usage.free - expected_new_bytes
+    report = {
+        "label": label,
+        "root": str(resolved),
+        "current_managed_bytes": current_bytes,
+        "expected_new_bytes": expected_new_bytes,
+        "projected_managed_bytes": projected_bytes,
+        "maximum_managed_bytes": maximum_managed_bytes,
+        "free_bytes": usage.free,
+        "projected_free_bytes": projected_free_bytes,
+        "minimum_free_bytes": minimum_free_bytes,
+        "cleanup": "report-only-until-authorized",
+    }
+    failures = []
+    if projected_bytes > maximum_managed_bytes:
+        failures.append("预计受管用量超过容量上限")
+    if projected_free_bytes < minimum_free_bytes:
+        failures.append("预计写入后剩余空间低于安全线")
+    if failures:
+        raise RuntimeError(
+            f"{label} 存储预检未通过：{'；'.join(failures)}\n"
+            + json.dumps(report, ensure_ascii=False)
+        )
+    return report
 
 
 def run(

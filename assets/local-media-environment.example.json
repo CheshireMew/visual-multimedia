@@ -15,6 +15,10 @@
     "voice_reference_roots": []
   },
   "runtime": {
-    "cache_root": "D:/Tools/visual-multimedia-cache"
+    "cache_root": "D:/Tools/visual-multimedia-cache",
+    "cache_max_bytes": 17179869184,
+    "task_max_bytes": 34359738368,
+    "artifacts_max_bytes": 68719476736,
+    "minimum_free_bytes": 85899345920
   }
 }
