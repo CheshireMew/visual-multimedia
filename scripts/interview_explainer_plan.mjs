@@ -10,6 +10,7 @@ import {
   ensureFile,
   hashPath,
   nowIso,
+  parseVtt,
   probeMedia,
   projectPath,
   readJson,
@@ -19,6 +20,7 @@ import {
   slash,
   writeJson,
 } from "./interview_explainer_common.mjs";
+import {normalizeBilingualCaptionPairs} from "./bilingual-video-captions.mjs";
 import {
   assertEditableMediaPackageClosed,
   readEditableMediaPackage,
@@ -45,6 +47,7 @@ const RENDER_PLAN_MODULES = [
   "validate-media-transcript.mjs",
   "validate-clip-selections.mjs",
   "media_project_state.mjs",
+  "bilingual-video-captions.mjs",
 ].map((name) => path.join(SCRIPT_DIR, name));
 const PROFILE_CATALOG = path.join(
   SKILL_ROOT,
@@ -210,8 +213,8 @@ function validateDraft(draft) {
   ) {
     throw new Error("draft.output 的尺寸和帧率无效");
   }
-  if (!["burned-in", "embedded-track", "sidecar"].includes(output.caption_mode)) {
-    throw new Error("draft.output.caption_mode 无效");
+  if (output.caption_mode !== "burned-in") {
+    throw new Error("采访讲解最终视频必须烧录中文主字幕和下方英文小字幕");
   }
   if (draft.style?.source_card?.show_source_timecode !== true) {
     throw new Error("该类型的原声证据画面必须显示来源时间码");
@@ -431,6 +434,50 @@ export function createInterviewExplainerPlan(options) {
     "访谈解析 draft",
   );
   validateDraft(draft);
+  const contentArtifact = genericState.state.artifacts.find(
+    (item) => item.stage_id === "content" && item.role === "content-contract",
+  );
+  if (
+    !contentArtifact
+    || contentArtifact.file !== relativeProjectPath(projectRoot, draftPath)
+    || contentArtifact.sha256 !== sha256File(draftPath)
+  ) {
+    throw new Error("内容阶段必须批准当前 interview-explainer-draft.json；中文字幕确认后不能静默改写 draft");
+  }
+  const captionTranslationsPath = projectPath(
+    projectRoot,
+    options.captionTranslations || "interview-explainer-caption-translations.json",
+    "caption translations",
+  );
+  ensureFile(captionTranslationsPath, "中文字幕确认后生成的英文小字幕");
+  const captionTranslations = readJson(captionTranslationsPath);
+  assertJsonSchema(
+    captionTranslations,
+    path.join(SCHEMA_DIR, "interview-explainer-caption-translations.v1.schema.json"),
+    "采访讲解英文小字幕",
+  );
+  if (
+    captionTranslations.project_id !== draft.project_id
+    || captionTranslations.draft.file !== relativeProjectPath(projectRoot, draftPath)
+    || captionTranslations.draft.sha256 !== sha256File(draftPath)
+  ) throw new Error("英文小字幕没有绑定当前已确认中文字幕 draft 与哈希");
+  const translationsByCue = new Map();
+  const translationIds = new Set();
+  for (const cue of captionTranslations.cues) {
+    const key = `${cue.segment_id}:${cue.cue_index}`;
+    if (translationIds.has(cue.id) || translationsByCue.has(key)) throw new Error(`英文小字幕存在重复 id 或重复段落序号：${cue.id}`);
+    translationIds.add(cue.id);
+    translationsByCue.set(key, cue);
+  }
+  const consumedTranslations = new Set();
+  const translatedCue = (segmentId, cueIndex, zh) => {
+    const key = `${segmentId}:${cueIndex}`;
+    const cue = translationsByCue.get(key);
+    if (!cue) throw new Error(`段落 ${segmentId} 的第 ${cueIndex + 1} 条中文字幕缺少英文小字幕`);
+    if (cue.zh !== zh) throw new Error(`段落 ${segmentId} 的第 ${cueIndex + 1} 条英文小字幕没有绑定同一条已确认中文`);
+    consumedTranslations.add(key);
+    return cue;
+  };
   const profile = loadProfile(draft.profile.id, draft.profile.version);
   const ffprobe = commandPath("ffprobe", options.ffprobe, "FFPROBE_BIN");
 
@@ -486,6 +533,7 @@ export function createInterviewExplainerPlan(options) {
     inputRecord(projectRoot, "transcript", contractPaths.transcript),
     inputRecord(projectRoot, "clip-selections", contractPaths.clips),
     inputRecord(projectRoot, "narration-bundle", contractPaths.narration),
+    inputRecord(projectRoot, "caption-translations", captionTranslationsPath),
   ];
   const seenInputRoles = new Set(inputs.map((item) => item.role));
   const sequence = [];
@@ -540,6 +588,16 @@ export function createInterviewExplainerPlan(options) {
       }
       const duration = Number(clip.end_seconds) - Number(clip.start_seconds);
       frames = durationFrames(duration, draft.output.fps);
+      const captionPairs = normalizeBilingualCaptionPairs(segment.subtitle_cues.map((cue, cueIndex) => {
+        const translation = translatedCue(segment.id, cueIndex, cue.text);
+        return {
+          id: translation.id,
+          start_seconds: Number(cue.source_start_seconds) - Number(clip.start_seconds),
+          end_seconds: Number(cue.source_end_seconds) - Number(clip.start_seconds),
+          zh: cue.text,
+          en: translation.en,
+        };
+      }), {maximumDuration: duration});
       content = {
         viewer_title: segment.viewer_title,
         source_id: source.id,
@@ -549,11 +607,7 @@ export function createInterviewExplainerPlan(options) {
         source_label: segment.source_label,
         translation: segment.translation,
         original_text: segment.original_text,
-        subtitle_cues: segment.subtitle_cues.map((cue) => ({
-          source_start_seconds: Number(cue.source_start_seconds),
-          source_end_seconds: Number(cue.source_end_seconds),
-          text: cue.text,
-        })),
+        subtitle_cues: captionPairs,
         audio_source_id: null,
         audio_sha256: null,
         timing_file: null,
@@ -607,6 +661,12 @@ export function createInterviewExplainerPlan(options) {
       }
       const packageIntegrity = hashPath(packageRoot);
       frames = durationFrames(narration.actualDuration, draft.output.fps);
+      const captionPairs = normalizeBilingualCaptionPairs(parseVtt(narration.timingPath).map((cue, cueIndex) => {
+        const start = Math.max(0, Math.min(narration.actualDuration, cue.start));
+        const end = Math.max(start + 0.05, Math.min(narration.actualDuration, cue.end));
+        const translation = translatedCue(segment.id, cueIndex, cue.text);
+        return {id: translation.id, start_seconds: start, end_seconds: end, zh: cue.text, en: translation.en};
+      }), {maximumDuration: narration.actualDuration});
       content = {
         viewer_title: null,
         source_id: null,
@@ -616,7 +676,7 @@ export function createInterviewExplainerPlan(options) {
         source_label: null,
         translation: null,
         original_text: null,
-        subtitle_cues: null,
+        subtitle_cues: captionPairs,
         audio_source_id: narration.audio_source_id,
         audio_sha256: narration.audio_sha256,
         timing_file: narration.timing_file,
@@ -648,6 +708,7 @@ export function createInterviewExplainerPlan(options) {
     });
     timelineStart += frames;
   }
+  if (consumedTranslations.size !== captionTranslations.cues.length) throw new Error("英文小字幕文件包含没有进入当前视频计划的多余 cue");
 
   const plan = {
     protocol: "visual-multimedia-interview-explainer-plan",

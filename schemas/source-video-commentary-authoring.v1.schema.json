@@ -140,7 +140,7 @@
             "source_gain_db": {"type": "number", "maximum": 12}
           }
         },
-        "captions": {"type": "array", "items": {"$ref": "#/$defs/caption"}}
+        "captions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/caption"}}
       }
     }
   }

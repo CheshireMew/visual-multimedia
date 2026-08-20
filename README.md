@@ -29,7 +29,7 @@
 
 <!-- readme-header:end -->
 
-Visual Multimedia 是一个媒体制作 Skill。它会在技术图解、代码动画、视频、音频和播客中判断合适载体，再完成对应的标题、口播、字幕、节目结构和媒体配套文字；进入制作后，它会保留唯一的活动真源，并沿真实的预览、渲染或导出链检查最终结果。独立静态卡、社交卡、纯文字卡、轮播图和独立封面已经退出，不会被自动改成动画或视频。
+Visual Multimedia 是一个媒体制作 Skill。它会在技术图解、代码动画、视频、音频和播客中判断合适载体，再完成对应的标题、口播、字幕、节目结构和媒体配套文字；进入制作后，它会保留唯一的活动真源，并沿真实的预览、渲染或导出链检查最终结果。独立静态卡、社交卡、纯文字卡、轮播图和独立封面已经退出；唯一窄范围静态例外，是从已有视频与事实转写派生字幕金句拼图。
 
 ![Visual Multimedia 把抽象机制制作成可读图解的真实案例](assets/web-card-cases/editorial-technology-diagram-cover/preview.png)
 
@@ -48,12 +48,18 @@ Visual Multimedia 是一个媒体制作 Skill。它会在技术图解、代码�
 
 ```text
 使用 $visual-multimedia，把这段访谈和现有字幕剪成 90 秒视频。
-保留受访者原声，先给我片段选择和旁白方案。
+保留受访者原声，先给我基于复核转写整理的完整中文字幕，再选择片段和安排画面。
+```
+
+```text
+使用 $visual-multimedia，从这段没有烧录字幕的采访中选择足以讲清主题的完整观点，再按可读字幕行制作一张紧凑连续拼图。所有行重复第一条字幕的背景帧。
 ```
 
 ```text
 使用 $visual-multimedia，把这份确认过的讲解稿做成可手动推进、也能连续导出的多场景 HTML 动画。
 ```
+
+中文视频最终默认使用中文主字幕和英文小字幕，两层共用真实声音边界。原创视频先交付完整中文字幕内容；确认后才派生英文字幕、发音文本、声音、视觉方向和综合样片。真人原声或现成旁白则先确认经听音复核的主字幕，再按真实声音确定时间。
 
 如果只点名 Skill 并提供内容，却没有说明要样稿还是成品，默认流程会推荐一个首选载体、完成可确认的媒体文案，然后停下来等待决定。明确要求样稿或完整制作时，流程才会继续创建网页、处理素材或导出文件。
 
@@ -62,7 +68,7 @@ Visual Multimedia 是一个媒体制作 Skill。它会在技术图解、代码�
 - 内容真源或素材在哪里，哪些事实和表达已经确认；
 - 目标受众看完或听完后应理解什么；
 - 想要文案、样稿还是完整成品，以及尺寸、时长或格式要求；
-- 哪些图片、录音、视频、品牌资料或参考样本可以使用；
+- 哪些图片、录音、视频、品牌资料或参考样本可以查看和使用；
 - 是否允许调用外部模型、安装工具、下载素材或执行导出。
 
 ## 可以完成什么
@@ -71,9 +77,10 @@ Visual Multimedia 是一个媒体制作 Skill。它会在技术图解、代码�
 | --- | --- | --- |
 | 技术机制对比与系统流程图 | 已确认概念、节点关系、参考风格与静态/动态要求 | 可编辑机制图、稳定全貌动画、关键状态检查图和指定图片或视频 |
 | GIF、动态图解、代码动画 | 内容关系、语义步骤与播放方式 | 可定位关键状态的网页动画，以及指定 GIF 或视频 |
-| 解释型 B-roll 与视频包装 | 确认口播、内容关系、布局比例与真实声音时间 | 自动配方选择、十类可编辑活动模板、活动时间线片段和 PNG/GIF/视频/透明输出 |
+| 解释型 B-roll 与视频包装 | 已确认主字幕或现成旁白、内容关系、布局比例与真实声音时间 | 自动配方选择、十类可编辑活动模板、活动时间线片段和 PNG/GIF/视频/透明输出 |
 | 多场景 HTML 演示 | 完整文案、场景顺序与手动/自动/混合播放要求 | 同一网页真源中的交互演示和连续导出路径 |
 | 实拍、访谈、讲课或录屏后期 | 原片、事实转写、片段范围与交付要求 | 可继续修改的时间线、字幕、混音和经过审阅的成片 |
+| 视频字幕金句拼图 | 已有视频、事实转写、完整观点、对应的中英文显示行 | 一个主画面加多条满宽横图的自动高度拼图、仅限第一条字幕的背景候选、最终图片复核与准确交付报告 |
 | 音频与播客 | 录音、节目结构、旁白与声音要求 | 音频时间线、混音成品和必要附属文件 |
 | 参考视频复刻或对齐 | 准确参考区间、目标素材与还原层级 | 分开的精确回放或参数化重建结果，以及逐帧与人工观看证据 |
 | 二次元口播角色 | 已注册角色，或确认的角色母版；生成前取得完整校准提示词；真实语音 | Agent 审查校准视频并建立版本化角色资源，再生成已复核口播轨或固定角色窗 |
@@ -103,10 +110,11 @@ Visual Multimedia 是一个媒体制作 Skill。它会在技术图解、代码�
 ## 怎样完成一项制作
 
 1. **先确认内容，再选择载体。** 内容真源决定主张和边界，视觉与声音只负责降低理解成本、建立节奏和增强体验。
-2. **先写媒体文案，再做画面和声音。** 用户已经确认完整文案时不擅自重写，只做载体需要的确定性拆分。
-3. **在最早未确认的层面做样稿。** 文案、风格、构图、动效和声音样稿各自只验证一个层面；确认后再扩展完整成品。
+2. **先写媒体文案，再做画面和声音。** 带语音视频先确认完整主语言字幕；翻译、发音文本、声音、视觉方向和样片都从这份确认内容派生。
+3. **在最早未确认的层面做样稿。** 文案、风格、构图、动效和声音样稿各自只验证一个层面；B-roll 只有在能增加证据、场景、动作、情绪、结果或剪切连贯性时才采用，不按句子机械切换。
 4. **每类成品只保留一个活动制作入口。** 网页视觉以网页包为真源，视频和音频以各自时间线为真源，混合项目不在后期工具中重画网页负责的内容。
-5. **正式交付必须经过真实消费者。** 源文件能打开、脚本返回成功或 schema 通过都不等于成品可用；最终文件还要由真实浏览器、播放器、编辑器或导出链读取和检查。
+5. **只使用已经授权的视觉素材。** 没有被用户提供或明确允许查看的图片、视频帧和品牌资料不会被枚举、预览、采用或拿来决定风格。
+6. **正式交付必须经过真实消费者。** 源文件能打开、脚本返回成功或 schema 通过都不等于成品可用；最终文件还要由真实浏览器、播放器、编辑器或导出链读取和检查。
 
 ### 制作视频时怎样选择执行方
 
@@ -122,15 +130,14 @@ Skill 先确定活动真源，再检查当前机器真正可用的能力。执�
 
 ### 可编辑真源与交付合同
 
-代码生成的技术图解、图表和动画在未指定技术栈时从 [DOM starter](assets/web-media-starter) 建立；用户明确要求 React，或现有输入本身是 React 组件或工程时，从 [React starter](assets/react-media-starter) 建立。两种生产方式都生成自包含的 editable-media v6 网页包；`schemas/editable-media.v6.schema.json` 是网页清单的唯一结构真源，运行时同时暴露 `window.editableMedia` 编辑状态接口和 `window.__hf.duration/seek(seconds)` 确定性时间接口。本地渲染器、结构化编辑器和 HyperFrames 都读取这一个边界。DOM 网页包复用同一套画布外编辑器：右侧可以按语义分组改字、切换经本机验证的字体与字重、调色和调整样式，画布文字也能直接点击修改；修改可刷新保留、下载为结构化数据、放大预览、恢复初始值并导出当前画布。Windows 用户运行包内 `_start_editable_preview.bat` 即可在动态本地端口打开当前项目。
-
-图片、视频、音频和生成素材先进入带文件哈希、来源、权利、原片与代理关系的素材账本，再由网页、视频时间线或音频项目显式采用。`schemas/media-timeline.v1.schema.json` 定义本地与外部编辑器都能理解的可移植时间线，`schemas/media-delivery.v3.schema.json` 把实际提供方、真源文件、回执和 SHA-256 绑定到最终输出。导出的 PNG、GIF、MP4 或音频文件是派生结果，不会成为第二个编辑入口。
-
-跨轮长任务使用 `media-project-state.json` 记录制作阶段、成果哈希、确认、决定和下一步；它不是编辑器工程。项目进入 MediaFlow Pro 后，素材、时间线、项目修订和操作历史只保存在 `project.mfp`，制作状态只索引相关合同与成果，不复制第二份编辑状态。
+- **网页包：** 代码生成的技术图解、图表和动画在未指定技术栈时从 [DOM starter](assets/web-media-starter) 建立；用户明确要求 React，或现有输入本身是 React 组件或工程时，从 [React starter](assets/react-media-starter) 建立。两者都生成自包含的 editable-media v6 网页包；`schemas/editable-media.v6.schema.json` 是唯一结构真源，本地渲染器、结构化编辑器和 HyperFrames 共用 `window.editableMedia` 与 `window.__hf.duration/seek(seconds)`。
+- **画布外编辑器：** DOM 网页包可以按语义分组改字、切换经本机验证的字体与字重、调色、调整样式，也能直接点击画布文字修改；修改可刷新保留、下载、放大预览、恢复初始值并导出当前画布。Windows 用户运行 `_start_editable_preview.bat` 即可在动态本地端口打开当前项目。
+- **素材与交付合同：** 图片、视频、音频和生成素材先进入带文件哈希、来源、权利、原片与代理关系的素材账本，再由网页、视频时间线或音频项目显式采用。`media-timeline` v1 定义可移植时间线，`media-delivery` v3 把提供方、真源文件、回执和 SHA-256 绑定到最终输出；导出文件不会成为第二个编辑入口。
+- **跨轮状态：** `media-project-state.json` 只记录制作阶段、成果哈希、确认、决定和下一步，不充当编辑器工程。项目进入 MediaFlow Pro 后，素材、时间线、项目修订和操作历史只保存在 `project.mfp`，制作状态只索引相关合同与成果。
 
 ## 不适用的任务
 
-- 独立静态卡、社交卡、纯文字卡、轮播图或独立封面的策划、制作、修改和导出；
+- 独立静态卡、社交卡、纯文字卡、轮播图或独立封面；从已有视频派生的字幕金句拼图除外；
 - 通读课程、书籍或长材料后判断什么值得分享；
 - 主动研究主题、补充事实、撰写长文或 Newsletter；
 - 只交付能够脱离媒体独立成立的短帖或 Thread；
@@ -182,7 +189,8 @@ node scripts/check-skill.mjs --full
 
 本仓库的原创源码、Skill、脚本、Schema、模板与文档采用 [Mozilla Public License 2.0](LICENSE)。个人头像、角色、品牌资料，以及项目拥有或在项目内生成的图片、音频、视频、渲染结果和预览媒体不随 MPL-2.0 授权，并依照 [ASSET-LICENSE](ASSET-LICENSE) 保留全部权利。第三方内容继续遵守各自的许可证与声明。
 
-React 参考生产器的直接依赖、精确版本与许可证记录在 [React starter third-party notices](assets/react-media-starter/THIRD_PARTY_NOTICES.md)，同一声明会进入其封闭构建输出。该生产器不包含 Remotion 源码、Composition、Renderer 或其它 Remotion 运行组件。
+- React 参考生产器的直接依赖、精确版本与许可证记录在 [React starter third-party notices](assets/react-media-starter/THIRD_PARTY_NOTICES.md)，同一声明会进入其封闭构建输出。该生产器不包含 Remotion 源码、Composition、Renderer 或其它 Remotion 运行组件。
+- 视频字幕金句拼图改编所依据的 MIT 项目、修改范围与完整许可见 [第三方声明](THIRD_PARTY_NOTICES.md)。
 
 准确的路径范围、排除项和第三方覆盖关系以 [LICENSING.md](LICENSING.md) 为唯一说明。
 
@@ -191,6 +199,7 @@ React 参考生产器的直接依赖、精确版本与许可证记录在 [React 
 本仓库直接改编并随 Skill 分发的第三方资源如下。这里只列实际进入成品链或活动资源的内容；只学习通用方法并完全独立实现、没有复制来源 IP、示例、资源或代码的研究材料，不会被写成项目依赖。
 
 - [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft)：`assets/shot-recipe-library/recipes/` 中 104 张镜头卡与 161 个风格变体的语义资料由原仓库改写而来，采用 Apache-2.0，Copyright 2026 Wei Yihao。本仓库没有复制上游 Remotion TSX、产品截图、音频、动态预览 MP4 或 Gallery 实现；准确范围、修改说明与完整许可证见 [shot recipe notices](assets/shot-recipe-library/THIRD_PARTY_NOTICES.md)。
+- [chengyi-ai/native-subtitle-quote-image](https://github.com/chengyi-ai/native-subtitle-quote-image)：采用其精确取帧和主画面加横条拼接思路，改造成默认无烧录字幕、绑定事实转写、完整信息单元、统一字号与按文字实际高度紧凑拼接的生产链；采用 MIT，Copyright 2026 程意，完整条款见 [第三方声明](THIRD_PARTY_NOTICES.md)。
 - `sakura-animate-text`：`assets/text-motion-library/text-motion-runtime.js` 的文字动效家族基于该项目确定性重写，采用 MIT License，Copyright 2026 Sakura；没有复制上游 WAAPI 播放循环、随机延迟、CDN 加载器、框架适配、示例文案、字体或站点视觉。完整声明见 [text motion notices](assets/text-motion-library/THIRD_PARTY_NOTICES.md)。
 - [Xiaolai（小赖字体）](https://github.com/lxgw/kose-font)：`assets/web-card-cases/handdrawn-system-collaboration-flow/assets/fonts/Xiaolai-Regular.ttf` 用于真实手绘中文案例，采用 SIL Open Font License 1.1；完整许可证随字体保存在案例目录。
 - [Lucide](https://github.com/lucide-icons/lucide)：同一手绘案例在 `index.html` 中内嵌 Lucide Static 1.28.0 的线性图标路径；Lucide 自有图标采用 ISC，Server、Monitor、Database 等 Feather 派生图标同时保留 Cole Bemis 的 MIT 条款。准确范围与完整许可证见 [case notices](assets/web-card-cases/handdrawn-system-collaboration-flow/THIRD_PARTY_NOTICES.md)。

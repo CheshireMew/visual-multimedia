@@ -3,6 +3,7 @@
   "$id": "visual-multimedia.product-promo.v1",
   "title": "Visual Multimedia Product Promo v1 Documents",
   "oneOf": [
+    {"$ref": "#/$defs/content"},
     {"$ref": "#/$defs/brief"},
     {"$ref": "#/$defs/plan"},
     {"$ref": "#/$defs/confirmation"}
@@ -60,10 +61,75 @@
         "source_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
       }
     },
+    "contentFeature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "viewer_value", "proof", "required"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "viewer_value": {"$ref": "#/$defs/text"},
+        "proof": {"$ref": "#/$defs/text"},
+        "required": {"type": "boolean"}
+      }
+    },
+    "captionCue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "content_segment_id", "start_frame", "end_frame", "zh", "en"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "content_segment_id": {"$ref": "#/$defs/id"},
+        "start_frame": {"type": "integer", "minimum": 0},
+        "end_frame": {"type": "integer", "minimum": 1},
+        "zh": {"$ref": "#/$defs/text"},
+        "en": {"$ref": "#/$defs/text"}
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "project_id", "product", "viewer_script", "features"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-product-promo-content"},
+        "version": {"const": 1},
+        "project_id": {"$ref": "#/$defs/id"},
+        "product": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "audience", "value_proposition", "call_to_action"],
+          "properties": {
+            "name": {"$ref": "#/$defs/text"},
+            "audience": {"$ref": "#/$defs/text"},
+            "value_proposition": {"$ref": "#/$defs/text"},
+            "call_to_action": {"type": "string"}
+          }
+        },
+        "viewer_script": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primary_language", "segments"],
+          "properties": {
+            "primary_language": {"type": "string", "minLength": 2},
+            "segments": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "text"],
+                "properties": {"id": {"$ref": "#/$defs/id"}, "text": {"$ref": "#/$defs/text"}}
+              }
+            }
+          }
+        },
+        "features": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/contentFeature"}}
+      }
+    },
     "brief": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["protocol", "version", "project_id", "profile", "product", "features", "output", "sound", "constraints"],
+      "required": ["protocol", "version", "project_id", "profile", "product", "viewer_script", "features", "output", "sound", "constraints"],
       "properties": {
         "protocol": {"const": "visual-multimedia-product-promo-brief"},
         "version": {"const": 1},
@@ -78,6 +144,27 @@
             "audience": {"$ref": "#/$defs/text"},
             "value_proposition": {"$ref": "#/$defs/text"},
             "call_to_action": {"type": "string"}
+          }
+        },
+        "viewer_script": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primary_language", "segments"],
+          "properties": {
+            "primary_language": {"type": "string", "minLength": 2},
+            "segments": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "text"],
+                "properties": {
+                  "id": {"$ref": "#/$defs/id"},
+                  "text": {"$ref": "#/$defs/text"}
+                }
+              }
+            }
           }
         },
         "features": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/feature"}},
@@ -99,7 +186,7 @@
     "shot": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "order", "purpose", "feature_ids", "selection", "implementation", "timeline_start_frame", "duration_frames", "semantic_steps"],
+      "required": ["id", "order", "purpose", "feature_ids", "selection", "implementation", "timeline_start_frame", "duration_frames", "semantic_steps", "caption_cues"],
       "properties": {
         "id": {"$ref": "#/$defs/id"},
         "order": {"type": "integer", "minimum": 1},
@@ -119,7 +206,8 @@
         },
         "timeline_start_frame": {"type": "integer", "minimum": 0},
         "duration_frames": {"type": "integer", "minimum": 1},
-        "semantic_steps": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+        "semantic_steps": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "caption_cues": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/captionCue"}}
       }
     },
     "coverage": {
@@ -146,7 +234,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "protocol", "version", "project_id", "created_at", "profile", "brief",
+        "protocol", "version", "project_id", "created_at", "profile", "content", "brief",
         "direction", "capture_reports", "sound", "feature_coverage", "shots",
         "review_promises", "output"
       ],
@@ -156,6 +244,7 @@
         "project_id": {"$ref": "#/$defs/id"},
         "created_at": {"$ref": "#/$defs/date"},
         "profile": {"$ref": "#/$defs/profileBinding"},
+        "content": {"$ref": "#/$defs/fileBinding"},
         "brief": {"$ref": "#/$defs/fileBinding"},
         "direction": {
           "type": "object",

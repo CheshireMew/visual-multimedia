@@ -320,8 +320,7 @@ async function main(argv) {
   }
   if (command === "materialize") {
     const result = materializeSourceVideoCommentary({project, authoring: args.authoring, confirmation: args.confirmation, narrationBundle: args["narration-bundle"], script: args.script, draft: args.draft, localConfig: args["local-config"], ffprobe: args.ffprobe});
-    const validation = validateSourceVideoCommentaryDraft({project, draft: args.draft || DRAFT_RELATIVE, ffprobe: ffprobeFor(args)});
-    process.stdout.write(`${JSON.stringify({...result, validated: true, bindings: {draft: validation.draftBinding.sha256, script: validation.script.sha256, media_sources: validation.sources.sha256}}, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({...result, validated: false, next_action: "从已确认中文逐 cue 补英文小字幕，并逐段比较当前画面、已授权 B-roll 与解释型画面；把决定直接写入 draft.visual、visual_reason 和 clip-selections 后再运行 validate。"}, null, 2)}\n`);
     return 0;
   }
   if (command === "validate") {

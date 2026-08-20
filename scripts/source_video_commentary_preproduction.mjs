@@ -265,8 +265,9 @@ function authoringPacket(projectRoot, source, media, candidates, transcriptRelat
     `- 联系表：reports/source-video-commentary-contact-sheet.jpg`,
     `- 转写：${transcriptRelative || "无；不得虚构原声内容"}`,
     "",
-    "Agent 必须先查看联系表、候选场景和实际转写，再创建 source-video-commentary-authoring.json。",
-    "每个 segment 明确写出解说目的、源片真实范围、画面职责、旁白文本、声音模式与字幕。",
+    "Agent 必须先查看用户已授权处理的源片联系表、候选场景和实际转写，再创建 source-video-commentary-authoring.json。",
+    "每个 segment 先写面向观众的完整主语言字幕，再写同义旁白、源片真实范围、画面职责与声音模式。",
+    "先把全部主字幕直接展示给用户；确认前不得合成旁白、翻译英文、建立导演方向或制作样片。",
     "候选场景只是检索提示，不是正式选段；最终入点和出点只会由 materialize 写入 clip-selections.json。",
     "",
     "## 候选场景",
@@ -518,6 +519,7 @@ export function validateSourceVideoCommentaryAuthoring(options) {
     }
     const needsNarration = segment.audio.mode !== "source-only";
     if (needsNarration !== Boolean(segment.narration)) throw new Error(`segment ${segment.id} 的声音模式与 narration 不一致`);
+    if (!segment.captions.length) throw new Error(`segment ${segment.id} 必须在生成旁白前写入并确认主语言字幕`);
     if (segment.narration) narrationCount += 1;
     if (segment.audio.mode === "narration-only" && segment.audio.source_gain_db !== 0) throw new Error(`segment ${segment.id} narration-only 时 source_gain_db 必须为 0`);
     if (selection.spoken_content && !selection.transcript_segment_ids.length) throw new Error(`segment ${segment.id} 标记 spoken_content 却没有 transcript segment`);
@@ -903,6 +905,7 @@ export function materializeSourceVideoCommentary(options) {
       order: segment.order,
       purpose: segment.purpose,
       visual_role: segment.visual_role,
+      visual_reason: "当前原片能够承担这一段的初始解释；内容确认后仍须逐段比较是否改用已授权 B-roll 或解释型画面。",
       visual: {
         kind: "source-clip",
         clip_selection_id: `clip-${segment.id}`,
@@ -932,7 +935,6 @@ export function materializeSourceVideoCommentary(options) {
       transcript: transcript ? relativeProjectPath(projectRoot, transcript.file) : null,
       clip_selections: "clip-selections.json",
       narration_bundle: relativeProjectPath(projectRoot, bundlePath),
-      video_direction_plan: null,
     },
     background_music: context.authoring.background_music,
     integrated_sample: context.authoring.integrated_sample,

@@ -32,6 +32,7 @@ function usage() {
 node scripts/interview-explainer.mjs list-profiles
 node scripts/interview-explainer.mjs create-project --project <目录> --project-id <id>
 node scripts/interview-explainer.mjs plan --project <目录> [--draft interview-explainer-draft.json]
+  [--caption-translations interview-explainer-caption-translations.json]
   [--ffprobe <路径>] [--output interview-explainer-plan.json]
 node scripts/interview-explainer.mjs confirm-plan --project <目录>
   [--plan interview-explainer-plan.json] --confirmed-by user|agent --evidence <说明>
@@ -275,6 +276,7 @@ function main() {
     result = createInterviewExplainerPlan({
       project,
       draft: args.draft,
+      captionTranslations: args["caption-translations"],
       output: args.output,
       ffprobe: args.ffprobe,
     });

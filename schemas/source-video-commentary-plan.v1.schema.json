@@ -138,10 +138,11 @@
     },
     "segment": {
       "type": "object", "additionalProperties": false,
-      "required": ["id", "order", "purpose", "visual_role", "timeline_start_frame", "duration_frames", "visual", "narration", "audio", "captions"],
+      "required": ["id", "order", "purpose", "visual_role", "visual_reason", "timeline_start_frame", "duration_frames", "visual", "narration", "audio", "captions"],
       "properties": {
         "id": {"$ref": "#/$defs/id"}, "order": {"type": "integer", "minimum": 1}, "purpose": {"type": "string", "minLength": 1},
         "visual_role": {"enum": ["hook", "setup", "evidence", "development", "turn", "payoff", "summary", "bridge"]},
+        "visual_reason": {"type": "string", "minLength": 1},
         "timeline_start_frame": {"type": "integer", "minimum": 0}, "duration_frames": {"type": "integer", "minimum": 1},
         "visual": {"$ref": "#/$defs/visual"}, "narration": {"$ref": "#/$defs/narration"}, "audio": {"$ref": "#/$defs/audio"},
         "captions": {"type": "array", "items": {"$ref": "#/$defs/caption"}}

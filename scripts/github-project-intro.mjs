@@ -10,10 +10,7 @@ import {assertJsonSchema} from "./json_schema_contract.mjs";
 import {readEditableMediaPackage} from "./editable-media-contract.mjs";
 import {
   commandPath,
-  escapeAssText,
   ffmpegFilterPath,
-  formatAssTime,
-  formatSrtTime,
   nowIso,
   parseArgs,
   probeMedia,
@@ -45,6 +42,10 @@ import {assertStageApproved, submitStage, validateProjectState} from "./media_pr
 import {finalizeStandardVideo, reviewStandardVideo} from "./standard_video_delivery.mjs";
 import {sha256Tree} from "./shot-recipe-library.mjs";
 import {assertSkillTaskPath} from "./media-task-workspace.mjs";
+import {
+  normalizeBilingualCaptionPairs,
+  serializeBilingualAss,
+} from "./bilingual-video-captions.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -115,10 +116,6 @@ export function createGithubProjectIntro(options) {
   if (openingVariant === "today" && options.sameDayConfirmed !== true) {
     throw new Error("使用‘今天’开场前必须通过 --same-day-confirmed true 明确确认同日事实");
   }
-  const registry = path.resolve(options.registry || DEFAULT_REGISTRY || "");
-  if (!registry || !fs.existsSync(path.join(registry, "registry.json"))) {
-    throw new Error("找不到已注册的 GitHub 项目介绍开场语音；请用 --registry 指定注册表目录");
-  }
   fs.mkdirSync(projectRoot, {recursive: true});
   for (const entry of fs.readdirSync(STARTER, {withFileTypes: true})) {
     if (!entry.isFile()) continue;
@@ -129,17 +126,29 @@ export function createGithubProjectIntro(options) {
   for (const directory of ["components", "plans", "reports", "renders", "working"]) {
     fs.mkdirSync(path.join(projectRoot, directory), {recursive: true});
   }
-  const opening = adoptOpeningAudio(projectRoot, projectId, registry, openingVariant);
   const statePath = path.join(projectRoot, "media-project-state.json");
   const state = readJson(statePath);
   state.project_id = projectId;
   state.media_kind = "mixed-video";
   state.profile = "github-project-intro@1.0.0";
-  state.contracts.resource_adoptions = "media-resource-adoptions.json";
-  state.next_action = "填写仓库事实、一个核心主张、真实证据和逐镜头双语旁白，再验证内容合同。";
+  state.next_action = "先填写并向用户展示 github-project-intro-content.json 中的完整中文字幕；确认后把该文件提交为 content-contract，再准备声音、英文和获准画面。";
   state.updated_at = nowIso();
   writeJson(statePath, state);
   assertJsonSchema(state, PROJECT_SCHEMA, "媒体项目状态");
+  const content = {
+    protocol: "visual-multimedia-github-project-intro-content",
+    version: 1,
+    project_id: projectId,
+    audience: "待确认目标观众",
+    one_core_claim: "待确认整条视频只讲清楚的一个主张",
+    confirmed_facts: ["待绑定已经核实的仓库事实"],
+    call_to_action: "",
+    primary_language: "zh-CN",
+    subtitle_segments: [{
+      id: "opening",
+      text: openingVariant === "today" ? "今天看到一个有意思的 GitHub 项目。" : "最近看到一个有意思的 GitHub 项目。",
+    }],
+  };
   const brief = {
     protocol: "visual-multimedia-github-project-intro-brief",
     version: 1,
@@ -159,7 +168,7 @@ export function createGithubProjectIntro(options) {
     },
     standards: {
       opening_variant: openingVariant,
-      opening_audio_source_id: opening.sourceId,
+      opening_audio_source_id: `replace-after-content-approval-${openingVariant}`,
       same_day_claim_confirmed: options.sameDayConfirmed === true,
       voice_id: VOICE_ID,
       speed_factor: 1.25,
@@ -185,6 +194,7 @@ export function createGithubProjectIntro(options) {
     shots: [{
       id: "opening",
       order: 1,
+      content_segment_id: "opening",
       purpose: "用当前项目重新制作的开场卡建立项目名称和核心主张",
       timeline_start_frame: 0,
       duration_frames: 90,
@@ -197,12 +207,19 @@ export function createGithubProjectIntro(options) {
         scene_id: null,
       },
       narration: {
-        audio_source_id: opening.sourceId,
+        audio_source_id: `replace-after-content-approval-${openingVariant}`,
         zh: openingVariant === "today" ? "今天看到一个有意思的 GitHub 项目。" : "最近看到一个有意思的 GitHub 项目。",
-        en: openingVariant === "today" ? "Today I found an interesting GitHub project." : "Recently I found an interesting GitHub project.",
+        en: null,
         voice_id: VOICE_ID,
         speed_factor: 1.25,
       },
+      caption_cues: [{
+        id: "opening-1",
+        start_frame: 0,
+        end_frame: 90,
+        zh: openingVariant === "today" ? "今天看到一个有意思的 GitHub 项目。" : "最近看到一个有意思的 GitHub 项目。",
+        en: "待在中文字幕确认后填写英文小字幕",
+      }],
     }],
     review_promises: [{
       id: "one-core-claim",
@@ -211,13 +228,70 @@ export function createGithubProjectIntro(options) {
       expected_value: "github-project-intro-brief.json",
     }],
   };
+  const contentPath = path.join(projectRoot, "github-project-intro-content.json");
   const briefPath = path.join(projectRoot, "github-project-intro-brief.json");
   const draftPath = path.join(projectRoot, "github-project-intro-draft.json");
+  writeJson(contentPath, content);
   writeJson(briefPath, brief);
   writeJson(draftPath, draft);
+  assertJsonSchema(content, SCHEMA, "GitHub 项目介绍主字幕内容");
   assertJsonSchema(brief, SCHEMA, "GitHub 项目介绍 brief");
   assertJsonSchema(draft, SCHEMA, "GitHub 项目介绍 draft");
-  return {project: projectRoot, state: statePath, brief: briefPath, draft: draftPath, adopted_opening: opening};
+  return {project: projectRoot, state: statePath, content: contentPath, brief: briefPath, draft: draftPath, adopted_opening: null};
+}
+
+function assertCurrentContentApproved(projectRoot, contentFile) {
+  const statePath = path.join(projectRoot, "media-project-state.json");
+  const validation = validateProjectState(statePath);
+  if (!validation.ok) throw new Error(`媒体项目状态无效：\n- ${validation.errors.join("\n- ")}`);
+  const state = readJson(statePath);
+  assertStageApproved(state, "content");
+  const expectedFile = relativeProjectPath(projectRoot, contentFile);
+  const artifact = state.artifacts.find((item) => item.stage_id === "content" && item.role === "content-contract");
+  if (!artifact || artifact.file !== expectedFile || artifact.sha256 !== sha256File(contentFile)) {
+    throw new Error("内容阶段必须批准当前 github-project-intro-content.json；不能用 brief、提纲或旧字幕代替");
+  }
+}
+
+export function prepareGithubProjectIntro(projectRoot, contentFile, briefFile, draftFile, registryRoot = null) {
+  const project = path.resolve(projectRoot);
+  assertCurrentContentApproved(project, contentFile);
+  const content = readJson(contentFile);
+  const brief = readJson(briefFile);
+  const draft = readJson(draftFile);
+  assertJsonSchema(content, SCHEMA, "GitHub 项目介绍主字幕内容");
+  assertJsonSchema(brief, SCHEMA, "GitHub 项目介绍 brief");
+  assertJsonSchema(draft, SCHEMA, "GitHub 项目介绍 draft");
+  const placeholders = JSON.stringify(content).match(/待替换|待确认|待绑定|replace-with/gu) || [];
+  if (placeholders.length) throw new Error("主字幕内容仍有待替换、待确认或待绑定字段");
+  if (content.project_id !== brief.project_id || content.project_id !== draft.project_id) throw new Error("content、brief 与 draft 的 project_id 不一致");
+  const registry = path.resolve(registryRoot || DEFAULT_REGISTRY || "");
+  if (!registry || !fs.existsSync(path.join(registry, "registry.json"))) {
+    throw new Error("找不到已注册的 GitHub 项目介绍开场语音；请用 --registry 指定注册表目录");
+  }
+  const opening = adoptOpeningAudio(project, brief.project_id, registry, brief.standards.opening_variant);
+  brief.repository.audience = content.audience;
+  brief.content = {
+    one_core_claim: content.one_core_claim,
+    confirmed_facts: content.confirmed_facts,
+    call_to_action: content.call_to_action,
+  };
+  brief.standards.opening_audio_source_id = opening.sourceId;
+  const contentById = new Map(content.subtitle_segments.map((item) => [item.id, item.text]));
+  for (const shot of draft.shots) {
+    if (!contentById.has(shot.content_segment_id)) throw new Error(`镜头 ${shot.id} 没有对应已确认主字幕 segment`);
+    shot.narration.zh = contentById.get(shot.content_segment_id);
+    if (shot.caption_cues.length === 1) shot.caption_cues[0].zh = shot.narration.zh;
+    if (shot.id === "opening") shot.narration.audio_source_id = opening.sourceId;
+  }
+  writeJson(briefFile, brief);
+  writeJson(draftFile, draft);
+  const statePath = path.join(project, "media-project-state.json");
+  const state = readJson(statePath);
+  state.contracts.resource_adoptions = "media-resource-adoptions.json";
+  state.updated_at = nowIso();
+  writeJson(statePath, state);
+  return {content: contentFile, brief: briefFile, draft: draftFile, adopted_opening: opening};
 }
 
 function assertOpeningAdoption(projectRoot, brief) {
@@ -237,15 +311,28 @@ function assertOpeningAdoption(projectRoot, brief) {
   return match;
 }
 
-export function validateGithubProjectIntro(projectRoot, briefFile, draftFile) {
+export function validateGithubProjectIntro(projectRoot, contentFile, briefFile, draftFile) {
   const project = path.resolve(projectRoot);
+  const content = readJson(contentFile);
   const brief = readJson(briefFile);
   const draft = readJson(draftFile);
+  assertJsonSchema(content, SCHEMA, "GitHub 项目介绍主字幕内容");
   assertJsonSchema(brief, SCHEMA, "GitHub 项目介绍 brief");
   assertJsonSchema(draft, SCHEMA, "GitHub 项目介绍 draft");
-  if (brief.project_id !== draft.project_id) throw new Error("brief 与 draft 的 project_id 不一致");
-  const placeholders = JSON.stringify({brief, draft}).match(/待替换|待确认|待绑定|replace-with/gu) || [];
-  if (placeholders.length) throw new Error("brief 或 draft 仍有待替换、待确认、待绑定内容");
+  if (content.project_id !== brief.project_id || brief.project_id !== draft.project_id) throw new Error("content、brief 与 draft 的 project_id 不一致");
+  const placeholders = JSON.stringify({content, brief, draft}).match(/待替换|待确认|待绑定|replace-with|replace-after/gu) || [];
+  if (placeholders.length) throw new Error("content、brief 或 draft 仍有待替换、待确认、待绑定内容");
+  if (
+    content.audience !== brief.repository.audience
+    || content.one_core_claim !== brief.content.one_core_claim
+    || JSON.stringify(content.confirmed_facts) !== JSON.stringify(brief.content.confirmed_facts)
+    || content.call_to_action !== brief.content.call_to_action
+  ) throw new Error("brief 没有完整投影当前已确认主字幕内容");
+  const contentById = new Map();
+  for (const segment of content.subtitle_segments) {
+    if (contentById.has(segment.id)) throw new Error(`主字幕 segment id 重复：${segment.id}`);
+    contentById.set(segment.id, segment.text);
+  }
   if (brief.standards.opening_variant === "today" && !brief.standards.same_day_claim_confirmed) {
     throw new Error("‘今天’开场没有同日事实确认");
   }
@@ -262,6 +349,30 @@ export function validateGithubProjectIntro(projectRoot, briefFile, draftFile) {
     if (ids.has(shot.id)) throw new Error(`镜头 id 重复：${shot.id}`);
     ids.add(shot.id);
     cursor += shot.duration_frames;
+    if (!contentById.has(shot.content_segment_id)) throw new Error(`镜头 ${shot.id} 没有对应已确认主字幕 segment`);
+    if (shot.narration.zh !== contentById.get(shot.content_segment_id)) throw new Error(`镜头 ${shot.id} 的中文字幕不是从已确认主字幕逐字派生`);
+    if (!String(shot.narration.en || "").trim()) throw new Error(`镜头 ${shot.id} 必须在主字幕确认后派生英文字幕`);
+    let previousCaptionEnd = 0;
+    const captionIds = new Set();
+    for (const cue of shot.caption_cues) {
+      if (captionIds.has(cue.id)) throw new Error(`镜头 ${shot.id} 的字幕 cue id 重复：${cue.id}`);
+      captionIds.add(cue.id);
+      if (cue.start_frame < previousCaptionEnd || cue.end_frame <= cue.start_frame || cue.end_frame > shot.duration_frames) {
+        throw new Error(`镜头 ${shot.id} 的字幕 cue ${cue.id} 时间范围无效`);
+      }
+      previousCaptionEnd = cue.end_frame;
+    }
+    if (shot.caption_cues.map((cue) => cue.zh).join("") !== shot.narration.zh) throw new Error(`镜头 ${shot.id} 的短语级中文字幕没有完整绑定旁白`);
+    if (shot.caption_cues.map((cue) => cue.en).join(" ").replace(/\s+/gu, " ").trim() !== shot.narration.en.replace(/\s+/gu, " ").trim()) {
+      throw new Error(`镜头 ${shot.id} 的短语级英文字幕没有完整绑定英文译文`);
+    }
+    normalizeBilingualCaptionPairs(shot.caption_cues.map((cue) => ({
+      id: cue.id,
+      start_seconds: cue.start_frame / brief.output.fps,
+      end_seconds: cue.end_frame / brief.output.fps,
+      zh: cue.zh,
+      en: cue.en,
+    })), {maximumDuration: shot.duration_frames / brief.output.fps});
     const audio = sources.byId.get(shot.narration.audio_source_id);
     if (!audio || audio.media_type !== "audio") throw new Error(`镜头 ${shot.id} 没有绑定真实旁白音频 source`);
     if (
@@ -286,18 +397,22 @@ export function validateGithubProjectIntro(projectRoot, briefFile, draftFile) {
   if (!brief.standards.duration_user_specified && (duration < 60 || duration > 75)) {
     throw new Error(`用户未指定时，GitHub 项目介绍应为 60–75 秒；当前为 ${duration.toFixed(2)} 秒`);
   }
-  return {brief, draft, duration_seconds: duration};
+  const usedContentIds = new Set(draft.shots.map((shot) => shot.content_segment_id));
+  for (const id of contentById.keys()) if (!usedContentIds.has(id)) throw new Error(`已确认主字幕 segment 没有进入任何镜头：${id}`);
+  return {content, brief, draft, duration_seconds: duration};
 }
 
-export function createGithubProjectIntroPlan(projectRoot, briefFile, draftFile, outputFile) {
+export function createGithubProjectIntroPlan(projectRoot, contentFile, briefFile, draftFile, outputFile) {
   const project = path.resolve(projectRoot);
-  const {brief, draft} = validateGithubProjectIntro(project, briefFile, draftFile);
+  assertCurrentContentApproved(project, contentFile);
+  const {brief, draft} = validateGithubProjectIntro(project, contentFile, briefFile, draftFile);
   const plan = {
     protocol: "visual-multimedia-github-project-intro-plan",
     version: 1,
     project_id: brief.project_id,
     created_at: nowIso(),
     profile: {id: "github-project-intro", version: "1.0.0", sha256: sha256File(PROFILE_PATH)},
+    content: {file: relativeProjectPath(project, contentFile), sha256: sha256File(contentFile)},
     brief: {file: relativeProjectPath(project, briefFile), sha256: sha256File(briefFile)},
     draft: {file: relativeProjectPath(project, draftFile), sha256: sha256File(draftFile)},
     shots: draft.shots,
@@ -315,15 +430,18 @@ export function validateGithubProjectIntroPlan(projectRoot, planFile) {
   const plan = readJson(planFile);
   assertJsonSchema(plan, SCHEMA, "GitHub 项目介绍计划");
   if (plan.profile.sha256 !== sha256File(PROFILE_PATH)) throw new Error("计划绑定的 GitHub 项目介绍 profile 已失效");
+  const content = assertBinding(project, plan.content, "主字幕内容", SCHEMA).document;
+  assertCurrentContentApproved(project, projectPath(project, plan.content.file, "主字幕内容"));
   const brief = assertBinding(project, plan.brief, "brief", SCHEMA).document;
   const draft = assertBinding(project, plan.draft, "draft", SCHEMA).document;
-  const validated = validateGithubProjectIntro(project, projectPath(project, plan.brief.file, "brief"), projectPath(project, plan.draft.file, "draft"));
+  const validated = validateGithubProjectIntro(project, projectPath(project, plan.content.file, "主字幕内容"), projectPath(project, plan.brief.file, "brief"), projectPath(project, plan.draft.file, "draft"));
   if (
-    plan.project_id !== brief.project_id
+    plan.project_id !== content.project_id
+    || plan.project_id !== brief.project_id
     || JSON.stringify(plan.shots) !== JSON.stringify(draft.shots)
     || JSON.stringify(plan.output) !== JSON.stringify(brief.output)
   ) throw new Error("计划没有完整冻结当前 brief 和 draft");
-  return {plan, brief, draft, ...validated};
+  return {plan, content, brief, draft, ...validated};
 }
 
 export function confirmGithubProjectIntroPlan(projectRoot, planFile, outputFile, confirmedBy, evidence) {
@@ -400,35 +518,26 @@ function executionContext(projectRoot, planFile, confirmationFile, buildPlanFile
 
 function writeBilingualAss(plan, shot, target) {
   const duration = shot.duration_frames / plan.output.fps;
-  const width = plan.output.width;
-  const height = plan.output.height;
-  const zhSize = Math.max(30, Math.round(height * 0.045));
-  const enSize = Math.max(20, Math.round(height * 0.029));
-  const outline = Math.max(2, Math.round(height * 0.003));
-  const lines = [
-    "[Script Info]", "ScriptType: v4.00+", `PlayResX: ${width}`, `PlayResY: ${height}`,
-    "WrapStyle: 0", "ScaledBorderAndShadow: yes", "", "[V4+ Styles]",
-    "Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding",
-    `Style: Chinese,Microsoft YaHei,${zhSize},&H00FFFFFF,&H000000FF,&H00101010,&H50000000,-1,0,0,0,100,100,0,0,1,${outline},1,2,110,110,108,1`,
-    `Style: English,Arial,${enSize},&H00E4E4E4,&H000000FF,&H00101010,&H50000000,0,0,0,0,100,100,0,0,1,${outline},1,2,130,130,62,1`,
-    "", "[Events]", "Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text",
-    `Dialogue: 0,${formatAssTime(0)},${formatAssTime(duration)},Chinese,,0,0,0,,${escapeAssText(shot.narration.zh)}`,
-    `Dialogue: 0,${formatAssTime(0)},${formatAssTime(duration)},English,,0,0,0,,${escapeAssText(shot.narration.en)}`,
-    "",
-  ];
   fs.mkdirSync(path.dirname(target), {recursive: true});
-  fs.writeFileSync(target, lines.join("\n"), "utf8");
+  fs.writeFileSync(target, serializeBilingualAss(shot.caption_cues.map((cue) => ({
+    id: cue.id,
+    start_seconds: cue.start_frame / plan.output.fps,
+    end_seconds: cue.end_frame / plan.output.fps,
+    zh: cue.zh,
+    en: cue.en,
+  })), {width: plan.output.width, height: plan.output.height, maximumDuration: duration}), "utf8");
 }
 
-function writeFullSrt(plan, target) {
-  const lines = [];
-  for (const shot of plan.shots) {
-    const start = shot.timeline_start_frame / plan.output.fps;
-    const end = (shot.timeline_start_frame + shot.duration_frames) / plan.output.fps;
-    lines.push(String(shot.order), `${formatSrtTime(start)} --> ${formatSrtTime(end)}`, shot.narration.zh, shot.narration.en, "");
-  }
+function writeFullCaptions(plan, target) {
+  const pairs = plan.shots.flatMap((shot) => shot.caption_cues.map((cue) => ({
+    id: `${shot.id}-${cue.id}`,
+    start_seconds: (shot.timeline_start_frame + cue.start_frame) / plan.output.fps,
+    end_seconds: (shot.timeline_start_frame + cue.end_frame) / plan.output.fps,
+    zh: cue.zh,
+    en: cue.en,
+  })));
   fs.mkdirSync(path.dirname(target), {recursive: true});
-  fs.writeFileSync(target, lines.join("\n"), "utf8");
+  fs.writeFileSync(target, serializeBilingualAss(pairs, {width: plan.output.width, height: plan.output.height}), "utf8");
 }
 
 function validCache(cachePath, outputPath, key, ffprobe, frames) {
@@ -594,8 +703,8 @@ export function renderGithubProjectIntro(options, context) {
     presetName: "GitHub project intro preview",
     requestKey: buildPlanSha.slice(0, 16),
   });
-  const captionsPath = projectPath(project, "captions/github-project-intro-bilingual.srt", "bilingual captions");
-  writeFullSrt(plan, captionsPath);
+  const captionsPath = projectPath(project, "captions/github-project-intro-bilingual.ass", "bilingual captions");
+  writeFullCaptions(plan, captionsPath);
   const probe = probeMedia(ffprobe, outputPath, true);
   const expectedFrames = buildPlan.units.reduce((sum, item) => sum + item.duration_frames, 0);
   if (!probe.has_audio || !probe.has_video || probe.frames !== expectedFrames || probe.width !== plan.output.width || probe.height !== plan.output.height) {
@@ -643,13 +752,13 @@ export function renderGithubProjectIntro(options, context) {
 }
 
 function usage() {
-  console.error("用法：node scripts/github-project-intro.mjs <create|validate|plan|confirm-plan|render|review|finalize> --project <目录> ...");
+  console.error("用法：node scripts/github-project-intro.mjs <create|prepare|validate|plan|confirm-plan|render|review|finalize> --project <目录> ...");
 }
 
 async function main(argv) {
   const args = parseArgs(argv);
   const command = args._[0];
-  if (!new Set(["create", "validate", "plan", "confirm-plan", "render", "review", "finalize"]).has(command)) {
+  if (!new Set(["create", "prepare", "validate", "plan", "confirm-plan", "render", "review", "finalize"]).has(command)) {
     usage();
     process.exitCode = 2;
     return;
@@ -659,22 +768,26 @@ async function main(argv) {
     const result = createGithubProjectIntro({
       project,
       projectId: requireArg(args, "project-id"),
-      registry: args.registry,
       openingVariant: args.opening || "recently",
       sameDayConfirmed: args["same-day-confirmed"] === "true",
     });
     console.log(JSON.stringify(result, null, 2));
     return;
   }
+  const content = projectPath(project, args.content || "github-project-intro-content.json", "content");
   const brief = projectPath(project, args.brief || "github-project-intro-brief.json", "brief");
   const draft = projectPath(project, args.draft || "github-project-intro-draft.json", "draft");
+  if (command === "prepare") {
+    console.log(JSON.stringify(prepareGithubProjectIntro(project, content, brief, draft, args.registry), null, 2));
+    return;
+  }
   if (command === "validate") {
-    console.log(JSON.stringify(validateGithubProjectIntro(project, brief, draft), null, 2));
+    console.log(JSON.stringify(validateGithubProjectIntro(project, content, brief, draft), null, 2));
     return;
   }
   const plan = projectPath(project, args.plan || "github-project-intro-plan.json", "plan");
   if (command === "plan") {
-    console.log(JSON.stringify(createGithubProjectIntroPlan(project, brief, draft, plan), null, 2));
+    console.log(JSON.stringify(createGithubProjectIntroPlan(project, content, brief, draft, plan), null, 2));
     return;
   }
   if (command === "confirm-plan") {

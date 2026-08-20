@@ -11,6 +11,7 @@ import {
   confirmGithubProjectIntroPlan,
   createGithubProjectIntro,
   createGithubProjectIntroPlan,
+  prepareGithubProjectIntro,
   renderGithubProjectIntro,
   validateGithubProjectIntro,
 } from "./github-project-intro.mjs";
@@ -83,6 +84,22 @@ function prepareCase(mode) {
     openingVariant: "recently",
     sameDayConfirmed: false,
   });
+  const content = readJson(created.content);
+  content.audience = "需要快速判断项目价值的开发者";
+  content.one_core_claim = mode === "editable-scene"
+    ? "这个项目让你先在浏览器里确认画面，再稳定导出视频。"
+    : "这个命令行项目也能用真实输出讲清价值，不需要伪造产品界面。";
+  content.confirmed_facts = ["测试证据已经通过素材导入器进入项目。"];
+  content.call_to_action = "查看仓库和实际输出。";
+  content.subtitle_segments = [{
+    id: "opening",
+    text: mode === "editable-scene"
+      ? "做视频最怕效果改不动。这个项目让你先在浏览器里确认画面，再稳定导出视频。"
+      : "没有图形界面也能把项目讲清楚：直接展示命令和真实输出就够了。",
+  }];
+  writeJson(created.content, content);
+  approve(project, "content", {id: "github-content", role: "content-contract", kind: "document", file: "github-project-intro-content.json"});
+  prepareGithubProjectIntro(project, created.content, created.brief, created.draft);
   importEvidence(project);
   const brief = readJson(created.brief);
   brief.repository = {
@@ -92,19 +109,26 @@ function prepareCase(mode) {
     interface_kind: mode === "editable-scene" ? "ui" : "cli",
     evidence_source_ids: ["repository-evidence"],
   };
-  brief.content = {
-    one_core_claim: mode === "editable-scene"
-      ? "这个项目把可复现界面变成确定性视频证据。"
-      : "这个命令行项目也可以用真实输出证明价值，不需要伪造产品界面。",
-    confirmed_facts: ["测试证据已经通过素材导入器进入唯一素材账本。"],
-    call_to_action: "查看仓库和实际输出。",
-  };
   brief.standards.duration_user_specified = true;
   writeJson(created.brief, brief);
   const draft = readJson(created.draft);
-  draft.shots[0].duration_frames = 90;
-  draft.shots[0].narration.zh = "最近看到一个有意思的 GitHub 项目。";
-  draft.shots[0].narration.en = "Recently I found an interesting GitHub project.";
+  draft.shots[0].duration_frames = 120;
+  draft.shots[0].narration.zh = content.subtitle_segments[0].text;
+  const cueText = mode === "editable-scene"
+    ? ["做视频最怕效果改不动。", "这个项目让你先在浏览器里确认画面，", "再稳定导出视频。"]
+    : ["没有图形界面也能把项目讲清楚：", "直接展示命令和真实输出就够了。"];
+  const cueEnglish = mode === "editable-scene"
+    ? ["Video work becomes painful when the result cannot be revised.", "Review the picture in your browser first,", "then export a stable video."]
+    : ["A project does not need a graphical interface to be explained clearly.", "The command and its real output are enough."];
+  draft.shots[0].narration.en = cueEnglish.join(" ");
+  const cueFrames = draft.shots[0].duration_frames / cueText.length;
+  draft.shots[0].caption_cues = cueText.map((zh, index) => ({
+    id: `opening-${index + 1}`,
+    start_frame: index * cueFrames,
+    end_frame: (index + 1) * cueFrames,
+    zh,
+    en: cueEnglish[index],
+  }));
   if (mode === "editable-scene") {
     const packageRoot = path.join(project, "components", "opening");
     copyTree(path.join(SKILL_ROOT, "assets", "web-media-starter"), packageRoot);
@@ -126,12 +150,11 @@ function prepareCase(mode) {
     expected_value: "github-project-intro",
   }];
   writeJson(created.draft, draft);
-  validateGithubProjectIntro(project, created.brief, created.draft);
+  validateGithubProjectIntro(project, created.content, created.brief, created.draft);
   const planPath = path.join(project, "github-project-intro-plan.json");
-  createGithubProjectIntroPlan(project, created.brief, created.draft, planPath);
+  createGithubProjectIntroPlan(project, created.content, created.brief, created.draft, planPath);
   const confirmationPath = path.join(project, "github-project-intro-plan-confirmation.json");
   confirmGithubProjectIntroPlan(project, planPath, confirmationPath, "user", "self-test 确认一个核心主张、真实证据、银狼开场与双语字幕");
-  approve(project, "content", {id: "github-content", role: "content-contract", kind: "document", file: "github-project-intro-brief.json"});
   approve(project, "direction", {id: "github-direction", role: "direction-package", kind: "document", file: "github-project-intro-plan.json"});
   const sample = path.join(project, "integrated-sample.mp4");
   fs.copyFileSync(path.join(SKILL_ROOT, "assets", "media-delivery-case", "renders", "final.mp4"), sample);

@@ -42,13 +42,12 @@
     "contracts": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["media_sources", "transcript", "clip_selections", "narration_bundle", "video_direction_plan"],
+      "required": ["media_sources", "transcript", "clip_selections", "narration_bundle"],
       "properties": {
         "media_sources": {"$ref": "#/$defs/localPath"},
         "transcript": {"oneOf": [{"$ref": "#/$defs/localPath"}, {"type": "null"}]},
         "clip_selections": {"$ref": "#/$defs/localPath"},
-        "narration_bundle": {"$ref": "#/$defs/localPath"},
-        "video_direction_plan": {"oneOf": [{"$ref": "#/$defs/localPath"}, {"type": "null"}]}
+        "narration_bundle": {"$ref": "#/$defs/localPath"}
       }
     },
     "background_music": {
@@ -152,12 +151,13 @@
     "segment": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "order", "purpose", "visual_role", "visual", "narration_segment_id", "audio", "captions"],
+      "required": ["id", "order", "purpose", "visual_role", "visual_reason", "visual", "narration_segment_id", "audio", "captions"],
       "properties": {
         "id": {"$ref": "#/$defs/id"},
         "order": {"type": "integer", "minimum": 1},
         "purpose": {"type": "string", "minLength": 1},
         "visual_role": {"enum": ["hook", "setup", "evidence", "development", "turn", "payoff", "summary", "bridge"]},
+        "visual_reason": {"type": "string", "minLength": 1},
         "visual": {"$ref": "#/$defs/visual"},
         "narration_segment_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
         "audio": {"$ref": "#/$defs/audio"},

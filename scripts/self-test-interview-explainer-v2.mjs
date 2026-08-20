@@ -277,6 +277,9 @@ function validatePlan(project) {
     .filter((item) => item.kind === "narration")
     .some((item) => Object.hasOwn(item.content, "title"));
   if (narrationHasTitle) throw new Error("v2 旁白计划仍携带可能误上屏的通用 title");
+  if (!plan.sequence.every((item) => item.content.subtitle_cues.length === 1 && item.content.subtitle_cues[0].zh && item.content.subtitle_cues[0].en)) {
+    throw new Error("采访计划没有让每段中英文字幕共用同一条真实 cue");
+  }
   return plan;
 }
 
@@ -317,6 +320,22 @@ function main() {
     "--stage", "content",
     "--evidence", "固定生产案例确认采访内容合同",
   ]);
+  const approvedDraftPath = path.join(project, "interview-explainer-draft.json");
+  const approvedDraft = readJson(approvedDraftPath);
+  const confirmedChinese = approvedDraft.sequence.find((segment) => segment.kind === "source-clip").subtitle_cues[0].text;
+  writeJson(path.join(project, "interview-explainer-caption-translations.json"), {
+    protocol: "visual-multimedia-interview-explainer-caption-translations",
+    version: 1,
+    project_id: approvedDraft.project_id,
+    draft: {file: "interview-explainer-draft.json", sha256: sha256File(approvedDraftPath)},
+    cues: approvedDraft.sequence.map((segment, index) => ({
+      id: `caption-${segment.id}`,
+      segment_id: segment.id,
+      cue_index: 0,
+      zh: confirmedChinese,
+      en: index === 1 ? "Hello, I am Yexi. This is a lip-sync test." : "Yexi is now testing lip synchronization.",
+    })),
+  });
   run(process.execPath, [publicEntry, "plan", "--project", project, "--ffprobe", ffprobe]);
   const plan = validatePlan(project);
   const plannedState = validateProjectState(path.join(project, "media-project-state.json"));
@@ -397,6 +416,14 @@ function main() {
     if (!fs.existsSync(output) || fs.statSync(output).size === 0) {
       throw new Error("正式采访渲染器没有生成可解码成片");
     }
+    const buildReport = readJson(path.join(project, "reports", "media-build-report.json"));
+    if (
+      buildReport.captions.mode !== "burned-in"
+      || !buildReport.captions.visible_in_standalone_output
+      || !buildReport.captions.file.endsWith(".bilingual.ass")
+      || buildReport.captions.render_file !== plan.output.file
+      || !fs.existsSync(path.join(project, "captions", "final.en.srt"))
+    ) throw new Error("采访真实成片没有交付中文在上、英文在下的双语字幕结果");
   }
 
   console.log(JSON.stringify({

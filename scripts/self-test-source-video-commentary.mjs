@@ -59,6 +59,13 @@ function sha256(file) {
   return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
 
+function bilingualCaptions(id, zh, en, sourceKind, sourceSegmentIds) {
+  return [
+    {id: `${id}-zh`, start_offset_seconds: 0, end_offset_seconds: 1, text: zh, language: "zh-CN", source_kind: sourceKind, source_segment_ids: sourceSegmentIds},
+    {id: `${id}-en`, start_offset_seconds: 0, end_offset_seconds: 1, text: en, language: "en", source_kind: sourceKind, source_segment_ids: sourceSegmentIds},
+  ];
+}
+
 function sha256Text(value) {
   return crypto.createHash("sha256").update(value, "utf8").digest("hex");
 }
@@ -151,6 +158,7 @@ function main() {
       {id: "clip-narration-only", source_id: "source-video", start_seconds: 0, end_seconds: 1, purpose: "旁白覆盖下的开场画面", spoken_content: false, transcript_segment_ids: [], semantic_boundary_review: {status: "passed", listened: true, waveform_checked: true, notes: "已复核"}, intentional_repeat_reason: ""},
       {id: "clip-source-only", source_id: "source-video", start_seconds: 1.2, end_seconds: 2.25, purpose: "恢复关键原声作为证据", spoken_content: true, transcript_segment_ids: ["source-spoken-01"], semantic_boundary_review: {status: "passed", listened: true, waveform_checked: true, notes: "已听音确认完整语义"}, intentional_repeat_reason: ""},
       {id: "clip-source-bed", source_id: "source-video", start_seconds: 2.4, end_seconds: 3.4, purpose: "旁白下保留环境声", spoken_content: false, transcript_segment_ids: [], semantic_boundary_review: {status: "passed", listened: true, waveform_checked: true, notes: "已复核"}, intentional_repeat_reason: ""},
+      {id: "clip-broll", source_id: "source-video", start_seconds: 0.2, end_seconds: 1.2, purpose: "用不同画面范围补充结果展示", spoken_content: false, transcript_segment_ids: [], semantic_boundary_review: {status: "passed", listened: true, waveform_checked: true, notes: "已查看并确认 B-roll 边界"}, intentional_repeat_reason: ""},
     ],
   });
   writeJson("narration-bundle.json", {
@@ -170,13 +178,13 @@ function main() {
     profile: "source-video-commentary@1.0.0",
     target: {audience: "合同自测", editorial_angle: "同一条视频逐段切换三种声音职责", audience_outcome: "证明旁白覆盖、关键原声和源声衬底都进入真实时间线", width: 320, height: 180, fps: 10, audio_sample_rate: 48000, audio_channels: 2, background: "#000000", caption_mode: "burned-in"},
     script: {file: "source-video-commentary-script.md", sha256: sha256(script), confirmed_by: "user", confirmed_at: "2026-08-11T00:00:00.000Z", confirmation_evidence: "自测固定完整稿"},
-    contracts: {media_sources: "media-sources.json", transcript: "transcript.json", clip_selections: "clip-selections.json", narration_bundle: "narration-bundle.json", video_direction_plan: null},
+    contracts: {media_sources: "media-sources.json", transcript: "transcript.json", clip_selections: "clip-selections.json", narration_bundle: "narration-bundle.json"},
     background_music: {source_id: "background-music", loop: true, base_gain_db: -22, narration_reduction_db: -8, source_only_reduction_db: -5, fade_in_seconds: 0.1, fade_out_seconds: 0.1},
     integrated_sample: {segment_ids: ["segment-01", "segment-02", "segment-03"], reason: "三段共同覆盖全部声音职责"},
     segments: [
-      {id: "segment-01", order: 1, purpose: "旁白完全覆盖源片声音", visual_role: "hook", visual: {kind: "source-clip", clip_selection_id: "clip-narration-only", fit: "cover", freeze_when_shorter: true}, narration_segment_id: "narration-one", audio: {mode: "narration-only", source_gain_db: 0}, captions: [{id: "caption-01", start_offset_seconds: 0, end_offset_seconds: 1, text: narrationOneText, language: "zh-CN", source_kind: "narration", source_segment_ids: ["narration-one"]}]},
-      {id: "segment-02", order: 2, purpose: "恢复关键原声", visual_role: "evidence", visual: {kind: "source-clip", clip_selection_id: "clip-source-only", fit: "cover", freeze_when_shorter: false}, narration_segment_id: null, audio: {mode: "source-only", source_gain_db: 0}, captions: [{id: "caption-02", start_offset_seconds: 0, end_offset_seconds: 1, text: "这是需要保留的关键原声", language: "zh-CN", source_kind: "transcript", source_segment_ids: ["source-spoken-01"]}]},
-      {id: "segment-03", order: 3, purpose: "旁白下压低源片环境声", visual_role: "payoff", visual: {kind: "source-clip", clip_selection_id: "clip-source-bed", fit: "cover", freeze_when_shorter: true}, narration_segment_id: "narration-three", audio: {mode: "narration-with-source-bed", source_gain_db: -18}, captions: [{id: "caption-03", start_offset_seconds: 0, end_offset_seconds: 1, text: narrationThreeText, language: "zh-CN", source_kind: "narration", source_segment_ids: ["narration-three"]}]},
+      {id: "segment-01", order: 1, purpose: "旁白完全覆盖源片声音", visual_role: "hook", visual_reason: "当前原片直接建立问题情境，不需要额外 B-roll。", visual: {kind: "source-clip", clip_selection_id: "clip-narration-only", fit: "cover", freeze_when_shorter: true}, narration_segment_id: "narration-one", audio: {mode: "narration-only", source_gain_db: 0}, captions: bilingualCaptions("caption-01", narrationOneText, "Narration fully replaces the source audio.", "narration", ["narration-one"])},
+      {id: "segment-02", order: 2, purpose: "恢复关键原声", visual_role: "evidence", visual_reason: "关键原声与人物画面共同构成证据，继续使用当前原片。", visual: {kind: "source-clip", clip_selection_id: "clip-source-only", fit: "cover", freeze_when_shorter: false}, narration_segment_id: null, audio: {mode: "source-only", source_gain_db: 0}, captions: bilingualCaptions("caption-02", "这是需要保留的关键原声", "This is the key source audio that must remain.", "transcript", ["source-spoken-01"])},
+      {id: "segment-03", order: 3, purpose: "旁白下压低源片环境声", visual_role: "payoff", visual_reason: "此处采用另一个已复核范围作为 B-roll，补充结果画面而不重复当前镜头。", visual: {kind: "source-clip", clip_selection_id: "clip-broll", fit: "cover", freeze_when_shorter: true}, narration_segment_id: "narration-three", audio: {mode: "narration-with-source-bed", source_gain_db: -18}, captions: bilingualCaptions("caption-03", narrationThreeText, "Narration continues while the source ambience stays underneath.", "narration", ["narration-three"])},
     ],
   });
 
@@ -200,11 +208,21 @@ function main() {
   const sourceAudio = timeline.tracks.find((item) => item.id === "commentary-source-audio").clips;
   const narration = timeline.tracks.find((item) => item.id === "commentary-narration").clips;
   const music = timeline.tracks.find((item) => item.id === "commentary-music").clips;
+  const video = timeline.tracks.find((item) => item.id === "commentary-video").clips;
+  const chineseCaptions = timeline.tracks.find((item) => item.id === "commentary-captions-zh").clips;
+  const englishCaptions = timeline.tracks.find((item) => item.id === "commentary-captions-en").clips;
   if (sourceAudio.length !== 2 || narration.length !== 2 || !sourceAudio.some((item) => item.gain_db === -18)) {
     throw new Error("portable timeline 没有真实表达三种逐段声音职责");
   }
   if (music.length < 5 || !music.some((item) => item.gain_db === -27) || !music.some((item) => item.gain_db === -30)) {
     throw new Error("portable timeline 没有循环背景音乐或逐段人声避让");
+  }
+  if (Math.abs(video[2].source_in_seconds - 0.2) > 0.001) throw new Error("素材解说逐段 B-roll 决定没有进入真实视频轨");
+  if (chineseCaptions.length !== 3 || englishCaptions.length !== 3 || timeline.subtitle_styles.length !== 2) throw new Error("素材解说没有生成同边界的中英文字幕与两层样式");
+  for (let index = 0; index < chineseCaptions.length; index += 1) {
+    if (chineseCaptions[index].timeline_start_seconds !== englishCaptions[index].timeline_start_seconds || chineseCaptions[index].duration_seconds !== englishCaptions[index].duration_seconds) {
+      throw new Error("素材解说中英文字幕没有共用同一真实时间边界");
+    }
   }
   for (const track of timeline.tracks) {
     let previousEndFrames = 0;

@@ -101,7 +101,19 @@ async function main() {
   const testRoot = path.join(SKILL_ROOT, "artifacts");
   fs.mkdirSync(testRoot, {recursive: true});
   const project = path.join(testRoot, `pp-${Date.now().toString(36)}-${process.pid}`);
-  createProductPromoProject(project, "product-promo-self-test");
+  const created = createProductPromoProject(project, "product-promo-self-test");
+  const content = readJson(created.content);
+  content.product = {name: "Editable Media Starter", audience: "需要可编辑媒体生产链的创作者", value_proposition: "同一网页真源可以交互预览并确定性渲染", call_to_action: "查看完整生产链"};
+  content.viewer_script = {
+    primary_language: "zh-CN",
+    segments: [
+      {id: "opening", text: "做视频最怕画面改不动，这个项目把内容、样式和动画都留在同一份可编辑网页里。"},
+      {id: "result", text: "你可以先在浏览器里确认效果，再稳定导出需要的视频。"},
+    ],
+  };
+  content.features = [{id: "deterministic-preview", name: "确定性预览", viewer_value: "同一场景可以随机定位并重复得到同一画面", proof: "真实浏览器中的 editable media canvas", required: true}];
+  writeJson(created.content, content);
+  approveStage(project, "content", {id: "product-content", role: "content-contract", kind: "document", file: "product-promo-content.json"});
   const {server, port} = await startServer(SKILL_ROOT);
   const base = `http://127.0.0.1:${port}`;
   try {
@@ -139,6 +151,13 @@ async function main() {
   const briefPath = path.join(project, "product-promo-brief.json");
   const brief = readJson(briefPath);
   brief.product = {name: "Editable Media Starter", audience: "需要可编辑媒体生产链的创作者", value_proposition: "同一网页真源可以交互预览并确定性渲染", call_to_action: "查看完整生产链"};
+  brief.viewer_script = {
+    primary_language: "zh-CN",
+    segments: [
+      {id: "opening", text: "做视频最怕画面改不动，这个项目把内容、样式和动画都留在同一份可编辑网页里。"},
+      {id: "result", text: "你可以先在浏览器里确认效果，再稳定导出需要的视频。"},
+    ],
+  };
   brief.features = [{id: "deterministic-preview", name: "确定性预览", viewer_value: "同一场景可以随机定位并重复得到同一画面", proof: "真实浏览器中的 editable media canvas", required: true, source_ids: ["product-starter-canvas"]}];
   brief.constraints = ["保持标题和说明在镜头可读性层中"];
   writeJson(briefPath, brief);
@@ -186,6 +205,7 @@ async function main() {
     project_id: brief.project_id,
     created_at: nowIso(),
     profile: {id: "product-promo", version: "1.0.0", sha256: sha256File(PROFILE_PATH)},
+    content: {file: relativeProjectPath(project, created.content), sha256: sha256File(created.content)},
     brief: {file: relativeProjectPath(project, briefPath), sha256: sha256File(briefPath)},
     direction: {summary: "用稳定可读标题建立主张，再用两个景深面板解释同一真源的交互与渲染结果。", style_frames: []},
     capture_reports: [{file: "reports/product-ui-capture.json", sha256: sha256File(path.join(project, "reports", "product-ui-capture.json"))}],
@@ -204,8 +224,15 @@ async function main() {
         scene_id: "opening",
       },
       timeline_start_frame: 0,
-      duration_frames: 90,
+      duration_frames: 210,
       semantic_steps: ["claim", "result"],
+      caption_cues: [
+        {id: "caption-opening-1", content_segment_id: "opening", start_frame: 0, end_frame: 42, zh: "做视频最怕画面改不动，", en: "Video is frustrating when the picture cannot be changed."},
+        {id: "caption-opening-2", content_segment_id: "opening", start_frame: 42, end_frame: 84, zh: "这个项目把内容、样式和动画", en: "This project keeps content, styling, and motion"},
+        {id: "caption-opening-3", content_segment_id: "opening", start_frame: 84, end_frame: 126, zh: "都留在同一份可编辑网页里。", en: "inside one editable web page."},
+        {id: "caption-result-1", content_segment_id: "result", start_frame: 126, end_frame: 168, zh: "你可以先在浏览器里确认效果，", en: "Preview the result in your browser first,"},
+        {id: "caption-result-2", content_segment_id: "result", start_frame: 168, end_frame: 210, zh: "再稳定导出需要的视频。", en: "then export the video consistently."},
+      ],
     }],
     review_promises: [{id: "required-feature-covered", source_pointer: "/feature_coverage/0/shot_ids", promise: "必选功能必须由实际镜头覆盖", expected_value: ["shot-1"]}],
     output,
@@ -238,14 +265,17 @@ async function main() {
   if (beatConfirmation.status !== 0) throw new Error(`节拍人工复核入口失败：${beatConfirmation.stderr || beatConfirmation.stdout}`);
   assert(readJson(beatPath).review.method === "manual", "人工听音复核没有写回节拍分析合同");
 
-  approveStage(project, "content", {id: "product-content", role: "content-contract", kind: "document", file: "product-promo-brief.json"});
   approveStage(project, "direction", {id: "product-direction", role: "direction-package", kind: "document", file: "product-promo-plan.json"});
   fs.copyFileSync(path.join(SKILL_ROOT, "assets", "media-delivery-case", "renders", "final.mp4"), path.join(project, "integrated-sample.mp4"));
   approveStage(project, "integrated-sample", {id: "product-sample", role: "integrated-sample", kind: "video", file: "integrated-sample.mp4"});
   const productCli = path.join(SCRIPT_DIR, "product-promo.mjs");
   const rendered = spawnSync(process.execPath, [productCli, "render", "--project", project], {cwd: SKILL_ROOT, encoding: "utf8", windowsHide: true, maxBuffer: 64 * 1024 * 1024});
   if (rendered.status !== 0) throw new Error(`产品宣传片正式 render 失败：\n${rendered.stdout}\n${rendered.stderr}`);
-  assert(fs.existsSync(JSON.parse(rendered.stdout).output), "产品宣传片正式 render 没有生成成片");
+  const renderResult = JSON.parse(rendered.stdout);
+  assert(fs.existsSync(renderResult.output), "产品宣传片正式 render 没有生成成片");
+  const buildReport = readJson(path.join(project, "reports", "media-build-report.json"));
+  assert(buildReport.captions.mode === "burned-in" && buildReport.captions.visible_in_standalone_output, "产品宣传片没有把中文主字幕和英文小字幕烧录进独立成片");
+  assert(fs.existsSync(path.join(project, buildReport.captions.file)), "产品宣传片没有保留双语字幕派生文件");
   approveStage(project, "full-preview");
   const reviewed = spawnSync(process.execPath, [
     productCli, "review", "--project", project,

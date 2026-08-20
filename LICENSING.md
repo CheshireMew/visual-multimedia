@@ -24,6 +24,7 @@ MPL-2.0 是文件级互惠许可证：修改并分发受其覆盖的现有文件
 
 第三方内容不因放入本仓库而改为 MPL-2.0：
 
+- `scripts/subtitle-quote-image.py` 及其相邻规格、制作说明和自测中改编自 `chengyi-ai/native-subtitle-quote-image` 的精确取帧与主画面加横条拼接实现继续采用 MIT License；本仓库已取消原项目的固定 3:4 成品比例，准确来源、修改范围、输入归档哈希和完整许可文本见根目录 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
 - `assets/text-motion-library/text-motion-runtime.js` 中从 `sakura-animate-text` 确定性改写的文字动效实现继续采用 MIT License；完整版权与许可文本见 [`assets/text-motion-library/THIRD_PARTY_NOTICES.md`](assets/text-motion-library/THIRD_PARTY_NOTICES.md)。
 - `assets/shot-recipe-library/recipes/**` 中标记为 `source_id: video-shotcraft` 的镜头语义资料来自 `Vincentwei1021/video-shotcraft`，继续采用 Apache License 2.0；准确修改范围、版权声明和完整正文见 [`assets/shot-recipe-library/THIRD_PARTY_NOTICES.md`](assets/shot-recipe-library/THIRD_PARTY_NOTICES.md) 与 [`assets/shot-recipe-library/LICENSE.video-shotcraft.txt`](assets/shot-recipe-library/LICENSE.video-shotcraft.txt)。
 - `assets/web-card-cases/handdrawn-system-collaboration-flow/assets/fonts/Xiaolai-Regular.ttf` 来自 `lxgw/kose-font`，继续采用 SIL Open Font License 1.1；完整正文见同目录的 [`Xiaolai-OFL.txt`](assets/web-card-cases/handdrawn-system-collaboration-flow/assets/fonts/Xiaolai-OFL.txt)。

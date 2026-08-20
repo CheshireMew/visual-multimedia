@@ -961,7 +961,7 @@ function main() {
     placement_mode: "full-frame",
     aspect_ratio: "16:9",
     selection_reason: "能力案例明确使用已授权真人素材验证出镜路由。",
-    recipe: null,
+    realization: null,
   };
   const humanDraftPath = path.join(humanRoot, "direction-draft.json");
   writeJson(humanDraftPath, humanDraft);

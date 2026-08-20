@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.subtitle-quote-image.v1",
+  "title": "Visual Multimedia Subtitle Quote Image v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "media_sources",
+    "transcript",
+    "source_id",
+    "source_sha256",
+    "transcript_sha256",
+    "source_text",
+    "source_frame",
+    "content_units",
+    "canvas",
+    "typography",
+    "review",
+    "output",
+    "items"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-subtitle-quote-image"},
+    "version": {"const": 1},
+    "media_sources": {"const": "media-sources.json"},
+    "transcript": {"const": "transcript.json"},
+    "source_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "transcript_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "source_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baked_subtitles_expected", "baked_subtitles_observed", "existing_text_handling", "notes"],
+      "properties": {
+        "baked_subtitles_expected": {"const": false},
+        "baked_subtitles_observed": {"type": "boolean"},
+        "existing_text_handling": {"enum": ["not-needed", "cover"]},
+        "notes": {"type": "string"}
+      }
+    },
+    "source_frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seconds", "focus_x", "focus_y", "review_status"],
+      "properties": {
+        "seconds": {"type": "number", "minimum": 0},
+        "focus_x": {"type": "number", "minimum": 0, "maximum": 1},
+        "focus_y": {"type": "number", "minimum": 0, "maximum": 1},
+        "review_status": {"enum": ["pending", "passed", "failed"]}
+      }
+    },
+    "content_units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "transcript_segment_ids"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "transcript_segment_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"}
+          }
+        }
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height", "background", "margin", "gap", "hero_source_top", "hero_source_bottom", "strip_source_center_y"],
+      "properties": {
+        "width": {"type": "integer", "minimum": 720, "maximum": 2160},
+        "height": {"const": "auto"},
+        "background": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+        "margin": {"const": 0},
+        "gap": {"const": 0},
+        "hero_source_top": {"type": "number", "minimum": 0, "maximum": 0.8},
+        "hero_source_bottom": {"type": "number", "minimum": 0.2, "maximum": 1},
+        "strip_source_center_y": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "typography": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "font_file",
+        "primary_color",
+        "secondary_color",
+        "overlay_color",
+        "primary_px",
+        "secondary_px",
+        "horizontal_padding_px",
+        "vertical_padding_px"
+      ],
+      "properties": {
+        "font_file": {"type": ["string", "null"]},
+        "primary_color": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+        "secondary_color": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+        "overlay_color": {"type": "string", "pattern": "^#[0-9a-fA-F]{8}$"},
+        "primary_px": {"type": "integer", "minimum": 24, "maximum": 72},
+        "secondary_px": {"type": "integer", "minimum": 18, "maximum": 48},
+        "horizontal_padding_px": {"type": "integer", "minimum": 24, "maximum": 96},
+        "vertical_padding_px": {"type": "integer", "minimum": 4, "maximum": 24}
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quote_audio_reviewed", "translation_reviewed", "reviewed_at", "notes"],
+      "properties": {
+        "quote_audio_reviewed": {"type": "boolean"},
+        "translation_reviewed": {"type": "boolean"},
+        "reviewed_at": {"type": ["string", "null"], "format": "date-time"},
+        "notes": {"type": "string"}
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "jpeg_quality"],
+      "properties": {
+        "format": {"enum": ["jpg", "png"]},
+        "jpeg_quality": {"type": "integer", "minimum": 80, "maximum": 100}
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "role",
+          "content_unit_id",
+          "transcript_segment_ids",
+          "primary_text",
+          "secondary_text"
+        ],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "role": {"enum": ["hero", "strip"]},
+          "content_unit_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "transcript_segment_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"}
+          },
+          "primary_text": {"type": "string", "minLength": 1},
+          "secondary_text": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

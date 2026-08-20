@@ -13,7 +13,7 @@
   "stage_template": {
     "id": "time-media-production",
     "version": "1.0.0",
-    "sha256": "c7df75dc8e54efada015354bf8636ac5dd392540936946a2ec4ce7b28b57d63e"
+    "sha256": "90e4b79c11878789b4427e0697fdb907adb8d615ee0b555643b794a348e2026d"
   },
   "status": "in-progress",
   "current_stage": "content",

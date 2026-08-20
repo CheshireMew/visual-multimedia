@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.subtitle-quote-image-review.v1",
+  "title": "Visual Multimedia Subtitle Quote Image Review v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "render_report",
+    "render_report_sha256",
+    "final",
+    "final_sha256",
+    "reviewed_at",
+    "agent_review",
+    "content_review",
+    "user_confirmation"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-subtitle-quote-image-review"},
+    "version": {"const": 1},
+    "render_report": {"type": "string", "minLength": 1},
+    "render_report_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "final": {"type": "string", "minLength": 1},
+    "final_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "reviewed_at": {"type": "string", "format": "date-time"},
+    "agent_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "opened_at_original_pixels", "notes"],
+      "properties": {
+        "status": {"enum": ["pending", "passed", "changes-requested", "failed"]},
+        "opened_at_original_pixels": {"type": "boolean"},
+        "notes": {"type": "string"}
+      }
+    },
+    "content_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "notes"],
+      "properties": {
+        "status": {"enum": ["pending", "passed", "changes-requested", "failed"]},
+        "notes": {"type": "string"}
+      }
+    },
+    "user_confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "status", "confirmed_at", "evidence"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "status": {"enum": ["not-requested", "pending", "approved", "rejected"]},
+        "confirmed_at": {"type": ["string", "null"], "format": "date-time"},
+        "evidence": {"type": "string"}
+      }
+    }
+  }
+}

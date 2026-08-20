@@ -5,6 +5,7 @@ import {fileURLToPath} from "node:url";
 
 import {
   commandPath,
+  ffmpegFilterPath,
   nowIso,
   probeMedia,
   projectPath,
@@ -15,6 +16,7 @@ import {
   toolVersion,
   writeJson,
 } from "./interview_explainer_common.mjs";
+import {writeBilingualCaptionFiles} from "./bilingual-video-captions.mjs";
 import {buildUnitCacheKey, validateMediaBuildReport} from "./media_build_contract.mjs";
 import {loadLocalMediaEnvironment} from "./local-media-environment.mjs";
 import {
@@ -97,6 +99,7 @@ export function renderProductPromo(options, context) {
   const operationPath = projectPath(projectRoot, options.operationReport || "reports/product-promo-render-run.json", "operation report");
   const reportPath = projectPath(projectRoot, options.report || "reports/media-build-report.json", "build report");
   const outputPath = projectPath(projectRoot, plan.output.file, "product promo output");
+  const rawAssemblyPath = projectPath(projectRoot, "working/product-promo/product-promo-assembled-raw.mp4", "raw product promo assembly");
   const buildPlanSha = sha256File(buildPlanPath);
   if (fs.existsSync(outputPath) && fs.existsSync(reportPath)) {
     const existing = readJson(reportPath);
@@ -187,6 +190,7 @@ export function renderProductPromo(options, context) {
     });
   }
   fs.mkdirSync(path.dirname(outputPath), {recursive: true});
+  fs.mkdirSync(path.dirname(rawAssemblyPath), {recursive: true});
   const assemblyStarted = Date.now();
   const assembled = assemblePreparedVideoUnits({
     environment,
@@ -198,12 +202,37 @@ export function renderProductPromo(options, context) {
     },
     output: plan.output,
     units: prepared,
-    outputPath,
+    outputPath: rawAssemblyPath,
     presetName: "Product promo preview",
     requestKey: buildPlanSha.slice(0, 16),
   });
-  const probe = probeMedia(ffprobe, outputPath, true);
   const expectedFrames = buildPlan.units.reduce((sum, item) => sum + item.duration_frames, 0);
+  const captionPairs = plan.shots.flatMap((shot) => shot.caption_cues.map((cue) => ({
+    id: cue.id,
+    start_seconds: (shot.timeline_start_frame + cue.start_frame) / plan.output.fps,
+    end_seconds: (shot.timeline_start_frame + cue.end_frame) / plan.output.fps,
+    zh: cue.zh,
+    en: cue.en,
+  })));
+  const captionFiles = writeBilingualCaptionFiles({
+    pairs: captionPairs,
+    ass: projectPath(projectRoot, "captions/product-promo-bilingual.ass", "product promo bilingual ASS"),
+    chineseSrt: projectPath(projectRoot, "captions/product-promo.zh-CN.srt", "product promo Chinese SRT"),
+    englishSrt: projectPath(projectRoot, "captions/product-promo.en.srt", "product promo English SRT"),
+    width: plan.output.width,
+    height: plan.output.height,
+    maximumDuration: expectedFrames / plan.output.fps,
+  });
+  run(ffmpeg, [
+    "-hide_banner", "-loglevel", "error",
+    "-i", rawAssemblyPath,
+    "-vf", `ass='${ffmpegFilterPath(captionFiles.ass)}'`,
+    "-map", "0:v:0", "-map", "0:a?",
+    "-frames:v", String(expectedFrames),
+    "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p",
+    "-c:a", "copy", "-movflags", "+faststart", "-y", outputPath,
+  ]);
+  const probe = probeMedia(ffprobe, outputPath, true);
   if (
     probe.frames !== expectedFrames
     || probe.width !== plan.output.width
@@ -243,11 +272,11 @@ export function renderProductPromo(options, context) {
     },
     captions: {
       mode: buildPlan.assembly.caption_strategy,
-      file: null,
-      sha256: null,
-      render_file: null,
-      render_sha256: null,
-      visible_in_standalone_output: false,
+      file: relativeProjectPath(projectRoot, captionFiles.ass),
+      sha256: sha256File(captionFiles.ass),
+      render_file: relativeProjectPath(projectRoot, outputPath),
+      render_sha256: sha256File(outputPath),
+      visible_in_standalone_output: true,
     },
     assembly: {status: assembled.outcome.assembly_status, cache_key: assembled.outcome.assembly_key},
     output: {

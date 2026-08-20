@@ -20,7 +20,8 @@ import {assertSkillTaskPath} from "./media-task-workspace.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.resolve(SCRIPT_DIR, "..");
-const STATE_SCHEMA = path.join(SKILL_ROOT, "schemas", "explanatory-broll-studio.v1.schema.json");
+const STATE_SCHEMA = path.join(SKILL_ROOT, "schemas", "explanatory-broll-studio.v2.schema.json");
+const LEGACY_STATE_SCHEMA = path.join(SKILL_ROOT, "archive", "schemas", "explanatory-broll-studio.v1.schema.json");
 const TIMING_SCHEMA = path.join(SKILL_ROOT, "schemas", "video-direction-timing-projection.v1.schema.json");
 const GALLERY_ENTRY = "/assets/shot-recipe-library/index.html";
 const REQUIRED_OPERATIONS = [
@@ -132,10 +133,55 @@ function writeState(projectRoot, state) {
   return target;
 }
 
+function migrateStateV1(projectRoot, target, state) {
+  assertJsonSchema(state, LEGACY_STATE_SCHEMA, "解释型 B-roll Studio v1 状态");
+  const migrated = {
+    ...state,
+    version: 2,
+    clips: state.clips.map((clip) => {
+      const selectionPath = path.resolve(projectRoot, ...clip.selection.file.split("/"));
+      const selection = readJson(selectionPath);
+      const sourcePackage = path.resolve(projectRoot, ...(selection.package || "").split("/"));
+      const editable = readEditableMediaPackage(sourcePackage);
+      return {
+        selection_id: clip.selection_id,
+        selection: clip.selection,
+        realization_kind: "recipe",
+        segment_id: clip.segment_id,
+        recipe_id: clip.recipe_id,
+        style_id: clip.style_id,
+        source_package: projectRelative(projectRoot, sourcePackage),
+        source_package_sha256: sha256Tree(sourcePackage),
+        source_manifest_sha256: sha256File(editable.manifestPath),
+        scene_id: clip.scene_id,
+        variant_id: clip.variant_id,
+        runtime_package: clip.runtime_package,
+        runtime_package_sha256: clip.runtime_package_sha256,
+        runtime_manifest_sha256: clip.runtime_manifest_sha256,
+        asset_id: clip.asset_id,
+        clip_id: clip.clip_id,
+        timeline_start_frame: clip.timeline_start_frame,
+        duration_frames: clip.duration_frames,
+      };
+    }),
+    updated_at: new Date().toISOString(),
+  };
+  const oldSha = sha256File(target);
+  const archiveDirectory = path.join(projectRoot, "direction", "migrations");
+  fs.mkdirSync(archiveDirectory, {recursive: true});
+  const archivePath = path.join(archiveDirectory, `explanatory-broll-studio.v1.${oldSha}.json`);
+  if (!fs.existsSync(archivePath)) fs.copyFileSync(target, archivePath, fs.constants.COPYFILE_EXCL);
+  writeState(projectRoot, migrated);
+  return migrated;
+}
+
 function loadState(projectRoot) {
   const target = path.join(projectRoot, "explanatory-broll-studio.json");
   if (!fs.existsSync(target)) return null;
   const state = readJson(target);
+  if (state?.protocol === "visual-multimedia-explanatory-broll-studio" && state.version === 1) {
+    return migrateStateV1(projectRoot, target, state);
+  }
   assertJsonSchema(state, STATE_SCHEMA, "解释型 B-roll Studio 状态");
   return state;
 }
@@ -146,8 +192,8 @@ function directionPlan(projectRoot, explicit) {
     : path.join(projectRoot, "video-direction-plan.json");
   if (!fs.existsSync(target)) return null;
   const plan = readJson(target);
-  if (plan.protocol !== "visual-multimedia-video-direction" || plan.version !== 2) {
-    throw new Error(`Studio 只读取 video-direction-plan v2：${target}`);
+  if (plan.protocol !== "visual-multimedia-video-direction" || plan.version !== 3) {
+    throw new Error(`Studio 只读取 video-direction-plan v3：${target}`);
   }
   return {target, plan};
 }
@@ -227,7 +273,7 @@ function ensureEditorProject(context, aspect, fps = 30) {
   if (!state) {
     state = {
       protocol: "visual-multimedia-explanatory-broll-studio",
-      version: 1,
+      version: 2,
       project_id: stableId(path.basename(projectRoot)),
       editor_project: editorProject,
       sequence_id: sequenceId,
@@ -277,12 +323,12 @@ function synchronizeRootMetadata(html, metadata) {
   return synchronized;
 }
 
-function deriveRuntimePackage(projectRoot, sourcePackage, selection, durationFrames, fps) {
+function deriveRuntimePackage(projectRoot, sourcePackage, realization, durationFrames, fps) {
   const editable = readEditableMediaPackage(sourcePackage);
-  const scene = editable.manifest.scenes.find((item) => item.id === selection.scene_id);
-  if (!scene) throw new Error(`editable-media 不存在场景 ${selection.scene_id}`);
-  const variant = editable.manifest.variants.find((item) => item.id === selection.variant_id);
-  if (!variant) throw new Error(`editable-media 不存在变体 ${selection.variant_id}`);
+  const scene = editable.manifest.scenes.find((item) => item.id === realization.sceneId);
+  if (!scene) throw new Error(`editable-media 不存在场景 ${realization.sceneId}`);
+  const variant = editable.manifest.variants.find((item) => item.id === realization.variantId);
+  if (!variant) throw new Error(`editable-media 不存在变体 ${realization.variantId}`);
   const durationMs = Math.max(1, Math.round(durationFrames * 1000 / fps));
   const scale = durationMs / Number(scene.duration_ms);
   const derivedScene = {
@@ -311,8 +357,8 @@ function deriveRuntimePackage(projectRoot, sourcePackage, selection, durationFra
   const destination = path.join(
     projectRoot,
     "components",
-    "shot-recipe-runtimes",
-    selection.selection_id,
+    "editable-media-runtimes",
+    realization.selectionId,
     `${fps}fps-${durationFrames}f-${manifestSha.slice(0, 16)}`,
   );
   if (fs.existsSync(destination)) {
@@ -349,7 +395,7 @@ function nextTimelineStart(context, state) {
     .reduce((maximum, clip) => Math.max(maximum, clip.timeline_start + clip.duration), 0);
 }
 
-function attachClip(context, payload) {
+function recipeRealization(context, payload) {
   const materialized = materializeShotRecipe({
     projectRoot: context.projectRoot,
     recipeId: payload.recipe_id || null,
@@ -363,25 +409,97 @@ function attachClip(context, payload) {
     selectionReason: payload.selection_reason,
   });
   const selection = materialized.document;
-  const fps = Number.isInteger(payload.fps) ? payload.fps : 30;
-  const state = ensureEditorProject(context, selection.aspect_ratio, fps);
   const selectionSha = sha256File(materialized.selection);
-  const existing = state.clips.find((item) => item.selection.sha256 === selectionSha);
+  if (payload.expected_selection_sha256 && payload.expected_selection_sha256 !== selectionSha) {
+    throw new Error(`配方 ${selection.selection_id} 没有复现导演计划冻结的 selection`);
+  }
+  const editable = readEditableMediaPackage(materialized.package);
+  return {
+    selectionId: selection.selection_id,
+    selectionBinding: {
+      file: projectRelative(context.projectRoot, materialized.selection),
+      sha256: selectionSha,
+      bytes: fs.statSync(materialized.selection).size,
+    },
+    realizationKind: "recipe",
+    segmentId: selection.segment_id,
+    recipeId: selection.recipe_id,
+    styleId: selection.style_id,
+    sourcePackage: materialized.package,
+    sourcePackageSha256: sha256Tree(materialized.package),
+    sourceManifestSha256: sha256File(editable.manifestPath),
+    sceneId: selection.scene_id,
+    variantId: selection.variant_id,
+    aspectRatio: selection.aspect_ratio,
+    publicSelection: selection,
+  };
+}
+
+function projectPackageRealization(context, payload) {
+  const sourcePackage = path.resolve(context.projectRoot, ...(payload.package || "").split("/"));
+  const relative = path.relative(context.projectRoot, sourcePackage);
+  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error(`项目专用包不在媒体项目内：${payload.package}`);
+  }
+  const editable = readEditableMediaPackage(sourcePackage);
+  const packageSha = sha256Tree(sourcePackage);
+  if (packageSha !== payload.package_sha256) throw new Error("项目专用包 SHA-256 与导演计划不一致");
+  if (sha256File(editable.manifestPath) !== payload.manifest_sha256) {
+    throw new Error("项目专用包清单 SHA-256 与导演计划不一致");
+  }
+  if (!editable.manifest.scenes.some((item) => item.id === payload.scene_id)) {
+    throw new Error(`项目专用包不存在场景 ${payload.scene_id}`);
+  }
+  if (!editable.manifest.variants.some((item) => item.id === payload.variant_id)) {
+    throw new Error(`项目专用包不存在变体 ${payload.variant_id}`);
+  }
+  const selectionId = stableId(
+    `${payload.segment_id || "scene"}-project-${packageSha.slice(0, 12)}-${payload.variant_id}`,
+  );
+  return {
+    selectionId,
+    selectionBinding: null,
+    realizationKind: "project-package",
+    segmentId: payload.segment_id || null,
+    recipeId: null,
+    styleId: null,
+    sourcePackage,
+    sourcePackageSha256: packageSha,
+    sourceManifestSha256: payload.manifest_sha256,
+    sceneId: payload.scene_id,
+    variantId: payload.variant_id,
+    aspectRatio: payload.aspect_ratio,
+    publicSelection: {
+      selection_id: selectionId,
+      segment_id: payload.segment_id || null,
+      scene_id: payload.scene_id,
+      variant_id: payload.variant_id,
+      aspect_ratio: payload.aspect_ratio,
+      realization_kind: "project-package",
+    },
+  };
+}
+
+function attachResolvedClip(context, payload, realization) {
+  const fps = Number.isInteger(payload.fps) ? payload.fps : 30;
+  const state = ensureEditorProject(context, realization.aspectRatio, fps);
+  const identitySha = realization.selectionBinding?.sha256 || realization.sourcePackageSha256;
+  const existing = state.clips.find((item) => item.selection_id === realization.selectionId);
   if (existing) {
     if (
       (Number.isInteger(payload.timeline_start_frame) && existing.timeline_start_frame !== payload.timeline_start_frame)
       || (Number.isInteger(payload.duration_frames) && existing.duration_frames !== payload.duration_frames)
     ) {
-      throw new Error(`selection ${selection.selection_id} 已绑定其它真实时间；不会静默移动`);
+      throw new Error(`实现 ${realization.selectionId} 已绑定其它真实时间；不会静默移动`);
     }
-    return {state, binding: existing, selection};
+    return {state, binding: existing, selection: realization.publicSelection};
   }
-  const timing = sceneTiming(materialized.package, selection.scene_id);
+  const timing = sceneTiming(realization.sourcePackage, realization.sceneId);
   const durationFrames = Number.isInteger(payload.duration_frames)
     ? payload.duration_frames
     : timing.durationFrames;
   const runtime = deriveRuntimePackage(
-    context.projectRoot, materialized.package, selection, durationFrames, fps,
+    context.projectRoot, realization.sourcePackage, realization, durationFrames, fps,
   );
   const editable = readEditableMediaPackage(runtime.package);
   const inspected = mediaFlowProExecute(
@@ -396,7 +514,7 @@ function attachClip(context, payload) {
     state.editor_project,
     "web.import",
     {source: runtime.package},
-    `broll-import-${selectionSha.slice(0, 16)}-${runtime.packageSha256.slice(0, 16)}`,
+    `broll-import-${identitySha.slice(0, 16)}-${runtime.packageSha256.slice(0, 16)}`,
   );
   const assetId = registered?.asset_id || imported?.asset?.id;
   if (!assetId) throw new Error("MediaFlow Pro 没有返回 Web 素材 id");
@@ -429,21 +547,21 @@ function attachClip(context, payload) {
         source_in: 0,
         duration: durationFrames,
       },
-      `broll-clip-${selectionSha.slice(0, 24)}-${timelineStart}-${durationFrames}`,
+      `broll-clip-${identitySha.slice(0, 24)}-${timelineStart}-${durationFrames}`,
     ).clip;
   }
   const binding = {
-    selection_id: selection.selection_id,
-    selection: {
-      file: projectRelative(context.projectRoot, materialized.selection),
-      sha256: selectionSha,
-      bytes: fs.statSync(materialized.selection).size,
-    },
-    segment_id: selection.segment_id,
-    recipe_id: selection.recipe_id,
-    style_id: selection.style_id,
-    scene_id: selection.scene_id,
-    variant_id: selection.variant_id,
+    selection_id: realization.selectionId,
+    selection: realization.selectionBinding,
+    realization_kind: realization.realizationKind,
+    segment_id: realization.segmentId,
+    recipe_id: realization.recipeId,
+    style_id: realization.styleId,
+    source_package: projectRelative(context.projectRoot, realization.sourcePackage),
+    source_package_sha256: realization.sourcePackageSha256,
+    source_manifest_sha256: realization.sourceManifestSha256,
+    scene_id: realization.sceneId,
+    variant_id: realization.variantId,
     runtime_package: projectRelative(context.projectRoot, runtime.package),
     runtime_package_sha256: runtime.packageSha256,
     runtime_manifest_sha256: runtime.manifestSha256,
@@ -458,13 +576,13 @@ function attachClip(context, payload) {
   let webState = mediaFlowProExecute(
     context.environment, state.editor_project, "web.clip.get", {clip_id: clip.id},
   ).web_clip_state;
-  if (webState.variant?.id !== selection.variant_id) {
+  if (webState.variant?.id !== realization.variantId) {
     mediaFlowProExecute(
       context.environment,
       state.editor_project,
       "web.clip.variant.select",
-      {sequence_id: state.sequence_id, clip_id: clip.id, variant_id: selection.variant_id},
-      `broll-variant-${selectionSha.slice(0, 18)}-r${webState.revision}`,
+      {sequence_id: state.sequence_id, clip_id: clip.id, variant_id: realization.variantId},
+      `broll-variant-${identitySha.slice(0, 18)}-r${webState.revision}`,
     );
     webState = mediaFlowProExecute(
       context.environment, state.editor_project, "web.clip.get", {clip_id: clip.id},
@@ -473,7 +591,7 @@ function attachClip(context, payload) {
   const values = payload.values && typeof payload.values === "object" ? payload.values : {};
   if (
     Object.keys(values).length
-    && !containsValues(webState.scenes?.[selection.scene_id]?.data_snapshot?.values, values)
+    && !containsValues(webState.scenes?.[realization.sceneId]?.data_snapshot?.values, values)
   ) {
     mediaFlowProExecute(
       context.environment,
@@ -482,12 +600,12 @@ function attachClip(context, payload) {
       {
         sequence_id: state.sequence_id,
         clip_id: clip.id,
-        scene_id: selection.scene_id,
+        scene_id: realization.sceneId,
         values,
         source_kind: "inline",
         source_label: "Explanatory B-roll Studio",
       },
-      `broll-data-${selectionSha.slice(0, 16)}-${sha256Buffer(JSON.stringify(values)).slice(0, 10)}-r${webState.revision}`,
+      `broll-data-${identitySha.slice(0, 16)}-${sha256Buffer(JSON.stringify(values)).slice(0, 10)}-r${webState.revision}`,
     );
     webState = mediaFlowProExecute(
       context.environment, state.editor_project, "web.clip.get", {clip_id: clip.id},
@@ -500,10 +618,18 @@ function attachClip(context, payload) {
       state.editor_project,
       "web.clip.theme.update",
       {sequence_id: state.sequence_id, clip_id: clip.id, changes: theme},
-      `broll-theme-${selectionSha.slice(0, 16)}-${sha256Buffer(JSON.stringify(theme)).slice(0, 10)}-r${webState.revision}`,
+      `broll-theme-${identitySha.slice(0, 16)}-${sha256Buffer(JSON.stringify(theme)).slice(0, 10)}-r${webState.revision}`,
     );
   }
-  return {state, binding, selection};
+  return {state, binding, selection: realization.publicSelection};
+}
+
+function attachClip(context, payload) {
+  return attachResolvedClip(context, payload, recipeRealization(context, payload));
+}
+
+function attachProjectPackage(context, payload) {
+  return attachResolvedClip(context, payload, projectPackageRealization(context, payload));
 }
 
 function updateClip(context, payload) {
@@ -511,6 +637,7 @@ function updateClip(context, payload) {
   if (!state) throw new Error("先把模板加入时间线，再编辑实际片段");
   const binding = state.clips.find((item) => item.selection_id === payload.selection_id);
   if (!binding) throw new Error(`Studio 状态不存在 selection ${payload.selection_id}`);
+  const bindingSha = binding.selection?.sha256 || binding.source_package_sha256;
   mediaFlowProExecute(context.environment, state.editor_project, "project.inspect", {});
   let webState = mediaFlowProExecute(
     context.environment, state.editor_project, "web.clip.get", {clip_id: binding.clip_id},
@@ -530,7 +657,7 @@ function updateClip(context, payload) {
         source_kind: "inline",
         source_label: "Explanatory B-roll Studio",
       },
-      `broll-data-${binding.selection.sha256.slice(0, 14)}-${sha256Buffer(JSON.stringify(payload.values)).slice(0, 10)}-r${webState.revision}`,
+      `broll-data-${bindingSha.slice(0, 14)}-${sha256Buffer(JSON.stringify(payload.values)).slice(0, 10)}-r${webState.revision}`,
     );
     webState = mediaFlowProExecute(
       context.environment, state.editor_project, "web.clip.get", {clip_id: binding.clip_id},
@@ -540,7 +667,7 @@ function updateClip(context, payload) {
     mediaFlowProExecute(
       context.environment, state.editor_project, "web.clip.theme.update",
       {sequence_id: state.sequence_id, clip_id: binding.clip_id, changes: payload.theme},
-      `broll-theme-${binding.selection.sha256.slice(0, 14)}-${sha256Buffer(JSON.stringify(payload.theme)).slice(0, 10)}-r${webState.revision}`,
+      `broll-theme-${bindingSha.slice(0, 14)}-${sha256Buffer(JSON.stringify(payload.theme)).slice(0, 10)}-r${webState.revision}`,
     );
   }
   state.updated_at = new Date().toISOString();
@@ -553,6 +680,7 @@ function exportClip(context, payload) {
   if (!state) throw new Error("Studio 没有已加入时间线的片段");
   const binding = state.clips.find((item) => item.selection_id === payload.selection_id);
   if (!binding) throw new Error(`找不到 selection ${payload.selection_id}`);
+  const bindingSha = binding.selection?.sha256 || binding.source_package_sha256;
   const format = payload.format;
   const extensions = {png: "png", gif: "gif", video: "mp4", alpha_video: "mkv", overlay: "mkv"};
   if (!extensions[format]) throw new Error(`不支持导出格式：${format}`);
@@ -576,7 +704,7 @@ function exportClip(context, payload) {
       overwrite: true,
       timeout: 1800,
     },
-    `broll-export-${binding.selection.sha256.slice(0, 18)}-${format}-${sha256Buffer(output).slice(0, 10)}`,
+    `broll-export-${bindingSha.slice(0, 18)}-${format}-${sha256Buffer(output).slice(0, 10)}`,
   );
   const task = mediaFlowProWaitForTask(
     context.environment,
@@ -591,13 +719,16 @@ function contextDocument(context) {
   const plan = context.plan?.plan || null;
   return {
     protocol: "visual-multimedia-explanatory-broll-studio-context",
-    version: 1,
+    version: 2,
     enabled: true,
     project: context.projectRoot,
     direction_plan: context.plan?.target || null,
+    authoring_groups: plan?.authoring_groups || [],
     segments: (plan?.scenes || []).map((scene) => ({
       segment_id: scene.segment_id,
       purpose: scene.purpose,
+      required_readable_result: scene.required_readable_result,
+      creative_proposal: scene.creative_proposal,
       ...scene.visual_plan,
     })),
     state: loadState(context.projectRoot),
@@ -634,27 +765,44 @@ function applyDirectionPlan(context, timingPath) {
   const timings = new Map(timing.segments.map((item) => [item.segment_id, item]));
   const bindings = [];
   for (const scene of planValidation.plan.scenes) {
-    if (!scene.visual_plan.recipe) continue;
+    if (!scene.visual_plan.realization) continue;
     const actual = timings.get(scene.segment_id);
     if (!actual) throw new Error(`真实时间投影缺少 ${scene.segment_id}`);
     const visual = scene.visual_plan;
-    const result = attachClip(context, {
-      recipe_id: visual.recipe.recipe_id,
-      style_id: visual.recipe.style_id,
-      variant_id: visual.recipe.variant_id,
+    const realization = visual.realization;
+    if (!realization.review) {
+      throw new Error(`${scene.segment_id} 的实际画面尚未由同一创作者查看并接受或返修`);
+    }
+    const common = {
       segment_id: scene.segment_id,
-      visual_source_kind: visual.source_kind,
-      relationship_kind: visual.relationship_kind,
-      placement_mode: visual.placement_mode,
       aspect_ratio: visual.aspect_ratio,
-      selection_reason: visual.selection_reason,
       fps: timing.fps,
       timeline_start_frame: actual.timeline_start_frame,
       duration_frames: actual.duration_frames,
-    });
+    };
+    const result = realization.kind === "recipe"
+      ? attachClip(context, {
+        ...common,
+        recipe_id: realization.recipe_id,
+        style_id: realization.style_id,
+        variant_id: realization.variant_id,
+        visual_source_kind: visual.source_kind,
+        relationship_kind: visual.relationship_kind,
+        placement_mode: visual.placement_mode,
+        selection_reason: visual.selection_reason,
+        expected_selection_sha256: realization.selection.sha256,
+      })
+      : attachProjectPackage(context, {
+        ...common,
+        package: realization.package,
+        package_sha256: realization.package_sha256,
+        manifest_sha256: realization.manifest_sha256,
+        scene_id: realization.scene_id,
+        variant_id: realization.variant_id,
+      });
     bindings.push(result.binding);
   }
-  if (!bindings.length) throw new Error("当前导演计划没有需要活动镜头配方的场景");
+  if (!bindings.length) throw new Error("当前导演计划没有需要接入 Studio 的网页实现");
   const state = loadState(context.projectRoot);
   const projectionBinding = {
     file: projectRelative(context.projectRoot, absoluteTiming),

@@ -8,15 +8,15 @@ B-roll 是不以连续主讲人物为唯一主体、用来补充说明、提供�
 
 - `human`：已授权真人画面承担表达，必须绑定 `media-sources.json` 中的 source id。
 - `screen-recording`：真实界面操作或录屏承担证据，必须绑定 source id。
-- `evidence`：图片、视频、生成结果或其它可核对证据；现有素材绑定 source id，尚未完成的外部生成结果绑定 `generation_job_ids`，入账后再由时间线采用。
-- `explanatory-broll`：内容关系本身需要可视化，必须选择一种关系类型并绑定活动镜头配方。
+- `evidence`：用户已经提供或明确允许查看的图片、视频、生成结果或其它可核对证据；获准现有素材绑定 source id，尚未完成的外部生成结果绑定 `generation_job_ids`，入账后再由时间线采用。项目里未经点名的图片不能因为“可能是证据”而被打开。
+- `explanatory-broll`：内容关系本身需要可视化，必须选择一种关系类型，并最终绑定已查看的配方实例或项目专用网页包。
 - `packaging`：全片进度栏等视频包装，不冒充当前语义段落的解释画面。
 
 真人、录屏和证据素材不足时不能用解释模板伪造“已经发生过”的证据。解释模板只表达当前内容真源已经支持的关系。
 
-## 二、按内容关系选模板
+## 二、先用内容关系确定语义骨架
 
-活动模板按关系建立，不按行业题材建立：
+十种关系模板按内容关系建立，不按行业题材建立。它们负责提供语义骨架、可运行回退和构图起点，不是所有项目必须套用的最终整镜造型：
 
 | 关系 | `relationship_kind` | 活动场景 |
 | --- | --- | --- |
@@ -31,13 +31,15 @@ B-roll 是不以连续主讲人物为唯一主体、用来补充说明、提供�
 | 案例证据与前后对比 | `evidence-before-after` | `evidence-before-after` |
 | 全屏、真人分屏和透明叠加布局 | `layout` | `layout-shell` |
 
-同一语义模板支持 `full-frame`、`presenter-split`、`transparent-overlay` 三种职责和 16:9、9:16、1:1 三种比例。布局变化不能改变内容关系；真人分屏只预留并列职责，人物仍由视频时间线中的真实素材提供。
+同一语义模板支持 `full-frame`、`presenter-split`、`transparent-overlay` 三种职责和 16:9、9:16、1:1 三种比例。布局变化不能改变内容关系；真人分屏只预留并列职责，人物仍由视频时间线中的真实素材提供。模板预览已经达到当前项目要求时可以接受；模板使构图、素材、运动或相邻场景趋同，则由外部 Agent 直接制作项目内 `editable-media v6` 包，Studio 不把它压回整镜模板。
 
 `schemas/shot-recipe.v2.schema.json` 是配方、目录和选择记录的唯一合同。正式选择必须冻结 `segment_id`、来源类型、关系、布局、比例、选择理由、recipe/style/variant、配方与实现包哈希、场景和确定性时间来源。只有 `status=active` 且绑定真实 editable-media 包的样式可以物化；`reference-only` 只能学习方法。
 
-## 三、导演计划自动接线
+## 三、连续创作与实际画面返修
 
-先建立 v2 导演输入。解释型场景的 `visual_plan` 只写导演判断，`recipe` 可以为 `null`；生产者会按来源、关系、布局和比例唯一选择活动配方，物化网页包，并把完整选择记录回写计划：
+主语言字幕内容确认后才建立 v3 导演输入。每段先写可读结果和可返修创意提案；共享对象、构图逻辑或承接关系的相邻段落放进同一个 `authoring_group`，交给同一个外部 Agent 在完整确认内容、设计要求、已授权素材和相邻场景上下文中制作。创作组只决定谁在同一上下文里创作，真正渲染和局部失效仍按 scene 或 build unit 执行。
+
+解释型场景的 `visual_plan.realization` 初始可以为 `null`；生产者会按来源、关系、布局和比例选择活动配方，物化网页包，并把完整选择记录回写计划，但 review 保持 null：
 
 ```powershell
 node scripts/create-video-direction-plan.mjs `
@@ -47,6 +49,8 @@ node scripts/create-video-direction-plan.mjs `
 ```
 
 不能由剪辑端手写一份“看起来等价”的 selection，也不能只把 recipe id 放进分镜后让消费者猜 scene 或 variant。计划校验会重新读取 selection、包、manifest、场景、变体和哈希，证明生产者输出仍然完整。
+
+实际创作者查看所负责创作组的关键状态与连续预览后，只返回简短的接受或返修结论。接受配方时运行 `review-video-scene-realization.mjs --status accepted`；需要返修时直接修改项目专用网页包源码，同时提交新提案和 `--status revised`。返修脚本会保留上一版计划并验证真实源码发生变化；评语不能替代修改。素材不能只被塞进通用卡片槽，它至少要实际改变构图、裁切与遮罩、运动路径、空间层次、配色、标注或状态推进中的一项。需要搜索或生成素材时仍先取得用户对当前任务的明确授权。
 
 ## 四、Gallery 与 Studio
 
@@ -60,7 +64,7 @@ node scripts/explanatory-broll-studio.mjs serve `
   --plan <媒体项目目录>/video-direction-plan.json
 ```
 
-Studio 读取导演段落，选择实际 style/variant，把标题、说明、数据和主题写入 MediaFlow Pro 的公开网页片段状态；“加入时间线”会生成项目内 selection、导入真实网页素材、建立视频轨和片段。PNG、GIF、普通视频、透明视频和 overlay 都由同一片段与 `window.__hf` 确定性时间导出。网页包仍是组件结构与动画真源，MediaFlow Pro 只保存当前片段覆盖值和实际装配状态。
+Studio 读取导演段落、连续创作组、可读结果、创意提案和已经查看的 realization。静态 Gallery 仍可选择配方；正式 `apply-plan` 只消费 review 已绑定当前整包哈希的配方实例或项目专用包。Studio 把标题、说明、数据和主题写入 MediaFlow Pro 的公开网页片段状态，导入真实网页素材并建立视频轨和片段。PNG、GIF、普通视频、透明视频和 overlay 都由同一片段与 `window.__hf` 确定性时间导出。网页包仍是组件结构与动画真源，MediaFlow Pro 只保存当前片段覆盖值和实际装配状态。
 
 ## 五、用真实时间装配
 
@@ -72,9 +76,9 @@ node scripts/explanatory-broll-studio.mjs apply-plan `
   --timings <video-direction-timing-projection.json>
 ```
 
-消费者只把这个投影用于将导演语义绑定到活动时间线，不把它变成第二个可编辑时间真源。相同 selection 已经绑定其它真实时间时必须拒绝静默移动。Studio 状态写入 `explanatory-broll-studio.json`，保存 MediaFlow Pro 工程、序列、轨道、片段、selection 和时间投影绑定；跨进程重试先读取真实工程状态，再决定复用或继续，不重复导入、收费或堆叠片段。
+消费者只把这个投影用于将导演语义绑定到活动时间线，不把它变成第二个可编辑时间真源。相同 realization 已经绑定其它真实时间时必须拒绝静默移动。Studio v2 状态写入 `explanatory-broll-studio.json`，保存 MediaFlow Pro 工程、序列、轨道、片段、配方 selection 或项目专用包、源包和运行包哈希及时间投影绑定；旧 v1 状态只做一次内容寻址归档迁移，活动读写统一使用 v2。跨进程重试先读取真实工程状态，再决定复用或继续，不重复导入、收费或堆叠片段。
 
-装配时不会把包含十个场景的模板母版整段塞进时间线。Studio 会按投影中的帧率和持续帧派生只含所选场景的项目运行包，等比调整该场景的语义步骤时间，再从第 0 帧读取。selection 与母版哈希仍保持不变，运行包的 manifest 和整包哈希单独写入 Studio 状态；因此实际镜头比母版场景更长时也不会串入下一个模板。
+装配时不会把包含多个场景的模板或项目母版整段塞进时间线。Studio 会按投影中的帧率和持续帧派生只含所选场景的项目运行包，等比调整该场景的语义步骤时间，再从第 0 帧读取。源包哈希保持不变，运行包的 manifest 和整包哈希单独写入 Studio 状态；因此实际镜头比母版场景更长时也不会串入下一个场景。
 
 命令行导出用于自动制作和回归：
 
@@ -89,7 +93,11 @@ node scripts/explanatory-broll-studio.mjs export `
 
 - 当前片段是否真的需要解释关系，还是应该使用真人、录屏或证据素材？
 - 关系类型、布局、比例和选择理由是否与确认口播一致？
-- selection 是否由 v2 生产者生成，包、manifest、scene 和 variant 哈希是否仍成立？
+- 连续创作组是否保持共享视觉逻辑，并让同一创作者看到完整原始内容、设计要求、素材与相邻场景？
+- realization 是生产者生成的配方实例还是项目专用包；包、manifest、scene、variant、比例和 review 哈希是否仍成立？
+- 素材是否真的参与构图、路径、层次或状态，而不是被装进与内容无关的通用卡片？
+- 运动是否由准备引出主动作，让依赖变化随后发生并停在可读结果；全段是否只有一个注意力峰值？
+- 相邻场景是否在构图、进入方式、素材职责或节奏上形成有意义的差异，而不只是换标题和颜色？
 - 文字、数据和主题是否已经写入实际 MediaFlow Pro 片段，而不是只改了 Gallery 表单？
 - 时间是否来自绑定真实声音或视频时间线的投影，最终轨道是否读取同一段起止帧？
 - 全屏、分屏和透明叠加是否都在目标比例下可读；透明输出是否保留 alpha？

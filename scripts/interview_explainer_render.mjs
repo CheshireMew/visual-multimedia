@@ -8,9 +8,7 @@ import {
   escapeAssText,
   ffmpegFilterPath,
   formatAssTime,
-  formatSrtTime,
   nowIso,
-  parseVtt,
   probeMedia,
   projectPath,
   readJson,
@@ -20,6 +18,7 @@ import {
   toolVersion,
   writeJson,
 } from "./interview_explainer_common.mjs";
+import {writeBilingualCaptionFiles} from "./bilingual-video-captions.mjs";
 import {
   assemblyCacheKey,
   buildUnitCacheKey,
@@ -617,164 +616,52 @@ function verifySegment(ffprobe, outputPath, plan, segment) {
 }
 
 function buildCaptions(projectRoot, plan) {
-  const cues = [];
+  const cueRecords = [];
   for (const segment of plan.sequence) {
     const offset = segment.timeline_start_frame / plan.output.fps;
-    const duration = segment.duration_frames / plan.output.fps;
-    if (segment.kind === "source-clip") {
-      for (const cue of segment.content.subtitle_cues) {
-        cues.push({
-          segment_id: segment.id,
-          start: offset
-            + Number(cue.source_start_seconds)
-            - Number(segment.content.start_seconds),
-          end: offset
-            + Number(cue.source_end_seconds)
-            - Number(segment.content.start_seconds),
-          text: cue.text,
-        });
-      }
-      continue;
-    }
-    const timingPath = projectPath(projectRoot, segment.content.timing_file, "timing file");
-    for (const cue of parseVtt(timingPath)) {
-      const start = Math.max(0, Math.min(duration, cue.start));
-      const end = Math.max(start + 0.05, Math.min(duration, cue.end));
-      cues.push({
+    for (const cue of segment.content.subtitle_cues) {
+      cueRecords.push({
         segment_id: segment.id,
-        start: offset + start,
-        end: offset + end,
-        text: cue.text,
+        id: cue.id,
+        start_seconds: offset + cue.start_seconds,
+        end_seconds: offset + cue.end_seconds,
+        zh: cue.zh,
+        en: cue.en,
       });
     }
   }
-  cues.sort((a, b) => a.start - b.start || a.end - b.end);
-  let previousEnd = 0;
-  for (const cue of cues) {
-    if (cue.start < previousEnd) cue.start = previousEnd + 0.03;
-    if (cue.end <= cue.start) cue.end = cue.start + 0.08;
-    previousEnd = cue.end;
-  }
-  const outputPath = projectPath(projectRoot, plan.output.caption_file, "caption output");
-  fs.mkdirSync(path.dirname(outputPath), {recursive: true});
-  const text = cues.map((cue, index) => [
-    String(index + 1),
-    `${formatSrtTime(cue.start)} --> ${formatSrtTime(cue.end)}`,
-    cue.text,
-    "",
-  ].join("\n")).join("\n");
-  fs.writeFileSync(outputPath, text, "utf8");
-  const burnInPath = outputPath.replace(/\.[^.]+$/, ".burn-in.ass");
-  const fontSize = Math.max(
-    26,
-    Math.round(Math.min(plan.output.width * 0.045, plan.output.height * 0.06)),
-  );
-  const marginV = Math.max(48, Math.round(plan.output.height * 0.06));
-  const marginH = Math.max(40, Math.round(plan.output.width * 0.055));
-  const fontFamily = String(plan.style.font_family || "sans-serif")
-    .replaceAll(",", " ")
-    .replaceAll("\n", " ");
-  const maxLineUnits = Math.max(
-    12,
-    Math.floor(
-      (plan.output.width - marginH * 2)
-      / (fontSize * 1.08),
-    ),
-  );
-  const characterUnits = (character) => {
-    if (/\s/u.test(character)) return 0.35;
-    if (/[\u0000-\u024f]/u.test(character)) return 0.56;
-    return 1;
-  };
-  const wrapSubtitle = (value) => String(value).split(/\r?\n/u).flatMap((sourceLine) => {
-    const lines = [];
-    let current = "";
-    let units = 0;
-    for (const character of [...sourceLine.trim()]) {
-      const nextUnits = characterUnits(character);
-      if (current && units + nextUnits > maxLineUnits) {
-        let breakAt = -1;
-        const characters = [...current];
-        for (let index = characters.length - 1; index >= 0; index -= 1) {
-          if (/[\s，。；？！：、,.!?;:]/u.test(characters[index])) {
-            breakAt = index;
-            break;
-          }
-        }
-        if (breakAt >= Math.floor(characters.length * 0.55)) {
-          lines.push(characters.slice(0, breakAt + 1).join("").trim());
-          current = characters.slice(breakAt + 1).join("").trimStart();
-          units = [...current].reduce(
-            (total, item) => total + characterUnits(item),
-            0,
-          );
-        } else {
-          lines.push(current.trim());
-          current = "";
-          units = 0;
-        }
-      }
-      current += character;
-      units += nextUnits;
-    }
-    if (current.trim()) lines.push(current.trim());
-    return lines.length ? lines : [""];
-  }).join("\n");
-  const assTime = (seconds) => {
-    const total = Math.max(0, Math.round(seconds * 100));
-    const hours = Math.floor(total / 360000);
-    const minutes = Math.floor((total % 360000) / 6000);
-    const secs = Math.floor((total % 6000) / 100);
-    const centiseconds = total % 100;
-    return `${hours}:${String(minutes).padStart(2, "0")}:`
-      + `${String(secs).padStart(2, "0")}.${String(centiseconds).padStart(2, "0")}`;
-  };
-  const assText = (value) => String(value)
-    .replaceAll("\\", "\\\\")
-    .replaceAll("{", "\\{")
-    .replaceAll("}", "\\}")
-    .replace(/\r?\n/g, "\\N");
-  const ass = [
-    "[Script Info]",
-    "ScriptType: v4.00+",
-    `PlayResX: ${plan.output.width}`,
-    `PlayResY: ${plan.output.height}`,
-    "WrapStyle: 0",
-    "ScaledBorderAndShadow: yes",
-    "YCbCr Matrix: TV.709",
-    "",
-    "[V4+ Styles]",
-    "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, "
-      + "OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, "
-      + "ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, "
-      + "Alignment, MarginL, MarginR, MarginV, Encoding",
-    `Style: Default,${fontFamily},${fontSize},&H00FFFFFF,&H000000FF,`
-      + `&H90000000,&H40000000,-1,0,0,0,100,100,0,0,1,3,1,2,`
-      + `${marginH},${marginH},${marginV},1`,
-    "",
-    "[Events]",
-    "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, "
-      + "Effect, Text",
-    ...cues.map((cue) => (
-      `Dialogue: 0,${assTime(cue.start)},${assTime(cue.end)},`
-      + `Default,,0,0,0,,${assText(wrapSubtitle(cue.text))}`
-    )),
-    "",
-  ].join("\n");
-  fs.writeFileSync(burnInPath, ass, "utf8");
-  return {file: outputPath, burnInFile: burnInPath, cues};
+  cueRecords.sort((a, b) => a.start_seconds - b.start_seconds || a.end_seconds - b.end_seconds);
+  const chineseSrt = projectPath(projectRoot, plan.output.caption_file, "Chinese caption output");
+  const englishSrt = chineseSrt.replace(/(?:\.zh-CN)?\.[^.]+$/iu, ".en.srt");
+  const burnInPath = chineseSrt.replace(/(?:\.zh-CN)?\.[^.]+$/iu, ".bilingual.ass");
+  const files = writeBilingualCaptionFiles({
+    pairs: cueRecords,
+    ass: burnInPath,
+    chineseSrt,
+    englishSrt,
+    width: plan.output.width,
+    height: plan.output.height,
+    maximumDuration: plan.total_frames / plan.output.fps,
+  });
+  const cues = files.pairs.map((cue, index) => ({
+    ...cue,
+    segment_id: cueRecords[index].segment_id,
+    start: cue.start_seconds,
+    end: cue.end_seconds,
+  }));
+  return {file: files.chineseSrt, englishFile: files.englishSrt, burnInFile: files.ass, cues};
 }
 
 function prepareDeliveryUnits(context, buildPlan, segmentFiles, segmentReports, captions) {
   const {projectRoot, plan, ffmpeg, ffprobe} = context;
   const assLines = fs.readFileSync(captions.burnInFile, "utf8").split(/\r?\n/);
   const dialogueLines = assLines.filter((line) => line.startsWith("Dialogue: "));
-  if (dialogueLines.length !== captions.cues.length) {
+  if (dialogueLines.length !== captions.cues.length * 2) {
     throw new Error("全局字幕文本与字幕时间数据不一致");
   }
   const captionItems = captions.cues.map((cue, index) => ({
     cue,
-    dialogue: dialogueLines[index],
+    dialogues: dialogueLines.slice(index * 2, index * 2 + 2),
   }));
   const eventsIndex = assLines.findIndex((line) => line === "[Events]");
   const formatIndex = assLines.findIndex(
@@ -803,11 +690,11 @@ function prepareDeliveryUnits(context, buildPlan, segmentFiles, segmentReports, 
         timelineStartFrame: segment.timeline_start_frame,
       };
     }
-    const shiftedDialogues = segmentCaptions.map(({cue, dialogue}) => dialogue.replace(
+    const shiftedDialogues = segmentCaptions.flatMap(({cue, dialogues}) => dialogues.map((dialogue) => dialogue.replace(
       /^Dialogue: 0,[^,]+,[^,]+,/,
       `Dialogue: 0,${formatAssTime(cue.start - offset)},`
         + `${formatAssTime(cue.end - offset)},`,
-    ));
+    )));
     const assPath = projectPath(
       projectRoot,
       `working/interview-explainer/captions/${segment.id}.ass`,
@@ -1129,8 +1016,7 @@ export function renderInterviewExplainer(options) {
     outputPath,
   );
   const finalProbe = verifyFinal(ffprobe, outputPath, plan);
-  const visible = plan.output.caption_mode === "burned-in"
-    || plan.output.caption_mode === "embedded-track";
+  const visible = true;
   const buildReport = {
     protocol: "visual-multimedia-media-build-report",
     version: 2,
@@ -1169,14 +1055,10 @@ export function renderInterviewExplainer(options) {
     },
     captions: {
       mode: plan.output.caption_mode,
-      file: relativeProjectPath(projectRoot, captions.file),
-      sha256: sha256File(captions.file),
-      render_file: plan.output.caption_mode === "burned-in"
-        ? relativeProjectPath(projectRoot, captions.burnInFile)
-        : null,
-      render_sha256: plan.output.caption_mode === "burned-in"
-        ? sha256File(captions.burnInFile)
-        : null,
+      file: relativeProjectPath(projectRoot, captions.burnInFile),
+      sha256: sha256File(captions.burnInFile),
+      render_file: relativeProjectPath(projectRoot, outputPath),
+      render_sha256: sha256File(outputPath),
       visible_in_standalone_output: visible,
     },
     assembly: {

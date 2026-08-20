@@ -84,6 +84,13 @@
       "evidence": "能力案例明确采用无人物动态图形"
     }
   },
+  "authoring_groups": [
+    {
+      "id": "generation-lifecycle-flow",
+      "segment_ids": ["generation-lifecycle"],
+      "continuity_reason": "提交、入账和采用是同一生成结果的连续生命周期，必须在一个创作上下文中保持对象身份。"
+    }
+  ],
   "scenes": [
     {
       "segment_id": "generation-lifecycle",
@@ -94,6 +101,28 @@
       ],
       "purpose": "让观众看到提交、入账和采用是连续但独立的三步",
       "voiceover_ref": "narration#full",
+      "required_readable_result": "观众能明确区分远程完成、真实文件入账和时间线采用三个事实，并看见最终采用只发生在最后一步。",
+      "creative_proposal": {
+        "visual_idea": "同一个生成任务凭证穿过提交、文件入账和时间线采用三道边界，每次只增加已经成立的事实。",
+        "composition": "三个边界沿时间线展开，共用一个任务身份标记；最终采用区占据结果焦点。",
+        "material_route": "generate",
+        "material_integration": "生成结果不作为装饰缩略图，而是依次成为远程输出、已校验文件和时间线片段的主体证据。",
+        "motion_sequence": {
+          "preparation": "先锁定费用与幂等键，提交边界保持待触发。",
+          "primary_action": "唯一提交触发远程任务，任务凭证向下一边界移动。",
+          "dependent_overlap": "远程完成后，下载、校验和入账依赖关系逐项出现。",
+          "settle_and_hold": "已入账文件进入时间线，最后停在明确的采用状态。",
+          "focus": "唯一峰值是文件真正成为时间线片段，而不是远程任务显示成功。"
+        },
+        "key_states": [
+          {"id": "submission-locked", "role": "start", "description": "费用和幂等键已锁定，任务只允许提交一次。"},
+          {"id": "file-accounted", "role": "change", "description": "远程输出已下载、校验并以正式 source id 入账。"},
+          {"id": "timeline-adopted", "role": "result", "description": "时间线明确引用已入账素材，采用事实成立。"}
+        ],
+        "seam_in": "从生成请求进入费用与幂等边界。",
+        "seam_out": "以时间线中的真实片段交给后续剪辑和交付。",
+        "revision_reason": null
+      },
       "visual_plan": {
         "source_kind": "evidence",
         "source_ids": [],
@@ -101,7 +130,7 @@
         "placement_mode": "full-frame",
         "aspect_ratio": "16:9",
         "selection_reason": "这个能力案例要验证外部生成结果从任务、入账到时间线采用的真实边界，因此使用生成任务产出的证据画面。",
-        "recipe": null
+        "realization": null
       },
       "timing": {
         "source": "text-estimate",

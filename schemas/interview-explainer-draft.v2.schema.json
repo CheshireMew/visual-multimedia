@@ -64,7 +64,7 @@
         "fps": {"type": "integer", "minimum": 12, "maximum": 120},
         "audio_sample_rate": {"type": "integer", "minimum": 8000},
         "audio_channels": {"type": "integer", "minimum": 1, "maximum": 8},
-        "caption_mode": {"enum": ["burned-in", "embedded-track", "sidecar"]},
+        "caption_mode": {"const": "burned-in"},
         "caption_file": {"$ref": "#/$defs/localPath"},
         "loudness": {
           "type": "object",

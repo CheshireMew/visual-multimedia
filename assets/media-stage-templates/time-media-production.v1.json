@@ -10,7 +10,7 @@
       "id": "content",
       "order": 1,
       "label": "内容与声音",
-      "purpose": "确认活动文案、原声或声音职责，以及逐段要表达的内容。",
+      "purpose": "原创视频先确认完整主语言字幕内容；已有原声先确认复核转写派生的显示字幕；音频与播客确认完整活动文案、原声或声音职责。",
       "depends_on": [],
       "required_artifact_roles": ["content-contract"]
     },
@@ -18,7 +18,7 @@
       "id": "direction",
       "order": 2,
       "label": "导演与制作方向",
-      "purpose": "确认镜头、网页视觉、角色、构图、动效与声音方向。",
+      "purpose": "内容确认后再派生译文与发音文本，并只用用户已授权素材确认镜头、网页视觉、角色、构图、动效与声音方向。",
       "depends_on": ["content"],
       "required_artifact_roles": ["direction-package"]
     },

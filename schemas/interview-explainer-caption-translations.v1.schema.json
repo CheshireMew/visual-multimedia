@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.interview-explainer-caption-translations.v1",
+  "title": "Interview Explainer Caption Translations v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "project_id", "draft", "cues"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-interview-explainer-caption-translations"},
+    "version": {"const": 1},
+    "project_id": {"$ref": "#/$defs/id"},
+    "draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {
+        "file": {"$ref": "#/$defs/localPath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "cues": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "segment_id", "cue_index", "zh", "en"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "segment_id": {"$ref": "#/$defs/id"},
+          "cue_index": {"type": "integer", "minimum": 0},
+          "zh": {"type": "string", "minLength": 1},
+          "en": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z][A-Za-z0-9+.-]*:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  }
+}

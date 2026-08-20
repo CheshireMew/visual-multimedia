@@ -33,6 +33,8 @@ import {
   sha256Tree,
 } from "./shot-recipe-library.mjs";
 import {assertSkillTaskPath} from "./media-task-workspace.mjs";
+import {assertStageApproved, validateProjectState} from "./media_project_state.mjs";
+import {normalizeBilingualCaptionPairs} from "./bilingual-video-captions.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -84,6 +86,19 @@ function planPath(args, projectRoot) {
   return projectPath(projectRoot, args.plan || "product-promo-plan.json", "plan");
 }
 
+function assertCurrentContentApproved(projectRoot, contentFile) {
+  const statePath = path.join(projectRoot, "media-project-state.json");
+  const validation = validateProjectState(statePath);
+  if (!validation.ok) throw new Error(`媒体项目状态无效：\n- ${validation.errors.join("\n- ")}`);
+  const state = readJson(statePath);
+  assertStageApproved(state, "content");
+  const expectedFile = relativeProjectPath(projectRoot, contentFile);
+  const artifact = state.artifacts.find((item) => item.stage_id === "content" && item.role === "content-contract");
+  if (!artifact || artifact.file !== expectedFile || artifact.sha256 !== sha256File(contentFile)) {
+    throw new Error("内容阶段必须批准当前 product-promo-content.json；不能用 brief、其它文档或旧主字幕代替");
+  }
+}
+
 export function createProductPromoProject(projectRoot, projectId) {
   const project = assertSkillTaskPath(path.resolve(projectRoot || ""), "projectRoot");
   if (!/^[a-z0-9][a-z0-9._-]*$/u.test(projectId || "")) throw new Error("--project-id 只能使用小写字母、数字、点、下划线和连字符");
@@ -99,10 +114,32 @@ export function createProductPromoProject(projectRoot, projectId) {
   state.project_id = projectId;
   state.media_kind = "mixed-video";
   state.profile = "product-promo@1.0.0";
-  state.next_action = "填写产品主张、功能证据与输出要求，再提交内容阶段。";
+  state.next_action = "先填写并向用户展示 product-promo-content.json 中的完整主语言观众文案；确认后把该文件提交为 content-contract，再查看或采集获准产品画面。";
   state.updated_at = nowIso();
   writeJson(statePath, state);
   assertJsonSchema(state, PROJECT_SCHEMA, "媒体项目状态");
+  const content = {
+    protocol: "visual-multimedia-product-promo-content",
+    version: 1,
+    project_id: projectId,
+    product: {
+      name: "待替换产品名",
+      audience: "待确认目标观众",
+      value_proposition: "待确认产品主张",
+      call_to_action: "",
+    },
+    viewer_script: {
+      primary_language: "zh-CN",
+      segments: [{id: "opening", text: "待确认观众首先看到的中文字幕内容"}],
+    },
+    features: [{
+      id: "feature-1",
+      name: "待替换功能",
+      viewer_value: "待确认观众价值",
+      proof: "待确认观众能够看到的功能证据",
+      required: true,
+    }],
+  };
   const brief = {
     protocol: "visual-multimedia-product-promo-brief",
     version: 1,
@@ -113,6 +150,10 @@ export function createProductPromoProject(projectRoot, projectId) {
       audience: "待确认目标观众",
       value_proposition: "待确认产品主张",
       call_to_action: "",
+    },
+    viewer_script: {
+      primary_language: "zh-CN",
+      segments: [{id: "opening", text: "待确认观众首先看到的中文字幕内容"}],
     },
     features: [{
       id: "feature-1",
@@ -130,18 +171,21 @@ export function createProductPromoProject(projectRoot, projectId) {
       fps: 30,
       audio_sample_rate: 48000,
       audio_channels: 2,
-      caption_strategy: "none",
+      caption_strategy: "burned-in",
     },
     sound: {strategy: "none", strong_beat: false, music_source_id: null},
     constraints: ["提交计划前替换全部待确认字段，并为必选功能绑定真实 source id。"],
   };
+  const contentOutput = path.join(project, "product-promo-content.json");
   const output = path.join(project, "product-promo-brief.json");
+  writeJson(contentOutput, content);
   writeJson(output, brief);
+  assertJsonSchema(content, PRODUCT_SCHEMA, "产品宣传片观众文案");
   assertJsonSchema(brief, PRODUCT_SCHEMA, "产品宣传片 brief");
   for (const directory of ["captures", "components", "shot-recipe-selections", "plans", "reports", "renders", "working"]) {
     fs.mkdirSync(path.join(project, directory), {recursive: true});
   }
-  return {project, state: statePath, brief: output};
+  return {project, state: statePath, content: contentOutput, brief: output};
 }
 
 export function validateProductPromoBrief(projectRoot, filePath) {
@@ -172,9 +216,19 @@ export function validateProductPromoPlan(projectRoot, filePath) {
   const plan = readJson(filePath);
   assertJsonSchema(plan, PRODUCT_SCHEMA, "产品宣传片计划");
   if (plan.profile.sha256 !== sha256File(PROFILE_PATH)) throw new Error("计划绑定的 product-promo profile 哈希已失效");
+  const contentBinding = assertBinding(project, plan.content, "观众文案", PRODUCT_SCHEMA);
+  assertCurrentContentApproved(project, contentBinding.absolute);
   const briefBinding = assertBinding(project, plan.brief, "brief", PRODUCT_SCHEMA);
   const brief = validateProductPromoBrief(project, briefBinding.absolute);
+  const content = contentBinding.document;
+  if (
+    content.project_id !== brief.project_id
+    || JSON.stringify(content.product) !== JSON.stringify(brief.product)
+    || JSON.stringify(content.viewer_script) !== JSON.stringify(brief.viewer_script)
+    || JSON.stringify(content.features.map(({source_ids: _sourceIds, ...item}) => item)) !== JSON.stringify(brief.features.map(({source_ids: _sourceIds, ...item}) => item))
+  ) throw new Error("production brief 没有完整投影当前已确认观众文案");
   if (brief.project_id !== plan.project_id || JSON.stringify(brief.output) !== JSON.stringify(plan.output)) throw new Error("计划与 brief 的 project/output 不一致");
+  if (plan.output.caption_strategy !== "burned-in") throw new Error("产品宣传片最终视频必须烧录中文主字幕和下方英文小字幕");
   const mediaSources = readJson(path.join(project, "media-sources.json"));
   const sourcesById = new Map(mediaSources.sources.map((source) => [source.id, source]));
   for (const frame of plan.direction.style_frames) assertBinding(project, frame, "style frame");
@@ -206,6 +260,9 @@ export function validateProductPromoPlan(projectRoot, filePath) {
   }
   const shots = [...plan.shots].sort((left, right) => left.order - right.order);
   const shotIds = new Set();
+  const contentSegments = new Map(content.viewer_script.segments.map((segment) => [segment.id, segment.text]));
+  const captionTextBySegment = new Map();
+  const captionCueIds = new Set();
   let cursor = 0;
   for (let index = 0; index < shots.length; index += 1) {
     const shot = shots[index];
@@ -224,6 +281,27 @@ export function validateProductPromoPlan(projectRoot, filePath) {
     if (!scene) throw new Error(`镜头 ${shot.id} 找不到场景 ${shot.implementation.scene_id}`);
     const stepIds = new Set(scene.steps.map((step) => step.id));
     for (const stepId of shot.semantic_steps) if (!stepIds.has(stepId)) throw new Error(`镜头 ${shot.id} 找不到语义状态 ${stepId}`);
+    const normalized = normalizeBilingualCaptionPairs(shot.caption_cues.map((cue) => ({
+      id: cue.id,
+      start_seconds: cue.start_frame / plan.output.fps,
+      end_seconds: cue.end_frame / plan.output.fps,
+      zh: cue.zh,
+      en: cue.en,
+    })), {maximumDuration: shot.duration_frames / plan.output.fps});
+    for (let cueIndex = 0; cueIndex < shot.caption_cues.length; cueIndex += 1) {
+      const cue = shot.caption_cues[cueIndex];
+      if (captionCueIds.has(cue.id)) throw new Error(`产品宣传片字幕 cue id 重复：${cue.id}`);
+      captionCueIds.add(cue.id);
+      if (!contentSegments.has(cue.content_segment_id)) throw new Error(`镜头 ${shot.id} 的字幕引用了不存在的观众文案段 ${cue.content_segment_id}`);
+      const bucket = captionTextBySegment.get(cue.content_segment_id) || [];
+      bucket.push({zh: normalized[cueIndex].zh, en: normalized[cueIndex].en});
+      captionTextBySegment.set(cue.content_segment_id, bucket);
+    }
+  }
+  for (const [segmentId, text] of contentSegments) {
+    const cues = captionTextBySegment.get(segmentId);
+    if (!cues?.length) throw new Error(`已确认观众文案 ${segmentId} 没有进入任何双语字幕 cue`);
+    if (cues.map((cue) => cue.zh).join("") !== text) throw new Error(`观众文案 ${segmentId} 的中文字幕没有完整保持已确认内容`);
   }
   const featureIds = new Set(brief.features.map((feature) => feature.id));
   const coverageIds = new Set();
@@ -286,7 +364,7 @@ export function createProductPromoBuildPlan(projectRoot, planFile, confirmationF
     stageTarget,
     sourceContract: relativeProjectPath(project, planFile),
     producerEntry: "scripts/product-promo.mjs",
-    producerModules: ["scripts/shot-recipe-library.mjs", "scripts/media_build_contract.mjs"],
+    producerModules: ["scripts/product_promo_runtime.mjs", "scripts/shot-recipe-library.mjs", "scripts/media_build_contract.mjs", "scripts/bilingual-video-captions.mjs"],
     output: {...videoOutput, quality_profile: quality},
     units: plan.shots.map((shot) => ({
       id: shot.id,

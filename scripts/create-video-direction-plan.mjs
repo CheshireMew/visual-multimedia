@@ -18,6 +18,7 @@ const DRAFT_FIELDS = [
   "narration",
   "pronunciations",
   "presenter",
+  "authoring_groups",
   "scenes",
 ];
 
@@ -27,8 +28,8 @@ node scripts/create-video-direction-plan.mjs --project <项目目录>
   --source <已确认内容文件> --draft <导演输入.json>
   [--created-at <ISO 日期时间>]
 
-导演输入只保存创意判断；本脚本绑定真实来源快照、输入哈希和旁白哈希，
-并为解释型 B-roll / 包装画面自动选择、物化和冻结活动镜头配方，
+导演输入保存不可变内容依据、连续创作组和可返修创意提案；本脚本绑定真实来源快照、输入哈希和旁白哈希，
+并为尚无项目专用实现的解释型 B-roll / 包装画面选择、物化和冻结活动镜头配方，
 并写入项目唯一的 video-direction-plan.json。相同输入幂等复用，不覆盖变化后的计划。`);
 }
 
@@ -137,7 +138,7 @@ function validateDraft(draft) {
     }
     const fields = [
       "source_kind", "source_ids", "relationship_kind", "placement_mode",
-      "aspect_ratio", "selection_reason", "recipe",
+      "aspect_ratio", "selection_reason", "realization",
     ];
     const missingVisual = fields.filter((field) => !Object.hasOwn(visual, field));
     const unknownVisual = Object.keys(visual).filter((field) => !fields.includes(field));
@@ -153,14 +154,32 @@ function validateDraft(draft) {
 function materializeVisualPlan(projectRoot, scene) {
   const visual = scene.visual_plan;
   if (!["explanatory-broll", "packaging"].includes(visual.source_kind)) {
-    if (visual.recipe !== null) {
-      throw new Error(`${scene.segment_id} 的 ${visual.source_kind} 画面不能绑定镜头配方`);
+    if (visual.realization !== null) {
+      throw new Error(`${scene.segment_id} 的 ${visual.source_kind} 画面不能绑定网页实现`);
     }
-    return {...visual, recipe: null};
+    return {...visual, realization: null};
   }
-  const intent = visual.recipe;
+  const intent = visual.realization;
   if (intent !== null && (typeof intent !== "object" || Array.isArray(intent))) {
-    throw new Error(`${scene.segment_id}.visual_plan.recipe 必须是对象或 null`);
+    throw new Error(`${scene.segment_id}.visual_plan.realization 必须是配方意向或 null`);
+  }
+  if (intent?.kind && intent.kind !== "recipe") {
+    throw new Error(
+      `${scene.segment_id} 的项目专用网页包必须在初始计划生成后通过 review-video-scene-realization.mjs 采纳`,
+    );
+  }
+  if (intent) {
+    const fields = ["kind", "recipe_id", "style_id", "variant_id"];
+    const missing = fields.filter((field) => !Object.hasOwn(intent, field));
+    const unknown = Object.keys(intent).filter((field) => !fields.includes(field));
+    if (missing.length || unknown.length) {
+      throw new Error(
+        `${scene.segment_id}.visual_plan.realization 配方意向字段不完整：`
+          + `${missing.length ? `缺少 ${missing.join(", ")}` : ""}`
+          + `${missing.length && unknown.length ? "；" : ""}`
+          + `${unknown.length ? `未知 ${unknown.join(", ")}` : ""}`,
+      );
+    }
   }
   const materialized = materializeShotRecipe({
     projectRoot,
@@ -177,7 +196,8 @@ function materializeVisualPlan(projectRoot, scene) {
   const stat = fs.statSync(materialized.selection);
   return {
     ...visual,
-    recipe: {
+    realization: {
+      kind: "recipe",
       recipe_id: materialized.document.recipe_id,
       style_id: materialized.document.style_id,
       variant_id: materialized.document.variant_id,
@@ -186,6 +206,7 @@ function materializeVisualPlan(projectRoot, scene) {
         sha256: sha256(fs.readFileSync(materialized.selection)),
         bytes: stat.size,
       },
+      review: null,
     },
   };
 }
@@ -217,7 +238,7 @@ function main() {
   const snapshot = snapshotSource(projectRoot, sourcePath);
   const plan = {
     protocol: "visual-multimedia-video-direction",
-    version: 2,
+    version: 3,
     project: {
       media_project_id: draft.media_project_id,
       source: {
@@ -238,6 +259,7 @@ function main() {
     pronunciations: draft.pronunciations,
     presenter: draft.presenter,
     generation_jobs: "generation-jobs.json",
+    authoring_groups: draft.authoring_groups,
     scenes: draft.scenes.map((scene) => ({
       ...scene,
       visual_plan: materializeVisualPlan(projectRoot, scene),

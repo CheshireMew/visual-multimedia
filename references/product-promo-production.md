@@ -6,7 +6,8 @@
 
 产品宣传片使用 `product-promo@1.0.0` profile，并继续服从通用五阶段和媒体项目合同。活动事实按以下边界分开：
 
-- `product-promo-brief.json` 冻结产品、观众、主张、必选功能、真实 source id、声音策略与输出规格。
+- `product-promo-content.json` 保存先交给用户确认的完整主语言观众文案、产品主张和不依赖具体画面的功能证明职责。
+- `product-promo-brief.json` 在内容确认后投影同一观众文案，并补充获准真实 source id、声音策略与输出规格。
 - `product-ui-capture.json` 证明哪些页面和元素由真实浏览器取得，并把截图写入项目 `media-sources.json`。手工提供的录屏或截图仍用通用素材导入器入账。
 - `shot-recipe-selections/*.json` 只冻结“为什么选这个镜头职责”及物化实现包。`reference-only` 只能提供语义启发，不能进入构建计划。
 - `product-promo-plan.json` 冻结方向、功能覆盖、镜头顺序、实现包、场景、语义状态、声音和审阅承诺。
@@ -24,7 +25,7 @@ node scripts/product-promo.mjs get-recipe feature-focus-tour
 
 配方库中的 `status` 必须逐条读取。上游 `video-shotcraft` 语义记录全部是 `reference-only`：它们保留意图、采用条件、风格差异、已知坑和来源证据，但不复制上游 TSX、音频、MP4 或截图，也不声称目标仓库已经实现。只有绑定完整 `editable-media` 网页包且通过目标校验的 `active` 风格可以物化。
 
-## 二、建立项目和内容合同
+## 二、先确认观众文案
 
 从正式入口建立项目：
 
@@ -34,15 +35,23 @@ node scripts/product-promo.mjs create-project `
   --project-id <稳定项目-id>
 ```
 
-随后替换 `product-promo-brief.json` 中所有占位文字。每个必选功能至少绑定一个真实 `media-sources.json` source id，并写清观众价值和可观察证明；不要把“丝滑、智能、高级”当作证据。产品主张和功能取舍在内容阶段确认，导演阶段不重新发明卖点。
+随后先替换 `product-promo-content.json` 中的产品、观众、功能证明职责和 `viewer_script`。`viewer_script.segments` 保存全片按观看顺序出现的完整主语言字幕或画面文案；中文项目必须先把全部中文字幕直接展示给用户，讲清产品是什么、解决什么问题、观众能看到什么变化和下一步做什么。内部模块名、采集字段、项目合同和制作流程不进入观众文案。此时不采集界面、不找仓库图片、不写英文、不做配音、方向稿或样片。
+
+用户确认后，把当前 content 文件作为内容阶段的 `content-contract` 提交并批准。后续采集与计划会校验批准文件及 SHA-256，不能用 brief、旧 content、提纲或其它文档顶替。随后把确认内容投影到 brief，每个必选功能再绑定一个用户已授权查看、且进入 `media-sources.json` 的真实 source id；不要把“丝滑、智能、高级”当作证据。产品主张和功能取舍在内容阶段确认，导演阶段不重新发明卖点。
 
 ```powershell
 node scripts/product-promo.mjs validate-brief --project <项目目录>
+
+node scripts/media-project.mjs start-stage --project <项目目录> --stage content
+node scripts/media-project.mjs submit-stage --project <项目目录> --stage content `
+  --artifact product-content:content-contract:document:product-promo-content.json
+node scripts/media-project.mjs approve-stage --project <项目目录> --stage content `
+  --evidence <用户确认完整主语言观众文案的依据>
 ```
 
 ## 三、取得真实产品证据
 
-能通过 URL 复现的产品页面使用 `schemas/product-ui-capture.v1.schema.json` 建立采集规格。每页声明 viewport、等待条件、是否截整页以及要测量或截图的唯一 selector。采集前确认当前账号、页面状态和可公开范围正确；需要登录且无可复现会话时，由用户提供截图或录屏，不用匿名页面替代。
+内容阶段确认后，只有用户明确允许查看或采集的产品页面才使用 `schemas/product-ui-capture.v1.schema.json` 建立采集规格。每页声明 viewport、等待条件、是否截整页以及要测量或截图的唯一 selector。用户只要求制作宣传片、但没有点名页面或授权选择页面时，先询问允许查看的范围；不能自行打开项目图片、旧截图和预览。采集前确认当前账号、页面状态和可公开范围正确；需要登录且无可复现会话时，由用户提供截图或录屏，不用匿名页面替代。
 
 ```powershell
 node scripts/capture-product-ui.mjs `
@@ -68,7 +77,7 @@ node scripts/product-promo.mjs materialize-recipe `
 
 物化只是复制内容寻址的网页包与生成选择记录。必须把示例内容改为当前产品真实内容，并用通用网页合同重新验证；不得直接交付 starter 示例。若最合适的候选是 `reference-only`，根据当前项目从语义重新实现完整 `editable-media` 包，接通 `window.editableMedia` 与 `window.__hf.duration/seek(seconds)`，完成真实浏览器验证后，再把该实现登记为目标原生活动配方。不能绕过状态判断，把上游 demo 路径当作本地实现。
 
-计划中每个镜头必须绑定：选择记录及其哈希、物化包及树哈希、`editable-media.json` 哈希、真实 scene id、连续整数帧范围，以及该场景中存在的至少两个语义状态。镜头只承担一个清楚职责；需要持续阅读的标题、字幕和说明不应被景深、旋转或高速移动破坏。
+计划中每个镜头必须绑定：选择记录及其哈希、物化包及树哈希、`editable-media.json` 哈希、真实 scene id、连续整数帧范围、该场景中存在的至少两个语义状态，以及确认后派生的双语 `caption_cues`。每条 cue 绑定一个 `viewer_script` segment，中英文共用同一帧范围；同一 segment 可以拆成多个短 cue，但拼接后的中文必须逐字等于已确认观众文案。镜头只承担一个清楚职责；需要持续阅读的标题、字幕和说明不应被景深、旋转或高速移动破坏。
 
 功能覆盖表必须让每个必选功能指向至少一个镜头。镜头数量由证明职责决定，不按固定模板凑开场、转场和片尾。
 
@@ -121,11 +130,11 @@ node scripts/product-promo.mjs review `
 node scripts/product-promo.mjs finalize --project <项目目录>
 ```
 
-`render` 按镜头生成可缓存单元，经 MediaFlow Pro 公开时间线装配成完整预览，并写入通用构建报告和 `reports/product-promo-render-run.json` 耗时记录。`review` 重新读取真实成片、构建报告和审阅承诺，生成联系表，同时把机器检查与 Agent 完整观看分开记录。`finalize` 只接受绑定当前成片哈希且已经通过的评审；第一次调用提交最终阶段，批准后再次调用才完成真实交付验证。
+`render` 按镜头生成可缓存单元，经 MediaFlow Pro 公开时间线装配成完整预览，再把中文主字幕和下方英文小字幕烧录进最终 MP4；ASS、中文 SRT 与英文 SRT 均从同一组 cue 派生。入口同时写入通用构建报告和 `reports/product-promo-render-run.json` 耗时记录。`review` 重新读取真实成片、构建报告和审阅承诺，生成联系表，同时把机器检查与 Agent 完整观看分开记录。`finalize` 只接受绑定当前成片哈希且已经通过的评审；第一次调用提交最终阶段，批准后再次调用才完成真实交付验证。
 
 ## 七、阶段验收与停止条件
 
-内容阶段展示 brief 和真实产品证据；导演阶段展示方向摘要与 style frame；综合样片必须包含真实产品内容、主要镜头机制和真实声音；全量预览覆盖全部功能、字幕、声音、节奏和连续性；最终交付建立结构化审阅和交付报告。
+内容阶段先展示完整主语言观众文案并等待确认；此时不展示方向和样片。获得素材查看授权后，导演阶段再展示真实产品证据、方向摘要与 style frame；综合样片必须包含真实产品内容、主要镜头机制和真实声音；全量预览覆盖全部功能、字幕、声音、节奏和连续性；最终交付建立结构化审阅和交付报告。
 
 机器检查要证明网页包可打开、随机定位稳定、帧范围连续、素材与计划哈希一致、音画和编码规格正确。Agent 仍需完整观看同一不可变预览或成片，逐项核对功能证明是否看得懂、文字是否能读、运动是否抢内容、节拍是否真的成立。用户需要观看确认时单独记录。只有 schema 通过、截图存在、联系表正常或节拍置信度高，都不能替代完整观看。
 

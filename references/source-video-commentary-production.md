@@ -12,7 +12,7 @@
 
 完整生产按主入口已经确定的统一五阶段推进：
 
-1. 内容与声音：`prepare` 把真实源片入账，执行媒体检查、镜头变化检测、联系表与可用转写；Agent 必须查看联系表、转写和必要的实际片段，再写 `source-video-commentary-authoring.json`，明确完整解说稿、正式选段、逐段声音职责、声音身份和可选背景音乐。用户确认 authoring 后，`synthesize` 通过 MediaFlow Pro 公开的 `speech.synthesize` 生成真实旁白；完整试听确认后，`materialize` 才生成正式解说稿、`clip-selections.json`、`narration-bundle.json` 和 `source-video-commentary-draft.json`。不能把空模板交给用户补完，也不能只提交提纲。
+1. 内容与声音：`prepare` 只处理用户明确交付给本任务的真实源片，执行媒体检查、镜头变化检测、联系表与可用转写；Agent 必须查看联系表、转写和必要的实际片段，再写 `source-video-commentary-authoring.json`。其中每个 segment 都必须先写完整主语言显示字幕，按观众理解顺序讲清对象、问题、价值、证据和结果；旁白文本只负责同一内容的自然朗读。Agent 先把全量主字幕直接展示给用户，确认 authoring 后，`synthesize` 才能通过 MediaFlow Pro 公开的 `speech.synthesize` 生成真实旁白。完整试听确认后，`materialize` 才生成正式解说稿、`clip-selections.json`、`narration-bundle.json` 和初始 `source-video-commentary-draft.json`；此后才从确认中文派生逐 cue 英文，并逐段判断继续使用当前原片、切入已授权 B-roll 或使用解释型网页画面。不能把空模板、提纲、技术合同或导演计划交给用户冒充字幕内容。
 2. 导演与制作方向：把已确认 draft 投影成绑定真实哈希、整数帧和逐段职责的 production plan。计划确认后冻结，不让渲染器重写角度、解说、选段、声音模式或字幕来源。
 3. 综合样片：使用与全片相同的 portable timeline 投影和声音混合方式，渲染 draft 指定的代表性连续片段。样片必须同时暴露源画面、旁白或原声、字幕和必要的解释画面。
 4. 全量代理或预览：综合样片确认后生成完整 portable timeline、通用 media-build-plan、可编辑 MediaFlow Pro 工程或本地 source bundle、全量预览和真实 build report。
@@ -36,15 +36,15 @@
 
 `media-sources.json` v3 保存所有源文件、来源、权利与哈希。`transcript.json` 保存事实转写；自动转写只有实际听音复核后才能通过。`clip-selections.json` v2 是源素材真实入点和出点的唯一真源。`narration-bundle.json` v1 保存旁白文本、声音身份、音频、时间标记、时长和试听结论。
 
-`source-video-commentary-draft.json` 只写每个语义片段要讲清什么、引用哪个 selection、画面职责、旁白 segment、声音模式、字幕呈现和综合样片范围。它不复制源片时间码。
+`source-video-commentary-draft.json` 只写每个语义片段要讲清什么、引用哪个 selection、画面职责、为什么继续用当前画面或改用 B-roll/解释画面、旁白 segment、声音模式、双语字幕和综合样片范围。`visual`、`visual_reason` 与 `clip-selections.json` 会被计划和真实视频轨直接消费，不另建一份只登记不执行的导演计划。draft 不复制源片时间码。
 
-`source-video-commentary-analysis.json` 是绑定真实源片哈希的派生分析，保存媒体属性、候选场景、联系表和可选转写入口。候选场景始终标记为 `suggestion-only`，Agent 只有查看实际证据后才能在 authoring 中采用、调整或放弃。`source-video-commentary-authoring.json` 是写稿与选段确认对象；它保存源片建议范围，确认后由 `materialize` 投影到唯一正式 `clip-selections.json`，不会直接成为渲染时间线。
+`source-video-commentary-analysis.json` 是绑定真实源片哈希的派生分析，保存媒体属性、候选场景、联系表和可选转写入口。候选场景始终标记为 `suggestion-only`，Agent 只有查看用户已授权处理的源片证据后才能在 authoring 中采用、调整或放弃。`source-video-commentary-authoring.json` 是主字幕、写稿与选段确认对象；它保存源片建议范围，确认后由 `materialize` 投影到唯一正式 `clip-selections.json`，不会直接成为渲染时间线。旁白发音、译文和导演方向都绑定 authoring 哈希，不能反向改变主字幕。
 
-`source-video-commentary-plan.json` 冻结 profile、draft、完整解说稿、素材账本、片段选择、转写、旁白包和可选导演计划的哈希，并解析到真实文件和整数帧。它仍只引用 `clip_selection_id`，不保存 selection 的 start/end。实际节目位置由 plan 的连续整数帧和投影后的 `media-timeline.json` 负责；导入 MediaFlow Pro 后，`project.mfp` 成为唯一活动编辑状态。
+`source-video-commentary-plan.json` 冻结 profile、draft、完整解说稿、素材账本、片段选择、转写和旁白包的哈希，并解析到真实文件和整数帧。它仍只引用 `clip_selection_id`，不保存 selection 的 start/end。实际节目位置由 plan 的连续整数帧和投影后的 `media-timeline.json` 负责；导入 MediaFlow Pro 后，`project.mfp` 成为唯一活动编辑状态。
 
 背景音乐不是仓库中的不明曲库。用户或项目提供的音乐先进入 `media-sources.json`，保存权利、来源和文件哈希；authoring 再确认是否采用、是否循环、基础增益、旁白时和原声时分别降低多少，以及淡入淡出。计划绑定真实音频与时长，portable timeline 生成独立音乐轨并按片段拆分增益；音乐变化会使计划、样片和下游失效。
 
-字幕是呈现合同，不是第二份事实转写。每条字幕必须标记 `source_kind`：`narration` 绑定旁白 segment，`transcript` 绑定已审核 transcript segment，`editorial` 表示经内容确认的解释性标题或压缩文案。烧录、嵌入或 sidecar 只改变交付方式，不改变文字来源。
+字幕是内容阶段的观众确认对象和后续呈现合同，不是第二份事实转写。authoring 中每个 segment 至少提供一条主语言字幕；不能先写旁白、合成声音，再让 `materialize` 用整段旁白自动补字幕。每条字幕必须标记 `source_kind`：`narration` 绑定同一确认内容的旁白 segment，`transcript` 绑定已审核 transcript segment，`editorial` 表示经内容确认的解释性标题或压缩文案。materialize 后为每条中文补一条英文，二者必须使用同一真实 cue 边界；最终烧录时中文在上且更大，英文在下且更小。任一语言单条过长时拆成更短 cue，不让一屏重新塞回整段文字。
 
 ## editable scene 与通用构建
 
@@ -63,13 +63,14 @@
 ```powershell
 node scripts/source-video-commentary.mjs prepare --project <项目目录> --project-id <id> --source <源视频> --source-id source-video --rights-status confirmed --license <权利依据> --transcription-mode auto --language zh
 node scripts/source-video-commentary.mjs confirm-transcript --project <项目目录> --confirmed-by user --evidence <完整听音依据>
-# Agent 查看联系表、转写和实际片段，创建 source-video-commentary-authoring.json
+# Agent 查看获准源片的联系表、转写和必要片段，先写完整主语言字幕与同义旁白
 node scripts/source-video-commentary.mjs import-bgm --project <项目目录> --input <已授权音乐> --source-id bgm-main --rights-status confirmed --license <权利依据>
 node scripts/source-video-commentary.mjs validate-authoring --project <项目目录>
-node scripts/source-video-commentary.mjs confirm-authoring --project <项目目录> --confirmed-by user --evidence <完整稿、选段、声音和音乐确认依据>
+node scripts/source-video-commentary.mjs confirm-authoring --project <项目目录> --confirmed-by user --evidence <完整主字幕、同义旁白、选段、声音和音乐确认依据>
 node scripts/source-video-commentary.mjs synthesize --project <项目目录>
 node scripts/source-video-commentary.mjs confirm-narration --project <项目目录> --confirmed-by user --evidence <完整试听依据>
 node scripts/source-video-commentary.mjs materialize --project <项目目录>
+# Agent 从确认中文派生逐 cue 英文，并把当前画面/B-roll/解释画面决定直接写入 draft 与 clip-selections
 node scripts/source-video-commentary.mjs validate --project <项目目录>
 ```
 

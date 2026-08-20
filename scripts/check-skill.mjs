@@ -395,6 +395,63 @@ for (const [label, text, markers] of [
   }
 }
 
+{
+  const speechSynthesisText = fs.readFileSync(
+    ensurePath("references/speech-synthesis.md"),
+    "utf8",
+  );
+  const animeAvatarProductionText = fs.readFileSync(
+    ensurePath("references/anime-avatar-production.md"),
+    "utf8",
+  );
+  const mediaProjectContractsText = fs.readFileSync(
+    ensurePath("references/media-project-contracts.md"),
+    "utf8",
+  );
+
+  for (const [label, text, marker] of [
+    [
+      "媒体文案职责",
+      skillText,
+      "只有用户明确点名 `clean-copy` 时才交给它处理已有文字",
+    ],
+    [
+      "视频缺少现成声音时的授权",
+      speechSynthesisText,
+      "已经要求制作需要旁白而没有现成声音的媒体成品",
+    ],
+    [
+      "二次元口播默认声音",
+      animeAvatarProductionText,
+      "按主入口当前视频默认声音和语速进入文本转语音",
+    ],
+    [
+      "音频与播客缺少录音时的声音入口",
+      mediaProjectContractsText,
+      "按主入口已经选定的活动声音入口生成",
+    ],
+  ]) {
+    if (!text.includes(marker)) fail(`${label}缺少：${marker}`);
+  }
+
+  for (const [label, text] of [
+    ["合成旁白", speechSynthesisText],
+    ["二次元口播", animeAvatarProductionText],
+    ["音频与播客", mediaProjectContractsText],
+  ]) {
+    for (const staleRule of [
+      "只有用户明确要求合成旁白",
+      "只有用户明确要求 TTS",
+      "用户明确要求合成语音后",
+      "用于用户明确要求为视频",
+    ]) {
+      if (text.includes(staleRule)) {
+        fail(`${label}仍保留过期声音授权规则：${staleRule}`);
+      }
+    }
+  }
+}
+
 for (const filePath of [
   skillPath,
   readmePath,
@@ -432,6 +489,8 @@ for (const schema of [
   "schemas/resource-promotion-candidates.v1.schema.json",
   "schemas/sound-production-profile.v1.schema.json",
   "schemas/media-transcript.v1.schema.json",
+  "schemas/subtitle-quote-image.v1.schema.json",
+  "schemas/subtitle-quote-image-review.v1.schema.json",
   "schemas/production-captions.v1.schema.json",
   "schemas/caption-qc.v1.schema.json",
   "schemas/clip-selections.v2.schema.json",
@@ -440,12 +499,13 @@ for (const schema of [
   "schemas/media-review.v3.schema.json",
   "schemas/media-delivery.v3.schema.json",
   "schemas/media-timeline.v1.schema.json",
-  "schemas/video-direction-plan.v2.schema.json",
+  "schemas/video-direction-plan.v3.schema.json",
   "schemas/video-direction-timing-projection.v1.schema.json",
-  "schemas/explanatory-broll-studio.v1.schema.json",
+  "schemas/explanatory-broll-studio.v2.schema.json",
   "schemas/generation-jobs.v1.schema.json",
   "schemas/video-production-profile-catalog.v1.schema.json",
   "schemas/interview-explainer-draft.v2.schema.json",
+  "schemas/interview-explainer-caption-translations.v1.schema.json",
   "schemas/narration-bundle.v1.schema.json",
   "schemas/interview-explainer-plan.v2.schema.json",
   "schemas/interview-explainer-plan-confirmation.v1.schema.json",
@@ -470,8 +530,79 @@ for (const captionResource of [
   "assets/production-caption-case/captions.srt",
   "assets/production-caption-case/captions.vtt",
   "assets/production-caption-case/caption-qc.json",
+  "scripts/bilingual-video-captions.mjs",
+  "scripts/self-test-bilingual-video-captions.mjs",
 ]) {
   ensurePath(captionResource);
+}
+for (const subtitleQuoteImageResource of [
+  "references/subtitle-quote-image-production.md",
+  "scripts/subtitle-quote-image.py",
+  "scripts/self-test-subtitle-quote-image.py",
+  "schemas/subtitle-quote-image.v1.schema.json",
+  "schemas/subtitle-quote-image-review.v1.schema.json",
+  "THIRD_PARTY_NOTICES.md",
+  "references/visual-production-profile-recipes.md",
+  "references/web-motion-and-derivatives.md",
+  "references/anime-avatar-rendering.md",
+]) {
+  ensurePath(subtitleQuoteImageResource);
+}
+const subtitleQuoteImageText = fs.readFileSync(
+  ensurePath("scripts/subtitle-quote-image.py"),
+  "utf8",
+);
+for (const token of [
+  "baked_subtitles_expected",
+  "baked_subtitles_observed",
+  "transcript_sha256",
+  "technical_ready",
+  "production_ready",
+  "finalize_command",
+  "rights_review_passed",
+  "输出目录已存在，未覆盖",
+  "source_frame",
+  "shared-background.png",
+  "background_frame_mode",
+  "strip_source_center_y",
+  "hero_source_top",
+  "strip_height_mode",
+  "same_size_for_hero_and_strips",
+  "canvas.height 必须为 auto",
+  "content_units",
+  "content_unit_id",
+  "first-subtitle-segment-samples",
+  "显示行数由真实内容决定",
+  "中文主字幕下方保留小号英文副字幕",
+]) {
+  if (!subtitleQuoteImageText.includes(token)) {
+    fail(`视频字幕金句拼图生产器缺少默认无字幕、哈希或不覆盖合同：${token}`);
+  }
+}
+for (const retiredToken of [
+  "citation_font",
+  "visual_width =",
+  "remaining // 4",
+  "len(items) != 5",
+  "hero_primary_px",
+  "strip_primary_px",
+  "strip_source_top",
+  "strip_source_bottom",
+  "--max-items",
+  "args.require_reviewed",
+] ) {
+  if (subtitleQuoteImageText.includes(retiredToken)) {
+    fail(`视频字幕金句拼图仍残留旧卡片版式实现：${retiredToken}`);
+  }
+}
+const subtitleQuoteNoticeText = fs.readFileSync(
+  ensurePath("THIRD_PARTY_NOTICES.md"),
+  "utf8",
+);
+for (const token of ["native-subtitle-quote-image", "Copyright (c) 2026 程意", "MIT License"]) {
+  if (!subtitleQuoteNoticeText.includes(token)) {
+    fail(`视频字幕金句拼图第三方声明不完整：${token}`);
+  }
 }
 for (const textMotionResource of [
   "references/text-motion-production.md",
@@ -504,6 +635,25 @@ for (const stagedMediaResource of [
   "scripts/self-test-media-project-stages.mjs",
 ]) {
   ensurePath(stagedMediaResource);
+}
+const mediaStageTemplate = readJson(ensurePath("assets/media-stage-templates/time-media-production.v1.json"));
+const contentStageTemplate = mediaStageTemplate.stages?.find((item) => item.id === "content");
+const directionStageTemplate = mediaStageTemplate.stages?.find((item) => item.id === "direction");
+if (
+  !contentStageTemplate?.purpose?.includes("完整主语言字幕")
+  || !directionStageTemplate?.purpose?.includes("内容确认后")
+  || !directionStageTemplate?.purpose?.includes("用户已授权素材")
+) fail("通用时间型媒体阶段没有锁定主字幕先确认、再翻译配音和使用授权素材的顺序");
+for (const [file, tokens] of [
+  ["SKILL.md", ["第一份用户可见成果必须是完整主语言字幕内容", "没有明确点名或授权时，不搜索、不枚举、不打开、不预览这些视觉文件"]],
+  ["references/content-to-media.md", ["完整主语言字幕内容", "主字幕未确认时译文字段保持不存在"]],
+  ["references/media-writing.md", ["中文字幕没有确认前，不写英文译文", "内部技术概念只有在观众理解主题确实需要时才保留"]],
+  ["references/subtitle-production.md", ["先确认观众字幕内容", "主字幕未确认前，不生成英文或其它译文"]],
+  ["references/staged-media-production.md", ["主语言字幕正文直接展示给用户", "未经用户点名或授权的项目图片"]],
+  ["references/video-direction-contracts.md", ["完整主语言字幕内容", "未获授权时不得搜索、枚举、打开"]],
+]) {
+  const value = fs.readFileSync(ensurePath(file), "utf8");
+  for (const token of tokens) if (!value.includes(token)) fail(`${file} 缺少观众主字幕优先或视觉素材授权边界：${token}`);
 }
 for (const localMediaResource of [
   "references/production-providers.md",
@@ -548,6 +698,15 @@ for (const token of [
     fail(`任务工作区解析器缺少固定 Skill 内生产边界：${token}`);
   }
 }
+for (const token of [
+  "references/subtitle-quote-image-production.md",
+  "仅支持从视频及事实转写派生字幕拼图",
+  "默认原片无烧录字幕",
+]) {
+  if (!skillText.includes(token)) {
+    fail(`SKILL.md 缺少视频字幕金句拼图的窄范围例外或默认输入合同：${token}`);
+  }
+}
 for (const writer of [
   "analyze-music-beats.mjs",
   "capture-product-ui.mjs",
@@ -568,6 +727,7 @@ for (const writer of [
   "product-promo.mjs",
   "production-captions.mjs",
   "render-web-media-local.mjs",
+  "review-video-scene-realization.mjs",
   "shot-recipe-library.mjs",
   "sound-production-profile.mjs",
   "source-video-commentary.mjs",
@@ -649,6 +809,8 @@ for (const interviewResource of [
   "assets/video-production-profiles/interview-explainer/1.4.0/profile.json",
   "assets/interview-explainer-starter/interview-explainer-draft.json",
   "assets/interview-explainer-starter/narration-bundle.json",
+  "schemas/interview-explainer-caption-translations.v1.schema.json",
+  "scripts/bilingual-video-captions.mjs",
   "scripts/json_schema_contract.mjs",
   "scripts/interview-explainer.mjs",
   "scripts/interview_explainer_common.mjs",
@@ -715,6 +877,45 @@ for (const sourceCommentaryResource of [
 ]) {
   ensurePath(sourceCommentaryResource);
 }
+const sourceCommentaryAuthoringSchema = readJson(ensurePath("schemas/source-video-commentary-authoring.v1.schema.json"));
+if (sourceCommentaryAuthoringSchema?.$defs?.segment?.properties?.captions?.minItems !== 1) {
+  fail("素材解说 authoring 没有强制在配音前提供每段主语言字幕");
+}
+const sourceCommentaryDraftSchema = readJson(ensurePath("schemas/source-video-commentary-draft.v1.schema.json"));
+if (!sourceCommentaryDraftSchema?.$defs?.segment?.required?.includes("visual_reason") || sourceCommentaryDraftSchema?.$defs?.contracts?.properties?.video_direction_plan) {
+  fail("素材解说没有把逐段 B-roll/当前画面决定直接收进实际 draft，或仍保留不消费的导演计划");
+}
+const sourceCommentaryContractText = fs.readFileSync(ensurePath("scripts/source_video_commentary_contract.mjs"), "utf8");
+for (const token of ["commentary-captions-zh", "commentary-captions-en", "createBilingualSubtitleStyles", "visual_reason"]) {
+  if (!sourceCommentaryContractText.includes(token)) fail(`素材解说真实计划与时间线没有消费逐段画面或双语字幕：${token}`);
+}
+const sourceCommentaryPreproductionText = fs.readFileSync(ensurePath("scripts/source_video_commentary_preproduction.mjs"), "utf8");
+for (const token of ["先把全部主字幕直接展示给用户", "必须在生成旁白前写入并确认主语言字幕"]) {
+  if (!sourceCommentaryPreproductionText.includes(token)) fail(`素材解说机器入口缺少主字幕优先门：${token}`);
+}
+const productPromoSchema = readJson(ensurePath("schemas/product-promo.v1.schema.json"));
+if (!productPromoSchema?.$defs?.content?.required?.includes("viewer_script") || !productPromoSchema?.$defs?.plan?.required?.includes("content")) {
+  fail("产品宣传片 content 与计划没有绑定完整主语言观众文案");
+}
+if (!productPromoSchema?.$defs?.shot?.required?.includes("caption_cues") || !productPromoSchema?.$defs?.captionCue?.required?.includes("en")) {
+  fail("产品宣传片计划没有强制绑定确认后的短语级中英文字幕 cue");
+}
+const productPromoScriptText = fs.readFileSync(ensurePath("scripts/product-promo.mjs"), "utf8");
+for (const token of ["assertCurrentContentApproved", "不能用 brief、其它文档或旧主字幕代替", "normalizeBilingualCaptionPairs", "最终视频必须烧录中文主字幕和下方英文小字幕"]) {
+  if (!productPromoScriptText.includes(token)) fail(`产品宣传片计划缺少当前观众文案批准门：${token}`);
+}
+const productPromoRuntimeText = fs.readFileSync(ensurePath("scripts/product_promo_runtime.mjs"), "utf8");
+for (const token of ["writeBilingualCaptionFiles", "product-promo-bilingual.ass", "visible_in_standalone_output: true"]) {
+  if (!productPromoRuntimeText.includes(token)) fail(`产品宣传片渲染器没有把双语 cue 烧录到最终 MP4：${token}`);
+}
+const githubIntroSchema = readJson(ensurePath("schemas/github-project-intro.v1.schema.json"));
+if (!githubIntroSchema?.$defs?.plan?.required?.includes("content") || githubIntroSchema?.$defs?.content?.properties?.primary_language?.const !== "zh-CN") {
+  fail("GitHub 项目介绍计划没有绑定先确认的中文字幕内容");
+}
+const githubIntroScriptText = fs.readFileSync(ensurePath("scripts/github-project-intro.mjs"), "utf8");
+for (const token of ["prepareGithubProjectIntro", "不能用 brief、提纲或旧字幕代替", "中文字幕不是从已确认主字幕逐字派生"]) {
+  if (!githubIntroScriptText.includes(token)) fail(`GitHub 项目介绍机器入口缺少中文字幕优先门：${token}`);
+}
 for (const videoProgressResource of [
   "references/web-visual-production.md",
   "assets/video-progress-bar/editable-media.json",
@@ -762,6 +963,7 @@ for (const directionResource of [
   "references/external-generation-jobs.md",
   "scripts/create-video-direction-plan.mjs",
   "scripts/validate-video-direction-plan.mjs",
+  "scripts/review-video-scene-realization.mjs",
   "scripts/manage-generation-job.mjs",
   "scripts/validate-generation-jobs.mjs",
   "scripts/self-test-video-generation-chain.mjs",
@@ -778,6 +980,20 @@ for (const directionResource of [
   "assets/video-generation-case/approval.txt",
 ]) {
   ensurePath(directionResource);
+}
+for (const legacyDirectionSchema of [
+  "schemas/video-direction-plan.v2.schema.json",
+  "schemas/explanatory-broll-studio.v1.schema.json",
+]) {
+  if (fs.existsSync(path.join(skillRoot, legacyDirectionSchema))) {
+    fail(`视频创意闭环旧合同仍留在活动 schema 目录：${legacyDirectionSchema}`);
+  }
+}
+for (const archivedDirectionSchema of [
+  "archive/schemas/video-direction-plan.v2.schema.json",
+  "archive/schemas/explanatory-broll-studio.v1.schema.json",
+]) {
+  ensurePath(archivedDirectionSchema, `视频创意闭环旧合同归档 ${archivedDirectionSchema}`);
 }
 for (const directionJson of [
   "assets/video-generation-case/direction-draft.json",
@@ -881,8 +1097,8 @@ for (const token of [
 }
 for (const token of [
   "不适用于独立静态卡、社交卡、纯文字卡、轮播图或独立封面",
-  "说明本 Skill 不再提供该能力并停止",
-  "不自动换成动画、视频或其它载体",
+  "其它独立静态请求停止",
+  "不改做视频",
   "不创建 HTML、画布或图片",
   "也不把请求升级成结构化网页",
   "案例和模板本身不创建独立静态卡入口",
@@ -895,6 +1111,9 @@ for (const token of [
 }
 const webVisualReferenceText = fs.readFileSync(
   ensurePath("references/web-visual-production.md"),
+  "utf8",
+) + "\n" + fs.readFileSync(
+  ensurePath("references/web-motion-and-derivatives.md"),
   "utf8",
 );
 const mediaProductionRuntimeText = fs.readFileSync(
@@ -1593,6 +1812,14 @@ if (!videoProfileValidation.ok) {
 if (failures.length === 0) {
   runChecked(
     process.execPath,
+    [path.join(scriptDir, "self-test-bilingual-video-captions.mjs")],
+    "共享视频字幕中上英下—同 cue 时间—短语上限—ASS/SRT 派生检查",
+  );
+}
+
+if (failures.length === 0) {
+  runChecked(
+    process.execPath,
     [path.join(scriptDir, "render-color-palette-library.mjs"), "--validate-only"],
     "六张典型配色卡、颜色职责与文字对比度检查",
   );
@@ -1987,7 +2214,7 @@ if (runFullChecks && failures.length === 0) {
   runChecked(
     process.execPath,
     [path.join(scriptDir, "self-test-explanatory-broll.mjs"), "--mediaflow"],
-    "导演计划—活动模板选择—真实时间投影—MediaFlow Pro 时间线—五种导出真实链路检查",
+    "导演计划—实际画面返修—项目专用包—真实时间投影—MediaFlow Pro 时间线—五种导出真实链路检查",
   );
 }
 
@@ -2053,7 +2280,6 @@ if (runFullChecks && failures.length === 0) {
     "scripts/compose-anime-avatar-inset.py",
     "scripts/self-test-anime-avatar-inset.py",
     "assets/anime-avatar-libraries/",
-    "plan → confirm-plan → render",
     "夜希数字人",
   ];
   for (const token of requiredActiveAvatarTokens) {
@@ -2185,8 +2411,7 @@ if (runFullChecks && failures.length === 0) {
   const requiredInterviewTokens = [
     "references/interview-explainer-production.md",
     "scripts/interview-explainer.mjs",
-    "list-profiles",
-    "plan → confirm-plan → render → review → finalize",
+    "完整活动命令链",
     "MediaFlow Pro",
   ];
   for (const token of requiredInterviewTokens) {
@@ -2203,7 +2428,6 @@ if (runFullChecks && failures.length === 0) {
   }
   for (const token of [
     "references/github-project-intro-production.md",
-    "create → validate → plan → confirm-plan → render → review → finalize",
     "game.honkai-star-rail.silverwolf.default",
   ]) {
     if (!skillText.includes(token)) fail(`SKILL.md 缺少 GitHub 项目介绍正式路由：${token}`);
@@ -2258,6 +2482,10 @@ if (runFullChecks && failures.length === 0) {
       !== "schemas/interview-explainer-draft.v2.schema.json"
     || activeInterviewProfile?.schemas?.plan
       !== "schemas/interview-explainer-plan.v2.schema.json"
+    || activeInterviewProfile?.schemas?.caption_translations
+      !== "schemas/interview-explainer-caption-translations.v1.schema.json"
+    || activeInterviewProfile?.algorithm_defaults?.caption_mode !== "burned-in"
+    || JSON.stringify(activeInterviewProfile?.algorithm_defaults?.caption_languages) !== JSON.stringify(["zh-CN", "en"])
     || !activeInterviewProfile?.project_configurable?.includes("source_card_footage_box")
     || !activeInterviewProfile?.project_configurable?.includes("source_card_fit")
     || !activeInterviewProfile?.project_configurable?.includes("source_card_focus")
@@ -2276,10 +2504,13 @@ if (runFullChecks && failures.length === 0) {
     "interview_explainer_plan.mjs",
     "interview_explainer_render.mjs",
     "interview_explainer_review.mjs",
+    "bilingual-video-captions.mjs",
+    "self-test-bilingual-video-captions.mjs",
     "video-production-profile-catalog.mjs",
     "shot-recipe-library.mjs",
     "create-video-direction-plan.mjs",
     "validate-video-direction-plan.mjs",
+    "review-video-scene-realization.mjs",
     "explanatory-broll-studio.mjs",
     "self-test-explanatory-broll.mjs",
     "create-video-progress-bar.mjs",
@@ -2310,8 +2541,8 @@ if (runFullChecks && failures.length === 0) {
   if (runFullChecks && failures.length === 0) {
     runChecked(
       process.execPath,
-      [path.join(scriptDir, "self-test-interview-explainer-v2.mjs")],
-      "正式素材导入—听音转写—选段—网页场景—采访 v2 计划消费者检查"
+      [path.join(scriptDir, "self-test-interview-explainer-v2.mjs"), "--render"],
+      "正式素材导入—听音转写—选段—网页场景—双语字幕—采访 v2 真实成片检查"
     );
 
     const coldStartRoot = path.join(
@@ -2340,6 +2571,20 @@ if (runFullChecks && failures.length === 0) {
   }
 }
 
+if (runFullChecks && failures.length === 0) {
+  const subtitleQuotePython = process.env.VISUAL_MULTIMEDIA_PYTHON
+    || (process.platform === "win32" ? "python.exe" : "python3");
+  runChecked(
+    subtitleQuotePython,
+    [
+      path.join(scriptDir, "self-test-subtitle-quote-image.py"),
+      "--project",
+      path.join(validationWorkspace.path, "subtitle-quote-self-test"),
+    ],
+    "无烧录字幕视频—首条背景候选—完整观点与显示行—自动高度拼图—最终复核与权利交付链路",
+  );
+}
+
 if (failures.length > 0) {
   finishValidationStorage("failed");
   failures.forEach((message) => console.error(`FAIL ${message}`));
@@ -2350,7 +2595,7 @@ if (failures.length > 0) {
 const successMessages = {
   fast: `visual-multimedia fast 通过：静态合同、schema、资源索引、许可证、${catalog?.cases?.length || 0} 个网页案例、${layoutTemplateCatalog?.templates?.length || 0} 个中性布局模板与脚本入口均通过验证`,
   browser: `visual-multimedia browser 通过：fast 档位、${browserProjects.length} 个真实网页包、确定性时间、透明视频进度条、文字动效与产品功能宣传片浏览器链路均通过验证`,
-  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、透明视频进度条、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片、GitHub 项目介绍、素材解说型与采访原声讲解型完整链路均通过验证`,
+  full: `visual-multimedia full 通过：browser 档位、${textMotionValidation.effects?.length || 0} 个确定性文字动效、视频字幕金句拼图、最终媒体案例、口播私人库、注册资源、真实代理、视频导演、产品功能宣传片、GitHub 项目介绍、素材解说型与采访原声讲解型完整链路均通过验证`,
 };
 finishValidationStorage("completed");
 console.log(successMessages[checkMode]);

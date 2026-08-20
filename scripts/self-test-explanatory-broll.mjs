@@ -46,6 +46,12 @@ function runNode(args, label, cwd = SKILL_ROOT) {
   return output ? JSON.parse(output) : null;
 }
 
+function runNodeFailure(args, label, cwd = SKILL_ROOT) {
+  const result = spawnSync(process.execPath, args, {cwd, encoding: "utf8", windowsHide: true});
+  if (result.status === 0) throw new Error(`${label}本应失败却返回成功`);
+  return `${result.stdout || ""}\n${result.stderr || ""}`;
+}
+
 function loadPlaywright() {
   const candidates = [process.cwd(), SCRIPT_DIR, ...(process.env.NODE_PATH ? process.env.NODE_PATH.split(path.delimiter) : [])];
   for (const candidate of candidates) {
@@ -157,9 +163,74 @@ function mediaFlowChain() {
     "--draft", path.join(projectRoot, "direction-draft.json"),
     "--created-at", "2026-08-04T00:00:00.000Z",
   ], "导演计划与自动镜头选择");
-  const plan = JSON.parse(fs.readFileSync(planPath, "utf8"));
-  const recipe = plan.scenes[0].visual_plan.recipe;
-  assert(recipe?.recipe_id === "explain-process-flow" && recipe.variant_id === "landscape-full", "导演计划没有自动选择流程活动模板");
+  let plan = JSON.parse(fs.readFileSync(planPath, "utf8"));
+  const recipe = plan.scenes[0].visual_plan.realization;
+  assert(recipe?.kind === "recipe" && recipe.recipe_id === "explain-process-flow" && recipe.variant_id === "landscape-full", "导演计划没有自动选择流程语义骨架");
+  assert(recipe.review === null, "自动选择的配方不应冒充已经看过实际画面");
+  runNode([
+    path.join(SCRIPT_DIR, "review-video-scene-realization.mjs"),
+    "--plan", planPath,
+    "--segment", "input-to-result",
+    "--status", "accepted",
+    "--summary", "已查看流程关键状态，关系可读；先接受语义骨架，再制作项目专用实现。",
+    "--reviewed-at", "2026-08-04T00:01:00.000Z",
+  ], "同一创作者接受实际配方画面");
+  plan = JSON.parse(fs.readFileSync(planPath, "utf8"));
+  assert(plan.scenes[0].visual_plan.realization.review?.status === "accepted", "接受结论没有绑定实际配方包");
+
+  const customPackage = path.join(projectRoot, "components", "project-specific", "input-to-result");
+  fs.mkdirSync(path.dirname(customPackage), {recursive: true});
+  fs.cpSync(PACKAGE_ROOT, customPackage, {recursive: true, errorOnExist: true, force: false});
+  const customManifestPath = path.join(customPackage, "editable-media.json");
+  const customManifest = JSON.parse(fs.readFileSync(customManifestPath, "utf8"));
+  customManifest.component = {
+    ...customManifest.component,
+    id: "explanatory-broll-case-project",
+    name: "解释型 B-roll 案例项目专用实现",
+  };
+  writeJson(customManifestPath, customManifest);
+  const revisedProposal = structuredClone(plan.scenes[0].creative_proposal);
+  revisedProposal.composition = "输入沿左侧窄轨进入中央执行区，已检查输出在右侧扩大并保留最长阅读停顿。";
+  revisedProposal.revision_reason = "实际预览中三个节点权重过于平均，改为让结果态获得明确的构图主次。";
+  const proposalPath = path.join(projectRoot, "direction", "revised-input-to-result-proposal.json");
+  writeJson(proposalPath, revisedProposal);
+  const metadataOnly = runNodeFailure([
+    path.join(SCRIPT_DIR, "review-video-scene-realization.mjs"),
+    "--plan", planPath,
+    "--segment", "input-to-result",
+    "--status", "revised",
+    "--summary", "只改组件声明不应被当成视觉返修。",
+    "--package", customPackage,
+    "--scene", "process-flow",
+    "--variant", "landscape-full",
+    "--proposal", proposalPath,
+    "--reviewed-at", "2026-08-04T00:02:00.000Z",
+  ], "只改组件声明的假返修");
+  assert(metadataOnly.includes("视觉实现源码与当前实现相同"), "假返修没有沿视觉实现指纹被拒绝");
+  const customEntryPath = path.join(customPackage, customManifest.entry);
+  const customEntry = fs.readFileSync(customEntryPath, "utf8");
+  const revisedEntry = customEntry.replace(
+    "  </style>",
+    "    .card.result { flex-grow: 1.32; background: color-mix(in srgb, var(--surface), var(--positive) 8%); }\n  </style>",
+  );
+  assert(revisedEntry !== customEntry, "项目专用案例没有找到可返修的视觉源码位置");
+  fs.writeFileSync(customEntryPath, revisedEntry, "utf8");
+  runNode([
+    path.join(SCRIPT_DIR, "review-video-scene-realization.mjs"),
+    "--plan", planPath,
+    "--segment", "input-to-result",
+    "--status", "revised",
+    "--summary", "已根据关键状态和连续预览返修构图，结果态现在是唯一视觉重点。",
+    "--package", customPackage,
+    "--scene", "process-flow",
+    "--variant", "landscape-full",
+    "--proposal", proposalPath,
+    "--reviewed-at", "2026-08-04T00:02:00.000Z",
+  ], "同一创作者返修并采纳项目专用网页包");
+  plan = JSON.parse(fs.readFileSync(planPath, "utf8"));
+  const realization = plan.scenes[0].visual_plan.realization;
+  assert(realization.kind === "project-package" && realization.review.status === "revised", "返修后的项目专用实现没有进入导演计划");
+  assert(plan.scenes[0].creative_proposal.revision_reason, "返修没有保留创意原因");
   const sourceTimeline = path.join(projectRoot, "speech-timeline.json");
   writeJson(sourceTimeline, {
     protocol: "visual-multimedia-real-speech-timeline-case",
@@ -192,7 +263,7 @@ function mediaFlowChain() {
     const result = runNode([
       path.join(SCRIPT_DIR, "explanatory-broll-studio.mjs"), "export",
       "--project", projectRoot,
-      "--selection-id", recipe.selection.file.split("/").at(-1).replace(/\.json$/u, ""),
+      "--selection-id", applied.clips[0].selection_id,
       "--format", format,
     ], `MediaFlow Pro ${format} 导出`);
     assert(fs.statSync(result.file, {throwIfNoEntry:false})?.isFile() && result.bytes > 0, `${format} 没有生成真实文件`);

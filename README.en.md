@@ -29,7 +29,9 @@
 
 <!-- readme-header:end -->
 
-Visual Multimedia is a media-production Agent Skill. It chooses among technical diagrams, web animation, video, audio programs, and podcasts. Standalone static cards, social cards, text cards, carousels, and standalone covers have been retired; the Skill does not silently turn those requests into animation or video.
+Visual Multimedia is a media-production Agent Skill. It chooses among technical diagrams, web animation, video, audio programs, and podcasts.
+
+Standalone static cards, social cards, text cards, carousels, and standalone covers have been retired; the only narrow static exception is a transcript-bound quote collage derived from an existing video. The Skill does not silently turn other static requests into animation or video.
 
 It then develops the title, voiceover, captions, program structure, and companion copy required by that medium, while keeping one active source of truth through preview, render, review, and delivery.
 
@@ -50,7 +52,12 @@ Preserve the nodes, interfaces, and data-flow relationships, then export a PNG f
 
 ```text
 Use $visual-multimedia to cut this interview and its reviewed transcript into a 90-second video.
-Keep the speaker's original voice and show me the clip selection and narration plan first.
+Keep the speaker's original voice and show me the complete main-language captions from the reviewed transcript before clip selection and visual direction.
+```
+
+```text
+Use $visual-multimedia to select enough complete ideas from this interview without burned-in captions,
+then build a compact bilingual quote collage whose rows all reuse the first caption's background frame.
 ```
 
 ```text
@@ -58,9 +65,14 @@ Use $visual-multimedia to turn this final script into a multi-scene HTML explana
 that can be advanced manually and exported as a continuous animation.
 ```
 
+Narrated Chinese video uses Chinese main captions with smaller English captions on the same real-audio boundaries by default:
+
+- An original video first presents its complete Chinese caption content for approval; only then does it derive English captions, pronunciation text, voice, visual direction, and a representative sample.
+- Original sync sound or an existing voiceover first gets a listening-verified main caption track, then takes timing from the real audio.
+
 If the request names the Skill but does not say whether it needs a sample or a finished asset, the default flow recommends one medium, prepares confirmable media copy, and stops for a decision. File creation, external services, and final export begin only when the requested scope allows them.
 
-For fewer clarification rounds, include the confirmed source, intended audience outcome, required format or dimensions, usable assets, and whether external tools, downloads, or paid generation are allowed.
+For fewer clarification rounds, include the confirmed source, intended audience outcome, required format or dimensions, which assets may be inspected and used, and whether external tools, downloads, or paid generation are allowed.
 
 ## What it can deliver
 
@@ -68,9 +80,10 @@ For fewer clarification rounds, include the confirmed source, intended audience 
 | --- | --- | --- |
 | Technical comparisons and system diagrams | Confirmed concepts, relationships, and visual direction | Readable static mechanism diagrams or stable-overview animations with inspected states |
 | GIFs, explainers, and code animation | Semantic steps and playback behavior | A deterministic web timeline plus requested GIF or video |
-| Explanatory B-roll and packaging | Final voiceover, content relationships, layout, and real audio timing | Selected active templates, timeline-ready segments, and PNG, GIF, video, or transparent outputs |
+| Explanatory B-roll and packaging | Approved main-language captions or an existing voiceover, content relationships, layout, and real audio timing | Selected active templates, timeline-ready segments, and PNG, GIF, video, or transparent outputs |
 | Multi-scene HTML presentations | Final copy, scene order, and manual, automatic, or hybrid playback | One editable web source with interactive and continuous-export paths |
 | Interview, lecture, screen-recording, and live-action editing | Original media, reviewed transcript, clip bounds, and delivery target | Editable timeline, captions, mix, review evidence, and final media |
+| Video quote collage | Existing video, factual transcript, complete ideas, and their Chinese/English display rows | An auto-height hero-plus-strips collage, first-caption-only background candidates, hash-bound review, and an accurate delivery report |
 | Audio and podcasts | Recordings, program structure, narration, and sound requirements | Audio timeline, mix, and required companion files |
 | Reference-video matching | Exact reference range, target media, and desired fidelity | A separated exact-replay or parameterized-rebuild result with frame and viewing evidence |
 | Anime presenter video | A registered character or approved master/calibration media, plus real speech | Versioned character resources, reviewed timing, and a complete presenter track or inset |
@@ -98,10 +111,11 @@ Task routing, required references, and stop conditions are defined in [SKILL.md]
 ## Production model
 
 1. Confirm content before choosing a medium. Visuals and sound clarify a claim; they do not become a second source of facts.
-2. Write medium-specific copy before building visuals or audio. Already approved copy is split only where the medium requires it.
-3. Sample the earliest unconfirmed layer. Copy, style, composition, motion, and sound are approved separately before a full build.
+2. Write medium-specific copy before building visuals or audio. Narrated video confirms the complete main-language captions first; translation, pronunciation text, voice, visual direction, and samples are derived from that approved content.
+3. Sample the earliest unconfirmed layer. Copy, style, composition, motion, and sound are approved separately. B-roll is used only when it adds evidence, setting, action, emotion, an outcome, or edit continuity—not as an automatic cut for every sentence.
 4. Keep one active production source for each result. Web media stays in its web package; video and audio stay in their active timelines.
-5. Verify the real consumer. A valid schema or successful script is not delivery evidence until the browser, player, editor, or export chain reads the result.
+5. Use only authorized visual material. Images, video frames, and brand assets are not enumerated, previewed, adopted, or used to set the style unless the user provided them or explicitly allowed inspection.
+6. Verify the real consumer. A valid schema or successful script is not delivery evidence until the browser, player, editor, or export chain reads the result.
 
 ### Choosing a video execution provider
 
@@ -154,7 +168,7 @@ Changes to editable-media, source representation, deterministic time, portable t
 
 ## Not a fit for
 
-- planning, producing, modifying, or exporting standalone static cards, social cards, text cards, carousels, or standalone covers;
+- planning, producing, modifying, or exporting standalone static cards, social cards, text cards, carousels, or standalone covers, except the transcript-bound video quote collage described above;
 - researching a topic or deciding what matters in a long source;
 - writing a standalone long-form article, newsletter, short post, or thread;
 - planning a physical shoot, crew, equipment, or production day;
@@ -176,12 +190,14 @@ Use the appropriate upstream capability to establish confirmed content, or a dow
 - Original source code, the Skill, scripts, schemas, templates, and documentation are licensed under the [Mozilla Public License 2.0](LICENSE).
 - Personal avatars, characters, brand material, project-owned or project-generated media, renders, and previews are excluded from MPL-2.0 and remain reserved under [ASSET-LICENSE](ASSET-LICENSE). Third-party material remains subject to its own terms.
 - The React starter's direct dependencies, exact versions, and licenses are recorded in its [third-party notices](assets/react-media-starter/THIRD_PARTY_NOTICES.md), which are also included in every sealed build. The starter contains no Remotion source, Composition, Renderer, or other Remotion runtime component.
+- The MIT upstream, adaptation scope, and full license for the video quote collage are recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 [LICENSING.md](LICENSING.md) is the authoritative path-level statement of scope, exclusions, and third-party coverage.
 
 ## Third-party resources and acknowledgements
 
 - [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft): semantic material for 104 shot cards and 161 style variants under `assets/shot-recipe-library/recipes/` was rewritten from the Apache-2.0 upstream, Copyright 2026 Wei Yihao. Upstream Remotion TSX, product screenshots, audio, preview MP4 files, and Gallery implementation are not copied. See the [shot-recipe notices](assets/shot-recipe-library/THIRD_PARTY_NOTICES.md).
+- [chengyi-ai/native-subtitle-quote-image](https://github.com/chengyi-ai/native-subtitle-quote-image): its exact-frame capture and hero-plus-strips composition were adapted into a transcript-bound pipeline with readable bilingual rows, one reused background frame, compact spacing, review, and delivery reporting. It is MIT-licensed, Copyright 2026 Cheng Yi; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - `sakura-animate-text`: the text-motion families in `assets/text-motion-library/text-motion-runtime.js` are a deterministic reimplementation under the MIT License, Copyright 2026 Sakura. The upstream WAAPI loop, random delays, CDN loader, framework adapters, sample copy, fonts, and site design are not copied. See the [text-motion notices](assets/text-motion-library/THIRD_PARTY_NOTICES.md).
 - [Xiaolai](https://github.com/lxgw/kose-font): `assets/web-card-cases/handdrawn-system-collaboration-flow/assets/fonts/Xiaolai-Regular.ttf` is used by the real hand-drawn Chinese case under the SIL Open Font License 1.1; the complete license is stored beside the font.
 - [Lucide](https://github.com/lucide-icons/lucide): the same case embeds selected Lucide Static 1.28.0 paths. Lucide's original icons use ISC; Feather-derived icons including Server, Monitor, and Database also retain Cole Bemis's MIT terms. See the [case notices](assets/web-card-cases/handdrawn-system-collaboration-flow/THIRD_PARTY_NOTICES.md).

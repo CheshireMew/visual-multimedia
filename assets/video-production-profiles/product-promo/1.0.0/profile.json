@@ -25,6 +25,9 @@
     "call-to-action"
   ],
   "invariants": [
+    "先向用户展示并确认 viewer_script 中的完整主语言观众文案；确认前不采集界面、不写译文、不生成声音、不建立方向和样片",
+    "项目图片、旧截图和历史预览只有在用户明确点名或授权范围后才能查看和采用",
+    "观众文案用普通语言讲清产品、问题、变化和行动，不把内部模块、字段和制作流程当成卖点",
     "必选功能都绑定至少一个实际镜头和可追溯产品证据",
     "镜头配方只决定当前镜头职责，不替代项目视觉方向和真实产品内容",
     "reference-only 配方不能进入构建计划，必须先建立并验证目标原生 editable-media 包",
@@ -33,6 +36,7 @@
     "网页镜头只使用 window.editableMedia 与 window.__hf.duration/seek(seconds) 作为编辑状态和确定性时间边界",
     "强节拍只在已确认音乐需要驱动剪辑时启用，分析网格是派生证据而不是第二套播放时钟",
     "声音、字幕和画面都以同一构建计划和已确认计划哈希为准",
+    "主语言观众文案确认后才写英文小字幕；每条中英文共用同一短语 cue 时间，中文在上且更大，英文在下且更小",
     "机器检查、Agent 完整观看和用户观看确认分别记录",
     "正式入口沿 render、review、finalize 完成真实成片、结构化评审和交付验证，并记录逐步耗时与缓存命中"
   ],
@@ -43,7 +47,8 @@
     "render_sampling_divisor": 1,
     "transition": "direct-cut",
     "audio_strategy": "continuous-master",
-    "caption_mode": "none",
+    "caption_mode": "burned-in",
+    "caption_languages": ["zh-CN", "en"],
     "atomic_publish": true
   },
   "project_configurable": [
@@ -53,7 +58,6 @@
     "frame_rate",
     "music",
     "sound_effects",
-    "caption_mode",
     "colors",
     "typography",
     "motion",
@@ -61,6 +65,10 @@
     "render_sampling_divisor"
   ],
   "stop_conditions": [
+    "当前 product-promo-brief.json 尚未作为 content-contract 获得用户批准",
+    "计划在主语言观众文案确认前采集画面、生成译文、声音、方向或样片",
+    "任一已确认观众文案没有进入短语级双语 cue，或最终 MP4 没有同时显示中文主字幕与英文小字幕",
+    "计划查看或采用用户未点名、未授权的项目图片或页面",
     "必选功能没有实际证据或没有镜头覆盖",
     "页面采集、镜头选择、实现包或计划记录的文件和哈希不一致",
     "计划未确认或确认后任一生产输入发生变化",

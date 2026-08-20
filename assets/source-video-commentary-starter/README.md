@@ -1,8 +1,8 @@
 # 素材解说型视频 starter
 
-只有一条未经处理的源视频时，先运行 `prepare`。它会创建项目、把源片内容寻址入账，生成媒体检查、候选场景、联系表、写作包，并在 MediaFlow Pro 转写能力可用时生成待复核 transcript。Agent 查看真实联系表、转写和必要原片后创建 `source-video-commentary-authoring.json`，不能让用户手工补 starter。
+只有一条未经处理的源视频时，先运行 `prepare`。它会创建项目、把用户明确交付给本任务的源片内容寻址入账，生成媒体检查、候选场景、联系表、写作包，并在 MediaFlow Pro 转写能力可用时生成待复核 transcript。Agent 查看真实联系表、转写和必要原片后创建 `source-video-commentary-authoring.json`；每个 segment 先写面向观众的主语言字幕，并把全量字幕直接展示给用户确认。不能让用户手工补 starter，也不能先合成旁白再自动补字幕。
 
-人物原声必须先完成 transcript 听音确认。authoring 由用户确认后，`synthesize` 使用其中已经确认的注册声音和语速生成真实 WAV；完整试听通过后，`materialize` 才把 authoring 投影为完整解说稿、正式 `clip-selections.json`、`narration-bundle.json` 和本目录中的 draft。背景音乐必须先用 `import-bgm` 入账并在 authoring 中明确采用；没有音乐时保存 `null`。
+人物原声必须先完成 transcript 听音确认。authoring 由用户确认后，`synthesize` 使用其中已经确认的注册声音和语速生成真实 WAV；完整试听通过后，`materialize` 才把 authoring 投影为完整解说稿、正式 `clip-selections.json`、`narration-bundle.json` 和本目录中的 draft。此时 Agent 才从确认中文字幕派生逐 cue 英文小字幕，并逐段比较继续使用当前原片、采用已授权 B-roll 与使用解释型网页画面，把结果直接写入 draft 与 clip selections。背景音乐必须先用 `import-bgm` 入账并在 authoring 中明确采用；没有音乐时保存 `null`。
 
 `source-video-commentary-draft.json` 只写语义片段、使用哪段已复核 selection、画面职责、逐段声音职责和字幕呈现，不复制源片入点、出点或项目时间线。运行公开入口：
 
@@ -11,7 +11,7 @@ node scripts/source-video-commentary.mjs prepare --project <项目目录> --proj
 node scripts/source-video-commentary.mjs confirm-transcript --project <项目目录> --confirmed-by user --evidence "已完整听音并修正转写"
 # Agent 创建 source-video-commentary-authoring.json
 node scripts/source-video-commentary.mjs validate-authoring --project <项目目录>
-node scripts/source-video-commentary.mjs confirm-authoring --project <项目目录> --confirmed-by user --evidence "已确认完整稿、选段、声音和音乐"
+node scripts/source-video-commentary.mjs confirm-authoring --project <项目目录> --confirmed-by user --evidence "已确认完整主字幕、同义旁白、选段、声音和音乐"
 node scripts/source-video-commentary.mjs synthesize --project <项目目录>
 node scripts/source-video-commentary.mjs confirm-narration --project <项目目录> --confirmed-by user --evidence "已完整试听全部旁白"
 node scripts/source-video-commentary.mjs materialize --project <项目目录>

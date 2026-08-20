@@ -25,6 +25,10 @@
     "summary"
   ],
   "invariants": [
+    "先把原声译文、背景、解释和总结整理成完整中文字幕并向用户展示；确认前不生成译文下游、解释场景、导演方向和样片",
+    "中文字幕确认后保持 draft 与内容阶段哈希不变；英文小字幕单独绑定同一 draft 和逐条中文 cue，不能反过来改写中文",
+    "字幕和旁白以普通观众能理解人物、问题、证据和结论为准，不把内部缩写和制作术语当成内容",
+    "除用户交付的原片外，其它项目图片、旧封面和历史预览只有在明确授权后才能查看和采用",
     "事实转写绑定原片 source id 与 SHA-256",
     "人物表达选段经过实际听音和语义边界复核",
     "原声证据画面保留同期声并显示原采访时间码",
@@ -36,7 +40,7 @@
     "解释场景使用 editable-media v6 网页真源并由当前含义决定图形",
     "确认记录绑定不可变计划哈希，渲染器不重新选段或重排",
     "所有片段使用整数帧覆盖完整节目时间",
-    "字幕模式明确为烧录、内嵌轨或外置文件并验证真实可见方式",
+    "最终视频烧录中文主字幕和下方英文小字幕，两层共用真实声音边界并采用短语级 cue",
     "机器检查、Agent 完整观看和用户观看确认分别记录",
     "项目状态、审阅、构建报告和交付合同绑定同一最终成片哈希"
   ],
@@ -48,6 +52,7 @@
     "render_sampling_divisor": 1,
     "transition": "direct-cut",
     "caption_mode": "burned-in",
+    "caption_languages": ["zh-CN", "en"],
     "source_caption_timing": "reviewed-transcript-boundaries",
     "burned_in_caption_format": "target-playres-ass",
     "atomic_publish": true,
@@ -69,7 +74,6 @@
     "frame_rate",
     "voice",
     "loudness",
-    "caption_mode",
     "colors",
     "typography",
     "motion",
@@ -79,6 +83,10 @@
     "render_sampling_divisor"
   ],
   "stop_conditions": [
+    "完整中文字幕内容阶段尚未获得用户确认",
+    "英文小字幕缺失、没有绑定当前已确认 draft，或中英文没有共用同一 cue 边界",
+    "计划在中文字幕确认前生成解释场景、导演成果或样片",
+    "计划查看或采用用户未授权的其它项目图片",
     "原片、转写、选段、旁白或场景包的真实文件与记录不一致",
     "人物选段未听音、旁白未试听或文本与声音不一致",
     "计划未确认或确认后任一输入哈希改变",
@@ -91,6 +99,7 @@
   "public_entry": "scripts/interview-explainer.mjs",
   "schemas": {
     "draft": "schemas/interview-explainer-draft.v2.schema.json",
+    "caption_translations": "schemas/interview-explainer-caption-translations.v1.schema.json",
     "narration_bundle": "schemas/narration-bundle.v1.schema.json",
     "plan": "schemas/interview-explainer-plan.v2.schema.json",
     "confirmation": "schemas/interview-explainer-plan-confirmation.v1.schema.json",

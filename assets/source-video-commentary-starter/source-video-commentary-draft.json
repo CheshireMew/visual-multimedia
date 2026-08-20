@@ -26,8 +26,7 @@
     "media_sources": "media-sources.json",
     "transcript": null,
     "clip_selections": "clip-selections.json",
-    "narration_bundle": "narration-bundle.json",
-    "video_direction_plan": null
+    "narration_bundle": "narration-bundle.json"
   },
   "background_music": null,
   "integrated_sample": {
@@ -40,6 +39,7 @@
       "order": 1,
       "purpose": "填写这一段必须讲清的内容",
       "visual_role": "hook",
+      "visual_reason": "说明为什么继续使用当前原片，或为什么换成已授权 B-roll 或解释型画面",
       "visual": {
         "kind": "source-clip",
         "clip_selection_id": "replace-with-reviewed-clip-id",
@@ -58,6 +58,15 @@
           "end_offset_seconds": 1,
           "text": "替换为来自已审核转写或明确编辑的字幕",
           "language": "zh-CN",
+          "source_kind": "editorial",
+          "source_segment_ids": []
+        },
+        {
+          "id": "segment-01-caption-01-en",
+          "start_offset_seconds": 0,
+          "end_offset_seconds": 1,
+          "text": "Replace with the English subtitle derived after the Chinese subtitle is confirmed.",
+          "language": "en",
           "source_kind": "editorial",
           "source_segment_ids": []
         }

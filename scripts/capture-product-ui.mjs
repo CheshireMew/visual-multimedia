@@ -18,6 +18,7 @@ import {
   writeJson,
 } from "./interview_explainer_common.mjs";
 import {assertSkillTaskPath} from "./media-task-workspace.mjs";
+import {assertStageApproved, validateProjectState} from "./media_project_state.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
@@ -67,6 +68,15 @@ export async function captureProductUi({projectRoot, specPath, reportPath, execu
   assertJsonSchema(spec, SCHEMA_PATH, "产品页面采集规格");
   const state = readJson(path.join(project, "media-project-state.json"));
   if (state.project_id !== spec.project_id) throw new Error("采集规格与媒体项目 project_id 不一致");
+  if (state.profile === "product-promo@1.0.0") {
+    const validation = validateProjectState(path.join(project, "media-project-state.json"));
+    if (!validation.ok) throw new Error(`媒体项目状态无效：\n- ${validation.errors.join("\n- ")}`);
+    assertStageApproved(state, "content");
+    const contentArtifact = state.artifacts.find((item) => item.stage_id === "content" && item.role === "content-contract");
+    if (!contentArtifact || contentArtifact.file !== "product-promo-content.json") {
+      throw new Error("产品画面采集前必须先批准当前 product-promo-content.json 中的完整主语言观众文案");
+    }
+  }
   const relativeSpec = relativeProjectPath(project, specFile);
   relativeProjectPath(project, reportFile);
   ensureNewFile(reportFile, "采集报告");

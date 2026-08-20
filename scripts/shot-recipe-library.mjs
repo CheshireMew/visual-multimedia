@@ -72,6 +72,30 @@ export function sha256Tree(root) {
   return hash.digest("hex");
 }
 
+export function sha256EditableMediaImplementation(root) {
+  const hash = crypto.createHash("sha256");
+  for (const entry of treeEntries(root)) {
+    if (/(^|\/)(?:README(?:\.[^/]+)?|LICENSE(?:\.[^/]+)?|NOTICE|THIRD_PARTY_NOTICES\.md)$/iu.test(entry.relative)) {
+      continue;
+    }
+    let bytes = fs.readFileSync(entry.absolute);
+    if (entry.relative === "editable-media.json") {
+      const manifest = JSON.parse(bytes.toString("utf8"));
+      if (manifest.component && typeof manifest.component === "object") {
+        manifest.component = {...manifest.component};
+        delete manifest.component.id;
+        delete manifest.component.name;
+      }
+      bytes = Buffer.from(stableText(manifest), "utf8");
+    }
+    hash.update(entry.relative);
+    hash.update("\0");
+    hash.update(bytes);
+    hash.update("\n");
+  }
+  return hash.digest("hex");
+}
+
 function relativeInside(root, target, label) {
   const relative = path.relative(path.resolve(root), path.resolve(target));
   if (!relative || relative === ".") return ".";

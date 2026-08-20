@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.explanatory-broll-studio.v2",
+  "title": "Explanatory B-roll Studio State v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "project_id", "editor_project", "sequence_id", "track_id", "fps", "timing_projections", "clips", "updated_at"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-explanatory-broll-studio"},
+    "version": {"const": 2},
+    "project_id": {"$ref": "#/$defs/id"},
+    "editor_project": {"type": "string", "minLength": 1},
+    "sequence_id": {"$ref": "#/$defs/id"},
+    "track_id": {"$ref": "#/$defs/id"},
+    "fps": {"type": "integer", "minimum": 1, "maximum": 240},
+    "timing_projections": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/fileIntegrity"}},
+    "clips": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["selection_id", "selection", "realization_kind", "segment_id", "recipe_id", "style_id", "source_package", "source_package_sha256", "source_manifest_sha256", "scene_id", "variant_id", "runtime_package", "runtime_package_sha256", "runtime_manifest_sha256", "asset_id", "clip_id", "timeline_start_frame", "duration_frames"],
+        "properties": {
+          "selection_id": {"$ref": "#/$defs/id"},
+          "selection": {"anyOf": [{"$ref": "#/$defs/fileIntegrity"}, {"type": "null"}]},
+          "realization_kind": {"enum": ["recipe", "project-package"]},
+          "segment_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+          "recipe_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+          "style_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+          "source_package": {"type": "string", "minLength": 1},
+          "source_package_sha256": {"$ref": "#/$defs/sha"},
+          "source_manifest_sha256": {"$ref": "#/$defs/sha"},
+          "scene_id": {"$ref": "#/$defs/id"},
+          "variant_id": {"$ref": "#/$defs/id"},
+          "runtime_package": {"type": "string", "minLength": 1},
+          "runtime_package_sha256": {"$ref": "#/$defs/sha"},
+          "runtime_manifest_sha256": {"$ref": "#/$defs/sha"},
+          "asset_id": {"$ref": "#/$defs/id"},
+          "clip_id": {"$ref": "#/$defs/id"},
+          "timeline_start_frame": {"type": "integer", "minimum": 0},
+          "duration_frames": {"type": "integer", "minimum": 1}
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"realization_kind": {"const": "recipe"}}},
+            "then": {"properties": {"selection": {"type": "object"}, "recipe_id": {"type": "string"}, "style_id": {"type": "string"}}}
+          },
+          {
+            "if": {"properties": {"realization_kind": {"const": "project-package"}}},
+            "then": {"properties": {"selection": {"type": "null"}, "recipe_id": {"type": "null"}, "style_id": {"type": "null"}}}
+          }
+        ]
+      }
+    },
+    "updated_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "sha": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "fileIntegrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "bytes"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha"},
+        "bytes": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

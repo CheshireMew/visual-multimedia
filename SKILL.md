@@ -1,6 +1,6 @@
 ---
 name: visual-multimedia
-description: 把已确认的内容真源或素材制作成可修改、可预览、可导出的技术图解、GIF、HTML 动画、Live Photo、产品功能宣传片、其它视频、音频或播客，并审查或写作标题、口播、字幕、节目结构和配套帖子。Use when the user asks to 选择载体、审查或制作媒体文案、诊断口播 AI 组织痕迹、维护口播私人库、制作可编辑网页视觉与多场景演示、导出技术图解/GIF/Live Photo、制作或对齐视频、剪辑实拍/访谈/录屏、建立或使用无需 Live2D 的二次元口播角色、编辑音频或播客；不用于独立静态卡、社交卡、纯文字卡、轮播图或独立封面，也不用于 PPTX、研究或核查主题、从长材料筛选分享内容、独立纯文字内容、长文、拍摄规划、社媒运营或发布。
+description: 把已确认的内容真源或素材制作成可修改、可预览、可导出的技术图解、GIF、HTML 动画、Live Photo、产品功能宣传片、其它视频、音频或播客，并审查或写作标题、口播、字幕、节目结构和配套帖子。Use when the user asks to 选择载体、审查或制作媒体文案、诊断口播 AI 组织痕迹、维护口播私人库、制作可编辑网页视觉与多场景演示、导出技术图解/GIF/Live Photo、制作或对齐视频、剪辑实拍/访谈/录屏、从视频与事实转写制作字幕金句拼图、建立或使用无需 Live2D 的二次元口播角色、编辑音频或播客；不用于其它独立静态卡、社交卡、纯文字卡、轮播图或独立封面，也不用于 PPTX、研究或核查主题、从长材料筛选分享内容、独立纯文字内容、长文、拍摄规划、社媒运营或发布。
 ---
 
 # Visual Multimedia
@@ -13,10 +13,10 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 - 从确认内容中选择载体，起草或修改标题、画面文字、口播、字幕、节目结构和媒体配套帖子，并按需维护口播声音、案例和钩子库。
 - 把技术图解、B-roll、动态图解、GIF 和多场景动画做成可编辑网页，再以手动、自动或混合播放派生所需媒体。
-- 剪辑讲课、访谈、实拍、录屏、音频或播客，并把网页图形、字幕版式和动画装配进混合成品。
+- 剪辑讲课、访谈、实拍、录屏、音频或播客，并从已有视频派生字幕金句拼图。
 - 按明确参考复刻或对齐视频；建立或采用二次元口播角色；制作采访原声讲解型视频或有真实证据的 GitHub 项目介绍视频。
 
-不适用于独立静态卡、社交卡、纯文字卡、轮播图或独立封面的策划、制作、修改和导出，也不适用于内容研究与事实核查、可脱离媒体独立成立的短文或长文、现场拍摄规划、PPTX/Keynote、账号运营、排期、上传、发送和发布。用户明确要求这些独立静态成品时，说明本 Skill 不再提供该能力并停止；不自动换成动画、视频或其它载体。用户提供现成静态图作为网页、Live Photo、视频或音频项目素材时，仍可在对应成品内使用。
+不适用于独立静态卡、社交卡、纯文字卡、轮播图或独立封面，也不适用于研究核查、独立文章、拍摄规划、PPTX/Keynote、账号运营与发布。仅支持从视频及事实转写派生字幕拼图，不扩展为其它静态设计；其它独立静态请求停止，不改做视频。
 
 用户只点名本 Skill、未说明成品时，只在仍支持的载体中给出首选及理由；没有合适载体就在媒体文案后停止，不为避开静态卡强加运动。用户明确要受支持成品时直接进入对应功能区，不比较载体。
 
@@ -28,11 +28,11 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 ## 当前视频默认基线
 
-带语音视频若无另行指定，默认显示中英文双语字幕，原语言为主层、译文为次层。需要合成旁白时，唯一解析注册声音 `game.honkai-star-rail.silverwolf.default`，用 GPT-SoVITS `speech.synthesize` 以 `speed_factor: 1.25` 生成，不在后期拉伸。用户提供真人原声或现成旁白时保留；用户明确指定的声音、语速或字幕要求覆盖本基线，并使受影响下游失效。
+中文视频最终默认显示中文主字幕，下方为英文小字幕，两层共用真实声音边界。原创中文视频先交完整中文字幕，确认后再做英文、声音、方向和样片；中文变化使下游失效。合成旁白默认使用注册声音 `game.honkai-star-rail.silverwolf.default`，由 GPT-SoVITS `speech.synthesize` 以 `speed_factor: 1.25` 生成。中文句子中的英文、缩写和英文专名保留正式拼写，与中文整句混合合成；实际试听确认读音异常后，才在项目发音表中改用中文谐音并重新整句合成。字幕和屏幕文字仍用正式写法，不默认拆分中英文音频。用户指定其它读法或声音时覆盖这一基线。真人原声或现成旁白先确认复核转写整理出的主字幕，再按真实声音定时。
 
 ## 入口判断与内部边界
 
-先确定用户要的成品、内容是否已经确认、目标受众、现有素材、输出规格和当前允许的动作，再选择一条最短完整路径。根入口只负责路由；各功能区只接收完成本成品所需的内容、素材和确认结果：
+先确定成品、确认内容、受众、已授权素材和规格，再选路径。没有明确点名或授权时，不搜索、不枚举、不打开、不预览这些视觉文件。各功能区只接收所需内容、已授权素材和确认结果：
 
 - 用户已经指定独立静态卡、社交卡、纯文字卡、轮播图或独立封面时，按目标边界停止，不创建 HTML、画布或图片，也不把请求升级成结构化网页。
 - 用户没有指定载体或确实需要跨媒体组合时，才读取 `references/content-to-media.md`。
@@ -50,7 +50,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 内容真源不完整时，只补齐媒体表达所需的结构，不自行发明事实、第一人称经历、来源或作者立场。需要外部研究或事实核查时，先说明缺口并取得对应授权；未获得授权时停在现有材料能够支持的范围。
 
-网页视觉、图解或视频包装的输入是研究材料、长稿或尚未确认的草稿时，先交给 `clean-copy` 清理重复、空话、无关信息和含糊指代；它只负责已有文字，不选择版式、字号、尺寸或配色。已经确认最终上图文字时跳过清理，后续不得擅自改写。视觉制作只读取确认后的观众可见文字。
+网页视觉、图解或视频包装的输入是研究材料、长稿或尚未确认的草稿时，由当前媒体文案路径直接整理成观众可见文字；完整视频内容读取 `references/voiceover-writing.md`，轻量画面文字读取 `references/media-writing.md`。只有用户明确点名 `clean-copy` 时才交给它处理已有文字。已经确认最终上图文字时不再改写，视觉制作只读取确认后的观众可见文字。
 
 个人或系列内容带有上游确认的 `editorial_position` 与 `voice_contract` 时分别读取：前者决定媒体文案强调什么、如何评价和说到哪里，后者决定视角、推进、句子节奏、幽默和结尾。两者缺失时沿当前内容真源与用户已确认文案制作，不从视觉参考、制作配方或平台模板推导作者观点和口吻。
 
@@ -72,13 +72,13 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 ### 2. 先完成并筛选媒体文案
 
-制作前先固定标题、口播、字幕、节目结构，以及引语、数字、归因和事实边界。媒体说明和配套文字走轻量路径；独立观点、论证或叙事交给 `content-writing`。
+制作前先固定标题、节目结构、主字幕和事实边界。原创带语音视频的第一份用户可见成果必须是完整主语言字幕内容，不是提纲、英文、配音、方向或样片；确认后再派生其它内容。
 
 技术图解、网页视觉和视频包装只接收已经确认的最终上图文字；内容尚未确认时先完成上一节的清理与确认，不在视觉功能区再建一套筛选规则。
 
-先分清各通道职责。陌生对象首次出现时，用一句话说明它是什么、与当前内容有什么关系。旁白承担主要解释时，单独听也能理解对象、关系和结论；画面补充空间、状态、数量和情绪。视觉主导可少说，但应明确哪些理解来自画面。样稿只验证对应层面，不截短确认内容。
+主字幕按观众理解顺序写，用普通话说明对象、用途、观看价值和事实结果。内部字段与维护术语不进入字幕；必要术语先解释观众能复述的关系。确认后再分配旁白与画面职责。
 
-先选写作动作：只审查就诊断后停止；新写、扩写、重组或改写完整口播时，净化材料，读取声音证据、完整案例和独立钩子，以可转述的具体关系开头，再做内容、结构、作者与听众、听感回读。AI 句式只作为上层问题症状，不建禁词表。错字、格式、等义压缩、短标题、数据标签和简短字幕走轻量路径。
+先选写作动作：只审查就诊断后停止；新写、扩写、重组或改写完整内容时，先确定观众和观看价值，再从确认材料、声音证据及用户指定或适用的完整参考直接写主语言字幕。制作顺序、内部合同和验收不自动成为观众内容。确认后才派生朗读文本。AI 句式是上层问题症状，不建禁词表；术语取舍由观众理解需要决定。错字、格式、等义压缩、短标题、数据标签和简短字幕走轻量路径。
 
 每轮修改综合原始请求、活动真源、有效确认和最新反馈。“在当前基础上优化”保留真源、已确认内容和未被否定的约束。用户指出丑、字小、太密或空白过多时，先定位为内容重排、局部换装或整体改版，只让受影响层失效。“太丑”本身不等于整体改版；沿当前基础优化时不得换模板或从空白重建。内容或比例变化后重新计算整张画布。
 
@@ -86,11 +86,11 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 个人或系列媒体文案先按 `editorial_position` 选信息与评价方向，再从明确指令、声音样稿、口播真源和同语境合格候选生成 `voice_contract`。缺少个人声音证据时保持普通直接，不从案例、钩子或 AI 草稿推导。时长与密度由成品职责决定。
 
-已确认最终上图文字时不再改写；只有材料或长稿时先由 `clean-copy` 形成并确认上图文字。技术图解、网页视觉和视频包装按阅读目的选择文字、表格、图形、图片或组合；图形仅在更易理解或用户明确要求时使用。只要求文案时交付后停止。
+已确认最终上图文字时不再改写；只有材料或长稿时由当前媒体文案路径形成并确认上图文字。技术图解、网页视觉和视频包装按阅读目的选择文字、表格、图形、图片或组合；图形仅在更易理解或用户明确要求时使用。只要求文案时交付后停止。
 
 ### 3. 建立语义片段和时间结构
 
-时间型媒体先把确认文案拆成连续语义片段，记录新增信息、声音范围、画面职责、进入退出和真实时长来源。代码生成网页把片段变成场景和步骤；已有实拍或录屏的剪辑只把它们作为选取真实素材、定格和切点的依据，不建立网页场景。生成或录制声音后，以实际音频更新边界。制作备注、暂停提示、调试信息和审阅标签不进入观众可见字段。
+时间型媒体先把已确认的主语言字幕稿拆成连续语义片段，记录新增信息、声音范围、画面职责、进入退出和真实时长来源。用户未点名 B-roll 也要逐段判断：能增加证据、场景、动作、情绪、结果或剪切连贯性才采用，否则保持现有画面，不逐句切换。代码生成网页把片段变成场景和步骤；实拍或录屏剪辑只从已明确提供或授权的素材选取、定格和切点，不建网页场景。生成、采用或录制声音后，以实际音频更新时间边界，但不反向改写已经确认的字幕含义。制作备注、暂停提示、调试信息和审阅标签不进入观众可见字段。
 
 代码生成网页的运动按当前含义选择：持续现象使用片段内循环；方向性变化完成一次演进后保持结果；反馈关系使用保留累积状态的局部循环；比较保持可同时读取；概念切换承接前后对象；结论允许稳定停留。需要延长网页画面时，只延长当前片段的运动或状态。已有素材怎样补足时长只由视频后期路径决定。
 
@@ -125,11 +125,11 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 新的或实质重做的长视频、混合视频、音频和播客统一读取 `references/staged-media-production.md`，按五阶段提交真实成果并停止；只有全自动授权才连续推进。反馈使最早受影响阶段及下游失效，保留未受影响上游；明确的低成本局部修改不为形式重走五阶段。
 
-进入付费模型、批量制作、大规模转码或高成本渲染前，必须已有足以判断方向的确认成果。综合样片使用真实素材、声音和主要合成元素，覆盖会重复出现的版式或声音家族；完整预览覆盖全量内容、节奏、字幕、声音和连续性。参考样本只影响用户要求参考的层面。
+进入导演方向、样片、付费模型、批量制作、大规模转码或高成本渲染前，原创视频必须已经有用户确认的完整主语言字幕内容。综合样片使用已经允许的真实素材、声音和主要合成元素，覆盖会重复出现的版式或声音家族；完整预览覆盖全量内容、节奏、字幕、声音和连续性。参考样本只影响用户要求参考的层面。
 
 ### 7. 制作、检查与交付
 
-制作时只使用用户提供或明确允许获取的素材。外部、用户提供和生成素材进入项目时使用唯一的 v3 `media-sources.json` 保存文件哈希、原片与代理关系、取得方式、权利、生成过程和声音身份；素材导入与时间线采用是两个独立动作。使用注册的创作者素材、通用制作素材或完整网页包时先解析稳定库 id 与不可变版本，再显式采用到当前项目的既有消费者边界；注册表不能替代素材账本或时间线。外部素材搜索、付费素材、模型调用、依赖安装和大规模转码分别需要当前任务的明确授权。复制或公开使用媒体前核对许可证、署名和用户提供的使用边界。
+制作只使用用户提供或明确允许查看的素材；未授权项目图片不得枚举、打开、预览、采用或影响风格。素材进入项目后由 v3 `media-sources.json` 记录文件、来源、权利、生成过程和声音身份；导入与采用分开。注册资源先解析稳定 id 和版本再显式采用，不能替代素材账本。外部搜索、付费素材、模型调用、安装和大规模转码均需明确授权；公开使用前核对许可与署名。
 
 先检查活动真源能够打开、播放和修改，再在真实浏览器或媒体播放器中检查关键状态，最后检查用户点名的导出结果。技术检查至少覆盖文字与字幕、画面裁切、层级、时间、音画同步、声音可懂度、编码、尺寸、时长和文件可用性；内容完整、受众可懂和视觉方向分别按活动真源与确认风格判断。技术通过不能写成内容或视觉通过，待确认样稿不能称为最终设计。
 
@@ -142,51 +142,52 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 任务 | 读取资源 | 读取目的 |
 | --- | --- | --- |
 | 需要在本地基础制作、MediaFlow Pro 原生增强和 HyperFrames 网页渲染之间选择 | `references/production-providers.md` | 先按真源和交付要求选定提供方；没有 MediaFlow Pro 时仍使用完整本地能力，不在失败后静默换路 |
-| 已确认内容或旁白需要新视觉导演，或视频需要决定真人、无人物及其它已授权画面谁出镜 | `references/video-direction-contracts.md` | 绑定来源快照、确认画面职责、选择并验证出镜方式，保存机器可读方向计划但不复制剪辑时间线 |
+| 主语言字幕内容已确认，视频需要新视觉导演，或需要决定真人、无人物及其它已授权画面谁出镜 | `references/video-direction-contracts.md` | 只从已确认字幕和已授权素材建立方向，绑定来源快照并保存机器可读计划，不复制剪辑时间线 |
 | 外部生成服务的素材尚未下载并进入本地素材账本 | `references/external-generation-jobs.md` | 在素材入账前管理规范化输入、费用授权、一次性提交锁、远程恢复、实际费用和本地化 |
 | 选择载体、确定媒体文案职责、分镜或节目结构 | `references/content-to-media.md` | 确定内容真源、受众称呼、媒体职责和文案合同 |
-| 新写、扩写、实质重组、审查或审查后改写完整口播、旁白、播客独白或主持连接语 | `references/voiceover-writing.md` | 分开读取声音证据与创作参考，从内容和结构根因消除模型组织痕迹，交付诊断或可直接朗读的活动口播 |
+| 新写、扩写、实质重组、审查或审查后改写原创视频完整内容、口播、旁白、播客独白或主持连接语 | `references/voiceover-writing.md` | 视频先交付面向观众的主语言字幕稿，确认后派生朗读文本；音频成品仍交付可直接朗读正文 |
 | 起草或派生标题、数据标签、简短字幕、画面文字、发音文本、说明文字或媒体配套帖子 | `references/media-writing.md` | 执行轻量媒体文字、等义压缩与确定性派生，不重新发明完整口播 |
 | 定位或维护口播声音与完整案例 | `references/voiceover-reference-library.md` | 管理声音资格、完整案例和案例索引 |
 | 检索、保存、更新或验证独立口播钩子 | `references/voiceover-hook-library.md` | 使用独立入口与索引，把连续原文交给口播写作 |
-| 自动选择或继承视觉与动效配方 | `references/visual-production-profiles.md` | 继承共享视觉核心，并按静态、时间与交互载体选择对应实现层 |
+| 选择或继承视觉与动效配方 | `references/visual-production-profiles.md`、`references/visual-production-profile-recipes.md` | 只加载当前适用配方 |
 | 查看、比较、采用或管理视觉案例与布局模板 | `references/visual-resource-governance.md` | 隔离证据检查、视觉采用、模板实例化和项目风格 |
 | 没有用户、品牌、参考或已确认项目配色，需要为当前视觉选颜色 | `references/color-palette-production.md` | 从六张内置卡中选择一张，只继承颜色职责，不套用版式或字体 |
 | 文字进入技术图解、字幕包装、网页动画或视频画面，并需要选择、继承或核对字体 | `references/typography-production.md` | 按内容职责选择标题、正文和元信息字体，记录真实来源与字重，并证明浏览器实际命中 |
 | 建立或继承项目、系列的声音素材角色与混音规则 | `references/sound-production-profiles.md` | 使用独立声音档案引用真实 audio source id，不把声音规则混入视觉档案 |
 | 查找、注册或采用创作者素材、通用制作素材、网页组件，或从项目晋升可复用成果 | `references/reusable-media-resources.md` | 使用不可变注册版本，经现有素材账本或完整网页包边界进入项目，并保存采用与晋升证据 |
-| 多场景图文、GIF、HTML/React 动效或可拆分图形对象动效 | `references/web-visual-production.md`、`references/semantic-graphic-motion-production.md` | 建立 v6 网页真源；对象按语义部件重建、运动和审计 |
+| 多场景图文、GIF、HTML/React 或可拆分对象动效 | `references/web-visual-production.md`、`references/web-motion-and-derivatives.md`、`references/semantic-graphic-motion-production.md` | 建立 v6 网页真源，按内容关系制作场景与对象 |
 | 技术概念、接口、工具或系统关系需要静态机制图、对比图，或保持全貌不变的动态流程图 | `references/technical-diagram-production.md` | 分配画面信息职责，建立可读机制、正交连接、稳定图层、同色流光和浏览器几何验收 |
 | 把已确认的网页、桌面应用或移动产品功能制作成有真实界面证据的宣传片 | `references/product-promo-production.md` | 使用正式 profile、页面采集、镜头配方状态、功能覆盖和计划确认，并沿 `render → review → finalize` 完成真实构建、审阅与交付；拒绝把仅参考配方冒充已实现镜头 |
-| 把已经确认内容真源和真实证据的 GitHub 仓库制作成约一分钟横版介绍视频 | `references/github-project-intro-production.md` | 使用 `github-project-intro@1.0.0`，围绕一个核心主张组织 UI、终端、文档或输出证据；默认采用注册的“最近”银狼开场、1.25 倍速和中英文字幕，沿 `create → validate → plan → confirm-plan → render → review → finalize` 执行 |
+| 把已经确认内容真源和真实证据的 GitHub 仓库制作成约一分钟横版介绍视频 | `references/github-project-intro-production.md` | 使用 `github-project-intro@1.0.0`；沿 `create → 确认中文 content → prepare → validate → plan → confirm-plan → 综合样片 → render → review → finalize` 执行，未授权项目图片不进入候选 |
 | 口播需要流程、时间线、层级、因果、工具链、比较、拆解、指标、前后证据或真人分屏等解释型画面 | `references/explanatory-broll-production.md` | 由导演计划自动选择活动模板；MediaFlow Pro 对应能力就绪时优先用它装配和导出，否则保留本地完整制作 |
 | 用户明确要求按参考视频复刻、匹配、逐帧对齐或比较候选成片 | `references/reference-video-alignment.md` | 确定真实参考区间、目标还原层级、精确回放或参数化重建路径，并建立资产、运行时和交付证据 |
 | 文字本身的进入、退出、替换、强调或逐字素、逐词、逐行构建承担主要表达职责 | `references/text-motion-production.md` | 从行为去重的正式目录选择效果，把分段和执行配方接入既有确定性时间线，并用当前真实文字审阅 |
 | 网页视觉中使用照片、截图、产品图、生成图或视频帧 | `references/visual-asset-placement.md` | 确认素材来源，按场景槽位处理主体、文字安全区、截图完整性和各输出变体裁切 |
 | 新的或实质重做的长视频、混合视频、音频、播客，或其它跨轮高成本时间型媒体 | `references/staged-media-production.md` | 用通用五阶段提交真实成果、逐阶段验收、记录全自动授权并控制局部失效范围 |
 | 视频、音频或播客实际进入素材导入、Faster-Whisper XXL 转写、片段选择、长任务状态、审阅和分级交付 | `references/media-project-contracts.md` | 使用唯一素材账本、事实转写、原片与代理关系、项目状态、结构化审阅和机器可读交付报告 |
-| 制作带语音的视频，或从最终旁白、最终合并视频、已复核转写生成可交付字幕 | `references/media-project-contracts.md`、`references/subtitle-production.md` | 先应用当前视频字幕基线，再以最终声音为时间真源，生成唯一字幕时间线、SRT、VTT 和短语级质检报告，交给烧录、外挂字幕与画面提示共同消费 |
+| 制作带语音的视频，或从最终旁白、最终合并视频、已复核转写生成可交付字幕 | `references/media-project-contracts.md`、`references/subtitle-production.md` | 原创视频先确认主语言字幕内容；最终声音只提供时间，再生成唯一字幕时间线、SRT、VTT 和短语级质检报告 |
+| 从已有视频与事实转写制作字幕金句拼图 | `references/media-project-contracts.md`、`references/subtitle-quote-image-production.md` | 默认原片无烧录字幕；按完整观点选内容、按可读性拆显示行；中上英下、不显出处；全部同字号并复用第一句背景，每行只保留文字与最小内边距 |
 | 把网页素材交给 MediaFlow Pro 继续精调、混剪、配音、字幕、外部转写，或导出透明覆盖层与普通视频 | `references/structured-media-editor-cli.md` | 从本机配置定位公开 CLI，只调用本轮声明的网页、透明媒体、Faster-Whisper XXL 或 GPT-SoVITS 操作 |
 | 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 editable-media v6 网页包建立渲染副本，调用 HyperFrames 并核对真实成片 |
 | 剪辑已有实拍、讲课、访谈、录屏或混合视频 | `references/video-post-production.md` | 先建立产品无关时间线；MediaFlow Pro 对应能力就绪时优先迁移为原生工程，否则本地完成；像素界面只承担受限操作 |
-| 从电影片段、纪录素材、游戏录像、课程、产品实拍、活动记录或录屏制作视频解说，包括只有一条未经处理的源视频时 | `references/source-video-commentary-production.md` | 使用 `source-video-commentary@1.0.0`；从 `prepare` 完成入账、镜头分析、联系表和可用转写，Agent 查看真实证据后写并确认 authoring，再由 `synthesize → confirm-narration → materialize → validate → confirm-content → plan → confirm-plan → sample → confirm-sample → render → review → confirm-preview → finalize` 完成配音、BGM、可编辑 MediaFlow Pro 工程和成片 |
-| 建立、采用或使用无需 Live2D 的二次元中文口播角色 | `references/anime-avatar-production.md` | 生成校准视频前先交付完整提示词；收到素材后由 Agent 审查、标注和验证，不把内部 JSON 与技术计划交给用户；再从角色库和真实语音生成口播轨 |
-| 把二次元角色轨放入底片固定圆形或方形窗口 | `references/anime-avatar-production.md` | 用同一固定裁切、遮罩、坐标和音轨装配全片；无声区间继续消费角色轨中的动态闭嘴待机 |
+| 从电影片段、纪录素材、游戏录像、课程、产品实拍、活动记录或录屏制作视频解说，包括只有一条未经处理的源视频时 | `references/source-video-commentary-production.md` | 使用 `source-video-commentary@1.0.0`；从 `prepare` 完成获准源片入账、镜头分析、联系表和可用转写，Agent 先写并展示 authoring 中的完整主语言字幕，确认后再沿 `synthesize → confirm-narration → materialize → validate → confirm-content → plan → confirm-plan → sample → confirm-sample → render → review → confirm-preview → finalize` 制作 |
+| 建立或使用无需 Live2D 的二次元口播角色 | `references/anime-avatar-production.md`、`references/anime-avatar-rendering.md` | Agent 建库并从真实语音生成口播轨 |
+| 把二次元角色轨放入固定角色窗 | `references/anime-avatar-rendering.md` | 固定裁切和坐标；无声区间保持动态闭嘴 |
 | 已经选定原声片段，并要用“可选原声钩子 → 必要背景 → 原声证据 → 紧接解释 → 独立总结”讲清访谈 | `references/interview-explainer-production.md` | 采用采访原声讲解型 profile，在 Skill 外项目中冻结计划、保留原声时间码、逐段渲染并分开记录机器、Agent 与用户审阅 |
 | 用户明确要求 Live Photo | `references/live-photo-delivery.md` | 用同一静态构图生成配对文件，检查元数据、`.pvt`、联系表和设备导入 |
 | 编辑录音、访谈、音频或播客 | `references/media-project-contracts.md` | 进入项目合同后继续读取音频与播客后期流程，建立音频时间线并完成清理、结构、混音和附属产物 |
 | 用户要求合成旁白、点名 EdgeTTS 或 GPT-SoVITS，或需要为视频、动画、播客生成语音 | `references/speech-synthesis.md` | 选择声音入口，派生合成文本，生成原始语音和时间信息，并按真实时长交给媒体时间线 |
 | 实际导出或交付媒体 | `references/review-and-export.md` | 沿真实链路检查源文件、预览、编码和成品 |
 
-处理媒体文案时，先按“先完成媒体文案”选定动作，再确定真源、受众、渠道职责和文案合同。完整口播依次读取表中的声音与案例库、独立钩子和口播写作说明，把多份完整原文共同交给成文；库不可用时继续，不初始化、不凑数，用户明确要求贴近个人声音但没有可靠证据时返回缺口。轻量媒体文字和确定性派生不读取私人库。长内容转视频的确认旁白，以及采访原声讲解型的背景、逐段解释和总结，先完成完整口播再进入导演与渲染。
+媒体文案先确定动作、真源、受众和渠道职责。完整内容按需读取声音案例、钩子和口播说明；库不可用时不初始化、不凑数。原创视频、长内容转视频和采访讲解都先交付完整主语言字幕稿，确认后才派生发音、译文并进入导演与渲染。
 
 结构化网页与时间型视觉按需读取视觉配方、网页制作和语义运动说明。文字动效需要时由 `scripts/text-motion-library.mjs` 选择效果，并物化 `assets/text-motion-library/text-motion-runtime.js` 与 `assets/text-motion-library/text-motion-binding.js`。
 
-新的或实质重做的长视频、混合视频、音频和播客先读 staged production，再读 media project contracts，并从 `assets/media-project-starter/` 建立项目；综合样片后按通用构建计划拆成可缓存单元。真实人物素材先建立绑定原片哈希、经听音复核的事实转写，再选片段。带声音的无实拍视频、二次元口播分别进入表中对应流程。只有明确采用“背景—原声—解释—总结”时才运行 `scripts/interview-explainer.mjs`；只有已确认仓库证据并明确制作 GitHub 项目介绍时才运行 `scripts/github-project-intro.mjs`，不把普通访谈或无界面仓库硬套成 profile。关键区间不明确时先做联系表，再验证真实选段。
+长视频、混合视频、音频和播客先读 staged production，再从 media project starter 建立项目；综合样片后按构建计划拆分。真实人物素材先建立绑定原片哈希、经听音复核的事实转写。字幕拼图只沿 `scripts/subtitle-quote-image.py` 的 `candidates → validate → render → finalize` 运行；采访专用 profile 只运行 `scripts/interview-explainer.mjs`，不把普通素材硬套进去。
 
 需要生成声音时读取 `references/speech-synthesis.md`；音频可视化只让网页负责视觉部分，独立播客封面不在本 Skill 制作。用户明确要求 Live Photo 时才读取对应说明。实际导出只读取 `references/review-and-export.md` 中与当前结构化网页、视频或音频相符的部分。
 
-口播案例和钩子分别使用 `scripts/voiceover_reference_library.py`、`scripts/voiceover_hook_library.py`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用，角色窗用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型沿 `list-profiles → plan → confirm-plan → render → review → finalize` 执行。GitHub 项目介绍沿 `create → validate → plan → confirm-plan → render → review → finalize` 执行，并记录耗时、缓存与真实重试，不复制旧项目临时脚本。
+口播案例和钩子分别使用 `scripts/voiceover_reference_library.py`、`scripts/voiceover_hook_library.py`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用，角色窗用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型和 GitHub 项目介绍只沿上表各自已经列明的完整活动命令链执行，并记录耗时、缓存与真实重试，不用省略内容确认或综合样片的快捷链，也不复制旧项目临时脚本。
 
 ## 实际制作与交付边界
 

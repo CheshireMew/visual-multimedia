@@ -26,6 +26,10 @@ import {
   validateProjectState,
 } from "./media_project_state.mjs";
 import {validateMediaSources} from "./validate-media-sources.mjs";
+import {
+  createBilingualSubtitleStyles,
+  normalizeBilingualCaptionPairs,
+} from "./bilingual-video-captions.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const SKILL_ROOT = path.resolve(SCRIPT_DIR, "..");
@@ -45,7 +49,6 @@ const PLAN_SCHEMA = path.join(SKILL_ROOT, "schemas", "source-video-commentary-pl
 const CONFIRMATION_SCHEMA = path.join(SKILL_ROOT, "schemas", "source-video-commentary-plan-confirmation.v1.schema.json");
 const NARRATION_SCHEMA = path.join(SKILL_ROOT, "schemas", "narration-bundle.v1.schema.json");
 const TRANSCRIPT_SCHEMA = path.join(SKILL_ROOT, "schemas", "media-transcript.v1.schema.json");
-const DIRECTION_SCHEMA = path.join(SKILL_ROOT, "schemas", "video-direction-plan.v2.schema.json");
 const CLIP_VALIDATOR = path.join(SCRIPT_DIR, "validate-clip-selections.mjs");
 
 function requireProjectId(value) {
@@ -242,9 +245,6 @@ export function validateSourceVideoCommentaryDraft(options) {
   const clipById = new Map(clips.document.clips.map((item) => [item.id, item]));
   const narration = narrationMap(projectRoot, draft.contracts.narration_bundle);
   const transcript = transcriptMap(projectRoot, draft.contracts.transcript);
-  const direction = draft.contracts.video_direction_plan == null
-    ? null
-    : binding(projectRoot, draft.contracts.video_direction_plan, "video direction plan", DIRECTION_SCHEMA);
   let backgroundMusic = null;
   if (draft.background_music) {
     const source = sources.byId.get(draft.background_music.source_id);
@@ -352,8 +352,22 @@ export function validateSourceVideoCommentaryDraft(options) {
         }
       }
     }
+    if (draft.target.caption_mode !== "none") {
+      const grouped = new Map();
+      for (const caption of segment.captions) {
+        const key = `${caption.start_offset_seconds.toFixed(6)}:${caption.end_offset_seconds.toFixed(6)}`;
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key).push(caption);
+      }
+      normalizeBilingualCaptionPairs([...grouped.entries()].map(([key, items], index) => {
+        const chinese = items.find((item) => /^zh(?:-|$)/iu.test(item.language));
+        const english = items.find((item) => /^en(?:-|$)/iu.test(item.language));
+        if (items.length !== 2 || !chinese || !english) throw new Error(`segment ${segment.id} 的字幕边界 ${key} 必须恰好包含一条中文和一条英文`);
+        return {id: `${segment.id}-${index + 1}`, start_seconds: chinese.start_offset_seconds, end_seconds: chinese.end_offset_seconds, zh: chinese.text, en: english.text};
+      }), {maximumDuration: durationSeconds});
+    }
   }
-  return {project: projectRoot, draft, draftBinding, profile, script, sources, clips, narration, transcript, direction, backgroundMusic};
+  return {project: projectRoot, draft, draftBinding, profile, script, sources, clips, narration, transcript, backgroundMusic};
 }
 
 export function confirmSourceVideoCommentaryContent(options) {
@@ -454,6 +468,7 @@ export function createSourceVideoCommentaryPlan(options) {
       order: segment.order,
       purpose: segment.purpose,
       visual_role: segment.visual_role,
+      visual_reason: segment.visual_reason,
       timeline_start_frame: timelineStart,
       duration_frames: durationFrames,
       visual,
@@ -473,7 +488,6 @@ export function createSourceVideoCommentaryPlan(options) {
     input("narration-bundle", context.narration),
   ];
   if (context.transcript) inputs.push(input("reviewed-transcript", context.transcript));
-  if (context.direction) inputs.push(input("video-direction-plan", context.direction));
   const backgroundMusic = context.backgroundMusic
     ? {
       source_id: context.backgroundMusic.source.id,
@@ -622,7 +636,8 @@ export function projectPlanToPortableTimeline(projectRoot, plan, options = {}) {
   const sourceAudioClips = [];
   const narrationClips = [];
   const musicClips = [];
-  const captions = [];
+  const chineseCaptions = [];
+  const englishCaptions = [];
   const markers = [];
   const fps = plan.output.fps;
   let cursorFrames = 0;
@@ -734,7 +749,9 @@ export function projectPlanToPortableTimeline(projectRoot, plan, options = {}) {
     for (const caption of segment.captions) {
       const start = (caption.start_frame - segment.timeline_start_frame) / plan.output.fps;
       const end = (caption.end_frame - segment.timeline_start_frame) / plan.output.fps;
-      captions.push({id: caption.id, type: "caption", timeline_start_seconds: cursor + start, duration_seconds: end - start, text: caption.text, style_id: "commentary-caption", language: caption.language});
+      const chinese = /^zh(?:-|$)/iu.test(caption.language);
+      const target = chinese ? chineseCaptions : englishCaptions;
+      target.push({id: caption.id, type: "caption", timeline_start_seconds: cursor + start, duration_seconds: end - start, text: caption.text, style_id: chinese ? "commentary-caption-zh" : "commentary-caption-en", language: caption.language});
     }
     cursorFrames += durationFrames;
   }
@@ -744,7 +761,10 @@ export function projectPlanToPortableTimeline(projectRoot, plan, options = {}) {
     {id: "commentary-narration", kind: "audio", name: "Reviewed narration", muted: false, clips: narrationClips},
   ];
   if (plan.background_music) tracks.push({id: "commentary-music", kind: "audio", name: "Background music", muted: false, clips: musicClips});
-  if (plan.output.caption_mode !== "none") tracks.push({id: "commentary-captions", kind: "subtitle", name: "Commentary captions", muted: false, clips: captions});
+  if (plan.output.caption_mode !== "none") {
+    tracks.push({id: "commentary-captions-zh", kind: "subtitle", name: "Chinese commentary captions", muted: false, clips: chineseCaptions});
+    tracks.push({id: "commentary-captions-en", kind: "subtitle", name: "English commentary captions", muted: false, clips: englishCaptions});
+  }
   const timeline = {
     protocol: "visual-multimedia-timeline",
     version: 1,
@@ -760,18 +780,10 @@ export function projectPlanToPortableTimeline(projectRoot, plan, options = {}) {
     },
     sources: [...sourceDocuments.values()],
     tracks,
-    subtitle_styles: plan.output.caption_mode === "none" ? [] : [{
-      id: "commentary-caption",
-      font_family: "Microsoft YaHei",
-      font_size: Math.max(26, Math.round(plan.output.height * 0.045)),
-      primary_color: "#FFFFFF",
-      outline_color: "#101010",
-      outline_width: Math.max(2, Math.round(plan.output.height * 0.003)),
-      margin_vertical: Math.max(48, Math.round(plan.output.height * 0.08)),
-      alignment: 2,
-      bold: true,
-      italic: false,
-    }],
+    subtitle_styles: plan.output.caption_mode === "none" ? [] : Object.values(createBilingualSubtitleStyles(plan.output.width, plan.output.height, {
+      chineseStyleId: "commentary-caption-zh",
+      englishStyleId: "commentary-caption-en",
+    })),
     markers,
   };
   return timeline;

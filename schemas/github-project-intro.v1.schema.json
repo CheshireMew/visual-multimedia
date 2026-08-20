@@ -3,6 +3,7 @@
   "$id": "visual-multimedia.github-project-intro.v1",
   "title": "Visual Multimedia GitHub Project Intro v1 Documents",
   "oneOf": [
+    {"$ref": "#/$defs/content"},
     {"$ref": "#/$defs/brief"},
     {"$ref": "#/$defs/draft"},
     {"$ref": "#/$defs/plan"},
@@ -36,6 +37,34 @@
         "audio_sample_rate": {"type": "integer", "minimum": 8000},
         "audio_channels": {"type": "integer", "minimum": 1, "maximum": 8},
         "caption_strategy": {"const": "burned-in"}
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "version", "project_id", "audience", "one_core_claim", "confirmed_facts", "call_to_action", "primary_language", "subtitle_segments"],
+      "properties": {
+        "protocol": {"const": "visual-multimedia-github-project-intro-content"},
+        "version": {"const": 1},
+        "project_id": {"$ref": "#/$defs/id"},
+        "audience": {"$ref": "#/$defs/text"},
+        "one_core_claim": {"$ref": "#/$defs/text"},
+        "confirmed_facts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}},
+        "call_to_action": {"type": "string"},
+        "primary_language": {"const": "zh-CN"},
+        "subtitle_segments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "text"],
+            "properties": {
+              "id": {"$ref": "#/$defs/id"},
+              "text": {"$ref": "#/$defs/text"}
+            }
+          }
+        }
       }
     },
     "brief": {
@@ -101,13 +130,26 @@
         "scene_id": {"type": ["string", "null"], "pattern": "^[a-z0-9][a-z0-9._-]*$"}
       }
     },
+    "captionCue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "start_frame", "end_frame", "zh", "en"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "start_frame": {"type": "integer", "minimum": 0},
+        "end_frame": {"type": "integer", "minimum": 1},
+        "zh": {"$ref": "#/$defs/text"},
+        "en": {"$ref": "#/$defs/text"}
+      }
+    },
     "shot": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "order", "purpose", "timeline_start_frame", "duration_frames", "visual", "narration"],
+      "required": ["id", "order", "content_segment_id", "purpose", "timeline_start_frame", "duration_frames", "visual", "narration", "caption_cues"],
       "properties": {
         "id": {"$ref": "#/$defs/id"},
         "order": {"type": "integer", "minimum": 1},
+        "content_segment_id": {"$ref": "#/$defs/id"},
         "purpose": {"$ref": "#/$defs/text"},
         "timeline_start_frame": {"type": "integer", "minimum": 0},
         "duration_frames": {"type": "integer", "minimum": 1},
@@ -119,11 +161,12 @@
           "properties": {
             "audio_source_id": {"$ref": "#/$defs/id"},
             "zh": {"$ref": "#/$defs/text"},
-            "en": {"$ref": "#/$defs/text"},
+            "en": {"oneOf": [{"$ref": "#/$defs/text"}, {"type": "null"}]},
             "voice_id": {"const": "game.honkai-star-rail.silverwolf.default"},
             "speed_factor": {"const": 1.25}
           }
-        }
+        },
+        "caption_cues": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/captionCue"}}
       }
     },
     "promise": {
@@ -152,13 +195,14 @@
     "plan": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["protocol", "version", "project_id", "created_at", "profile", "brief", "draft", "shots", "review_promises", "output"],
+      "required": ["protocol", "version", "project_id", "created_at", "profile", "content", "brief", "draft", "shots", "review_promises", "output"],
       "properties": {
         "protocol": {"const": "visual-multimedia-github-project-intro-plan"},
         "version": {"const": 1},
         "project_id": {"$ref": "#/$defs/id"},
         "created_at": {"$ref": "#/$defs/date"},
         "profile": {"type": "object", "additionalProperties": false, "required": ["id", "version", "sha256"], "properties": {"id": {"const": "github-project-intro"}, "version": {"const": "1.0.0"}, "sha256": {"$ref": "#/$defs/sha"}}},
+        "content": {"$ref": "#/$defs/binding"},
         "brief": {"$ref": "#/$defs/binding"},
         "draft": {"$ref": "#/$defs/binding"},
         "shots": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/shot"}},
