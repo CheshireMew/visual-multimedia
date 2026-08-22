@@ -154,7 +154,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 没有用户、品牌、参考或已确认项目配色，需要为当前视觉选颜色 | `references/color-palette-production.md` | 从六张内置卡中选择一张，只继承颜色职责，不套用版式或字体 |
 | 文字进入技术图解、字幕包装、网页动画或视频画面，并需要选择、继承或核对字体 | `references/typography-production.md` | 按内容职责选择标题、正文和元信息字体，记录真实来源与字重，并证明浏览器实际命中 |
 | 建立或继承项目、系列的声音素材角色与混音规则 | `references/sound-production-profiles.md` | 使用独立声音档案引用真实 audio source id，不把声音规则混入视觉档案 |
-| 查找、注册或采用创作者素材、通用制作素材、网页组件，或从项目晋升可复用成果 | `references/reusable-media-resources.md` | 使用不可变注册版本，经现有素材账本或完整网页包边界进入项目，并保存采用与晋升证据 |
+| 查找、注册或采用创作者素材、通用制作素材、网页组件，发布编辑器可浏览的 MG、音效、转场、特效、缩放或 LUT 目录，或从项目晋升可复用成果 | `references/reusable-media-resources.md` | 使用不可变注册版本与带权利、预览、哈希和采用方式的目录，经现有素材账本、完整网页包或正式编辑器操作进入项目，并保存采用与晋升证据 |
 | 多场景图文、GIF、HTML/React 或可拆分对象动效 | `references/web-visual-production.md`、`references/web-motion-and-derivatives.md`、`references/semantic-graphic-motion-production.md` | 建立 v6 网页真源，按内容关系制作场景与对象 |
 | 技术概念、接口、工具或系统关系需要静态机制图、对比图，或保持全貌不变的动态流程图 | `references/technical-diagram-production.md` | 分配画面信息职责，建立可读机制、正交连接、稳定图层、同色流光和浏览器几何验收 |
 | 把已确认的网页、桌面应用或移动产品功能制作成有真实界面证据的宣传片 | `references/product-promo-production.md` | 使用正式 profile、页面采集、镜头配方状态、功能覆盖和计划确认，并沿 `render → review → finalize` 完成真实构建、审阅与交付；拒绝把仅参考配方冒充已实现镜头 |
@@ -168,7 +168,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 制作带语音的视频，或从最终旁白、最终合并视频、已复核转写生成可交付字幕 | `references/media-project-contracts.md`、`references/subtitle-production.md` | 原创视频先确认主语言字幕内容；最终声音只提供时间，再生成唯一字幕时间线、SRT、VTT 和短语级质检报告 |
 | 从已有视频与事实转写制作字幕金句拼图 | `references/media-project-contracts.md`、`references/subtitle-quote-image-production.md` | 默认原片无烧录字幕；按完整观点选内容、按可读性拆显示行；中上英下、不显出处；全部同字号并复用第一句背景，每行只保留文字与最小内边距 |
 | 把网页素材交给 MediaFlow Pro 继续精调、混剪、配音、字幕、外部转写，或导出透明覆盖层与普通视频 | `references/structured-media-editor-cli.md` | 从本机配置定位公开 CLI，只调用本轮声明的网页、透明媒体、Faster-Whisper XXL 或 GPT-SoVITS 操作 |
-| 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 editable-media v6 网页包建立渲染副本，调用 HyperFrames 并核对真实成片 |
+| 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 editable-media v6 网页包建立渲染副本，探测实际 adapter，经动态样片门禁后渲染并核对真实成片 |
 | 剪辑已有实拍、讲课、访谈、录屏或混合视频 | `references/video-post-production.md` | 先建立产品无关时间线；MediaFlow Pro 对应能力就绪时优先迁移为原生工程，否则本地完成；像素界面只承担受限操作 |
 | 从电影片段、纪录素材、游戏录像、课程、产品实拍、活动记录或录屏制作视频解说，包括只有一条未经处理的源视频时 | `references/source-video-commentary-production.md` | 使用 `source-video-commentary@1.0.0`；从 `prepare` 完成获准源片入账、镜头分析、联系表和可用转写，Agent 先写并展示 authoring 中的完整主语言字幕，确认后再沿 `synthesize → confirm-narration → materialize → validate → confirm-content → plan → confirm-plan → sample → confirm-sample → render → review → confirm-preview → finalize` 制作 |
 | 建立或使用无需 Live2D 的二次元口播角色 | `references/anime-avatar-production.md`、`references/anime-avatar-rendering.md` | Agent 建库并从真实语音生成口播轨 |

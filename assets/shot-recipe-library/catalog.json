@@ -4754,7 +4754,7 @@
           "label": "横向分段进度栏",
           "manifest_sha256": "cd544369403f8396566135ec1c3a0a28af49c9d09fb6969a8495571c04d1c603",
           "package": "assets/video-progress-bar",
-          "package_sha256": "ac2bb1453bf808b25cd0ffd4f4b6e38809e297cdbb3077afd177d4afc7bd1d4f",
+          "package_sha256": "dd4b1ce886eb9a3ab943f73690688111914825afd3759f0125dbb9e77c95e505",
           "scene_id": "progress",
           "status": "active",
           "variant_profile_id": "progress-overlay",

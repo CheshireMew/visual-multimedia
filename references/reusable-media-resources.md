@@ -59,7 +59,39 @@ node scripts/media-resource-library.mjs register `
 
 `schemas/media-resource-library.v1.schema.json` 约束库包，`schemas/media-resource-registry.v1.schema.json` 约束注册表。注册记录保存整个库包哈希，而不是指向一个可以原地变化的工作目录。
 
-## 三、项目显式采用
+目录资源的树哈希按使用 `/` 的相对路径做 Unicode 码点升序；每项依次写入“相对路径、NUL、该文件 SHA-256 的小写十六进制文本、换行”后计算 SHA-256。不得使用受系统区域设置影响的排序，否则 Windows 与其它消费者可能对同一目录得到不同结果。
+
+## 三、发布编辑器可浏览目录
+
+不可变注册表解决“资源是什么、来自哪里、是否变过”，不直接承担编辑器分类、预览卡片或时间线采用方式。需要让 MediaFlow Pro 或其它编辑器浏览 MG、音效素材、音频效果、转场、视觉特效、缩放与 LUT 时，另行发布由 `schemas/media-resource-catalog.v1.schema.json` 约束的 `catalog.json`。目录是注册资源和编辑器内置预设的可消费视图，不是第二套素材仓库；真实文件、editable-media 包、许可证和哈希仍必须闭合在目录自身或已登记注册来源中。
+
+每个目录项必须给出稳定 id 与版本、类别、提供方、标签、能力、预览、权利、来源和唯一采用方式。完整 MG 只用 `editable-media-package`；音效素材用放入音频轨的 `media-file`；音频效果用目标为 `audio-effect` 的 `editor-preset`；转场、缩放和普通视觉效果用对应目标的 `editor-preset`；`.cube` LUT 用放入片段效果链的 `media-file`。案例截图、镜头配方、布局提示、参考网页和没有再分发权利的第三方模板不能为了填满资源库伪装成可采用资源。
+
+```powershell
+node scripts/media-resource-library.mjs validate-catalog `
+  --catalog <目录或 catalog.json> `
+  --registry <可选注册表目录>
+
+node scripts/media-resource-library.mjs search-catalog `
+  --catalog <目录或 catalog.json> `
+  --category motion-graphic `
+  --capability editable `
+  --query <名称、说明或标签>
+```
+
+提供 `--registry` 时，校验器还会证明 `registered-library` 来源的库 id、版本、item id 和内容哈希确实存在；无注册表的独立分发目录仍会检查包边界、文件字节、MIME 与 SHA-256。收藏属于本机用户状态，热门排序必须来自明确维护的 `featured_rank`，不能伪造使用量。编辑器采用后仍须回到项目素材、editable-media 导入或正式效果操作，不能长期引用目录外部路径。
+
+仓库随附的正式目录是根目录 `media-resource-catalog.json`。它发布许可已经闭合的两个 editable-media MG 组件、两个原创 `.cube` LUT 和两个原创 WAV 音效，并为 MG 与 LUT 生成可直接浏览的 SVG 预览。没有许可闭合的项目成片、预览媒体和第三方音效不会为了凑分类进入目录。目录、预览、LUT 和音效都由确定性脚本重建，改动模板或生成算法后必须重建并重新验证：
+
+```powershell
+node scripts/build-editor-resource-catalog.mjs
+node scripts/media-resource-library.mjs validate-catalog `
+  --catalog media-resource-catalog.json
+```
+
+外部产品的资源库只可用于学习分类、预览、参数化和采用机制。没有明确允许再分发模板源文件、缩略图、声音和 LUT 的许可证或书面许可时，不把它们复制进本目录；在外部产品内允许导出成片也不自动等于允许把可编辑模板作为 GPL 项目资源发布。
+
+## 四、项目显式采用
 
 先用 `search` 按职责、名称、媒体类型和标签检索具体 item；只有需要查看库版本清单时才用 `list`。再用稳定库 id、版本和 item id 采用。文件素材不会直接把库路径写进场景或时间线；`adopt` 调用现有 `scripts/import-media-asset.mjs`，让真实文件和原始采集来源进入当前项目唯一的 v3 `media-sources.json`，之后由网页、视频或音频消费者显式引用新的 source id。历史生成素材采用到新项目时不会伪装成当前项目的生成任务：项目账本按已有注册成品导入，同时在 notes 中保留注册包哈希和原始取得方式。
 
@@ -88,7 +120,7 @@ node scripts/media-resource-library.mjs adopt `
 3. 网页包在项目目录中仍自包含，真实浏览器可以读取、播放和修改。
 4. 最终网页、视频或音频消费者显式引用采用结果；只有采用记录而没有消费者引用，不算进入成品。
 
-## 四、从项目晋升可复用成果
+## 五、从项目晋升可复用成果
 
 原始日志、一次性提示、未确认反馈、临时中间文件和只对当前素材成立的修补不晋升。只有当前项目已经产生并真实使用、权利收口、能说明复用条件且有可读证据的结果，才写入 `resource-promotion-candidates.json`。候选可以指向注册资源，也可以指向项目或系列的视觉、声音档案。
 
@@ -119,6 +151,6 @@ node scripts/media-resource-library.mjs promote-file `
 
 `schemas/resource-promotion-candidates.v1.schema.json` 约束候选、证据与决定。源文件或证据变化后旧候选失效，不能只改哈希继续发布。长任务在 `media-project-state.json.contracts.promotion_candidates` 中索引活动候选文件。
 
-## 五、完成条件
+## 六、完成条件
 
-完整回归使用 `scripts/self-test-reusable-production-resources.mjs`。它必须通过公开命令真实建立注册表、注册创作者素材与通用声音素材、让正式导入器写入项目账本、建立并消费声音档案、从项目晋升下一不可变版本、注册并采用完整网页包，再让项目状态和最终消费者读取这些结果。消费端手写一份看似相同的 source 或网页包不能代替这条链路。
+完整回归使用 `scripts/self-test-reusable-production-resources.mjs`。它必须通过公开命令真实建立注册表、注册创作者素材与通用声音素材、让正式导入器写入项目账本、建立并消费声音档案、从项目晋升下一不可变版本、注册并采用完整网页包，发布并检索带权利与哈希闭环的编辑器目录，再让项目状态和最终消费者读取这些结果。消费端手写一份看似相同的 source、目录项或网页包不能代替这条链路。

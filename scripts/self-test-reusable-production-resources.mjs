@@ -11,6 +11,7 @@ import { validateMediaProjectState } from "./validate-media-project-state.mjs";
 import {createProjectState, refreshProjectState} from "./media_project_state.mjs";
 import { validateMediaSources } from "./validate-media-sources.mjs";
 import {
+  validateMediaResourceCatalog,
   validateMediaResourceAdoptions,
   validateResourcePromotionCandidates,
 } from "./media-resource-library.mjs";
@@ -30,6 +31,7 @@ const creatorV1 = path.join(runRoot, "creator-v1");
 const creatorV11 = path.join(runRoot, "creator-v1.1");
 const productionV1 = path.join(runRoot, "production-v1");
 const componentsV1 = path.join(runRoot, "components-v1");
+const catalogRoot = path.join(runRoot, "editor-catalog");
 const resourceCli = path.join(SCRIPT_DIR, "media-resource-library.mjs");
 const soundCli = path.join(SCRIPT_DIR, "sound-production-profile.mjs");
 const editableValidator = path.join(SCRIPT_DIR, "validate-editable-media.mjs");
@@ -314,6 +316,119 @@ function main() {
   ) {
     throw new Error("注册资源检索没有返回完整 editable-media 包");
   }
+
+  const productionLibrary = JSON.parse(
+    fs.readFileSync(path.join(productionV1, "media-library.json"), "utf8"),
+  );
+  const productionItem = productionLibrary.items.find((item) => item.id === "voice-anchor");
+  const componentLibrary = JSON.parse(
+    fs.readFileSync(path.join(componentsV1, "media-library.json"), "utf8"),
+  );
+  const componentItem = componentLibrary.items.find((item) => item.id === "editable-card");
+  if (!productionItem || !componentItem) throw new Error("目录自测缺少已注册来源资源");
+  const catalogAudioRelative = `items/${path.basename(productionItem.file)}`;
+  const catalogAudio = path.join(catalogRoot, ...catalogAudioRelative.split("/"));
+  const catalogComponent = path.join(catalogRoot, "items", "editable-card");
+  fs.mkdirSync(path.dirname(catalogAudio), { recursive: true });
+  fs.copyFileSync(path.join(productionV1, productionItem.file), catalogAudio);
+  fs.cpSync(path.join(componentsV1, componentItem.package), catalogComponent, {
+    recursive: true,
+    errorOnExist: true,
+    force: false,
+  });
+  const catalogPath = path.join(catalogRoot, "catalog.json");
+  writeJson(catalogPath, {
+    protocol: "visual-multimedia-media-resource-catalog",
+    version: 1,
+    catalog_id: "self-check-editor-resources",
+    catalog_version: "1.0.0",
+    name: "Self-check editor resources",
+    description: "Licensed resources that are ready for an editor timeline.",
+    items: [
+      {
+        id: "editable-card",
+        resource_version: "1.0.0",
+        category: "motion-graphic",
+        name: "Editable card",
+        description: "Closed editable-media package with structured properties.",
+        provider: "visual-multimedia-self-check",
+        tags: ["editable-media", "motion-graphic"],
+        capabilities: ["editable", "timeline-ready"],
+        featured_rank: 0,
+        preview: { type: "none", path: "", mime_type: "" },
+        rights: {
+          status: "confirmed",
+          license: "project-owned",
+          attribution: "",
+          terms_url: "",
+        },
+        origin: {
+          type: "registered-library",
+          library_id: componentLibrary.library_id,
+          library_version: componentLibrary.library_version,
+          item_id: componentItem.id,
+          content_sha256: componentItem.package_sha256,
+        },
+        adoption: {
+          type: "editable-media-package",
+          package: "items/editable-card",
+          manifest_sha256: componentItem.manifest_sha256,
+          package_sha256: componentItem.package_sha256,
+          default_duration_frames: 150,
+        },
+      },
+      {
+        id: "voice-anchor-sfx",
+        resource_version: "1.0.0",
+        category: "sound-effect",
+        name: "Voice anchor SFX",
+        description: "Audio catalog fixture with preserved rights and integrity.",
+        provider: "visual-multimedia-self-check",
+        tags: ["audio", "sound-effect"],
+        capabilities: ["timeline-ready"],
+        featured_rank: null,
+        preview: {
+          type: "audio",
+          path: catalogAudioRelative,
+          mime_type: productionItem.mime_type,
+        },
+        rights: productionItem.rights,
+        origin: {
+          type: "registered-library",
+          library_id: productionLibrary.library_id,
+          library_version: productionLibrary.library_version,
+          item_id: productionItem.id,
+          content_sha256: productionItem.sha256,
+        },
+        adoption: {
+          type: "media-file",
+          file: catalogAudioRelative,
+          sha256: productionItem.sha256,
+          bytes: productionItem.bytes,
+          mime_type: productionItem.mime_type,
+          media_type: "audio",
+          placement: "audio-track",
+        },
+      },
+    ],
+  });
+  const catalogValidation = validateMediaResourceCatalog(catalogPath, {
+    registry: registryRoot,
+  });
+  if (catalogValidation.item_count !== 2) throw new Error("媒体资源目录没有读取完整条目");
+  const catalogSearch = run(resourceCli, [
+    "search-catalog",
+    "--catalog", catalogRoot,
+    "--registry", registryRoot,
+    "--category", "motion-graphic",
+    "--capability", "editable",
+  ], "检索编辑器资源目录");
+  if (
+    catalogSearch.result_count !== 1
+    || catalogSearch.items[0]?.id !== "editable-card"
+  ) {
+    throw new Error("编辑器资源目录没有返回唯一可编辑 MG 资源");
+  }
   const componentAdoption = run(resourceCli, [
     "adopt",
     "--registry", registryRoot,
@@ -399,6 +514,7 @@ function main() {
     adopted_component: componentAdoption.adoption.package,
     sound_profile: path.join(projectRoot, "sound-profile.json"),
     promotion_candidates: path.join(projectRoot, "resource-promotion-candidates.json"),
+    editor_resource_catalog: catalogPath,
   }, null, 2));
 }
 

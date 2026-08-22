@@ -1,0 +1,438 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.media-resource-catalog.v1",
+  "title": "Visual Multimedia Editor Resource Catalog v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "catalog_id",
+    "catalog_version",
+    "name",
+    "description",
+    "items"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "visual-multimedia-media-resource-catalog"
+    },
+    "version": {
+      "const": 1
+    },
+    "catalog_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "catalog_version": {
+      "$ref": "#/$defs/semanticVersion"
+    },
+    "name": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "description": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/catalogItem"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+    },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "license",
+        "attribution",
+        "terms_url"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "confirmed",
+            "not-required"
+          ]
+        },
+        "license": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "attribution": {
+          "type": "string"
+        },
+        "terms_url": {
+          "type": "string"
+        }
+      }
+    },
+    "preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "path",
+        "mime_type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "none",
+            "image",
+            "video",
+            "audio"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "mime_type": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "none"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "const": ""
+              },
+              "mime_type": {
+                "const": ""
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "mime_type": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "library_id",
+        "library_version",
+        "item_id",
+        "content_sha256"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "builtin",
+            "registered-library"
+          ]
+        },
+        "library_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "library_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+        },
+        "item_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "content_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "builtin"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "library_id": {
+                "const": null
+              },
+              "library_version": {
+                "const": null
+              },
+              "item_id": {
+                "const": null
+              },
+              "content_sha256": {
+                "const": null
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "library_id": {
+                "$ref": "#/$defs/identifier"
+              },
+              "library_version": {
+                "$ref": "#/$defs/semanticVersion"
+              },
+              "item_id": {
+                "$ref": "#/$defs/identifier"
+              },
+              "content_sha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "editableMediaAdoption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "package",
+        "manifest_sha256",
+        "package_sha256",
+        "default_duration_frames"
+      ],
+      "properties": {
+        "type": {
+          "const": "editable-media-package"
+        },
+        "package": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "manifest_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "package_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "default_duration_frames": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      }
+    },
+    "mediaFileAdoption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "file",
+        "sha256",
+        "bytes",
+        "mime_type",
+        "media_type",
+        "placement"
+      ],
+      "properties": {
+        "type": {
+          "const": "media-file"
+        },
+        "file": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mime_type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "media_type": {
+          "enum": [
+            "audio",
+            "video",
+            "image",
+            "lut"
+          ]
+        },
+        "placement": {
+          "enum": [
+            "audio-track",
+            "video-track",
+            "overlay",
+            "clip-effect"
+          ]
+        }
+      }
+    },
+    "editorPresetAdoption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "target",
+        "preset_id",
+        "parameters",
+        "default_duration_frames"
+      ],
+      "properties": {
+        "type": {
+          "const": "editor-preset"
+        },
+        "target": {
+          "enum": [
+            "transition",
+            "visual-effect",
+            "audio-effect"
+          ]
+        },
+        "preset_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "default_duration_frames": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      }
+    },
+    "catalogItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "resource_version",
+        "category",
+        "name",
+        "description",
+        "provider",
+        "tags",
+        "capabilities",
+        "featured_rank",
+        "preview",
+        "rights",
+        "origin",
+        "adoption"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "resource_version": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "category": {
+          "enum": [
+            "motion-graphic",
+            "sound-effect",
+            "audio-effect",
+            "transition",
+            "visual-effect",
+            "zoom",
+            "lut"
+          ]
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "provider": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "featured_rank": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "preview": {
+          "$ref": "#/$defs/preview"
+        },
+        "rights": {
+          "$ref": "#/$defs/rights"
+        },
+        "origin": {
+          "$ref": "#/$defs/origin"
+        },
+        "adoption": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/editableMediaAdoption"
+            },
+            {
+              "$ref": "#/$defs/mediaFileAdoption"
+            },
+            {
+              "$ref": "#/$defs/editorPresetAdoption"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

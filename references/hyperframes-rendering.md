@@ -20,32 +20,52 @@ node scripts/prepare-hyperframes-render.mjs <网页包目录> `
 
 脚本先执行唯一 editable-media v6 schema 和包闭包，再只接受不存在的输出目录，复制完整网页包，把副本的默认变体和根节点宽、高、时长、帧率同步为本次渲染规格，并输出实际采用的参数。它不会扩大本地服务器根目录去容纳包外依赖。工作副本是派生输入，不是新的编辑入口。
 
-## 三、渲染
+## 三、能力探测与动态样片门禁
 
-先确认当前环境已经提供 HyperFrames，再按其当前 CLI 自描述或帮助信息核对参数。常用入口为：
+正式入口是 `scripts/hyperframes-provider.mjs`，不能绕过它直接把同名命令当成已经兼容。先为任务建立受容量约束的工作区，渲染副本、样片、报告、帧缓存和成片都写入同一个 `artifacts/<task-id>/`：
 
 ```powershell
-$env:HYPERFRAMES_BROWSER_PATH = "<已经存在的 Chromium 或 Chrome 可执行文件>"
-$env:TEMP = "<非系统盘临时目录>"
-$env:TMP = $env:TEMP
-$env:HYPERFRAMES_EXTRACT_CACHE_DIR = "<非系统盘帧缓存目录>"
-$hyperframes = (Get-Command hyperframes -CommandType Application -ErrorAction Stop).Source
+node scripts/media-task-workspace.mjs preflight --task-id <task-id> --expected-bytes <峰值字节>
+node scripts/media-task-workspace.mjs ensure --task-id <task-id> --expected-bytes <同一峰值字节>
 
-& $hyperframes render <工作目录> `
-  --fps <fps> `
-  --frames-cache-dir $env:HYPERFRAMES_EXTRACT_CACHE_DIR `
-  -o <输出视频>
+node scripts/hyperframes-provider.mjs inspect
+node scripts/hyperframes-provider.mjs sample-plan <工作副本>
+node scripts/hyperframes-provider.mjs sample <工作副本> `
+  --output artifacts/<task-id>/sample-frames `
+  --report artifacts/<task-id>/sample-report.json
 ```
 
-工作目录根部的 `index.html` 是默认 composition，不另传 composition 参数。命令只解析已经安装并进入 PATH 的 HyperFrames，不通过 `npx` 临时下载；浏览器、临时目录和帧缓存都必须先指向用户允许的位置。实际参数以已安装版本声明为准。没有安装、没有可用浏览器或命令能力不一致时停止，保留已验证的 editable-media v6 网页包并报告当前所选提供方的缺口；不自动安装，也不静默切换到 MediaFlow Pro 或本地渲染。只有用户或已确认计划明确改选本地提供方时，才调用现有的 `scripts/render-web-media-local.mjs`，不能临时另写捕获脚本。
+`inspect` 会执行实际帮助与版本探测，返回配置 adapter、实际 adapter、命令与帮助摘要、能力和限制。只允许 `probe_status=ready` 且 `production_web_render=true` 的实现继续；`legacy-untyped` 需要补齐 adapter，`adapter-mismatch` 必须停止。当前 wrapper 的正式样片与渲染执行合同只适配 `generic-hyperframes`。RenderKit 的结构化预检和区间计划可以作为工程参考，但在它补齐指定时间点样片、当前平台运行与本合同的真实验证以前，不能借用 `HyperFrames` 名称绕过门禁。
 
-## 四、真实结果检查
+样片计划覆盖每个场景的开始和结束、所有 `review:true` 语义步骤的前一帧、精确帧和后一帧，以及没有审阅步骤时的中点。必须逐张打开真实 PNG，检查场景、切换状态、边缘裁切、字体、透明或背景、加载结果和控制元素。人工结论写回绑定包摘要和提供方身份的报告：
 
-渲染后使用 FFprobe 读取实际宽高、帧率、时长、编码和音轨，再从真实视频抽取开始、关键变化和末尾代表帧。逐项核对：
+```powershell
+node scripts/hyperframes-provider.mjs review `
+  --report artifacts/<task-id>/sample-report.json `
+  --decision passed `
+  --reviewer <审阅者> `
+  --notes <看到的真实结果>
+```
 
-- 宽高、帧率和时长与工作副本输出的参数一致。
-- 同一秒数的网页预览和视频帧表达同一场景状态。
-- 非循环动画到达确认的结束状态；循环动画首尾关系连续。
-- 没有字体替换、空白帧、错误裁切、捕获控件、加载失败或意外音轨。
+没有看图时不能填写 `passed`。页面运行时错误即使伴随退出码 0 也会使样片失败；样片捕获、报告、工作副本或提供方身份发生变化后必须重新捕获和审阅。
 
-完成后交付原 editable-media v6 网页真源、所选变体、真实视频和检查结果。工作副本与帧缓存保持为可归档的派生产物；未经用户同意不删除。
+## 四、正式渲染
+
+只有已经通过的样片报告才能启动正式渲染：
+
+```powershell
+node scripts/hyperframes-provider.mjs render <工作副本> `
+  --sample-report artifacts/<task-id>/sample-report.json `
+  --frames-cache-dir artifacts/<task-id>/frames-cache `
+  --output artifacts/<task-id>/output.mp4
+```
+
+wrapper 会再次核对包闭包与摘要、提供方身份、adapter 能力和样片决定；输出与回执必须是尚不存在的新路径。它会读取真实成片的宽高、帧率、时长、编码和音轨，并把命令尾部输出、页面运行时发现、资源警告、快速捕获回退与报告过的捕获模式写入 `*.render-receipt.json`。进程退出成功但出现 `Browser:PAGEERROR` 或 `EditableMediaFrameError` 时，回执状态是 `blocked-runtime-errors`，命令返回失败；生成出的文件只是诊断证据，不是可交付成片。接受了 fast/GPU 参数、出现速度提升或命令打印了某种模式，都不能代替实际后端证据。
+
+没有安装、浏览器不可用或合同不一致时停止，保留工作副本和证据；不自动安装，也不静默切换到 MediaFlow Pro 或本地渲染。只有用户或已确认计划明确改选本地提供方时，才调用现有的 `scripts/render-web-media-local.mjs`。
+
+## 五、真实结果检查与交付
+
+回执通过运行时门禁后，仍要从最终视频抽取与样片计划相同的开始、语义变化邻帧和末尾代表帧，并与已审阅样片逐时刻核对。确认规格、场景状态、非循环结束状态或循环连续性，以及字体、裁切、空白、加载、控制元素和意外音轨。存在透明交付时还要检查真实 alpha，并在明暗底上叠加观看。
+
+完成后交付原 editable-media v6 网页真源、所选变体、通过的样片报告、正式渲染回执、真实视频和最终画面检查结果。最后运行任务工作区的 `inventory` 与 `finalize`，工作副本、样片、帧缓存和失败证据只列为归档或清理候选；未经用户同意不删除。

@@ -9,7 +9,10 @@
       "playwright_node_modules": "D:/Tools/node-global/node_modules"
     },
     "mediaflow": null,
-    "hyperframes": null
+    "hyperframes": {
+      "adapter": "generic-hyperframes",
+      "command": "D:/Tools/npm-global/hyperframes.ps1"
+    }
   },
   "resources": {
     "voice_reference_roots": []

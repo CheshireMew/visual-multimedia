@@ -6,6 +6,10 @@ import process from "node:process";
 import {spawnSync} from "node:child_process";
 import {createRequire} from "node:module";
 import {fileURLToPath} from "node:url";
+import {
+  HYPERFRAMES_ADAPTERS,
+  probeHyperframesProvider,
+} from "./hyperframes-provider-contract.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SKILL_ROOT = path.resolve(path.dirname(SCRIPT_PATH), "..");
@@ -247,11 +251,16 @@ export function loadLocalMediaEnvironment(configOverride = null) {
     if (typeof document.providers.hyperframes !== "object") {
       fail("providers.hyperframes 必须是对象或 null");
     }
+    const adapter = document.providers.hyperframes.adapter ?? null;
+    if (adapter != null && !HYPERFRAMES_ADAPTERS.has(adapter)) {
+      fail(`providers.hyperframes.adapter 不受支持：${adapter}`);
+    }
     hyperframes = {
       command: existingFile(
         document.providers.hyperframes.command,
         "providers.hyperframes.command",
       ),
+      adapter,
     };
   }
 
@@ -649,6 +658,7 @@ export function inspectLocalMediaCapabilities(environment) {
   const local = environment.providers.local;
   const mediaflow = environment.providers.mediaflow;
   const hyperframes = environment.providers.hyperframes;
+  const hyperframesProbe = probeHyperframesProvider(hyperframes);
   const localBrowser = local.browser || local.playwright.browser_executable;
   let mediaFlowProbe = null;
   let mediaFlowProbeError = null;
@@ -739,6 +749,7 @@ export function inspectLocalMediaCapabilities(environment) {
         ),
         deterministic_web_render: hasMediaFlowOperations(
           "web.import",
+          "web.clip.render.inspect",
           "web.clip.render",
           "web.clip.export",
         ) && hasMediaFlowCapabilities(
@@ -769,13 +780,7 @@ export function inspectLocalMediaCapabilities(environment) {
           && hasMediaFlowCapabilities("reference-video-comparison", "ffmpeg"),
       },
     },
-    hyperframes: {
-      available: Boolean(hyperframes),
-      command: hyperframes?.command ?? null,
-      capabilities: {
-        deterministic_web_render: Boolean(hyperframes),
-      },
-    },
+    hyperframes: hyperframesProbe,
   };
   return {
     protocol: "visual-multimedia-provider-capabilities",
@@ -806,7 +811,9 @@ export function resolveProviderNeed(environment, need) {
   } else if (need === "web-render") {
     if (inspection.providers.mediaflow.capabilities.deterministic_web_render) candidates.push("mediaflow");
     if (inspection.providers.local.capabilities.deterministic_web_render) candidates.push("local");
-    if (inspection.providers.hyperframes.capabilities.deterministic_web_render) candidates.push("hyperframes");
+    if (inspection.providers.hyperframes.capabilities.production_web_render) {
+      candidates.push("hyperframes");
+    }
   } else if (need === "subtitle-edit" || need === "audio-edit") {
     if (inspection.providers.mediaflow.capabilities[need.replace("-", "_")]) {
       candidates.push("mediaflow");

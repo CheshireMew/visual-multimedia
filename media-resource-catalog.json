@@ -1,0 +1,288 @@
+{
+  "protocol": "visual-multimedia-media-resource-catalog",
+  "version": 1,
+  "catalog_id": "visual-multimedia-core-resources",
+  "catalog_version": "1.1.0",
+  "name": "Visual Multimedia Core Editor Resources",
+  "description": "Audited editable motion graphics, original LUTs, and original sound effects for compatible editors.",
+  "items": [
+    {
+      "id": "segmented-progress-rail",
+      "resource_version": "1.1.0",
+      "category": "motion-graphic",
+      "name": "分段视频进度栏",
+      "description": "透明背景、可替换章节与游标、跟随全片时间的可编辑视频包装组件。",
+      "provider": "visual-multimedia",
+      "tags": [
+        "progress",
+        "chapter",
+        "overlay",
+        "transparent"
+      ],
+      "capabilities": [
+        "editable-fields",
+        "deterministic-seek",
+        "multi-aspect"
+      ],
+      "featured_rank": 10,
+      "preview": {
+        "type": "image",
+        "path": "assets/editor-resource-previews/segmented-progress-rail.svg",
+        "mime_type": "image/svg+xml"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "MPL-2.0",
+        "attribution": "Original editable-media template by visual-multimedia.",
+        "terms_url": "https://www.mozilla.org/MPL/2.0/"
+      },
+      "origin": {
+        "type": "builtin",
+        "library_id": null,
+        "library_version": null,
+        "item_id": null,
+        "content_sha256": null
+      },
+      "adoption": {
+        "type": "editable-media-package",
+        "package": "assets/video-progress-bar",
+        "manifest_sha256": "cd544369403f8396566135ec1c3a0a28af49c9d09fb6969a8495571c04d1c603",
+        "package_sha256": "8b0bd65f04f16a46d7f2ae0c56693cc30d24b8e2a0477f4c2a6a40af339362aa",
+        "default_duration_frames": 1800
+      }
+    },
+    {
+      "id": "deterministic-text-motion-gallery",
+      "resource_version": "1.1.0",
+      "category": "motion-graphic",
+      "name": "确定性文字动效库",
+      "description": "可逐帧定位、可编辑文案和动效参数的文字动画组件与效果目录。",
+      "provider": "visual-multimedia",
+      "tags": [
+        "text",
+        "motion",
+        "kinetic-type",
+        "deterministic"
+      ],
+      "capabilities": [
+        "editable-fields",
+        "deterministic-seek",
+        "text-animation"
+      ],
+      "featured_rank": 20,
+      "preview": {
+        "type": "image",
+        "path": "assets/editor-resource-previews/text-motion-gallery.svg",
+        "mime_type": "image/svg+xml"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "MPL-2.0 AND MIT",
+        "attribution": "visual-multimedia deterministic implementation; effect families adapted from Sakura under MIT. See the package THIRD_PARTY_NOTICES.md.",
+        "terms_url": "https://www.mozilla.org/MPL/2.0/"
+      },
+      "origin": {
+        "type": "builtin",
+        "library_id": null,
+        "library_version": null,
+        "item_id": null,
+        "content_sha256": null
+      },
+      "adoption": {
+        "type": "editable-media-package",
+        "package": "assets/text-motion-library",
+        "manifest_sha256": "9ee1ad6b3c292a47b4730f0751e9193163b3809b78b5b1a309b521489ebaef15",
+        "package_sha256": "615ea2a76304d2b592bcd38f80349945b82134d0beddfd281634a22567bda226",
+        "default_duration_frames": 180
+      }
+    },
+    {
+      "id": "soft-cinema-17",
+      "resource_version": "1.1.0",
+      "category": "lut",
+      "name": "柔和电影感",
+      "description": "轻微抬黑、柔和对比与暖高光，适合人物和叙事类画面。",
+      "provider": "visual-multimedia",
+      "tags": [
+        "cinematic",
+        "warm",
+        "soft-contrast",
+        "sdr"
+      ],
+      "capabilities": [
+        "color-grade",
+        "clip-effect",
+        "cube-lut"
+      ],
+      "featured_rank": 30,
+      "preview": {
+        "type": "image",
+        "path": "assets/editor-resource-previews/soft-cinema-17.svg",
+        "mime_type": "image/svg+xml"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "MPL-2.0",
+        "attribution": "Original LUT authored by visual-multimedia.",
+        "terms_url": "https://www.mozilla.org/MPL/2.0/"
+      },
+      "origin": {
+        "type": "builtin",
+        "library_id": null,
+        "library_version": null,
+        "item_id": null,
+        "content_sha256": null
+      },
+      "adoption": {
+        "type": "media-file",
+        "file": "assets/editor-luts/soft-cinema-17.cube",
+        "sha256": "c73b4aab1872d4634a9ca32b42d3eee2c4f45213729f008ce6eafcb1b1942340",
+        "bytes": 132750,
+        "mime_type": "application/x-cube-lut",
+        "media_type": "lut",
+        "placement": "clip-effect"
+      }
+    },
+    {
+      "id": "clean-cool-17",
+      "resource_version": "1.1.0",
+      "category": "lut",
+      "name": "清透冷调",
+      "description": "克制提升对比，在暗部加入轻微冷色，适合科技与产品画面。",
+      "provider": "visual-multimedia",
+      "tags": [
+        "clean",
+        "cool",
+        "technology",
+        "sdr"
+      ],
+      "capabilities": [
+        "color-grade",
+        "clip-effect",
+        "cube-lut"
+      ],
+      "featured_rank": 40,
+      "preview": {
+        "type": "image",
+        "path": "assets/editor-resource-previews/clean-cool-17.svg",
+        "mime_type": "image/svg+xml"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "MPL-2.0",
+        "attribution": "Original LUT authored by visual-multimedia.",
+        "terms_url": "https://www.mozilla.org/MPL/2.0/"
+      },
+      "origin": {
+        "type": "builtin",
+        "library_id": null,
+        "library_version": null,
+        "item_id": null,
+        "content_sha256": null
+      },
+      "adoption": {
+        "type": "media-file",
+        "file": "assets/editor-luts/clean-cool-17.cube",
+        "sha256": "dc71d2ab1a631f012b6b4afff591645a21e96984ae57ed567e6eebd5e945d252",
+        "bytes": 132749,
+        "mime_type": "application/x-cube-lut",
+        "media_type": "lut",
+        "placement": "clip-effect"
+      }
+    },
+    {
+      "id": "soft-confirm",
+      "resource_version": "1.0.0",
+      "category": "sound-effect",
+      "name": "柔和确认音",
+      "description": "双音阶的轻柔确认提示，适合完成、保存和状态确认。",
+      "provider": "visual-multimedia",
+      "tags": [
+        "audio",
+        "interface",
+        "confirmation",
+        "soft"
+      ],
+      "capabilities": [
+        "audio-preview",
+        "timeline-ready",
+        "original-audio"
+      ],
+      "featured_rank": 50,
+      "preview": {
+        "type": "audio",
+        "path": "assets/editor-sound-effects/soft-confirm.wav",
+        "mime_type": "audio/wav"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "MPL-2.0",
+        "attribution": "Original sound effect authored by visual-multimedia.",
+        "terms_url": "https://www.mozilla.org/MPL/2.0/"
+      },
+      "origin": {
+        "type": "builtin",
+        "library_id": null,
+        "library_version": null,
+        "item_id": null,
+        "content_sha256": null
+      },
+      "adoption": {
+        "type": "media-file",
+        "file": "assets/editor-sound-effects/soft-confirm.wav",
+        "sha256": "870217d5083d515f9a9d453a4ab8aa97f38bc94d77db3dea05a05fc1ca7c5a13",
+        "bytes": 59564,
+        "mime_type": "audio/wav",
+        "media_type": "audio",
+        "placement": "audio-track"
+      }
+    },
+    {
+      "id": "marker-pop",
+      "resource_version": "1.0.0",
+      "category": "sound-effect",
+      "name": "标记弹点",
+      "description": "短促清晰的弹点音，适合字幕重点、标记出现和信息切换。",
+      "provider": "visual-multimedia",
+      "tags": [
+        "audio",
+        "marker",
+        "pop",
+        "interface"
+      ],
+      "capabilities": [
+        "audio-preview",
+        "timeline-ready",
+        "original-audio"
+      ],
+      "featured_rank": 60,
+      "preview": {
+        "type": "audio",
+        "path": "assets/editor-sound-effects/marker-pop.wav",
+        "mime_type": "audio/wav"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "MPL-2.0",
+        "attribution": "Original sound effect authored by visual-multimedia.",
+        "terms_url": "https://www.mozilla.org/MPL/2.0/"
+      },
+      "origin": {
+        "type": "builtin",
+        "library_id": null,
+        "library_version": null,
+        "item_id": null,
+        "content_sha256": null
+      },
+      "adoption": {
+        "type": "media-file",
+        "file": "assets/editor-sound-effects/marker-pop.wav",
+        "sha256": "37e06d57bc1dc7f88f3771c36605da5a81b82631a4149304e61a891f6824fef6",
+        "bytes": 32684,
+        "mime_type": "audio/wav",
+        "media_type": "audio",
+        "placement": "audio-track"
+      }
+    }
+  ]
+}

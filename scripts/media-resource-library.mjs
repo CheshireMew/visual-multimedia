@@ -24,12 +24,14 @@ const LIBRARY_SCHEMA = path.join(SCHEMA_DIR, "media-resource-library.v1.schema.j
 const REGISTRY_SCHEMA = path.join(SCHEMA_DIR, "media-resource-registry.v1.schema.json");
 const ADOPTIONS_SCHEMA = path.join(SCHEMA_DIR, "media-resource-adoptions.v1.schema.json");
 const PROMOTIONS_SCHEMA = path.join(SCHEMA_DIR, "resource-promotion-candidates.v1.schema.json");
+const CATALOG_SCHEMA = path.join(SCHEMA_DIR, "media-resource-catalog.v1.schema.json");
 const IMPORTER = path.join(SCRIPT_DIR, "import-media-asset.mjs");
 const EDITABLE_MEDIA_VALIDATOR = path.join(SCRIPT_DIR, "validate-editable-media.mjs");
 const LIBRARY_FILE = "media-library.json";
 const REGISTRY_FILE = "registry.json";
 const ADOPTIONS_FILE = "media-resource-adoptions.json";
 const PROMOTIONS_FILE = "resource-promotion-candidates.json";
+const CATALOG_FILE = "catalog.json";
 const ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 const VERSION_PATTERN = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
 const LIBRARY_KINDS = new Set([
@@ -61,6 +63,15 @@ const METHODS = new Set([
   "external-download",
   "generated",
 ]);
+const CATALOG_CATEGORIES = new Set([
+  "motion-graphic",
+  "sound-effect",
+  "audio-effect",
+  "transition",
+  "visual-effect",
+  "zoom",
+  "lut",
+]);
 
 function usage() {
   console.log(`用法：
@@ -80,6 +91,11 @@ function usage() {
   node scripts/media-resource-library.mjs list --registry <目录> [--kind <类型>]
   node scripts/media-resource-library.mjs search --registry <目录>
     [--kind <类型>] [--query <名称、职责或标签>] [--tag <标签>]...
+  node scripts/media-resource-library.mjs validate-catalog --catalog <目录或 catalog.json>
+    [--registry <注册表目录>]
+  node scripts/media-resource-library.mjs search-catalog --catalog <目录或 catalog.json>
+    [--registry <注册表目录>] [--category <类别>] [--query <名称、说明或标签>]
+    [--tag <标签>]... [--capability <能力>]...
   node scripts/media-resource-library.mjs adopt --registry <目录> --library-id <id>
     --version <x.y.z> --item-id <id> --project <项目目录>
     [--project-id <id>] [--source-id <素材 id>]
@@ -103,7 +119,7 @@ media-sources.json，或把完整 editable-media 包复制进项目并重新验�
 function parseArgs(argv) {
   const command = argv[0];
   const values = new Map();
-  const repeated = new Set(["tag", "evidence"]);
+  const repeated = new Set(["tag", "evidence", "capability"]);
   for (let index = 1; index < argv.length; index += 1) {
     const token = argv[index];
     if (!token.startsWith("--")) throw new Error(`无法识别参数：${token}`);
@@ -198,7 +214,9 @@ function treeEntries(root, current = root) {
       });
     }
   }
-  return entries.sort((left, right) => left.relative.localeCompare(right.relative));
+  return entries.sort((left, right) =>
+    left.relative < right.relative ? -1 : left.relative > right.relative ? 1 : 0,
+  );
 }
 
 function sha256Tree(root) {
@@ -238,6 +256,7 @@ function mimeType(filePath) {
     ".woff2": "font/woff2",
     ".ttf": "font/ttf",
     ".otf": "font/otf",
+    ".cube": "application/x-cube-lut",
   };
   return mapping[path.extname(filePath).toLowerCase()] || "application/octet-stream";
 }
@@ -315,6 +334,13 @@ function libraryPath(root) {
 
 function registryPath(root) {
   return path.join(path.resolve(root), REGISTRY_FILE);
+}
+
+function catalogPath(value) {
+  const absolute = path.resolve(value);
+  return fs.existsSync(absolute) && fs.statSync(absolute).isDirectory()
+    ? path.join(absolute, CATALOG_FILE)
+    : absolute;
 }
 
 function validateLibrary(root) {
@@ -396,6 +422,127 @@ function validateRegistry(root) {
     }
   }
   return { root: absoluteRoot, path: documentPath, registry };
+}
+
+function validateCatalogAdoption(root, item) {
+  const adoption = item.adoption;
+  if (adoption.type === "editable-media-package") {
+    const packageRoot = resolveInside(root, adoption.package, `目录资源 ${item.id}.package`);
+    if (!fs.existsSync(packageRoot) || !fs.statSync(packageRoot).isDirectory()) {
+      throw new Error(`目录资源 ${item.id} 的 editable-media 包不存在：${packageRoot}`);
+    }
+    const editable = readEditableMediaPackage(packageRoot);
+    assertEditableMediaPackageClosed(editable.packageRoot, editable.manifest);
+    const mediaValidation = validateMediaSources(
+      path.join(editable.packageRoot, editable.manifest.media_sources),
+      { contract: EDITABLE_MEDIA_SOURCES_CONTRACT },
+    );
+    if (!mediaValidation.ok) {
+      throw new Error(`目录资源 ${item.id} 的素材账本无效：\n- ${mediaValidation.errors.join("\n- ")}`);
+    }
+    if (
+      sha256File(editable.manifestPath) !== adoption.manifest_sha256
+      || sha256Tree(packageRoot) !== adoption.package_sha256
+    ) {
+      throw new Error(`目录资源 ${item.id} 的 editable-media 包哈希不一致`);
+    }
+    if (item.category !== "motion-graphic") {
+      throw new Error(`editable-media 目录资源 ${item.id} 必须归入 motion-graphic`);
+    }
+    return;
+  }
+
+  if (adoption.type === "media-file") {
+    const target = resolveInside(root, adoption.file, `目录资源 ${item.id}.file`);
+    if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
+      throw new Error(`目录资源 ${item.id} 的文件不存在：${target}`);
+    }
+    if (sha256File(target) !== adoption.sha256 || fs.statSync(target).size !== adoption.bytes) {
+      throw new Error(`目录资源 ${item.id} 的文件哈希或字节数不一致`);
+    }
+    if (mimeType(target) !== adoption.mime_type) {
+      throw new Error(`目录资源 ${item.id} 的 MIME 类型与文件扩展名不一致`);
+    }
+    const expected = {
+      "sound-effect": ["audio", "audio-track"],
+      lut: ["lut", "clip-effect"],
+    }[item.category];
+    if (!expected || adoption.media_type !== expected[0] || adoption.placement !== expected[1]) {
+      throw new Error(`目录资源 ${item.id} 的类别与媒体采用方式不一致`);
+    }
+    return;
+  }
+
+  const expectedTarget = {
+    transition: "transition",
+    zoom: "transition",
+    "visual-effect": "visual-effect",
+    "audio-effect": "audio-effect",
+  }[item.category];
+  if (!expectedTarget || adoption.target !== expectedTarget) {
+    throw new Error(`目录资源 ${item.id} 的类别与编辑器预设目标不一致`);
+  }
+}
+
+function validateCatalogOrigin(item, registeredItems) {
+  const origin = item.origin;
+  if (origin.type === "builtin") return;
+  if (!registeredItems) return;
+  const key = `${origin.library_id}@${origin.library_version}/${origin.item_id}`;
+  const registered = registeredItems.get(key);
+  if (!registered) throw new Error(`目录资源 ${item.id} 引用了未注册的来源：${key}`);
+  const contentHash = registered.sha256 || registered.package_sha256;
+  if (contentHash !== origin.content_sha256) {
+    throw new Error(`目录资源 ${item.id} 的来源哈希与注册库不一致`);
+  }
+}
+
+function registeredItemIndex(registryRoot) {
+  if (!registryRoot) return null;
+  const loaded = validateRegistry(registryRoot);
+  const items = new Map();
+  for (const entry of loaded.registry.libraries) {
+    const packageRoot = resolveInside(loaded.root, entry.package, "注册资源包");
+    const library = validateLibrary(packageRoot).library;
+    for (const item of library.items) {
+      items.set(`${entry.library_id}@${entry.library_version}/${item.id}`, item);
+    }
+  }
+  return items;
+}
+
+export function validateMediaResourceCatalog(value, options = {}) {
+  const documentPath = catalogPath(value);
+  if (!fs.existsSync(documentPath) || !fs.statSync(documentPath).isFile()) {
+    throw new Error(`找不到媒体资源目录：${documentPath}`);
+  }
+  const root = path.dirname(documentPath);
+  const catalog = readJson(documentPath);
+  assertJsonSchema(catalog, CATALOG_SCHEMA, "媒体资源目录");
+  const registeredItems = registeredItemIndex(options.registry || null);
+  const ids = new Set();
+  for (const item of catalog.items) {
+    const key = `${item.id}@${item.resource_version}`;
+    if (ids.has(key)) throw new Error(`媒体资源目录 id 与版本重复：${key}`);
+    ids.add(key);
+    if (item.preview.type !== "none") {
+      const preview = resolveInside(root, item.preview.path, `目录资源 ${item.id}.preview.path`);
+      if (!fs.existsSync(preview) || !fs.statSync(preview).isFile()) {
+        throw new Error(`目录资源 ${item.id} 的预览不存在：${preview}`);
+      }
+      if (mimeType(preview) !== item.preview.mime_type) {
+        throw new Error(`目录资源 ${item.id} 的预览 MIME 类型与文件扩展名不一致`);
+      }
+    }
+    validateCatalogAdoption(root, item);
+    validateCatalogOrigin(item, registeredItems);
+  }
+  return {
+    root,
+    path: documentPath,
+    catalog,
+    item_count: catalog.items.length,
+  };
 }
 
 function runNode(args, label) {
@@ -754,6 +901,65 @@ function searchRegistry(args) {
     tags,
     result_count: results.length,
     results,
+  };
+}
+
+function validateCatalogCommand(args) {
+  const loaded = validateMediaResourceCatalog(required(args, "catalog"), {
+    registry: args.get("registry") || null,
+  });
+  return {
+    valid: true,
+    catalog: loaded.path,
+    catalog_id: loaded.catalog.catalog_id,
+    catalog_version: loaded.catalog.catalog_version,
+    item_count: loaded.item_count,
+  };
+}
+
+function searchCatalog(args) {
+  const loaded = validateMediaResourceCatalog(required(args, "catalog"), {
+    registry: args.get("registry") || null,
+  });
+  const category = args.get("category") || null;
+  if (category && !CATALOG_CATEGORIES.has(category)) {
+    throw new Error(`category 无效：${category}`);
+  }
+  const query = String(args.get("query") || "").trim().toLocaleLowerCase();
+  const tags = [...new Set(args.get("tag") || [])].map((tag) => requireId(tag, "tag"));
+  const capabilities = [...new Set(args.get("capability") || [])]
+    .map((capability) => requireId(capability, "capability"));
+  const items = loaded.catalog.items.filter((item) => {
+    if (category && item.category !== category) return false;
+    if (tags.some((tag) => !item.tags.includes(tag))) return false;
+    if (capabilities.some((capability) => !item.capabilities.includes(capability))) return false;
+    const searchable = [
+      item.id,
+      item.name,
+      item.description,
+      item.provider,
+      item.category,
+      ...item.tags,
+      ...item.capabilities,
+    ].join(" ").toLocaleLowerCase();
+    return !query || searchable.includes(query);
+  });
+  items.sort((left, right) => {
+    const leftRank = left.featured_rank ?? Number.MAX_SAFE_INTEGER;
+    const rightRank = right.featured_rank ?? Number.MAX_SAFE_INTEGER;
+    return leftRank - rightRank || `${left.id}@${left.resource_version}`
+      .localeCompare(`${right.id}@${right.resource_version}`);
+  });
+  return {
+    catalog: loaded.path,
+    catalog_id: loaded.catalog.catalog_id,
+    catalog_version: loaded.catalog.catalog_version,
+    category,
+    query,
+    tags,
+    capabilities,
+    result_count: items.length,
+    items,
   };
 }
 
@@ -1157,6 +1363,8 @@ function main() {
     register: registerLibrary,
     list: listRegistry,
     search: searchRegistry,
+    "validate-catalog": validateCatalogCommand,
+    "search-catalog": searchCatalog,
     adopt: adoptResource,
     propose: proposePromotion,
     "promote-file": promoteFile,

@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-import {resolveProviderNeed} from "./local-media-environment.mjs";
+import {
+  inspectLocalMediaCapabilities,
+  resolveProviderNeed,
+} from "./local-media-environment.mjs";
 
 const MEDIAFLOW_PROBE = {
   operations: [
@@ -28,6 +31,7 @@ const MEDIAFLOW_PROBE = {
     "timeline.portable.import",
     "timeline.portable.inspect",
     "web.clip.export",
+    "web.clip.render.inspect",
     "web.clip.render",
     "web.import",
   ],
@@ -53,7 +57,38 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-function environment({mediaflow = false, hyperframes = false} = {}) {
+const GENERIC_HYPERFRAMES_PROBE = {
+  detected_adapter: "generic-hyperframes",
+  version: "0.7.82",
+  command_sha256: "a".repeat(64),
+  help_sha256: "b".repeat(64),
+  capabilities: {
+    deterministic_web_render: true,
+    dynamic_sample: true,
+    production_web_render: true,
+    transparent_output: true,
+    structured_preflight_report: false,
+    interval_backend_plan: false,
+    direct_encode: false,
+  },
+};
+
+const RENDERKIT_PROBE = {
+  detected_adapter: "renderkit",
+  command_sha256: "c".repeat(64),
+  help_sha256: "d".repeat(64),
+  capabilities: {
+    deterministic_web_render: true,
+    dynamic_sample: false,
+    production_web_render: false,
+    transparent_output: false,
+    structured_preflight_report: true,
+    interval_backend_plan: true,
+    direct_encode: true,
+  },
+};
+
+function environment({mediaflow = false, hyperframes = null} = {}) {
   return {
     configPath: null,
     runtime: {cacheRoot: "D:/Tools/visual-multimedia-cache"},
@@ -65,7 +100,7 @@ function environment({mediaflow = false, hyperframes = false} = {}) {
         playwright: {available: true, browser_executable: "chromium"},
       },
       mediaflow: mediaflow ? {sourceRoot: "MediaFlow Pro", probe: MEDIAFLOW_PROBE} : null,
-      hyperframes: hyperframes ? {command: "hyperframes"} : null,
+      hyperframes,
     },
   };
 }
@@ -85,7 +120,14 @@ assert(
 );
 
 const enhancedWeb = resolveProviderNeed(
-  environment({mediaflow: true, hyperframes: true}),
+  environment({
+    mediaflow: true,
+    hyperframes: {
+      command: "hyperframes",
+      adapter: "generic-hyperframes",
+      probe: GENERIC_HYPERFRAMES_PROBE,
+    },
+  }),
   "web-render",
 );
 assert(enhancedWeb.preferred_provider === "mediaflow", "网页渲染没有优先 MediaFlow Pro");
@@ -93,6 +135,46 @@ assert(
   enhancedWeb.candidates.join(",") === "mediaflow,local,hyperframes",
   "网页渲染提供方优先级错误",
 );
+
+const untypedGeneric = inspectLocalMediaCapabilities(environment({
+  hyperframes: {
+    command: "hyperframes",
+    probe: GENERIC_HYPERFRAMES_PROBE,
+  },
+})).providers.hyperframes;
+assert(untypedGeneric.probe_status === "ready", "未声明 adapter 时没有执行真实能力探测");
+assert(
+  untypedGeneric.configuration_status === "legacy-untyped",
+  "旧配置没有明确标记为未声明 adapter",
+);
+
+const renderKit = inspectLocalMediaCapabilities(environment({
+  hyperframes: {
+    command: "hf-render",
+    adapter: "renderkit",
+    probe: RENDERKIT_PROBE,
+  },
+})).providers.hyperframes;
+assert(renderKit.capabilities.interval_backend_plan, "RenderKit 结构化区间计划能力丢失");
+assert(!renderKit.capabilities.production_web_render, "没有动态样片能力的 RenderKit 被误报为正式提供方");
+const renderKitResolution = resolveProviderNeed(environment({
+  hyperframes: {
+    command: "hf-render",
+    adapter: "renderkit",
+    probe: RENDERKIT_PROBE,
+  },
+}), "web-render");
+assert(!renderKitResolution.candidates.includes("hyperframes"), "RenderKit 绕过了动态样片门禁");
+
+const mismatch = inspectLocalMediaCapabilities(environment({
+  hyperframes: {
+    command: "hyperframes",
+    adapter: "renderkit",
+    probe: GENERIC_HYPERFRAMES_PROBE,
+  },
+})).providers.hyperframes;
+assert(mismatch.probe_status === "failed", "adapter 声明与真实命令不一致时没有失败");
+assert(!mismatch.capabilities.production_web_render, "adapter 不一致仍暴露正式渲染能力");
 
 const mediaFlowFirstNeeds = [
   "timeline-edit",
@@ -117,5 +199,8 @@ console.log(JSON.stringify({
   local_without_mediaflow: independent,
   mediaflow_preferred_timeline: enhancedTimeline,
   mediaflow_preferred_web: enhancedWeb,
+  generic_hyperframes: untypedGeneric,
+  renderkit: renderKit,
+  adapter_mismatch: mismatch,
   mediaflow_preferred_for_all_supported_needs: mediaFlowFirst,
 }, null, 2));

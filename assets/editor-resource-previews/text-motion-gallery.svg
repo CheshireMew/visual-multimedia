@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#101827"/><stop offset="1" stop-color="#17233a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#ff8a65"/><stop offset="1" stop-color="#ffd166"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="26" fill="url(#bg)"/>
+  <rect x="28" y="28" width="584" height="304" rx="20" fill="none" stroke="#ffffff" stroke-opacity=".12"/>
+  <text x="52" y="142" fill="url(#accent)" font-family="Segoe UI, sans-serif" font-size="76" font-weight="800">MOTION</text><path d="M54 171h420" stroke="#ffffff" stroke-opacity=".22" stroke-width="5"/><circle cx="510" cy="171" r="13" fill="#ffd166"/>
+  <text x="52" y="260" fill="#f7f9ff" font-family="Segoe UI, sans-serif" font-size="34" font-weight="700">确定性文字动效库</text>
+  <text x="52" y="300" fill="#aab7cf" font-family="Segoe UI, sans-serif" font-size="20">逐帧定位的可编辑文字动画</text>
+</svg>

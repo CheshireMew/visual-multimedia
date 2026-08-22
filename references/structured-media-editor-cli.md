@@ -58,7 +58,7 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 3. `web.clip.get` 读取片段覆盖值和修订号，`web.clip.edit.describe` 读取当前可编辑路径和控件合同。
 4. 标准图层字段用 `web.clip.update`，自定义参数用 `web.clip.parameter.update`；两者都只提交本次真正改变的路径，不提交整份 HTML。
 5. 图层或参数需要随时间变化时，分别使用 `web.clip.keyframe.set/remove` 与 `web.clip.parameter.keyframe.set/remove`。时间使用当前场景毫秒值，仍由同一个 `window.__hf` 时间边界渲染。
-6. `web.clip.render` 生成与当前修订一致的浏览器缓存。
+6. `web.clip.render.inspect` 先读取当前片段、修订和规格绑定的渲染身份、静态兼容性发现、计划验证帧、`planned_backend`、`fallback_backend` 与选择原因。当前 MediaFlow Pro 只会把工作量足够的 UHD 3840×2160（或 2160×3840）、30/29.97fps、不透明 SDR 网页计划为 `webcodecs-h264`；1080p、720p、4K24、4K60、透明画布、原生视频底层、短片和静态阻断项计划为 `frame-pipe`。这只是本机当前版本的实测策略，不得固化成 editable-media 的全局限制。需要渲染时再调用 `web.clip.render`，完成后重新检查 `actual_capture`：只有 `actual_capture.backend=webcodecs-h264`，`encoder.hardware_acceleration_verified=true`、`encoder.actual_encoder_name=MediaFoundationVideoEncodeAccelerator`，且编码队列、精确帧时钟、容器逐包时钟、色彩和音画检查均已通过，才能记录直接硬件编码已采用；出现 `fallback_reason` 时应记录最终实际后端，不把整次 FFV1 回退写成提速成功。当前 `encoder.input_copy_path=gpu-readback-to-memory` 与 `zero_copy_verified=false` 表示仍有一次 GPU 回读，不得写成零拷贝。NVIDIA GPU 利用率或显存占用达到 90% 时会在浏览器启动前回退，这属于正确的实际后端结果。网页内动态视频不会进入快路，正式视频素材继续走 MediaFlow Pro 原生视频管线。
 7. 只导出当前网页片段时使用 `web.clip.export`；短序列或一次性整片使用 `preview.render` 或 `export.sequence`。多场景、长时或高成本视频把已确认的通用构建单元映射为连续 `start_frame/end_frame` 后使用 `export.sequence.build`。它只接受真实时间线范围：MediaFlow Pro 自己计算区间指纹、逐单元返回 `rendered/reused`，整条音频单独连续处理，再返回装配状态和可保存的构建报告。调用端把这些事实写回 v2 构建报告，不能自造命中结果。
 
 合同声明对应能力时，可以继续使用：
@@ -74,6 +74,16 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - 执行大范围自动修改前可用 `project.version.create` 建立命名恢复版本；`project.version.list/restore` 负责查看和恢复，不把项目版本塞进网页清单。
 
 桌面界面保持项目打开时也可以运行短进程 CLI 或 stdio MCP 客户端，但这只是同一 Editor Service 的可选即时投影，不是正式工作流的依赖。所有调用方仍使用 `base_revision`、持久事件和命名版本；冲突时重新读取并交给用户决定，任何调用方都不直接操作项目数据库。
+
+需要 Agent 与用户在已打开的桌面工程里往返协作时，先用 MCP 的 `mediaflow_workspace_list` 找到明确连接且工程路径匹配的 `workspace_session_id`，再通过 `mediaflow_workspace_command` 发送 `playhead.seek`、`playback.play/pause/stop`、`workspace.mode.activate` 或 `timeline.selection.set`。这些命令只改变用户当前看见的播放头、工作区和选择，不代替持久项目写操作。Agent 完成正式写入后可以把桌面切到 `resources`、`transcript` 或其它合同允许的模式，并选中本轮结果；用户在桌面完成修改后，Agent 必须重新调用 `project.context.inspect` 读取当前 `content_revision`、完整时间线、可选转写与交接状态，再决定下一次写入，不能沿用修改前的内存快照。
+
+资源、画面证据和口播整理使用以下正式能力。先分别执行 `mediaflow describe --operation <操作名>`，参数仍以本轮合同为准：
+
+- `resource.catalog.search` 按类别、文字、标签和能力检索编辑器当前真正可采用的 MG、音效素材、音频效果、转场、视觉效果、缩放与 LUT；采用行为仍通过目录项声明的正式导入或效果操作落入项目。
+- `preview.frames.render` 从当前项目修订渲染最多 24 个指定帧，返回每帧的真实路径、尺寸、字节数和 SHA-256。Agent 必须打开这些帧检查画面，不能把 `preview.render` 只生成了预览图结构当成视觉验收。
+- `script.inspect` 一次读取当前转写、片段顺序、间隙与内容修订；`script.segment.update/split/merge/move` 和 `script.gap.close` 负责文本、说话人、拆分、合并、重排和关闭口播空隙。`move` 与 `gap.close` 必须提交刚从检查结果取得的 `expected_content_revision`，冲突后重新检查，不能猜测时间线位置。
+
+一轮完整的 Agent—桌面—Agent 协作至少证明：Agent 通过正式操作修改工程；连接的桌面收到工作区或选择命令并显示同一结果；用户在桌面产生新的持久修订；Agent 用 `project.context.inspect` 读回这次人工修改；指定证据帧由 `preview.frames.render` 从新修订生成；保存、关闭、重开后修改仍存在，最后由 `export.sequence` 真实导出并检查成片。只验证 WebSocket 收到消息、QML 属性变化或项目文件存在，不算完成这条链路。
 
 需要把可保真的时间线交给 Final Cut Pro 时，只在 `describe` 声明 `export.fcpxml` 与 `fcpxml-export` 后调用该操作。它会先检查转场、音频总线、网页缓存等语义能否可靠交接；拒绝结果表示当前时间线不能无损映射，调用端不得绕过预检另写一份低保真 XML。
 

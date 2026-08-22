@@ -659,6 +659,8 @@ for (const localMediaResource of [
   "references/production-providers.md",
   "assets/local-media-environment.example.json",
   "scripts/local-media-environment.mjs",
+  "scripts/hyperframes-provider-contract.mjs",
+  "scripts/hyperframes-provider.mjs",
   "scripts/media-timeline.mjs",
   "scripts/render-web-media-local.mjs",
   "scripts/self-test-media-timeline.mjs",
@@ -666,6 +668,7 @@ for (const localMediaResource of [
   "scripts/self-test-editable-preview.mjs",
   "scripts/self-test-visual-variable-drift.mjs",
   "scripts/self-test-production-providers.mjs",
+  "scripts/self-test-hyperframes-provider.mjs",
   "assets/web-media-starter/editable-media-editor.css",
   "assets/web-media-starter/editable-media-editor.js",
   "assets/web-media-starter/typography-presets.json",
@@ -723,6 +726,7 @@ for (const writer of [
   "media-project.mjs",
   "media-resource-library.mjs",
   "media-timeline.mjs",
+  "hyperframes-provider.mjs",
   "prepare-hyperframes-render.mjs",
   "product-promo.mjs",
   "production-captions.mjs",
@@ -1830,6 +1834,14 @@ if (failures.length === 0) {
     process.execPath,
     [path.join(scriptDir, "self-test-production-providers.mjs")],
     "MediaFlow Pro 优先—本地完整能力—HyperFrames 明确选择路由检查",
+  );
+}
+
+if (failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-hyperframes-provider.mjs")],
+    "HyperFrames adapter 实探—动态样片—正式渲染门禁检查",
   );
 }
 

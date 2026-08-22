@@ -189,6 +189,8 @@ node scripts/check-skill.mjs --full
 
 本仓库的原创源码、Skill、脚本、Schema、模板与文档采用 [Mozilla Public License 2.0](LICENSE)。个人头像、角色、品牌资料，以及项目拥有或在项目内生成的图片、音频、视频、渲染结果和预览媒体不随 MPL-2.0 授权，并依照 [ASSET-LICENSE](ASSET-LICENSE) 保留全部权利。第三方内容继续遵守各自的许可证与声明。
 
+编辑器可消费资源通过根目录 [media-resource-catalog.json](media-resource-catalog.json) 发布。它只收录许可证、来源、内容哈希和采用方式已经闭合的资源；运行 `node scripts/build-editor-resource-catalog.mjs` 可确定性重建随附 LUT 与目录，随后用 `node scripts/media-resource-library.mjs validate-catalog --catalog media-resource-catalog.json` 校验。
+
 - React 参考生产器的直接依赖、精确版本与许可证记录在 [React starter third-party notices](assets/react-media-starter/THIRD_PARTY_NOTICES.md)，同一声明会进入其封闭构建输出。该生产器不包含 Remotion 源码、Composition、Renderer 或其它 Remotion 运行组件。
 - 视频字幕金句拼图改编所依据的 MIT 项目、修改范围与完整许可见 [第三方声明](THIRD_PARTY_NOTICES.md)。
 
