@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editorial Title Card</title>
+  <style>
+    @font-face {
+      font-family: "Microsoft YaHei";
+      src: local("Microsoft YaHei");
+      font-style: normal;
+      font-weight: 100 900;
+    }
+
+    @font-face {
+      font-family: "Segoe UI";
+      src: local("Segoe UI");
+      font-style: normal;
+      font-weight: 100 900;
+    }
+
+    :root {
+      --canvas-width: 1920;
+      --canvas-height: 1080;
+      --background: #0b1020;
+      --background-secondary: #15233d;
+      --text: #f5f7fb;
+      --muted: #aab7cc;
+      --accent: #77e2c2;
+      --line: #ffffff24;
+      --font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      --title-weight: 760;
+      --title-tracking: -.035em;
+      font-family: var(--font-family);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #171b27;
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 18px;
+      height: 100vh;
+      padding: 24px;
+    }
+
+    .viewport {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .canvas-shell {
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      flex: 0 0 auto;
+      background: #202532;
+      box-shadow: 0 24px 70px rgb(0 0 0 / 32%);
+    }
+
+    .media-canvas {
+      position: relative;
+      width: calc(var(--canvas-width) * 1px);
+      height: calc(var(--canvas-height) * 1px);
+      overflow: hidden;
+      isolation: isolate;
+      transform-origin: top left;
+      background:
+        radial-gradient(circle at 82% 16%, color-mix(in srgb, var(--accent) 17%, transparent), transparent 28%),
+        linear-gradient(145deg, var(--background) 0%, var(--background-secondary) 58%, var(--background) 100%);
+    }
+
+    .media-canvas::before {
+      position: absolute;
+      inset: -24%;
+      content: "";
+      background-image:
+        linear-gradient(115deg, transparent 42%, rgb(255 255 255 / 3%) 42.2%, transparent 42.5%),
+        linear-gradient(90deg, rgb(255 255 255 / 2%) 1px, transparent 1px),
+        linear-gradient(rgb(255 255 255 / 2%) 1px, transparent 1px);
+      background-size: auto, 96px 96px, 96px 96px;
+      transform: translate3d(var(--ambient-x, 0px), var(--ambient-y, 0px), 0) rotate(-2deg);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    html[data-editable-variant$="-transparent"] .media-canvas {
+      background: transparent;
+    }
+
+    html[data-editable-variant$="-transparent"] .media-canvas::before {
+      opacity: .34;
+    }
+
+    .frame {
+      position: absolute;
+      left: 96px;
+      top: 96px;
+      width: 1728px;
+      height: 888px;
+      border: 1px solid var(--line);
+      color: var(--line);
+      opacity: 0;
+      z-index: 1;
+    }
+
+    .frame::before,
+    .frame::after {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-color: var(--accent);
+      content: "";
+    }
+
+    .frame::before {
+      left: -1px;
+      top: -1px;
+      border-left: 3px solid;
+      border-top: 3px solid;
+    }
+
+    .frame::after {
+      right: -1px;
+      bottom: -1px;
+      border-right: 3px solid;
+      border-bottom: 3px solid;
+    }
+
+    .accent-rule {
+      position: absolute;
+      left: 192px;
+      top: 222px;
+      width: 210px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 28px color-mix(in srgb, var(--accent) 45%, transparent);
+      transform: scaleX(0);
+      transform-origin: left center;
+      z-index: 3;
+    }
+
+    .title-mask {
+      position: absolute;
+      left: 192px;
+      display: flex;
+      width: 1536px;
+      height: 142px;
+      align-items: center;
+      overflow: hidden;
+      color: var(--text);
+      font-family: var(--font-family);
+      font-size: 88px;
+      font-weight: var(--title-weight);
+      letter-spacing: var(--title-tracking);
+      z-index: 4;
+    }
+
+    .title-mask.line-one { top: 270px; }
+    .title-mask.line-two { top: 410px; }
+
+    .title-line {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      margin: 0;
+      overflow: hidden;
+      color: inherit;
+      font: inherit;
+      line-height: .96;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      will-change: transform, opacity, clip-path, filter;
+    }
+
+    .subtitle {
+      position: absolute;
+      left: 194px;
+      top: 600px;
+      width: 1180px;
+      height: 72px;
+      margin: 0;
+      overflow: hidden;
+      color: var(--muted);
+      font: 520 30px/1.35 var(--font-family);
+      letter-spacing: .06em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: 0;
+      will-change: transform, opacity, filter;
+      z-index: 4;
+    }
+
+    .index-mark {
+      position: absolute;
+      left: 1682px;
+      top: 886px;
+      display: flex;
+      width: 70px;
+      height: 28px;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--accent);
+      opacity: 0;
+      z-index: 3;
+    }
+
+    html[data-editable-variant^="portrait"] .frame {
+      left: 52px;
+      top: 64px;
+      width: 976px;
+      height: 1792px;
+    }
+    html[data-editable-variant^="portrait"] .accent-rule {
+      left: 96px;
+      top: 492px;
+      width: 176px;
+      height: 8px;
+    }
+    html[data-editable-variant^="portrait"] .title-mask {
+      left: 96px;
+      width: 888px;
+      height: 150px;
+      font-size: 76px;
+    }
+    html[data-editable-variant^="portrait"] .title-mask.line-one { top: 548px; }
+    html[data-editable-variant^="portrait"] .title-mask.line-two { top: 700px; }
+    html[data-editable-variant^="portrait"] .subtitle {
+      left: 98px;
+      top: 900px;
+      width: 840px;
+      height: 94px;
+      font-size: 34px;
+    }
+    html[data-editable-variant^="portrait"] .index-mark {
+      left: 866px;
+      top: 1694px;
+    }
+
+    html[data-editable-variant^="square"] .frame {
+      left: 54px;
+      top: 54px;
+      width: 972px;
+      height: 972px;
+    }
+    html[data-editable-variant^="square"] .accent-rule {
+      left: 96px;
+      top: 282px;
+      width: 176px;
+      height: 8px;
+    }
+    html[data-editable-variant^="square"] .title-mask {
+      left: 96px;
+      width: 888px;
+      height: 132px;
+      font-size: 72px;
+    }
+    html[data-editable-variant^="square"] .title-mask.line-one { top: 330px; }
+    html[data-editable-variant^="square"] .title-mask.line-two { top: 462px; }
+    html[data-editable-variant^="square"] .subtitle {
+      left: 98px;
+      top: 660px;
+      width: 840px;
+      height: 82px;
+      font-size: 31px;
+    }
+    html[data-editable-variant^="square"] .index-mark {
+      left: 866px;
+      top: 906px;
+    }
+
+    .index-mark::before,
+    .index-mark::after {
+      display: block;
+      height: 3px;
+      border-radius: 999px;
+      background: currentColor;
+      content: "";
+    }
+
+    .index-mark::before { width: 44px; }
+    .index-mark::after { width: 14px; opacity: .42; }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 16px;
+      border: 1px solid rgb(255 255 255 / 10%);
+      border-radius: 16px;
+      background: rgb(20 24 34 / 92%);
+      box-shadow: 0 12px 36px rgb(0 0 0 / 22%);
+    }
+
+    .controls button {
+      border: 1px solid rgb(255 255 255 / 16%);
+      border-radius: 10px;
+      padding: 9px 14px;
+      background: rgb(255 255 255 / 7%);
+      color: var(--text);
+      font: 650 14px/1 var(--font-family);
+      cursor: pointer;
+    }
+
+    .controls input { width: min(560px, 42vw); accent-color: var(--accent); }
+    .controls output { min-width: 110px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    body.capture { background: transparent; }
+    body.capture .app { display: block; padding: 0; }
+    body.capture .viewport { display: block; overflow: visible; }
+    body.capture .canvas-shell {
+      width: calc(var(--canvas-width) * 1px) !important;
+      height: calc(var(--canvas-height) * 1px) !important;
+      background: transparent;
+      box-shadow: none;
+    }
+    body.capture .media-canvas { transform: none !important; }
+    body.capture .controls { display: none; }
+  </style>
+</head>
+<body>
+  <main
+    class="app"
+    data-editable-media-root
+    data-composition-id="editable-media"
+    data-no-timeline
+    data-start="0"
+    data-duration="5"
+    data-width="1920"
+    data-height="1080"
+    data-fps="30"
+  >
+    <div class="viewport" id="viewport">
+      <div class="canvas-shell" id="canvasShell">
+        <section class="media-canvas" id="mediaCanvas" aria-label="可编辑全屏标题卡">
+          <div class="frame" data-editable-id="frame" aria-hidden="true"></div>
+          <div class="accent-rule" data-editable-id="accent-rule" aria-hidden="true"></div>
+          <div class="title-mask line-one" data-editable-id="title-line-1">
+            <span class="title-line" data-editable-data="title_line_1">把复杂内容</span>
+          </div>
+          <div class="title-mask line-two" data-editable-id="title-line-2">
+            <span class="title-line" data-editable-data="title_line_2">变成清楚画面</span>
+          </div>
+          <p class="subtitle" data-editable-data="subtitle" data-editable-id="subtitle">可编辑、可预览、可继续调整</p>
+          <div class="index-mark" data-editable-id="index-mark" aria-hidden="true"></div>
+        </section>
+      </div>
+    </div>
+    <div class="controls" aria-label="预览控制">
+      <button id="previous" type="button">上一步</button>
+      <button id="play" type="button">播放</button>
+      <button id="pause" type="button">暂停</button>
+      <button id="next" type="button">下一步</button>
+      <input id="scrubber" type="range" min="0" max="5000" step="16" value="0" aria-label="标题卡时间">
+      <output id="previewTime">0.00 / 5.00 s</output>
+    </div>
+  </main>
+
+  <script src="editable-media-runtime.js"></script>
+  <script>
+    const root = document.documentElement;
+    const viewport = document.querySelector("#viewport");
+    const canvasShell = document.querySelector("#canvasShell");
+    const mediaCanvas = document.querySelector("#mediaCanvas");
+    const titleOne = document.querySelector("#mediaCanvas [data-editable-id='title-line-1'] .title-line");
+    const titleTwo = document.querySelector("#mediaCanvas [data-editable-id='title-line-2'] .title-line");
+    const subtitle = document.querySelector("#mediaCanvas [data-editable-id='subtitle']");
+    const frame = document.querySelector("#mediaCanvas [data-editable-id='frame']");
+    const accentRule = document.querySelector("#mediaCanvas [data-editable-id='accent-rule']");
+    const indexMark = document.querySelector("#mediaCanvas [data-editable-id='index-mark']");
+    const scrubber = document.querySelector("#scrubber");
+    const previewTime = document.querySelector("#previewTime");
+    const captureMode = new URLSearchParams(location.search).get("capture") === "1";
+    let output = {width: 1920, height: 1080, durationMs: 5000};
+    let currentData = {title_line_1: "", title_line_2: "", subtitle: ""};
+
+    if (captureMode) document.body.classList.add("capture");
+
+    function clamp01(value) {
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function easeOut(value) {
+      const x = 1 - clamp01(value);
+      return 1 - x * x * x;
+    }
+
+    function progressAt(milliseconds, start, duration) {
+      return easeOut((milliseconds - start) / duration);
+    }
+
+    function reveal(element, progress, distance) {
+      const remaining = 1 - progress;
+      element.style.opacity = progress.toFixed(6);
+      element.style.transform = `translate3d(0, ${(distance * remaining).toFixed(3)}px, 0)`;
+      element.style.clipPath = `inset(${(100 * remaining).toFixed(3)}% 0 0 0)`;
+      element.style.filter = `blur(${(5 * remaining).toFixed(3)}px)`;
+    }
+
+    function renderData(data) {
+      currentData = {...currentData, ...(data || {})};
+      titleOne.textContent = String(currentData.title_line_1 ?? "");
+      titleTwo.textContent = String(currentData.title_line_2 ?? "");
+      subtitle.textContent = String(currentData.subtitle ?? "");
+      subtitle.hidden = !subtitle.textContent.trim();
+    }
+
+    function renderTime(playback) {
+      const milliseconds = Math.max(0, Math.min(output.durationMs, Number(playback.globalTimeMs || 0)));
+      const frameProgress = progressAt(milliseconds, 90, 720);
+      const accentProgress = progressAt(milliseconds, 190, 620);
+      const lineOneProgress = progressAt(milliseconds, 360, 760);
+      const lineTwoProgress = progressAt(milliseconds, 780, 760);
+      const subtitleProgress = progressAt(milliseconds, 1480, 520);
+      const markProgress = progressAt(milliseconds, 1880, 620);
+
+      frame.style.opacity = (0.16 + frameProgress * 0.84).toFixed(6);
+      frame.style.transform = `scale(${(0.992 + frameProgress * 0.008).toFixed(6)})`;
+      accentRule.style.transform = `scaleX(${accentProgress.toFixed(6)})`;
+      reveal(titleOne, lineOneProgress, 68);
+      reveal(titleTwo, lineTwoProgress, 68);
+      subtitle.style.opacity = subtitleProgress.toFixed(6);
+      subtitle.style.transform = `translate3d(0, ${(14 * (1 - subtitleProgress)).toFixed(3)}px, 0)`;
+      subtitle.style.filter = `blur(${(2 * (1 - subtitleProgress)).toFixed(3)}px)`;
+      indexMark.style.opacity = markProgress.toFixed(6);
+      indexMark.style.transform = `translate3d(${(18 * (1 - markProgress)).toFixed(3)}px, 0, 0)`;
+      root.style.setProperty("--ambient-x", `${(Math.sin(milliseconds / 1700) * 14).toFixed(3)}px`);
+      root.style.setProperty("--ambient-y", `${(Math.cos(milliseconds / 2100) * 10).toFixed(3)}px`);
+
+      scrubber.value = String(Math.round(milliseconds));
+      previewTime.value = `${(milliseconds / 1000).toFixed(2)} / ${(output.durationMs / 1000).toFixed(2)} s`;
+      mediaCanvas.dataset.motionState = milliseconds < 360
+        ? "frame"
+        : milliseconds < 780
+          ? "line-one"
+          : milliseconds < 1480
+            ? "line-two"
+            : milliseconds < 2300
+              ? "subtitle"
+              : "readable-result";
+    }
+
+    function fitCanvas() {
+      if (captureMode) return;
+      const scale = Math.min(viewport.clientWidth / output.width, viewport.clientHeight / output.height, 1);
+      const fitted = Math.max(scale, .1);
+      canvasShell.style.width = `${output.width * fitted}px`;
+      canvasShell.style.height = `${output.height * fitted}px`;
+      mediaCanvas.style.transform = `scale(${fitted})`;
+    }
+
+    function syncOutput() {
+      const manifest = editableMedia.getManifest();
+      const state = editableMedia.getState();
+      const variant = manifest.variants.find((item) => item.id === state.variant.id);
+      output = {
+        width: Number(variant.canvas.width),
+        height: Number(variant.canvas.height),
+        durationMs: editableMedia.getPlayback().totalDurationMs,
+      };
+      scrubber.max = String(output.durationMs);
+      fitCanvas();
+    }
+
+    document.querySelector("#previous").addEventListener("click", () => editableMedia.previous());
+    document.querySelector("#play").addEventListener("click", () => editableMedia.play());
+    document.querySelector("#pause").addEventListener("click", () => editableMedia.pause());
+    document.querySelector("#next").addEventListener("click", () => editableMedia.next());
+    scrubber.addEventListener("input", (event) => {
+      editableMedia.pause();
+      editableMedia.setTime(event.target.value);
+    });
+
+    window.addEventListener("editablemediatime", (event) => renderTime(event.detail));
+    window.addEventListener("editablemediadata", (event) => renderData(event.detail.data));
+    window.addEventListener("editablemediachange", syncOutput);
+
+    editableMedia.ready.then(() => {
+      syncOutput();
+      renderData(editableMedia.getState().scenes?.["editorial-title"]?.data || {});
+      renderTime(editableMedia.getPlayback());
+      new ResizeObserver(fitCanvas).observe(viewport);
+      window.addEventListener("resize", fitCanvas);
+      fitCanvas();
+    });
+  </script>
+</body>
+</html>

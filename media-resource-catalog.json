@@ -2,7 +2,7 @@
   "protocol": "visual-multimedia-media-resource-catalog",
   "version": 1,
   "catalog_id": "visual-multimedia-core-resources",
-  "catalog_version": "1.1.0",
+  "catalog_version": "1.2.0",
   "name": "Visual Multimedia Core Editor Resources",
   "description": "Audited editable motion graphics, original LUTs, and original sound effects for compatible editors.",
   "items": [
@@ -49,6 +49,53 @@
         "manifest_sha256": "cd544369403f8396566135ec1c3a0a28af49c9d09fb6969a8495571c04d1c603",
         "package_sha256": "8b0bd65f04f16a46d7f2ae0c56693cc30d24b8e2a0477f4c2a6a40af339362aa",
         "default_duration_frames": 1800
+      }
+    },
+    {
+      "id": "editorial-title-card",
+      "resource_version": "1.1.0",
+      "category": "motion-graphic",
+      "name": "编辑式全屏标题卡",
+      "description": "两行主标题依次上揭、副标题柔和淡入，提供实色与透明背景的可编辑视频包装。",
+      "provider": "visual-multimedia",
+      "tags": [
+        "title",
+        "opening",
+        "chapter",
+        "typography",
+        "transparent"
+      ],
+      "capabilities": [
+        "editable-fields",
+        "deterministic-seek",
+        "multi-aspect",
+        "transparent-background"
+      ],
+      "featured_rank": 15,
+      "preview": {
+        "type": "image",
+        "path": "assets/editor-resource-previews/editorial-title-card.svg",
+        "mime_type": "image/svg+xml"
+      },
+      "rights": {
+        "status": "confirmed",
+        "license": "MPL-2.0",
+        "attribution": "Original editable-media title card by visual-multimedia.",
+        "terms_url": "https://www.mozilla.org/MPL/2.0/"
+      },
+      "origin": {
+        "type": "builtin",
+        "library_id": null,
+        "library_version": null,
+        "item_id": null,
+        "content_sha256": null
+      },
+      "adoption": {
+        "type": "editable-media-package",
+        "package": "assets/editorial-title-card",
+        "manifest_sha256": "957cb202245cf7fabb079b0887d2010d9d7fe76fa80af0eec76fffa8365399f6",
+        "package_sha256": "6932dfa5e12fce204c62a67fcf513b70e9a0f3e2d1159cccfec0419960f45e1b",
+        "default_duration_frames": 150
       }
     },
     {

@@ -1,0 +1,78 @@
+{
+  "protocol": "visual-multimedia-shot-recipe",
+  "version": 2,
+  "id": "editorial-title-card",
+  "name": "编辑式全屏标题卡",
+  "aliases": [
+    "editorial title card",
+    "opening title",
+    "章节字卡",
+    "价值主张字卡"
+  ],
+  "status": "active",
+  "source_id": "visual-multimedia",
+  "category": "typography",
+  "applicability": {
+    "visual_source_kinds": [
+      "packaging"
+    ],
+    "relationship_kinds": [],
+    "placement_modes": [
+      "full-frame"
+    ],
+    "default_style_id": "editorial-solid"
+  },
+  "intent": {
+    "purpose": "用两行有先后关系的主标题建立开场或章节路标，再用可选副标题补充观看承诺并稳定停留。",
+    "use": "已经确认了短标题文字，当前片段只负责视频开场、章节路标、重要功能出场前的短价值主张或两段高密度内容之间的呼吸位时采用。",
+    "duration": "默认 5 秒；进入实际时间线后按当前片段的固定规格或真实声音边界等比调整语义步骤。",
+    "energy": "中低，标题依次上揭，副标题柔和淡入；完整结果保留主要时长供观众阅读。",
+    "semantic_tags": [
+      "title",
+      "opening",
+      "chapter",
+      "value-proposition",
+      "packaging"
+    ]
+  },
+  "styles": [
+    {
+      "id": "editorial-solid",
+      "label": "实色编辑式标题卡",
+      "description": "原创深色全屏构图，带克制画框、强调线和两行依次上揭的标题层级。",
+      "use": "视频开场、章节切换、短价值主张和刻意呼吸位的默认全屏包装。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/editorial-title-card",
+        "scene_id": "editorial-title",
+        "variant_profile_id": "editorial-solid"
+      }
+    },
+    {
+      "id": "editorial-transparent",
+      "label": "透明编辑式标题卡",
+      "description": "沿用相同标题结构与确定性运动，只保留文字、画框和轻量装饰，便于覆盖真实视频。",
+      "use": "用户明确要求保留底层视频，或当前包装必须作为透明覆盖层继续装配时采用。",
+      "status": "active",
+      "implementation": {
+        "kind": "editable-media-package",
+        "package": "assets/editorial-title-card",
+        "scene_id": "editorial-title",
+        "variant_profile_id": "editorial-transparent"
+      }
+    }
+  ],
+  "known_pitfalls": [
+    "只在整段职责确实是标题路标时采用；需要解释关系、展示证据或承接连续讲解时继续使用相应主画面。",
+    "标题与副标题必须来自已经确认的观众可见文字，模板示例不能覆盖当前内容。",
+    "透明样式必须由用户要求或当前装配职责决定，不能为了显得高级而默认叠到每段素材上。"
+  ],
+  "source_evidence": {
+    "source_card": "target-native:assets/editorial-title-card",
+    "upstream_demo": null,
+    "upstream_preview_declared": false,
+    "notes": "目标原生原创实现；外部成片只用于确认标题卡的用户结果与时间职责，不复制其模板源码、素材、字体或具体造型。"
+  },
+  "behavior_fingerprint": "60af6ac84c00bcd4d4f7b2a3eb93784e4f75801409b73a79bc775507af6191e8"
+}

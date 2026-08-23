@@ -1,7 +1,7 @@
 {
   "protocol": "visual-multimedia-shot-recipe-library",
   "version": 2,
-  "library_version": "2.0.0",
+  "library_version": "2.1.0",
   "name": "Visual Multimedia 镜头配方库",
   "default_locale": "zh-CN",
   "sources": [
@@ -59,6 +59,46 @@
         {
           "variant_id": "square",
           "placement_mode": "transparent-overlay",
+          "aspect_ratio": "1:1"
+        }
+      ]
+    },
+    {
+      "id": "editorial-solid",
+      "bindings": [
+        {
+          "variant_id": "landscape",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "1:1"
+        }
+      ]
+    },
+    {
+      "id": "editorial-transparent",
+      "bindings": [
+        {
+          "variant_id": "landscape-transparent",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "16:9"
+        },
+        {
+          "variant_id": "portrait-transparent",
+          "placement_mode": "full-frame",
+          "aspect_ratio": "9:16"
+        },
+        {
+          "variant_id": "square-transparent",
+          "placement_mode": "full-frame",
           "aspect_ratio": "1:1"
         }
       ]

@@ -81,7 +81,7 @@ node scripts/media-resource-library.mjs search-catalog `
 
 提供 `--registry` 时，校验器还会证明 `registered-library` 来源的库 id、版本、item id 和内容哈希确实存在；无注册表的独立分发目录仍会检查包边界、文件字节、MIME 与 SHA-256。收藏属于本机用户状态，热门排序必须来自明确维护的 `featured_rank`，不能伪造使用量。编辑器采用后仍须回到项目素材、editable-media 导入或正式效果操作，不能长期引用目录外部路径。
 
-仓库随附的正式目录是根目录 `media-resource-catalog.json`。它发布许可已经闭合的两个 editable-media MG 组件、两个原创 `.cube` LUT 和两个原创 WAV 音效，并为 MG 与 LUT 生成可直接浏览的 SVG 预览。没有许可闭合的项目成片、预览媒体和第三方音效不会为了凑分类进入目录。目录、预览、LUT 和音效都由确定性脚本重建，改动模板或生成算法后必须重建并重新验证：
+仓库随附的正式目录是根目录 `media-resource-catalog.json`。它发布许可已经闭合的三个 editable-media MG 组件、两个原创 `.cube` LUT 和两个原创 WAV 音效，并为 MG 与 LUT 生成可直接浏览的 SVG 预览。MG 包含透明章节进度栏、原创编辑式全屏标题卡和确定性文字动效库。没有许可闭合的项目成片、预览媒体和第三方音效不会为了凑分类进入目录。目录、预览、LUT 和音效都由确定性脚本重建，改动模板或生成算法后必须重建并重新验证：
 
 ```powershell
 node scripts/build-editor-resource-catalog.mjs

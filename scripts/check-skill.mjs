@@ -618,6 +618,16 @@ for (const textMotionResource of [
 ]) {
   ensurePath(textMotionResource);
 }
+for (const editorialTitleCardResource of [
+  "assets/editorial-title-card/editable-media.json",
+  "assets/editorial-title-card/editable-media-runtime.js",
+  "assets/editorial-title-card/index.html",
+  "assets/editorial-title-card/media-sources.json",
+  "assets/shot-recipe-library/recipes/editorial-title-card.json",
+  "scripts/self-test-editorial-title-card.mjs",
+]) {
+  ensurePath(editorialTitleCardResource);
+}
 for (const reusableResource of [
   "references/reusable-media-resources.md",
   "references/sound-production-profiles.md",
@@ -1711,6 +1721,18 @@ if (!textMotionValidation.ok) {
   browserProjects.push(textMotionRoot);
 }
 
+const editorialTitleCardRoot = ensurePath("assets/editorial-title-card");
+const editorialTitleCardManifestPath = path.join(editorialTitleCardRoot, "editable-media.json");
+checkManifest(editorialTitleCardManifestPath);
+const editorialTitleCardRuntime = path.join(editorialTitleCardRoot, "editable-media-runtime.js");
+if (
+  !fs.existsSync(editorialTitleCardRuntime)
+  || sha256File(editorialTitleCardRuntime) !== starterRuntimeHash
+) {
+  fail("编辑标题卡没有消费当前唯一 editable-media 通用运行时");
+}
+browserProjects.push(editorialTitleCardRoot);
+
 const videoProgressRoot = ensurePath("assets/video-progress-bar");
 const videoProgressManifestPath = path.join(videoProgressRoot, "editable-media.json");
 checkManifest(videoProgressManifestPath);
@@ -1743,10 +1765,10 @@ if (!shotRecipeValidation.ok) {
   shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").length !== 104
   || shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").flatMap((item) => item.document.styles).length !== 161
   || shotRecipeValidation.recipes.filter((item) => item.document.source_id === "video-shotcraft").flatMap((item) => item.document.styles).some((style) => style.status !== "reference-only")
-  || shotRecipeValidation.catalog.active_style_count !== 14
+  || shotRecipeValidation.catalog.active_style_count !== 16
   || shotRecipeValidation.recipes.filter((item) => item.document.category === "explanatory-broll" && item.document.status === "active").length !== 10
 ) {
-  fail("镜头配方目录没有保持 104 张来源配方、161 个仅参考变体、十类解释型 B-roll 和 14 个活动样式的证据边界");
+  fail("镜头配方目录没有保持 104 张来源配方、161 个仅参考变体、十类解释型 B-roll 和 16 个活动样式的证据边界");
 }
 
 const videoProfileValidation = validateVideoProductionProfileCatalog();
@@ -1874,6 +1896,19 @@ if (runBrowserChecks && failures.length === 0) {
     process.execPath,
     [path.join(scriptDir, "self-test-explanatory-broll.mjs")],
     "十类解释型 B-roll—九种布局—Gallery 动画预览浏览器检查",
+  );
+}
+
+if (runBrowserChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [
+      path.join(scriptDir, "self-test-editorial-title-card.mjs"),
+      ...(runFullChecks ? ["--mediaflow"] : []),
+    ],
+    runFullChecks
+      ? "编辑标题卡智能路由—六种输出变体—MediaFlow Pro 真实导出检查"
+      : "编辑标题卡智能路由—六种输出变体—确定性浏览器消费者检查",
   );
 }
 

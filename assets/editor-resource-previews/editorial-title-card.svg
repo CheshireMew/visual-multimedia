@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#101827"/><stop offset="1" stop-color="#17233a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#77e2c2"/><stop offset="1" stop-color="#6ea8ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="26" fill="url(#bg)"/>
+  <rect x="28" y="28" width="584" height="304" rx="20" fill="none" stroke="#ffffff" stroke-opacity=".12"/>
+  <rect x="52" y="62" width="536" height="154" rx="4" fill="#ffffff" fill-opacity=".025" stroke="#ffffff" stroke-opacity=".15"/><rect x="76" y="88" width="84" height="6" rx="3" fill="url(#accent)"/><path d="M76 126h336M76 168h420" stroke="#f7f9ff" stroke-width="18" stroke-linecap="round"/><path d="M76 198h248" stroke="#aab7cf" stroke-width="8" stroke-linecap="round"/>
+  <text x="52" y="260" fill="#f7f9ff" font-family="Segoe UI, sans-serif" font-size="34" font-weight="700">编辑式全屏标题卡</text>
+  <text x="52" y="300" fill="#aab7cf" font-family="Segoe UI, sans-serif" font-size="20">两行标题上揭 · 副标题柔和淡入</text>
+</svg>

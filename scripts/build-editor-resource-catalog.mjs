@@ -285,6 +285,7 @@ fs.mkdirSync(SOUND_EFFECT_ROOT, { recursive: true });
 const softCinemaPath = path.join(LUT_ROOT, "soft-cinema-17.cube");
 const cleanCoolPath = path.join(LUT_ROOT, "clean-cool-17.cube");
 const progressPreviewPath = path.join(PREVIEW_ROOT, "segmented-progress-rail.svg");
+const editorialTitlePreviewPath = path.join(PREVIEW_ROOT, "editorial-title-card.svg");
 const textMotionPreviewPath = path.join(PREVIEW_ROOT, "text-motion-gallery.svg");
 const softCinemaPreviewPath = path.join(PREVIEW_ROOT, "soft-cinema-17.svg");
 const cleanCoolPreviewPath = path.join(PREVIEW_ROOT, "clean-cool-17.svg");
@@ -298,6 +299,13 @@ fs.writeFileSync(progressPreviewPath, svgPreview({
   accent: "#55d6be",
   secondary: "#5b8cff",
   motif: '<rect x="52" y="104" width="536" height="18" rx="9" fill="#ffffff" fill-opacity=".12"/><rect x="52" y="104" width="356" height="18" rx="9" fill="url(#accent)"/><circle cx="408" cy="113" r="18" fill="#f7f9ff"/><path d="M52 152h112m20 0h112m20 0h112m20 0h140" stroke="#ffffff" stroke-opacity=".38" stroke-width="4"/>',
+}));
+fs.writeFileSync(editorialTitlePreviewPath, svgPreview({
+  title: "编辑式全屏标题卡",
+  subtitle: "两行标题上揭 · 副标题柔和淡入",
+  accent: "#77e2c2",
+  secondary: "#6ea8ff",
+  motif: '<rect x="52" y="62" width="536" height="154" rx="4" fill="#ffffff" fill-opacity=".025" stroke="#ffffff" stroke-opacity=".15"/><rect x="76" y="88" width="84" height="6" rx="3" fill="url(#accent)"/><path d="M76 126h336M76 168h420" stroke="#f7f9ff" stroke-width="18" stroke-linecap="round"/><path d="M76 198h248" stroke="#aab7cf" stroke-width="8" stroke-linecap="round"/>',
 }));
 fs.writeFileSync(textMotionPreviewPath, svgPreview({
   title: "确定性文字动效库",
@@ -327,7 +335,7 @@ const catalog = {
   protocol: "visual-multimedia-media-resource-catalog",
   version: 1,
   catalog_id: "visual-multimedia-core-resources",
-  catalog_version: "1.1.0",
+  catalog_version: "1.2.0",
   name: "Visual Multimedia Core Editor Resources",
   description: "Audited editable motion graphics, original LUTs, and original sound effects for compatible editors.",
   items: [
@@ -343,6 +351,19 @@ const catalog = {
       license: "MPL-2.0",
       attribution: "Original editable-media template by visual-multimedia.",
       previewPath: progressPreviewPath,
+    }),
+    editableMediaItem({
+      id: "editorial-title-card",
+      name: "编辑式全屏标题卡",
+      description: "两行主标题依次上揭、副标题柔和淡入，提供实色与透明背景的可编辑视频包装。",
+      packageRoot: path.join(ROOT, "assets", "editorial-title-card"),
+      tags: ["title", "opening", "chapter", "typography", "transparent"],
+      capabilities: ["editable-fields", "deterministic-seek", "multi-aspect", "transparent-background"],
+      rank: 15,
+      duration: 150,
+      license: "MPL-2.0",
+      attribution: "Original editable-media title card by visual-multimedia.",
+      previewPath: editorialTitlePreviewPath,
     }),
     editableMediaItem({
       id: "deterministic-text-motion-gallery",

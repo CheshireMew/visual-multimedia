@@ -1,8 +1,8 @@
 {
-  "active_style_count": 14,
-  "library_version": "2.0.0",
+  "active_style_count": 16,
+  "library_version": "2.1.0",
   "protocol": "visual-multimedia-shot-recipe-catalog",
-  "recipe_count": 116,
+  "recipe_count": 117,
   "recipes": [
     {
       "applicability": null,
@@ -901,6 +901,93 @@
         }
       ],
       "use": "片尾收束（全片 ≤1 次）"
+    },
+    {
+      "applicability": {
+        "default_style_id": "editorial-solid",
+        "placement_modes": [
+          "full-frame"
+        ],
+        "relationship_kinds": [],
+        "visual_source_kinds": [
+          "packaging"
+        ]
+      },
+      "behavior_fingerprint": "60af6ac84c00bcd4d4f7b2a3eb93784e4f75801409b73a79bc775507af6191e8",
+      "category": "typography",
+      "energy": "中低，标题依次上揭，副标题柔和淡入；完整结果保留主要时长供观众阅读。",
+      "id": "editorial-title-card",
+      "name": "编辑式全屏标题卡",
+      "path": "recipes/editorial-title-card.json",
+      "purpose": "用两行有先后关系的主标题建立开场或章节路标，再用可选副标题补充观看承诺并稳定停留。",
+      "semantic_tags": [
+        "title",
+        "opening",
+        "chapter",
+        "value-proposition",
+        "packaging"
+      ],
+      "sha256": "b51262e0bb8a6ae5b631a31737c753b58b5b01f4a28547beffb41904a637df12",
+      "status": "active",
+      "styles": [
+        {
+          "id": "editorial-solid",
+          "implementation_kind": "editable-media-package",
+          "label": "实色编辑式标题卡",
+          "manifest_sha256": "957cb202245cf7fabb079b0887d2010d9d7fe76fa80af0eec76fffa8365399f6",
+          "package": "assets/editorial-title-card",
+          "package_sha256": "ef53aa9d4e1a9ffde5e10da3addd8306d3ebbd4298ba827df6ef99dd3e0a13f2",
+          "scene_id": "editorial-title",
+          "status": "active",
+          "variant_profile_id": "editorial-solid",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square"
+            }
+          ]
+        },
+        {
+          "id": "editorial-transparent",
+          "implementation_kind": "editable-media-package",
+          "label": "透明编辑式标题卡",
+          "manifest_sha256": "957cb202245cf7fabb079b0887d2010d9d7fe76fa80af0eec76fffa8365399f6",
+          "package": "assets/editorial-title-card",
+          "package_sha256": "ef53aa9d4e1a9ffde5e10da3addd8306d3ebbd4298ba827df6ef99dd3e0a13f2",
+          "scene_id": "editorial-title",
+          "status": "active",
+          "variant_profile_id": "editorial-transparent",
+          "variants": [
+            {
+              "aspect_ratio": "16:9",
+              "placement_mode": "full-frame",
+              "variant_id": "landscape-transparent"
+            },
+            {
+              "aspect_ratio": "9:16",
+              "placement_mode": "full-frame",
+              "variant_id": "portrait-transparent"
+            },
+            {
+              "aspect_ratio": "1:1",
+              "placement_mode": "full-frame",
+              "variant_id": "square-transparent"
+            }
+          ]
+        }
+      ],
+      "use": "已经确认了短标题文字，当前片段只负责视频开场、章节路标、重要功能出场前的短价值主张或两段高密度内容之间的呼吸位时采用。"
     },
     {
       "applicability": null,

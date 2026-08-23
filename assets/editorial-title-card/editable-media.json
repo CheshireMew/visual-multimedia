@@ -1,0 +1,242 @@
+{
+  "protocol": "editable-media",
+  "version": 6,
+  "entry": "index.html",
+  "media_sources": "media-sources.json",
+  "playback": {
+    "mode": "hybrid",
+    "fps": 30,
+    "loop": "none",
+    "controls": {
+      "keyboard": true,
+      "wheel": true,
+      "touch": true,
+      "overview": true
+    }
+  },
+  "accessibility": {
+    "title_data_field": "title_line_1",
+    "canvas_selector": "#mediaCanvas"
+  },
+  "layers": [
+    {
+      "id": "frame",
+      "name": "Editorial frame",
+      "kind": "shape",
+      "selector": "[data-editable-id='frame']",
+      "default_bounds": {"x": 96, "y": 96, "width": 1728, "height": 888, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "accent-rule",
+      "name": "Accent rule",
+      "kind": "shape",
+      "selector": "[data-editable-id='accent-rule']",
+      "default_bounds": {"x": 192, "y": 222, "width": 210, "height": 8, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {}
+    },
+    {
+      "id": "title-line-1",
+      "name": "Title line one",
+      "kind": "text",
+      "selector": "[data-editable-id='title-line-1']",
+      "default_bounds": {"x": 192, "y": 270, "width": 1536, "height": 142, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 42, "maximum": 150, "step": 1}}
+    },
+    {
+      "id": "title-line-2",
+      "name": "Title line two",
+      "kind": "text",
+      "selector": "[data-editable-id='title-line-2']",
+      "default_bounds": {"x": 192, "y": 410, "width": 1536, "height": 142, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 42, "maximum": 150, "step": 1}}
+    },
+    {
+      "id": "subtitle",
+      "name": "Subtitle",
+      "kind": "text",
+      "selector": "[data-editable-id='subtitle']",
+      "default_bounds": {"x": 194, "y": 600, "width": 1180, "height": 72, "rotation": 0},
+      "editable": ["content", "color", "font_family", "font_size", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {"font_size": {"minimum": 20, "maximum": 64, "step": 1}}
+    },
+    {
+      "id": "index-mark",
+      "name": "Index mark",
+      "kind": "shape",
+      "selector": "[data-editable-id='index-mark']",
+      "default_bounds": {"x": 1682, "y": 886, "width": 70, "height": 28, "rotation": 0},
+      "editable": ["color", "x", "y", "width", "height", "rotation", "opacity", "z_index", "visible"],
+      "constraints": {}
+    }
+  ],
+  "component": {
+    "id": "editorial-title-card",
+    "name": "Editorial title card",
+    "category": "video-packaging",
+    "tags": ["title", "opening", "chapter", "typography", "editable", "transparent"],
+    "description": "两行主标题依次上揭、副标题柔和淡入的原创全屏视频标题卡。",
+    "preview_background": "#0b1020",
+    "preview_accent": "#77e2c2",
+    "aspect_ratios": ["16:9", "9:16", "1:1"]
+  },
+  "theme_variables": [
+    {"id": "background", "name": "Background", "kind": "color", "css_variable": "--background", "default": "#0b1020"},
+    {"id": "background_secondary", "name": "Background secondary", "kind": "color", "css_variable": "--background-secondary", "default": "#15233d"},
+    {"id": "text", "name": "Title text", "kind": "color", "css_variable": "--text", "default": "#f5f7fb"},
+    {"id": "muted", "name": "Subtitle text", "kind": "color", "css_variable": "--muted", "default": "#aab7cc"},
+    {"id": "accent", "name": "Accent", "kind": "color", "css_variable": "--accent", "default": "#77e2c2"},
+    {"id": "line", "name": "Frame line", "kind": "color", "css_variable": "--line", "default": "#ffffff24"},
+    {"id": "font_family", "name": "Font family", "kind": "font", "css_variable": "--font-family", "default": "Inter, Segoe UI, Microsoft YaHei, system-ui, sans-serif"},
+    {"id": "title_weight", "name": "Title weight", "kind": "number", "css_variable": "--title-weight", "default": 760},
+    {"id": "title_tracking", "name": "Title tracking", "kind": "string", "css_variable": "--title-tracking", "default": "-0.035em"}
+  ],
+  "parameters": [],
+  "scenes": [
+    {
+      "id": "editorial-title",
+      "name": "Editorial title",
+      "page_role": "video-packaging",
+      "content_shape": "two-line-title-with-subtitle",
+      "layout_id": "editorial-title-frame",
+      "duration_ms": 5000,
+      "primary_blocks": 3,
+      "steps": [
+        {"id": "quiet-frame", "at_ms": 0, "label": "画框建立", "state_kind": "start", "review": true, "description": "先建立安静的画面边界与标题落点。"},
+        {"id": "line-one", "at_ms": 360, "label": "第一行", "state_kind": "change", "review": true, "description": "第一行标题从遮罩下方上揭。"},
+        {"id": "line-two", "at_ms": 780, "label": "第二行", "state_kind": "change", "review": true, "description": "第二行标题承接第一行进入。"},
+        {"id": "subtitle-enter", "at_ms": 1480, "label": "副标题", "state_kind": "change", "review": true, "description": "副标题柔和淡入，补充当前观看承诺。"},
+        {"id": "readable-result", "at_ms": 2300, "label": "完整标题", "state_kind": "result", "review": true, "description": "完整标题稳定停留，保证阅读。"}
+      ],
+      "motion": {
+        "complexity": "simple",
+        "driver": "object",
+        "semantic_purpose": "用两次有先后关系的上揭建立标题层级，再让副标题补充观看承诺并稳定停留。",
+        "key_state_review": "none",
+        "camera": null
+      },
+      "parameters": {},
+      "data": {
+        "title_line_1": "把复杂内容",
+        "title_line_2": "变成清楚画面",
+        "subtitle": "可编辑、可预览、可继续调整"
+      },
+      "asset_slots": {}
+    }
+  ],
+  "layout_contracts": [
+    {
+      "id": "editorial-title-frame",
+      "name": "Editorial title frame",
+      "page_roles": ["video-packaging"],
+      "content_shapes": ["two-line-title-with-subtitle"],
+      "required_data_fields": ["title_line_1", "title_line_2", "subtitle"],
+      "required_layer_ids": ["title-line-1", "title-line-2"],
+      "title_layer_ids": ["title-line-1", "title-line-2"],
+      "content_layer_ids": ["subtitle"],
+      "capacity": {"maximum_primary_blocks": 3},
+      "asset_slots": []
+    }
+  ],
+  "variants": [
+    {
+      "id": "landscape",
+      "name": "Landscape solid",
+      "canvas": {"width": 1920, "height": 1080, "background_mode": "opaque", "background_color": "#0b1020"},
+      "layers": {
+        "frame": {"x": 96, "y": 96, "width": 1728, "height": 888},
+        "accent-rule": {"x": 192, "y": 222, "width": 210, "height": 8},
+        "title-line-1": {"x": 192, "y": 270, "width": 1536, "height": 142, "font_size": 88},
+        "title-line-2": {"x": 192, "y": 410, "width": 1536, "height": 142, "font_size": 88},
+        "subtitle": {"x": 194, "y": 600, "width": 1180, "height": 72, "font_size": 30},
+        "index-mark": {"x": 1682, "y": 886, "width": 70, "height": 28}
+      }
+    },
+    {
+      "id": "portrait",
+      "name": "Portrait solid",
+      "canvas": {"width": 1080, "height": 1920, "background_mode": "opaque", "background_color": "#0b1020"},
+      "layers": {
+        "frame": {"x": 52, "y": 64, "width": 976, "height": 1792},
+        "accent-rule": {"x": 96, "y": 492, "width": 176, "height": 8},
+        "title-line-1": {"x": 96, "y": 548, "width": 888, "height": 150, "font_size": 76},
+        "title-line-2": {"x": 96, "y": 700, "width": 888, "height": 150, "font_size": 76},
+        "subtitle": {"x": 98, "y": 900, "width": 840, "height": 94, "font_size": 34},
+        "index-mark": {"x": 866, "y": 1694, "width": 70, "height": 28}
+      }
+    },
+    {
+      "id": "square",
+      "name": "Square solid",
+      "canvas": {"width": 1080, "height": 1080, "background_mode": "opaque", "background_color": "#0b1020"},
+      "layers": {
+        "frame": {"x": 54, "y": 54, "width": 972, "height": 972},
+        "accent-rule": {"x": 96, "y": 282, "width": 176, "height": 8},
+        "title-line-1": {"x": 96, "y": 330, "width": 888, "height": 132, "font_size": 72},
+        "title-line-2": {"x": 96, "y": 462, "width": 888, "height": 132, "font_size": 72},
+        "subtitle": {"x": 98, "y": 660, "width": 840, "height": 82, "font_size": 31},
+        "index-mark": {"x": 866, "y": 906, "width": 70, "height": 28}
+      }
+    },
+    {
+      "id": "landscape-transparent",
+      "name": "Landscape transparent",
+      "canvas": {"width": 1920, "height": 1080, "background_mode": "transparent", "background_color": "#00000000"},
+      "layers": {
+        "frame": {"x": 96, "y": 96, "width": 1728, "height": 888},
+        "accent-rule": {"x": 192, "y": 222, "width": 210, "height": 8},
+        "title-line-1": {"x": 192, "y": 270, "width": 1536, "height": 142, "font_size": 88},
+        "title-line-2": {"x": 192, "y": 410, "width": 1536, "height": 142, "font_size": 88},
+        "subtitle": {"x": 194, "y": 600, "width": 1180, "height": 72, "font_size": 30},
+        "index-mark": {"x": 1682, "y": 886, "width": 70, "height": 28}
+      }
+    },
+    {
+      "id": "portrait-transparent",
+      "name": "Portrait transparent",
+      "canvas": {"width": 1080, "height": 1920, "background_mode": "transparent", "background_color": "#00000000"},
+      "layers": {
+        "frame": {"x": 52, "y": 64, "width": 976, "height": 1792},
+        "accent-rule": {"x": 96, "y": 492, "width": 176, "height": 8},
+        "title-line-1": {"x": 96, "y": 548, "width": 888, "height": 150, "font_size": 76},
+        "title-line-2": {"x": 96, "y": 700, "width": 888, "height": 150, "font_size": 76},
+        "subtitle": {"x": 98, "y": 900, "width": 840, "height": 94, "font_size": 34},
+        "index-mark": {"x": 866, "y": 1694, "width": 70, "height": 28}
+      }
+    },
+    {
+      "id": "square-transparent",
+      "name": "Square transparent",
+      "canvas": {"width": 1080, "height": 1080, "background_mode": "transparent", "background_color": "#00000000"},
+      "layers": {
+        "frame": {"x": 54, "y": 54, "width": 972, "height": 972},
+        "accent-rule": {"x": 96, "y": 282, "width": 176, "height": 8},
+        "title-line-1": {"x": 96, "y": 330, "width": 888, "height": 132, "font_size": 72},
+        "title-line-2": {"x": 96, "y": 462, "width": 888, "height": 132, "font_size": 72},
+        "subtitle": {"x": 98, "y": 660, "width": 840, "height": 82, "font_size": 31},
+        "index-mark": {"x": 866, "y": 906, "width": 70, "height": 28}
+      }
+    }
+  ],
+  "default_variant_id": "landscape",
+  "data_fields": [
+    {"id": "title_line_1", "name": "第一行标题", "kind": "string", "default": "把复杂内容"},
+    {"id": "title_line_2", "name": "第二行标题", "kind": "string", "default": "变成清楚画面"},
+    {"id": "subtitle", "name": "副标题", "kind": "string", "default": "可编辑、可预览、可继续调整"}
+  ],
+  "quality": {
+    "canvas_selector": "#mediaCanvas",
+    "roundtrip": {"data_field": "title_line_1", "layer_id": "title-line-1"},
+    "required_layer_ids": ["title-line-1", "title-line-2"],
+    "bounds_tolerance_px": 1,
+    "allow_overflow_layer_ids": ["title-line-1", "title-line-2"],
+    "minimum_font_px": {"title-line-1": 42, "title-line-2": 42, "subtitle": 20}
+  },
+  "delivery": {"preview": "local-server", "remote_dependencies": "forbid"},
+  "resources": ["editable-media-runtime.js"],
+  "frame_readiness": {"default_timeout_ms": 10000, "maximum_timeout_ms": 30000, "retry_limit": 1}
+}
