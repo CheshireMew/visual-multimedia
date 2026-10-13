@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>历史价格回放</title>
+  <link rel="stylesheet" href="editable-media-editor.css">
+  <link rel="stylesheet" href="price-history-layout.css">
+  <style>
+    :root { --background:#080f12; --text:#f4f6f5; --muted:#899498; --line:#1a2529; --accent:#96ed00; --negative:#ff7979; --font-display:"Microsoft YaHei",sans-serif; --font-body:"Microsoft YaHei",sans-serif; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; width:100%; height:100%; background:var(--background); color:var(--text); font-family:var(--font-body); overflow:hidden; }
+    .app { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr) 64px; grid-template-areas:"viewport" "controls"; width:100vw; height:100vh; gap:12px; padding:12px; }
+    .viewport { grid-area:viewport; width:100%; height:100%; display:grid; place-items:center; overflow:hidden; }
+    .canvas-shell { width:1920px; height:1080px; flex-shrink:0; }
+    .media-canvas { width:1920px; height:1080px; transform-origin:top left; position:relative; overflow:hidden; background:var(--background); isolation:isolate; }
+    .ambient { position:absolute; width:1100px; height:1100px; left:400px; top:20px; background:radial-gradient(ellipse,var(--accent),transparent 65%); opacity:.045; pointer-events:none; }
+    [data-editable-id] { position:absolute; }
+    h1 { margin:0; text-align:center; font-size:54px; font-weight:650; line-height:1.35; white-space:nowrap; font-family:var(--font-display); }
+    h1 em { color:var(--accent); font-style:normal; }
+    .metrics { text-align:right; font-variant-numeric:tabular-nums; }
+    .metrics .caption { color:var(--muted); font-size:20px; letter-spacing:2px; }
+    .metrics .value { font-size:70px; line-height:1.16; font-weight:750; color:var(--accent); text-shadow:0 0 30px color-mix(in srgb,var(--accent),transparent 78%); }
+    .metrics .return { color:var(--accent); font-size:26px; margin-top:7px; }
+    .metrics .date { color:var(--muted); font-size:22px; margin-top:7px; letter-spacing:2px; }
+    .chart { color:var(--accent); }
+    .chart svg { display:block; width:100%; height:100%; overflow:visible; }
+    .footer { color:var(--muted); font-size:17px; line-height:1.8; text-align:center; white-space:pre-line; }
+    .summary { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; background:color-mix(in srgb,var(--background),transparent 5%); border:1px solid var(--line); border-radius:28px; box-shadow:0 15px 100px #0008; pointer-events:none; }
+    .summary .label { font-size:27px; letter-spacing:3px; color:var(--muted); }
+    .summary .value { font-size:112px; line-height:1.4; font-weight:750; color:var(--accent); font-variant-numeric:tabular-nums; }
+    .summary .return { font-size:34px; margin-bottom:18px; }
+    .summary .detail { font-size:23px; line-height:1.9; color:var(--muted); }
+    .controls { grid-area:controls; height:64px; display:flex; align-items:center; justify-content:center; gap:18px; padding:10px 24px; background:#141d22; }
+    .controls button { color:var(--text); background:#26353c; border:0; border-radius:6px; padding:8px 20px; cursor:pointer; }
+    .controls input { width:min(700px,55vw); accent-color:var(--accent); }
+    .controls output { min-width:90px; font-variant-numeric:tabular-nums; }
+    .editor-toggle { position:fixed; right:24px; bottom:94px; z-index:60; display:flex; align-items:center; gap:9px; padding:13px 20px; border:1px solid #ffffff28; border-radius:28px; background:var(--accent); color:#080f12; box-shadow:0 8px 30px #0006; font:700 16px var(--font-body); cursor:pointer; }
+    .editor-toggle svg { width:18px; height:18px; }
+    .editor-toggle:hover { filter:brightness(1.08); }
+    .editor-toggle:focus-visible { outline:2px solid var(--text); outline-offset:4px; }
+    #editableMediaEditorMount .editor-panel { display:none; position:fixed; top:20px; right:20px; bottom:156px; width:min(360px,calc(100vw - 40px)); z-index:50; }
+    body.editor-open #editableMediaEditorMount .editor-panel { display:grid; }
+    .app .editor-return { display:none!important; }
+    body.capture .controls,body.capture #editableMediaEditorMount,body.capture .editor-toggle,body.capture .editor-return,html[data-editable-capture="true"] .controls { display:none; }
+    body.capture .app { display:block; padding:0; }
+    body.capture .viewport,html[data-editable-capture="true"] .viewport { height:100%; }
+    body.capture .canvas-shell { width:1920px!important; height:1080px!important; }
+    body.capture .media-canvas { transform:none!important; }
+  </style>
+</head>
+<body>
+  <div class="app" data-editable-media-app data-editable-media-root data-composition-id="editable-media" data-no-timeline data-start="0" data-duration="59" data-width="1920" data-height="1080" data-fps="30">
+  <div class="viewport"><div class="canvas-shell">
+    <main id="mediaCanvas" class="media-canvas">
+      <div class="ambient"></div>
+      <h1 data-editable-id="title" data-editable-data="title"></h1>
+      <section class="metrics" data-editable-id="metrics" aria-label="当前持仓价值">
+        <div class="caption"></div><div class="value"></div><div class="return"></div><div class="date"></div>
+      </section>
+      <div class="chart" data-editable-id="chart"><svg aria-label="历史持仓价值曲线"></svg></div>
+      <div class="footer" data-editable-id="footer" data-editable-data="footer"></div>
+      <section class="summary" data-editable-id="summary"><div class="label"></div><div class="value"></div><div class="return"></div><div class="detail"></div></section>
+    </main>
+  </div></div>
+  <div class="controls" data-editable-interactive><button id="play">播放 / 暂停</button><input id="seek" type="range" min="0" step="0.01"><output id="time"></output></div>
+  <div id="editableMediaEditorMount"></div>
+  <button id="edit" class="editor-toggle" type="button" data-editable-interactive aria-controls="editorPanel" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6Z"/><path d="m14 5 5 5"/></svg><span id="editLabel">编辑</span></button>
+  </div>
+  <script>if(new URLSearchParams(location.search).get("capture")==="1")document.body.classList.add("capture");</script>
+  <script src="editable-media-runtime.js" data-manifest="editable-media.json"></script>
+  <script type="module" src="price-history-renderer.mjs"></script>
+  <script src="editable-media-editor.js"></script>
+</body>
+</html>

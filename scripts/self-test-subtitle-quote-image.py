@@ -205,6 +205,7 @@ def main() -> int:
         "strip_heights": strip_heights,
         "item_count": 6,
         "background_frame_mode": "shared-first-item",
+        "strip_background": "shared-frame",
         "source_crop": {
             "hero_top": hero_y0,
             "hero_bottom": hero_y1,
@@ -256,6 +257,37 @@ def main() -> int:
     if "hero_primary_px" in spec["typography"] or "strip_primary_px" in spec["typography"]:
         raise RuntimeError("第一句和后续字幕不得使用两套字号")
     run(render_command, expect_success=False)
+    black_spec = json.loads(json.dumps(spec))
+    black_spec["canvas"]["strip_background"] = "black"
+    black_spec["output"]["format"] = "png"
+    write_json(project / "subtitle-quote-image.black.json", black_spec)
+    run(base + [
+        "render", "--project", str(project), "--spec", "subtitle-quote-image.black.json",
+        "--output", "renders/black", "--ffmpeg", ffmpeg, "--ffprobe", ffprobe,
+    ])
+    black_report = json.loads((project / "renders" / "black" / "render-report.json").read_text(encoding="utf-8"))
+    if black_report["items"][0]["rendered_item_sha256"] != report["items"][0]["rendered_item_sha256"]:
+        raise RuntimeError("修改下方黑底时改变了主画面或第一条字幕")
+    if black_report["source"]["background_frame"]["reuse"] != "hero-only":
+        raise RuntimeError("纯黑字幕带仍然被报告为复用原图")
+    with Image.open(project / "renders" / "black" / "subtitle-quote-collage.png") as black_image:
+        if black_image.size != (1440, expected_height):
+            raise RuntimeError("修改下方黑底时改变了画布尺寸")
+        for original, black_item in zip(report["items"][1:], black_report["items"][1:]):
+            if original["bounds"] != black_item["bounds"] or original["text_layout"] != black_item["text_layout"]:
+                raise RuntimeError("修改下方黑底时改变了字幕排版")
+            if black_item["background_mode"] != "black" or black_item["background_frame_reused"] or any(
+                black_item[key] is not None for key in ("background_frame", "background_frame_sha256", "source_crop")
+            ):
+                raise RuntimeError("纯黑字幕带保留了不真实的原图裁切记录")
+            bound = black_item["bounds"]
+            edge = black_image.crop((0, bound["y"], 24, bound["y"] + bound["height"]))
+            if edge.getbbox() is not None:
+                raise RuntimeError("下方字幕背景没有渲染为纯黑")
+            pad = black_item["text_layout"]["vertical_padding"]
+            for y0, y1 in ((bound["y"], bound["y"] + pad), (bound["y"] + bound["height"] - pad, bound["y"] + bound["height"])):
+                if black_image.crop((0, y0, 1440, y1)).getbbox() is not None:
+                    raise RuntimeError("文字进入上下内边距，字形位置错误或英文下伸部分被截断")
     pending_review = {
         "protocol": "visual-multimedia-subtitle-quote-image-review",
         "version": 1,
@@ -296,7 +328,68 @@ def main() -> int:
     completed_delivery = json.loads((project / "reports" / "delivery-complete.json").read_text(encoding="utf-8"))
     if completed_delivery.get("delivery_ready") is not True or not all(completed_delivery.get("checks", {}).values()):
         raise RuntimeError("完整复核和权利通过后仍未得到交付就绪")
-    print(json.dumps({"status": "passed", "project": str(project), "final": str(final), "report": str(report_path), "delivery": str(project / "reports" / "delivery-complete.json")}, ensure_ascii=False, indent=2))
+    paged = json.loads(json.dumps(black_spec))
+    first = paged["items"][0]
+    cut = transcript["segments"][0]["text"].index("quote")
+    first["transcript_spans"] = [{"segment_id": segment_ids[0], "start_char": 0, "end_char": cut}]
+    first["secondary_text"] = transcript["segments"][0]["text"][:cut].strip()
+    first["primary_text"] = "第一行\n第二行\n第三行"
+    continuation = json.loads(json.dumps(first))
+    continuation.update({"id": "quote-1-rest", "role": "strip", "primary_text": "原文同一时间段的下一句", "secondary_text": transcript["segments"][0]["text"][cut:]})
+    continuation["transcript_spans"] = [{"segment_id": segment_ids[0], "start_char": cut, "end_char": len(transcript["segments"][0]["text"])}]
+    paged["items"].insert(1, continuation)
+    paged["items"][3]["role"] = "hero"
+    paged["canvas"].update({"height": 1920, "hero_source_bottom": 1})
+    paged["pages"] = [{"id": "page-1", "item_ids": [item["id"] for item in paged["items"][:3]]}, {"id": "page-2", "item_ids": [item["id"] for item in paged["items"][3:]]}]
+    write_json(project / "subtitle-quote-image.paged.json", paged)
+    measured = json.loads(run(base + ["validate", "--project", str(project), "--spec", "subtitle-quote-image.paged.json", "--ffprobe", ffprobe]).stdout)
+    if len(measured["pages"]) != 2 or len(measured["pages"][0]["text_layouts"][0]["primary_lines"]) != 3:
+        raise RuntimeError("分页或超过两行的字幕没有经过真实测量")
+    for name, mutate in [
+        ("overlap", lambda candidate: candidate["items"][1]["transcript_spans"][0].update({"start_char": cut - 1})),
+        ("missing-page-item", lambda candidate: candidate["pages"][1]["item_ids"].pop()),
+        ("overflow", lambda candidate: candidate["canvas"].update({"height": 800})),
+    ]:
+        candidate = json.loads(json.dumps(paged))
+        mutate(candidate)
+        relative = f"subtitle-quote-image.invalid-{name}.json"
+        write_json(project / relative, candidate)
+        run(base + ["validate", "--project", str(project), "--spec", relative, "--ffprobe", ffprobe], expect_success=False)
+    run(base + ["render", "--project", str(project), "--spec", "subtitle-quote-image.paged.json", "--output", "renders/paged", "--ffmpeg", ffmpeg, "--ffprobe", ffprobe])
+    paged_report_path = project / "renders/paged/render-report.json"
+    paged_report = json.loads(paged_report_path.read_text(encoding="utf-8"))
+    paged_finals = [entry for entry in paged_report["outputs"] if entry["role"] == "final"]
+    if len(paged_finals) != 2 or len(list((project / "renders/paged/frames").glob("*.png"))) != 1:
+        raise RuntimeError("多页没有完整输出或重复取帧")
+    for entry in paged_finals:
+        with Image.open(project / "renders/paged" / entry["file"]) as rendered:
+            if rendered.size != (1440, 1920):
+                raise RuntimeError("竖版页面尺寸不正确")
+    for page in paged_report["pages"]:
+        page_items = [item for item in paged_report["items"] if item["page_id"] == page["id"]]
+        if sum(item["bounds"]["height"] for item in page_items) != page["content_height"] or page_items[0]["source_crop"] != {"top": 0, "bottom": 360}:
+            raise RuntimeError("分页没有保留完整原画面或字幕几何不正确")
+        if any(item["bounds"]["height"] != item["text_layout"]["caption_band_height"] for item in page_items[1:]):
+            raise RuntimeError("固定画布余白仍被分摊到字幕组之间")
+        with Image.open(project / "renders/paged" / next(entry["file"] for entry in paged_finals if entry["page_id"] == page["id"])) as rendered:
+            footer = rendered.crop((0, page["content_height"], 1440, 1920)).convert("RGB")
+            if footer.getcolors(1) != [(footer.width * footer.height, (17, 17, 17))]:
+                raise RuntimeError("用户指定的固定画布余白没有保留在整张图底部")
+        if any(item["background_frame"] is not None for item in page_items[1:]):
+            raise RuntimeError("分页黑底错误地复用了原片")
+    paged_review = {key: value for key, value in approved_review.items() if key not in {"final", "final_sha256"}}
+    paged_review.update({"render_report": "renders/paged/render-report.json", "render_report_sha256": sha256(paged_report_path), "finals": [{"file": "renders/paged/" + entry["file"], "sha256": entry["sha256"]} for entry in paged_finals]})
+    write_json(project / "reports/review-paged.json", paged_review)
+    run(base + ["finalize", "--project", str(project), "--render-report", "renders/paged/render-report.json", "--review", "reports/review-paged.json", "--output", "reports/delivery-paged.json", "--require-delivery-ready"])
+    for name in ("missing", "bad-hash"):
+        candidate = json.loads(json.dumps(paged_review))
+        if name == "missing":
+            candidate["finals"].pop()
+        else:
+            candidate["finals"][1]["sha256"] = "0" * 64
+        write_json(project / f"reports/review-paged-{name}.json", candidate)
+        run(base + ["finalize", "--project", str(project), "--render-report", "renders/paged/render-report.json", "--review", f"reports/review-paged-{name}.json", "--output", f"reports/delivery-paged-{name}.json"], expect_success=False)
+    print(json.dumps({"status": "passed", "project": str(project), "final": str(final), "portrait_pages": len(paged_finals), "delivery": str(project / "reports/delivery-paged.json")}, ensure_ascii=False, indent=2))
     return 0
 
 

@@ -17,13 +17,13 @@ D:\Tools\Python310\python.exe scripts\voiceover_reference_library.py show
 当前用户已经指定的正式根目录是：
 
 ```text
-E:\Work\BaiduSyncdisk\Code\Cheshire-skill\visual-multimedia\口播私人库
+E:\Code\Cheshire-skill\visual-multimedia\口播私人库
 ```
 
 首次建立时运行：
 
 ```powershell
-D:\Tools\Python310\python.exe scripts\voiceover_reference_library.py init --root "E:\Work\BaiduSyncdisk\Code\Cheshire-skill\visual-multimedia\口播私人库"
+D:\Tools\Python310\python.exe scripts\voiceover_reference_library.py init --root "E:\Code\Cheshire-skill\visual-multimedia\口播私人库"
 ```
 
 接入已经存在的 v3 私人库时使用 `adopt --root <位置>`。脚本把唯一根目录保存在当前用户的 `.visual-multimedia/voiceover-reference-library-config.json`；配置只是指针，正文资源仍全部位于私人库。

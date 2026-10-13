@@ -16,7 +16,7 @@
 
 ## 何时必须联动 MediaFlow Pro
 
-修改以下任一边界前，必须同时检查 `E:\Work\BaiduSyncdisk\Code\MediaFlow Pro`：
+修改以下任一边界前，必须同时检查 `E:\Code\MediaFlow Pro`：
 
 - `editable-media` schema、协议版本、字段语义、默认继承、场景、变体、图层、质量规则或 production 元数据；
 - `assets/web-media-starter/`、作为合同案例使用的 `assets/web-card-cases/`，以及它们的入口、运行时或素材账本；
@@ -59,7 +59,7 @@
 2. 在 MediaFlow Pro 根目录运行：
 
    ```powershell
-   D:\Tools\MediaFlow\.venv\Scripts\python.exe scripts\sync_visual_multimedia_fixture.py "E:\Work\BaiduSyncdisk\Code\Cheshire-skill\visual-multimedia" --destination tests\fixtures
+   D:\Tools\MediaFlow\.venv\Scripts\python.exe scripts\sync_visual_multimedia_fixture.py "E:\Code\Cheshire-skill\visual-multimedia" --destination tests\fixtures
    ```
 
 3. 运行 MediaFlow Pro 的合同测试以及受影响的导入、网页编辑、渲染、时间线和导出测试。至少包含：

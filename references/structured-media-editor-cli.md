@@ -25,6 +25,10 @@ CLI 是一次请求一个进程的 JSON 客户端。请求使用它声明的 `me
 
 产品无关的混合时间线先按 `schemas/media-timeline.v1.schema.json` 建立。MediaFlow Pro 的导入能力经本轮检查确认就绪时，默认先用 `timeline.portable.inspect` 检查合同、相对素材、哈希、轨道和字幕，再在空工程中调用 `timeline.portable.import`；MediaFlow Pro 把视频、音频、图片、定格、画面位置、声音、语义标记和字幕样式映射为原生工程内容。导入成功后 `project.mfp` 成为唯一活动时间线，本地 portable timeline 只保留为迁移输入，不能继续双向修改。没有可用 MediaFlow Pro 时，portable timeline 继续作为完整活动真源。
 
+当已经确认的完整 portable timeline 需要进入 MediaFlow Pro 建工程并导出时，先确认本轮 `describe` 声明 `production.bundle.inspect`，再把时间线路径、必须存在的字幕轨、必须保留的原声 source id、可选零帧封面及其最大帧数、输出规格和语音审查规则写进一份 `mediaflow-production-bundle` v1，通过 `mediaflow-cli produce --request <文件>` 一次提交。首轮在 `project` 中写 `name` 与 `directory_name`；后续轮次改写完成结果返回的绝对 `project.path` 为 `project.existing_path`，继续同一个原生工程。续做时 portable timeline 必须与该主序列最初导入的文件哈希一致，导入后的字幕、片段和画面修改一律通过公开原生时间线操作回写，不能维护或重新导入另一条 portable 真源。多场景、长时或高成本视频把活动 `media-build-plan.json` 的连续帧区间写入 `output.build_units`，由同一命令调用 `export.sequence.build`；没有构建单元时才走一次性 `export.sequence`。已经有可靠剪辑表时写入带时间范围的原声语句，软件在建工程前检查完全重复、错误起句后重说和高度相似；默认发现候选就返回 `review_required`，不得建工程、渲染或自动删句。
+
+没有可靠剪辑表时先确认 `transcript.sequence.transcribe` 和 `speech.review.inspect`，再设置 `speech_review.auto_transcribe=true` 与 `dialogue_track_id`。MediaFlow Pro 导入后直接转写这条保留原声轨，并返回相似重录、孤立口水字以及开头、中间、结尾无语音区候选；视频轨的关联原声音轨 id 是 `<portable-video-track-id>--linked-audio`，独立音频轨沿用 portable track id。开头无语音区只证明转写前没有识别到话语，可能是吸气、口腔音、底噪或等待，Agent 必须实际试听，不能把它写成软件已经识别出吸气。存在自动候选时工程与转写保留，但版本和渲染不开始；删除前先调用 `transcript.edit.preview`，确认后再调用可恢复的 `transcript.edit.apply`。候选清理完成后，同一生产命令才继续命名版本、导出等待、质量报告和交接检查。完成结果中的 `timeline.required_audio_provenance` 必须把每个 portable 原声 source id 映射到导入后的外部素材 id 和仍然启用的原生片段，`verification.export_matches_current_revision` 必须为真；缺少任一项就不能声称最终导出保留了指定原声。Skill 不再为这些固定步骤生成成批独立请求文件。`batch --request` 仍只用于同一个已有工程中的可撤销原子编辑，不能替代这条跨建工程和异步任务的生产入口。
+
 常用交接是异步的：AI 完成一轮后调用 `project.version.create` 建立命名版本，用户在桌面端继续修改，下一轮 AI 先调用 `project.changes.list` 读取版本之后的人工事件，再用 `project.handoff.inspect` 检查离线素材、当前修订、最后导出和工程是否可继续交接。多项关联修改用 CLI 的 `batch --request` 作为同一个 Editor Service 事务提交；任一操作失败时整批不落盘。这个流程不要求双方同时在线，也不要求 MCP。
 
 MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官方 GPT-SoVITS 子进程；这仍属于一次公开操作，不授权 Skill 自己常驻 `api_v2.py`、探测端口或保存第二套进程状态。
@@ -73,6 +77,16 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 - 用户明确要求参考视频复刻、匹配或逐帧对齐，并且 `describe` 声明 `quality.reference.compare` 时，用该操作比较最终参考文件和候选文件；它不依赖项目数据库，也不改变网页或时间线。
 - 执行大范围自动修改前可用 `project.version.create` 建立命名恢复版本；`project.version.list/restore` 负责查看和恢复，不把项目版本塞进网页清单。
 
+当本轮 `describe` 同时声明相应 operation 与 capability 时，外部 Agent 还可以沿以下公开边界完成原生后期工作；这些状态都属于 MediaFlow Pro 项目，不能反写进 `editable-media` 网页清单：
+
+- 原生片段动画使用 `timeline.clip.transform.keyframe.*`、`timeline.clip.effect.keyframe.*` 和 `timeline.clip.mask.keyframe.*`。蒙版通过 `timeline.clip.mask.add/update/move/remove` 管理稳定顺序；Bezier 点的入射/出射控制柄写在 `MaskGeometry.points`，`combine_mode` 只使用 `replace/add/subtract/intersect`。调用端不得把桌面画布坐标或临时选区另存成第二套蒙版状态。
+- 母版派生交付序列先调用 `sequence.variant.plan` 查看三方差异和逐路径冲突，再把明确的 `conflict_resolutions` 交给 `sequence.variant.generate`。无冲突的本地改动会保留；不能用 `force` 隐式覆盖，只有用户明确要求整体采用母版时才选择该语义。
+- 审阅协作使用 `review.snapshot.capture` 绑定当前项目修订、时间线修订和真实预览帧，再用 `review.snapshot.markup.set` 保存矢量标注；跨工程交接只使用 `review.package.export/import` 产生和校验哈希绑定的 `.mfr` 包，不复制 MediaFlow Pro 私有数据库。
+- 多机位先用 `multicam.sync.analyze` 明确选择 `timecode` 或 `waveform`，检查返回的机位同步帧与可信度，再调用 `multicam.group.create`。节目音频按项目需要选择跟随机位或连续主机位音频，不能从画面切换结果猜音频策略。
+- 旁白与 ADR 使用 `voiceover.cue.*` 和 `voiceover.take.*`；真实录音设备先通过 `voiceover.latency.get/list` 读取校准。声学校准录音交给 `voiceover.latency.analyze`，已知设备补偿可用 `voiceover.latency.set` 明确写入。录制 take 固化当时的校准值，后续重校准不得悄悄改变旧 take。
+- 项目迁移前先调用 `project.collection.preview/apply` 归集并校验外部素材，再使用 `project.archive.create` 生成可重开的自包含目录。时间线交换先以 `timeline.interchange.inspect` 检查 FCPXML 或 CMX 3600 EDL 的缺失素材和摘要，再用 `timeline.interchange.import` 创建新的可编辑序列；不覆盖活动序列，也不把解析失败降级为猜测导入。
+- 需要实际像素证据时用 `color.scope.analyze` 从预览/导出共同渲染边界读取直方图、亮度波形、RGB Parade、矢量图和黑白位统计。示波器数值只能证明信号分布，仍不能替代最终画面审看。
+
 桌面界面保持项目打开时也可以运行短进程 CLI 或 stdio MCP 客户端，但这只是同一 Editor Service 的可选即时投影，不是正式工作流的依赖。所有调用方仍使用 `base_revision`、持久事件和命名版本；冲突时重新读取并交给用户决定，任何调用方都不直接操作项目数据库。
 
 需要 Agent 与用户在已打开的桌面工程里往返协作时，先用 MCP 的 `mediaflow_workspace_list` 找到明确连接且工程路径匹配的 `workspace_session_id`，再通过 `mediaflow_workspace_command` 发送 `playhead.seek`、`playback.play/pause/stop`、`workspace.mode.activate` 或 `timeline.selection.set`。这些命令只改变用户当前看见的播放头、工作区和选择，不代替持久项目写操作。Agent 完成正式写入后可以把桌面切到 `resources`、`transcript` 或其它合同允许的模式，并选中本轮结果；用户在桌面完成修改后，Agent 必须重新调用 `project.context.inspect` 读取当前 `content_revision`、完整时间线、可选转写与交接状态，再决定下一次写入，不能沿用修改前的内存快照。
@@ -89,11 +103,17 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 
 采访原声讲解型 profile 当前采用“一段旁白一个已经验证的网页包”，并把每个片段以 `source_in=0` 和计划中的精确帧数加入 MediaFlow Pro。这是活动 profile 对当前消费者能力的适配，不是 MediaFlow Pro 或所有视频的全局规则。只有多场景任意入点经过真实链路验证，并通过新 profile 版本与新计划显式启用后，才可改用单包非零入点；调用端不能在渲染阶段自行试错或回退。
 
-`export.sequence.build` 是普通视频与 profile 共用的消费者能力，不保存 visual-multimedia 的阶段批准、文案或 profile 私有字段。输入单元必须有唯一 id、按顺序连续且位于真实序列范围内；输出规格来自当前请求的 preset。相同区间、素材、网页状态、字幕、全局视觉设置和规格才命中画面缓存；音频素材、路由或效果变化只失效连续音频母版和最终装配。变更构建单元划分时先更新通用构建计划，不在消费者内部猜场景边界。
+`export.sequence.build` 是普通视频与 profile 共用的消费者能力，不保存 visual-multimedia 的阶段批准、文案或 profile 私有字段。输入单元必须有唯一 id、按顺序连续且位于真实序列范围内；输出规格来自当前请求的 preset。相同区间、素材、网页状态、字幕、全局视觉设置和规格才命中画面缓存；音频素材、路由或效果变化只失效连续音频母版和最终装配。变更构建单元划分时先更新通用构建计划，不在消费者内部猜场景边界。`produce` 的分段完成结果必须从任务 outcome 原样返回 `output.build.units[*].status`、`output.build.audio.status` 和 `output.build.assembly_status`；只有这些字段才能证明哪些部分为 `reused`，不能用缓存目录或输出文件存在来代替。
 
 导入角色轨或其它由多个连续片段组成的覆盖轨时，先逐个导入真实素材，再使用本轮 `describe` 中的 `timeline.clip.batch.add` 一次提交全部已对齐片段。这个操作在应用层形成一项原子编辑：任何一项无效时整批不落盘，成功后可一次撤销，带相同 `request_id` 的重试不会重复摆放。它是普通时间线能力，不读取 `avatar-track-clips.json` 私有字段；调用端只把清单中的项目相对文件、起始帧和时长映射成公开参数。
 
-## 五、外部转写与声音克隆
+## 五、网络媒体下载、外部转写与声音克隆
+
+用户提供网络媒体链接并要求制作时，直接把原链接交给 MediaFlow Pro 的下载操作，不先搜索网页、用浏览器访问链接或自行解析站点。先从本机配置启动公开 CLI，读取本轮 `describe --operation download.analyze`、`download.start` 和 `task.get/wait/cancel/resume` 合同。下载使用 MediaFlow Pro 已有的 yt-dlp、站点解析、Cookie、代理和下载组件设置，Skill 不直接导入它的私有 Python 服务，也不另建下载器。
+
+下载操作复用持久项目任务：没有本轮下载工程时，先按当前公开合同调用 `project.create`，只使用返回的绝对工程路径。`download.analyze` 的 `arguments.url` 是用户给出的链接；提交返回 `task.id`，通过 `task.wait` 或 `task.get` 查看完成状态，成功后读取 `task.outcome.plan`。单视频采用该计划的可用条目；合集只采用用户点名条目，不默认下载整个合集。
+
+`download.start` 的 `arguments.request` 直接使用公开 `DownloadRequest` 合同，条目来自实际分析计划，画质与编码来自本轮要求或 MediaFlow Pro 设置，`output_directory` 使用其已配置媒体目录。下载与分析提交使用稳定 `request_id`；重试同一提交不重复建任务。任务仍通过 `task.get/wait/cancel/resume` 查询、等待、取消和恢复，不轮询目录猜进度。成功后从 `task.artifacts` 读取真实完成文件并按工程根解析相对路径，将视频、原始来源链接和回执一起交给 Skill 素材导入入口；不能把解析成功或下载任务刚提交写成下载完成。站点要求登录、链接失效或下载失败时，原样说明实际错误。
 
 需要 Faster-Whisper XXL 转写时，先确认 `speech.transcribe` 及其依赖的 `faster-whisper-xxl` 能力可用，再严格按返回 schema 提交真实音视频输入、SRT 输出位置和本次需要覆盖的语言、模型、设备、计算类型或覆盖选项。操作返回的引擎版本、输入与输出哈希、语言、实际时长和分段结果必须与真实 SRT 一起保存；随后用 `scripts/import-media-transcript.mjs --kind asr` 把 SRT 绑定到原始 source id 与哈希。自动转写仍从待复核状态开始，完整听音和纠错不能由引擎成功代替。
 

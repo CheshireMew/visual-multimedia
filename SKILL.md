@@ -1,6 +1,6 @@
 ---
 name: visual-multimedia
-description: 把已确认的内容真源或素材制作成可修改、可预览、可导出的技术图解、GIF、HTML 动画、Live Photo、产品功能宣传片、其它视频、音频或播客，并审查或写作标题、口播、字幕、节目结构和配套帖子。Use when the user asks to 选择载体、审查或制作媒体文案、诊断口播 AI 组织痕迹、维护口播私人库、制作可编辑网页视觉与多场景演示、导出技术图解/GIF/Live Photo、制作或对齐视频、剪辑实拍/访谈/录屏、从视频与事实转写制作字幕金句拼图、建立或使用无需 Live2D 的二次元口播角色、编辑音频或播客；不用于其它独立静态卡、社交卡、纯文字卡、轮播图或独立封面，也不用于 PPTX、研究或核查主题、从长材料筛选分享内容、独立纯文字内容、长文、拍摄规划、社媒运营或发布。
+description: 把确认内容制作成可编辑、可预览、可导出的技术图解、GIF、HTML 动画、Live Photo、产品功能宣传片、其它视频、音频或播客，并处理媒体文案。Use when the user asks to 制作网页视觉、剪辑或对齐实拍/访谈/录屏、为视频查找或添加免费可商用且不要求公开署名的 BGM、从本地视频或链接提取金句并制作字幕拼图、建立无需 Live2D 的二次元口播角色，或编辑音频与播客；不用于独立静态设计、PPTX、研究核查、长文、拍摄规划、账号运营或发布。
 ---
 
 # Visual Multimedia
@@ -8,6 +8,8 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 ## 目标与边界
 
 把成立内容转化为合适的媒体表达，并保留可修改的制作真源。Agent 负责载体判断、媒体文案、样稿、制作、修改、导出和真实结果检查；具体观点、事实、经历和来源仍由用户输入或上游内容真源决定。
+
+只完成用户要求的结果和必要工作，禁止擅自增加无关操作、产物或素材改动。不以美观、完整或顺手优化扩大任务；局部反馈只修改对应部分，保留其它内容、素材和已确认规格。必要的下载、转录、制作与检查直接完成，不增加逐步确认；完成后停止。
 
 适用于：
 
@@ -63,7 +65,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 根据内容怎样成立和现有素材选择一个首选载体：
 
 - 技术机制、接口、系统关系、流程或比较确实需要空间关系才能看懂时，优先技术图解；只靠一段文字或清单就能成立、又没有合适时间型载体时，完成媒体文案后停止。
-- 状态变化、数值变化、循环、反馈、局部演示或需要原位逐步显现的关系，优先 GIF 或动态图解。
+- 状态变化、循环和反馈优先动态图解；动态不等于 GIF，指定格式优先。
 - 由代码画面承担的多场景推进、逐步揭示或现场讲解，优先网页动画；需要演讲者决定何时推进时使用手动播放，需要连续观看或导出时使用自动播放，需要页内自动运动但在章节边界等待时使用混合播放。
 - 人物表达、故事、访谈、讲课、实拍、录屏，或多场景价值主要来自连续声音和镜头时，优先视频。
 - 主要价值来自讲述、对谈、访谈、声音氛围或适合伴随收听的连续内容，优先音频或播客。
@@ -73,8 +75,6 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 ### 2. 先完成并筛选媒体文案
 
 制作前先固定标题、节目结构、主字幕和事实边界。原创带语音视频的第一份用户可见成果必须是完整主语言字幕内容，不是提纲、英文、配音、方向或样片；确认后再派生其它内容。
-
-技术图解、网页视觉和视频包装只接收已经确认的最终上图文字；内容尚未确认时先完成上一节的清理与确认，不在视觉功能区再建一套筛选规则。
 
 主字幕按观众理解顺序写，用普通话说明对象、用途、观看价值和事实结果。内部字段与维护术语不进入字幕；必要术语先解释观众能复述的关系。确认后再分配旁白与画面职责。
 
@@ -86,7 +86,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 个人或系列媒体文案先按 `editorial_position` 选信息与评价方向，再从明确指令、声音样稿、口播真源和同语境合格候选生成 `voice_contract`。缺少个人声音证据时保持普通直接，不从案例、钩子或 AI 草稿推导。时长与密度由成品职责决定。
 
-已确认最终上图文字时不再改写；只有材料或长稿时由当前媒体文案路径形成并确认上图文字。技术图解、网页视觉和视频包装按阅读目的选择文字、表格、图形、图片或组合；图形仅在更易理解或用户明确要求时使用。只要求文案时交付后停止。
+技术图解、网页视觉和视频包装按阅读目的选择文字、表格、图形、图片或组合；图形仅在更易理解或用户明确要求时使用。只要求文案时交付后停止。
 
 ### 3. 建立语义片段和时间结构
 
@@ -161,15 +161,17 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 | 把已经确认内容真源和真实证据的 GitHub 仓库制作成约一分钟横版介绍视频 | `references/github-project-intro-production.md` | 使用 `github-project-intro@1.0.0`；沿 `create → 确认中文 content → prepare → validate → plan → confirm-plan → 综合样片 → render → review → finalize` 执行，未授权项目图片不进入候选 |
 | 口播需要流程、时间线、层级、因果、工具链、比较、拆解、指标、前后证据或真人分屏等解释型画面 | `references/explanatory-broll-production.md` | 由导演计划自动选择活动模板；MediaFlow Pro 对应能力就绪时优先用它装配和导出，否则保留本地完整制作 |
 | 用户明确要求按参考视频复刻、匹配、逐帧对齐或比较候选成片 | `references/reference-video-alignment.md` | 确定真实参考区间、目标还原层级、精确回放或参数化重建路径，并建立资产、运行时和交付证据 |
+| 历史价格与持仓收益回放视频 | `references/price-history-video-production.md` | 真实价格驱动曲线、日期与数值 |
 | 文字本身的进入、退出、替换、强调或逐字素、逐词、逐行构建承担主要表达职责 | `references/text-motion-production.md` | 从行为去重的正式目录选择效果，把分段和执行配方接入既有确定性时间线，并用当前真实文字审阅 |
 | 网页视觉中使用照片、截图、产品图、生成图或视频帧 | `references/visual-asset-placement.md` | 确认素材来源，按场景槽位处理主体、文字安全区、截图完整性和各输出变体裁切 |
 | 新的或实质重做的长视频、混合视频、音频、播客，或其它跨轮高成本时间型媒体 | `references/staged-media-production.md` | 用通用五阶段提交真实成果、逐阶段验收、记录全自动授权并控制局部失效范围 |
 | 视频、音频或播客实际进入素材导入、Faster-Whisper XXL 转写、片段选择、长任务状态、审阅和分级交付 | `references/media-project-contracts.md` | 使用唯一素材账本、事实转写、原片与代理关系、项目状态、结构化审阅和机器可读交付报告 |
 | 制作带语音的视频，或从最终旁白、最终合并视频、已复核转写生成可交付字幕 | `references/media-project-contracts.md`、`references/subtitle-production.md` | 原创视频先确认主语言字幕内容；最终声音只提供时间，再生成唯一字幕时间线、SRT、VTT 和短语级质检报告 |
-| 从已有视频与事实转写制作字幕金句拼图 | `references/media-project-contracts.md`、`references/subtitle-quote-image-production.md` | 默认原片无烧录字幕；按完整观点选内容、按可读性拆显示行；中上英下、不显出处；全部同字号并复用第一句背景，每行只保留文字与最小内边距 |
-| 把网页素材交给 MediaFlow Pro 继续精调、混剪、配音、字幕、外部转写，或导出透明覆盖层与普通视频 | `references/structured-media-editor-cli.md` | 从本机配置定位公开 CLI，只调用本轮声明的网页、透明媒体、Faster-Whisper XXL 或 GPT-SoVITS 操作 |
+| 从视频文件或链接制作字幕金句拼图 | `references/media-project-contracts.md`、`references/subtitle-quote-image-production.md`、`references/structured-media-editor-cli.md` | 默认原片无烧录字幕；链接直接下载、转录；选完整论述，双语尽量各一行、紧凑排列；连续内容按行数分页，远隔金句分开成图；保留原画面，交付全部图片与完整 SRT |
+| MediaFlow Pro 下载、网页精调、混剪、配音、字幕、转写和导出 | `references/structured-media-editor-cli.md` | 按本机配置调用实际声明的下载、网页、透明输出、转录和语音合成操作 |
 | 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 editable-media v6 网页包建立渲染副本，探测实际 adapter，经动态样片门禁后渲染并核对真实成片 |
 | 剪辑已有实拍、讲课、访谈、录屏或混合视频 | `references/video-post-production.md` | 先建立产品无关时间线；MediaFlow Pro 对应能力就绪时优先迁移为原生工程，否则本地完成；像素界面只承担受限操作 |
+| 为时间型媒体查找、下载或添加免费可商用且无需公开署名的 BGM | `references/background-music-production.md` | 检查内容与原音轨；只自动采用重新核验为精确 CC0 的候选，入账后合成试听预览 |
 | 从电影片段、纪录素材、游戏录像、课程、产品实拍、活动记录或录屏制作视频解说，包括只有一条未经处理的源视频时 | `references/source-video-commentary-production.md` | 使用 `source-video-commentary@1.0.0`；从 `prepare` 完成获准源片入账、镜头分析、联系表和可用转写，Agent 先写并展示 authoring 中的完整主语言字幕，确认后再沿 `synthesize → confirm-narration → materialize → validate → confirm-content → plan → confirm-plan → sample → confirm-sample → render → review → confirm-preview → finalize` 制作 |
 | 建立或使用无需 Live2D 的二次元口播角色 | `references/anime-avatar-production.md`、`references/anime-avatar-rendering.md` | Agent 建库并从真实语音生成口播轨 |
 | 把二次元角色轨放入固定角色窗 | `references/anime-avatar-rendering.md` | 固定裁切和坐标；无声区间保持动态闭嘴 |
@@ -185,7 +187,7 @@ description: 把已确认的内容真源或素材制作成可修改、可预览�
 
 长视频、混合视频、音频和播客先读 staged production，再从 media project starter 建立项目；综合样片后按构建计划拆分。真实人物素材先建立绑定原片哈希、经听音复核的事实转写。字幕拼图只沿 `scripts/subtitle-quote-image.py` 的 `candidates → validate → render → finalize` 运行；采访专用 profile 只运行 `scripts/interview-explainer.mjs`，不把普通素材硬套进去。
 
-需要生成声音时读取 `references/speech-synthesis.md`；音频可视化只让网页负责视觉部分，独立播客封面不在本 Skill 制作。用户明确要求 Live Photo 时才读取对应说明。实际导出只读取 `references/review-and-export.md` 中与当前结构化网页、视频或音频相符的部分。
+声音与导出按上表读取当前成品对应说明。Live Photo 仍须用户明确要求；音频可视化只由网页负责视觉，不制作独立播客封面。
 
 口播案例和钩子分别使用 `scripts/voiceover_reference_library.py`、`scripts/voiceover_hook_library.py`。二次元口播只通过 `scripts/anime-avatar-project.py`、`scripts/render-anime-avatar.py` 和 `scripts/compose-anime-avatar-inset.py`，注册库位于 `assets/anime-avatar-libraries/`；“夜希数字人”按注册资源采用，角色窗用 `scripts/self-test-anime-avatar-inset.py` 验证。采访原声讲解型和 GitHub 项目介绍只沿上表各自已经列明的完整活动命令链执行，并记录耗时、缓存与真实重试，不用省略内容确认或综合样片的快捷链，也不复制旧项目临时脚本。
 

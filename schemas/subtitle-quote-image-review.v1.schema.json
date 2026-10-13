@@ -9,50 +9,170 @@
     "version",
     "render_report",
     "render_report_sha256",
-    "final",
-    "final_sha256",
     "reviewed_at",
     "agent_review",
     "content_review",
     "user_confirmation"
   ],
   "properties": {
-    "protocol": {"const": "visual-multimedia-subtitle-quote-image-review"},
-    "version": {"const": 1},
-    "render_report": {"type": "string", "minLength": 1},
-    "render_report_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-    "final": {"type": "string", "minLength": 1},
-    "final_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-    "reviewed_at": {"type": "string", "format": "date-time"},
+    "protocol": {
+      "const": "visual-multimedia-subtitle-quote-image-review"
+    },
+    "version": {
+      "const": 1
+    },
+    "render_report": {
+      "type": "string",
+      "minLength": 1
+    },
+    "render_report_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "final": {
+      "type": "string",
+      "minLength": 1
+    },
+    "final_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "agent_review": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "opened_at_original_pixels", "notes"],
+      "required": [
+        "status",
+        "opened_at_original_pixels",
+        "notes"
+      ],
       "properties": {
-        "status": {"enum": ["pending", "passed", "changes-requested", "failed"]},
-        "opened_at_original_pixels": {"type": "boolean"},
-        "notes": {"type": "string"}
+        "status": {
+          "enum": [
+            "pending",
+            "passed",
+            "changes-requested",
+            "failed"
+          ]
+        },
+        "opened_at_original_pixels": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
     "content_review": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "notes"],
+      "required": [
+        "status",
+        "notes"
+      ],
       "properties": {
-        "status": {"enum": ["pending", "passed", "changes-requested", "failed"]},
-        "notes": {"type": "string"}
+        "status": {
+          "enum": [
+            "pending",
+            "passed",
+            "changes-requested",
+            "failed"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
     "user_confirmation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["required", "status", "confirmed_at", "evidence"],
+      "required": [
+        "required",
+        "status",
+        "confirmed_at",
+        "evidence"
+      ],
       "properties": {
-        "required": {"type": "boolean"},
-        "status": {"enum": ["not-requested", "pending", "approved", "rejected"]},
-        "confirmed_at": {"type": ["string", "null"], "format": "date-time"},
-        "evidence": {"type": "string"}
+        "required": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "not-requested",
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "confirmed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "evidence": {
+          "type": "string"
+        }
+      }
+    },
+    "finals": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file",
+          "sha256"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
       }
     }
-  }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "final",
+        "final_sha256"
+      ],
+      "not": {
+        "required": [
+          "finals"
+        ]
+      }
+    },
+    {
+      "required": [
+        "finals"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "final"
+            ]
+          },
+          {
+            "required": [
+              "final_sha256"
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

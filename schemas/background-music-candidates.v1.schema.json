@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visual-multimedia.background-music-candidates.v1",
+  "title": "Visual Multimedia Background Music Candidates v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "generated_at",
+    "request",
+    "license_policy",
+    "provider_runs",
+    "candidates"
+  ],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-background-music-candidates"},
+    "version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "request": {"$ref": "#/$defs/request"},
+    "license_policy": {"$ref": "#/$defs/licensePolicy"},
+    "provider_runs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/providerRun"}
+    },
+    "candidates": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/candidate"}
+    }
+  },
+  "$defs": {
+    "provider": {
+      "enum": ["openverse", "wikimedia-commons", "ccmixter"]
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "query",
+        "providers",
+        "limit",
+        "duration_min_seconds",
+        "duration_max_seconds",
+        "instrumental_preference"
+      ],
+      "properties": {
+        "query": {"type": "string", "minLength": 1},
+        "providers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/provider"}
+        },
+        "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+        "duration_min_seconds": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "duration_max_seconds": {
+          "type": ["number", "null"],
+          "exclusiveMinimum": 0
+        },
+        "instrumental_preference": {"type": "boolean"}
+      }
+    },
+    "licensePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commercial_use",
+        "public_attribution_required",
+        "accepted_licenses",
+        "fallback_to_attribution_required"
+      ],
+      "properties": {
+        "commercial_use": {"const": true},
+        "public_attribution_required": {"const": false},
+        "accepted_licenses": {"const": ["CC0-1.0"]},
+        "fallback_to_attribution_required": {"const": false}
+      }
+    },
+    "providerRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "api_url", "terms_url", "status", "error"],
+      "properties": {
+        "provider": {"$ref": "#/$defs/provider"},
+        "api_url": {"type": "string", "pattern": "^https?://"},
+        "terms_url": {"type": "string", "pattern": "^https?://"},
+        "status": {"enum": ["succeeded", "failed"]},
+        "error": {"type": "string"}
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "provider",
+        "remote_id",
+        "title",
+        "creator",
+        "description",
+        "duration_seconds",
+        "tags",
+        "instrumental_status",
+        "landing_url",
+        "download_url",
+        "download_filename",
+        "mime_type",
+        "file_extension",
+        "source_record_url",
+        "provider_terms_url",
+        "license",
+        "license_url",
+        "attribution_required"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "provider": {"$ref": "#/$defs/provider"},
+        "remote_id": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "creator": {"type": "string"},
+        "description": {"type": "string"},
+        "duration_seconds": {
+          "type": ["number", "null"],
+          "exclusiveMinimum": 0
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "instrumental_status": {
+          "enum": ["confirmed", "suggested", "unknown"]
+        },
+        "landing_url": {"type": "string", "pattern": "^https?://"},
+        "download_url": {"type": "string", "pattern": "^https?://"},
+        "download_filename": {"type": "string", "minLength": 1},
+        "mime_type": {"type": "string"},
+        "file_extension": {"type": "string"},
+        "source_record_url": {"type": "string", "pattern": "^https?://"},
+        "provider_terms_url": {"type": "string", "pattern": "^https?://"},
+        "license": {"const": "CC0-1.0"},
+        "license_url": {
+          "const": "https://creativecommons.org/publicdomain/zero/1.0/"
+        },
+        "attribution_required": {"const": false}
+      }
+    }
+  }
+}

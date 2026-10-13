@@ -43,6 +43,8 @@ It does not research an unverified topic, invent facts, choose what matters in a
 
 ## Quick start
 
+Historical price videos replay real stock or token prices with a scrolling chart, date, hypothetical holding value, and return. They retain an editable web source and export MP4. Existing Heimdall exchange fetching can provide the data; see [historical price video production](references/price-history-video-production.md).
+
 Load this repository in an Agent that supports Agent Skills, invoke `$visual-multimedia`, and provide the confirmed content or source files, the audience, and the result you need.
 
 ```text
@@ -57,7 +59,9 @@ Keep the speaker's original voice and show me the complete main-language caption
 
 ```text
 Use $visual-multimedia to select enough complete ideas from this interview without burned-in captions,
-then build a compact bilingual quote collage whose rows all reuse the first caption's background frame.
+then build compact quote pages, aiming for one Chinese line and one English line per group. Divide continuous excerpts evenly by displayed line count; keep quotes far apart on the timeline in separate images.
+Keep the full original hero frame, use pure black backgrounds
+for the lower captions, and provide file paths for every image and the complete transcript SRT.
 ```
 
 ```text
@@ -83,7 +87,7 @@ For fewer clarification rounds, include the confirmed source, intended audience 
 | Explanatory B-roll and packaging | Approved main-language captions or an existing voiceover, content relationships, layout, and real audio timing | Selected active templates, timeline-ready segments, and PNG, GIF, video, or transparent outputs |
 | Multi-scene HTML presentations | Final copy, scene order, and manual, automatic, or hybrid playback | One editable web source with interactive and continuous-export paths |
 | Interview, lecture, screen-recording, and live-action editing | Original media, reviewed transcript, clip bounds, and delivery target | Editable timeline, captions, mix, review evidence, and final media |
-| Video quote collage | Existing video, factual transcript, complete ideas, and their Chinese/English display rows | An auto-height hero-plus-strips collage, first-caption-only background candidates, hash-bound review, and an accurate delivery report |
+| Video quote collage | Local video or a video URL; uncaptioned media is transcribed and the Agent selects complete ideas | Compact bilingual rows, line-count pagination for continuous excerpts, separate images for distant quotes, the full original hero, optional black lower backgrounds, and paths to all images and the complete SRT |
 | Audio and podcasts | Recordings, program structure, narration, and sound requirements | Audio timeline, mix, and required companion files |
 | Reference-video matching | Exact reference range, target media, and desired fidelity | A separated exact-replay or parameterized-rebuild result with frame and viewing evidence |
 | Anime presenter video | A registered character or approved master/calibration media, plus real speech | Versioned character resources, reviewed timing, and a complete presenter track or inset |

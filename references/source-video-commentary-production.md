@@ -42,7 +42,7 @@
 
 `source-video-commentary-plan.json` 冻结 profile、draft、完整解说稿、素材账本、片段选择、转写和旁白包的哈希，并解析到真实文件和整数帧。它仍只引用 `clip_selection_id`，不保存 selection 的 start/end。实际节目位置由 plan 的连续整数帧和投影后的 `media-timeline.json` 负责；导入 MediaFlow Pro 后，`project.mfp` 成为唯一活动编辑状态。
 
-背景音乐不是仓库中的不明曲库。用户或项目提供的音乐先进入 `media-sources.json`，保存权利、来源和文件哈希；authoring 再确认是否采用、是否循环、基础增益、旁白时和原声时分别降低多少，以及淡入淡出。计划绑定真实音频与时长，portable timeline 生成独立音乐轨并按片段拆分增益；音乐变化会使计划、样片和下游失效。
+背景音乐不是仓库中的不明曲库。用户或项目提供的音乐通过 `import-bgm` 进入 `media-sources.json`；用户要求 Agent 查找免费可商用且不公开署名的音乐时，先检查源片、形成音乐需求，再用公开来源 CLI 检索、重新确认精确 CC0、下载并经同一个素材导入器入账。authoring 随后确认是否采用、是否循环、基础增益、旁白时和原声时分别降低多少，以及淡入淡出。计划绑定真实音频与时长，portable timeline 生成独立音乐轨并按片段拆分增益；音乐变化会使计划、样片和下游失效。
 
 字幕是内容阶段的观众确认对象和后续呈现合同，不是第二份事实转写。authoring 中每个 segment 至少提供一条主语言字幕；不能先写旁白、合成声音，再让 `materialize` 用整段旁白自动补字幕。每条字幕必须标记 `source_kind`：`narration` 绑定同一确认内容的旁白 segment，`transcript` 绑定已审核 transcript segment，`editorial` 表示经内容确认的解释性标题或压缩文案。materialize 后为每条中文补一条英文，二者必须使用同一真实 cue 边界；最终烧录时中文在上且更大，英文在下且更小。任一语言单条过长时拆成更短 cue，不让一屏重新塞回整段文字。
 
@@ -64,6 +64,7 @@
 node scripts/source-video-commentary.mjs prepare --project <项目目录> --project-id <id> --source <源视频> --source-id source-video --rights-status confirmed --license <权利依据> --transcription-mode auto --language zh
 node scripts/source-video-commentary.mjs confirm-transcript --project <项目目录> --confirmed-by user --evidence <完整听音依据>
 # Agent 查看获准源片的联系表、转写和必要片段，先写完整主语言字幕与同义旁白
+# 用户或项目已有曲目时用 import-bgm；需要 Agent 找免署名可商用曲目时改用 background-music-sources.mjs search → acquire，二者都写入同一素材账本
 node scripts/source-video-commentary.mjs import-bgm --project <项目目录> --input <已授权音乐> --source-id bgm-main --rights-status confirmed --license <权利依据>
 node scripts/source-video-commentary.mjs validate-authoring --project <项目目录>
 node scripts/source-video-commentary.mjs confirm-authoring --project <项目目录> --confirmed-by user --evidence <完整主字幕、同义旁白、选段、声音和音乐确认依据>
@@ -74,7 +75,7 @@ node scripts/source-video-commentary.mjs materialize --project <项目目录>
 node scripts/source-video-commentary.mjs validate --project <项目目录>
 ```
 
-没有人物讲话、不会采用任何原声文字，或用户已提供可靠字幕时，可以按真实情况使用 `--transcription-mode skip` 或导入现成字幕；不能为了省略复核而把需要保留的人物表达改写成无转写片段。用户不采用背景音乐时 authoring 明确保存 `background_music: null`，不会自动挑选一首不明音乐。
+没有人物讲话、不会采用任何原声文字，或用户已提供可靠字幕时，可以按真实情况使用 `--transcription-mode skip` 或导入现成字幕；不能为了省略复核而把需要保留的人物表达改写成无转写片段。用户不采用背景音乐时 authoring 明确保存 `background_music: null`。用户要求 Agent 找音乐时只从已经复核许可并入账的候选中采用；未提出这项要求时不会暗选曲目，任何时候都不会从不明音乐库自动补一首。
 
 ## 验收
 

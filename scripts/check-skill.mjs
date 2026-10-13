@@ -516,6 +516,7 @@ for (const schema of [
   "schemas/product-promo.v1.schema.json",
   "schemas/product-ui-capture.v1.schema.json",
   "schemas/music-beat-analysis.v1.schema.json",
+  "schemas/background-music-candidates.v1.schema.json",
   "schemas/github-project-intro.v1.schema.json",
   "schemas/media-operation-run.v1.schema.json",
 ]) {
@@ -534,6 +535,77 @@ for (const captionResource of [
   "scripts/self-test-bilingual-video-captions.mjs",
 ]) {
   ensurePath(captionResource);
+}
+
+const videoPostProductionText = fs.readFileSync(
+  ensurePath("references/video-post-production.md"),
+  "utf8",
+);
+for (const token of [
+  "保持原片旋转校正后的宽高比、分辨率和帧率",
+  "用户没有明确要求片头、标题卡、封面帧、背景替换、装饰边框或其它包装时",
+  "从当前活动项目、上一份获确认预览或明确点名的参考中读取并原样复用",
+  "先完成声音粗剪，再开始字幕排版、覆盖层和画面包装",
+  "原声主导的视频先从完整选段生成一份低成本、全时长的声音代理",
+  "原声项目再做一次不看字幕的全片声音试听",
+]) {
+  if (!videoPostProductionText.includes(token)) {
+    fail(`已有视频后期缺少防止历史返工的画布、包装、字幕继承或声音优先边界：${token}`);
+  }
+}
+for (const backgroundMusicResource of [
+  "references/background-music-production.md",
+  "schemas/background-music-candidates.v1.schema.json",
+  "scripts/background-music-sources.mjs",
+  "scripts/self-test-background-music-sources.mjs",
+]) {
+  ensurePath(backgroundMusicResource);
+}
+const backgroundMusicText = fs.readFileSync(
+  ensurePath("references/background-music-production.md"),
+  "utf8",
+);
+for (const token of [
+  "“免费可商用”不等于“不需要署名”",
+  "自动检索只接受精确 `CC0-1.0`",
+  "不能实际试听时，必须明确自己只完成了元数据和技术预筛",
+  "scripts/background-music-sources.mjs acquire",
+  "不要另建 `music-license.json`",
+]) {
+  if (!backgroundMusicText.includes(token)) {
+    fail(`免署名可商用 BGM 流程缺少许可、试听或唯一素材账本边界：${token}`);
+  }
+}
+for (const token of [
+  "references/background-music-production.md",
+  "免费可商用且不要求公开署名的 BGM",
+]) {
+  if (!skillText.includes(token)) fail(`SKILL.md 缺少 BGM 正式路由：${token}`);
+}
+for (const backgroundMusicScript of [
+  "background-music-sources.mjs",
+  "self-test-background-music-sources.mjs",
+]) {
+  runChecked(
+    process.execPath,
+    ["--check", path.join(scriptDir, backgroundMusicScript)],
+    `BGM 来源脚本语法检查：${backgroundMusicScript}`,
+  );
+}
+for (const priceHistoryResource of [
+  "references/price-history-video-production.md",
+  "scripts/fetch-heimdall-price-history.py",
+  "assets/price-history-video/index.html",
+]) {
+  ensurePath(priceHistoryResource);
+}
+for (const priceHistoryScript of [
+  "scripts/price-history-video.mjs",
+  "scripts/self-test-price-history-video.mjs",
+  "assets/price-history-video/price-history-math.mjs",
+  "assets/price-history-video/price-history-renderer.mjs",
+]) {
+  runChecked(process.execPath, ["--check", ensurePath(priceHistoryScript)], `价格视频脚本语法检查：${priceHistoryScript}`);
 }
 for (const subtitleQuoteImageResource of [
   "references/subtitle-quote-image-production.md",
@@ -568,7 +640,7 @@ for (const token of [
   "hero_source_top",
   "strip_height_mode",
   "same_size_for_hero_and_strips",
-  "canvas.height 必须为 auto",
+  "默认宽 1440、按内容取自然高度",
   "content_units",
   "content_unit_id",
   "first-subtitle-segment-samples",
@@ -786,6 +858,10 @@ for (const token of [
   "mediaflow describe --catalog <字段目录名>",
   "mediaflow describe --full",
   "不是正式生产的默认入口",
+  "project.existing_path",
+  "output.build.units[*].status",
+  "output.build.audio.status",
+  "output.build.assembly_status",
 ]) {
   if (!structuredMediaEditorCliText.includes(token)) {
     fail(`结构化编辑器说明缺少渐进式能力发现边界：${token}`);
@@ -1160,6 +1236,10 @@ for (const token of [
   "没有另一条导出入口",
   "不在这里制作新的独立封面",
   "项目声明的实际展示预览",
+  "project.existing_path",
+  "output.build.units[*].status",
+  "output.build.audio.status",
+  "output.build.assembly_status",
 ]) {
   if (!reviewAndExportText.includes(token)) {
     fail(`导出说明可能恢复已经退出的独立静态成品：${token}`);
@@ -2619,6 +2699,14 @@ if (runFullChecks && failures.length === 0) {
 }
 
 if (runFullChecks && failures.length === 0) {
+  runChecked(
+    process.execPath,
+    [path.join(scriptDir, "self-test-background-music-sources.mjs")],
+    "公开 CC0 BGM 检索—拒绝署名许可—下载—素材账本链路检查",
+  );
+}
+
+if (runFullChecks && failures.length === 0) {
   const subtitleQuotePython = process.env.VISUAL_MULTIMEDIA_PYTHON
     || (process.platform === "win32" ? "python.exe" : "python3");
   runChecked(
@@ -2628,7 +2716,7 @@ if (runFullChecks && failures.length === 0) {
       "--project",
       path.join(validationWorkspace.path, "subtitle-quote-self-test"),
     ],
-    "无烧录字幕视频—首条背景候选—完整观点与显示行—自动高度拼图—最终复核与权利交付链路",
+    "无烧录字幕视频—首条背景候选—原文范围与显示行—竖版分页与自动高度—全部图片复核与交付链路",
   );
 }
 

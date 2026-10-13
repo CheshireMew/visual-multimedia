@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build transcript-bound, natural-height quote collages from videos without baked subtitles."""
+"""Build transcript-bound quote collages with measured text and multiple portrait pages."""
 
 from __future__ import annotations
 
@@ -242,6 +242,69 @@ def load_contracts(project: Path, source_id: str | None = None) -> dict[str, Any
     }
 
 
+def transcript_ranges(value: dict[str, Any], contracts: dict[str, Any], label: str) -> list[dict[str, Any]]:
+    segment_ids = value.get("transcript_segment_ids")
+    if not isinstance(segment_ids, list) or not segment_ids or any(not isinstance(key, str) for key in segment_ids) or len(segment_ids) != len(set(segment_ids)):
+        fail(f"{label} 必须引用不重复的 transcript segment id")
+    if any(key not in contracts["segment_index"] for key in segment_ids):
+        fail(f"{label} 引用了不存在的转写段")
+    spans = value.get("transcript_spans")
+    if spans is None:
+        spans = [{"segment_id": key, "start_char": 0, "end_char": len(contracts["segment_index"][key]["text"])} for key in segment_ids]
+    if not isinstance(spans, list) or not spans:
+        fail(f"{label}.transcript_spans 必须是非空数组")
+    ranges = []
+    previous = (-1.0, -1)
+    for span in spans:
+        if not isinstance(span, dict):
+            fail(f"{label}.transcript_spans 中每项必须是对象")
+        keys = {"segment_id", "start_char", "end_char"}
+        expect_keys(span, keys, keys, label)
+        key = span["segment_id"]
+        if key not in segment_ids:
+            fail(f"{label} 的字符范围没有对应 segment id")
+        segment = contracts["segment_index"][key]
+        start, end = span["start_char"], span["end_char"]
+        if type(start) is not int or type(end) is not int or not 0 <= start < end <= len(segment["text"]):
+            fail(f"{label} 的原文字符范围无效")
+        position = (float(segment["start_seconds"]), start)
+        if position < previous:
+            fail(f"{label} 的字符范围必须按原文顺序排列")
+        previous = (position[0], end)
+        ranges.append({**span, "text": segment["text"][start:end], "segment": segment})
+    if list(dict.fromkeys(span["segment_id"] for span in ranges)) != segment_ids:
+        fail(f"{label} 的 segment id 顺序必须与字符范围一致")
+    return ranges
+
+
+def range_characters(ranges: list[dict[str, Any]]) -> set[tuple[str, int]]:
+    return {(span["segment_id"], index) for span in ranges for index in range(span["start_char"], span["end_char"]) if not span["segment"]["text"][index].isspace()}
+
+
+def spec_pages(spec: dict[str, Any]) -> list[dict[str, Any]]:
+    pages = spec.get("pages")
+    if pages is None:
+        return [{"id": "page-1", "item_ids": [item["id"] for item in spec["items"]]}]
+    if not isinstance(pages, list) or not pages:
+        fail("pages 必须是非空数组")
+    ids = set()
+    flattened = []
+    for page in pages:
+        if not isinstance(page, dict):
+            fail("pages 中每项必须是对象")
+        expect_keys(page, {"id", "item_ids"}, {"id", "item_ids"}, "page")
+        key = page["id"]
+        if not isinstance(key, str) or not ID_RE.fullmatch(key) or key in ids:
+            fail("page id 无效或重复")
+        ids.add(key)
+        if not isinstance(page["item_ids"], list) or len(page["item_ids"]) < 2 or any(not isinstance(item, str) for item in page["item_ids"]):
+            fail("每页至少包含一个 hero 和一个 strip")
+        flattened.extend(page["item_ids"])
+    if flattened != [item["id"] for item in spec["items"]]:
+        fail("pages 必须按原文顺序恰好包含全部 items，不能遗漏或重复")
+    return pages
+
+
 def validate_spec(project: Path, spec_path: Path, ffprobe: str) -> dict[str, Any]:
     spec = read_json(spec_path)
     top_keys = {
@@ -249,7 +312,7 @@ def validate_spec(project: Path, spec_path: Path, ffprobe: str) -> dict[str, Any
         "source_sha256", "transcript_sha256", "source_text", "source_frame", "content_units", "canvas",
         "typography", "review", "output", "items",
     }
-    expect_keys(spec, top_keys, top_keys, "规格")
+    expect_keys(spec, top_keys, top_keys | {"pages"}, "规格")
     if spec.get("protocol") != "visual-multimedia-subtitle-quote-image" or spec.get("version") != 1:
         fail("规格 protocol/version 必须是 subtitle-quote-image v1")
     if spec.get("media_sources") != "media-sources.json" or spec.get("transcript") != "transcript.json":
@@ -292,43 +355,39 @@ def validate_spec(project: Path, spec_path: Path, ffprobe: str) -> dict[str, Any
     if not isinstance(content_units, list) or not content_units:
         fail("content_units 必须至少包含一个完整观点单元")
     content_unit_index: dict[str, dict[str, Any]] = {}
-    content_unit_segment_owner: dict[str, str] = {}
-    previous_unit_start = -1.0
+    content_unit_characters: dict[str, set[tuple[str, int]]] = {}
+    selected_characters: set[tuple[str, int]] = set()
+    previous_unit_start = (-1.0, -1)
     for index, unit in enumerate(content_units):
         if not isinstance(unit, dict):
             fail(f"content_units[{index}] 必须是对象")
         unit_keys = {"id", "transcript_segment_ids"}
-        expect_keys(unit, unit_keys, unit_keys, f"content_units[{index}]")
+        expect_keys(unit, unit_keys, unit_keys | {"transcript_spans"}, f"content_units[{index}]")
         unit_id = unit.get("id")
         if not isinstance(unit_id, str) or not ID_RE.fullmatch(unit_id) or unit_id in content_unit_index:
             fail(f"content_units[{index}].id 无效或重复")
-        segment_ids = unit.get("transcript_segment_ids")
-        if not isinstance(segment_ids, list) or not segment_ids or len(segment_ids) != len(set(segment_ids)):
-            fail(f"{unit_id} 必须引用至少一个且不重复的 transcript segment")
-        starts = []
-        for segment_id in segment_ids:
-            segment = contracts["segment_index"].get(segment_id)
-            if not segment:
-                fail(f"{unit_id} 引用了不存在的转写段：{segment_id}")
-            if segment_id in content_unit_segment_owner:
-                fail(f"转写段 {segment_id} 已属于观点单元 {content_unit_segment_owner[segment_id]}")
-            content_unit_segment_owner[segment_id] = unit_id
-            starts.append(float(segment["start_seconds"]))
-        if starts != sorted(starts):
-            fail(f"{unit_id}.transcript_segment_ids 必须按原片时间排列")
-        if min(starts) <= previous_unit_start:
-            fail("content_units 必须按原片时间严格递增")
-        previous_unit_start = min(starts)
+        ranges = transcript_ranges(unit, contracts, unit_id)
+        characters = range_characters(ranges)
+        if not characters or selected_characters & characters:
+            fail(f"{unit_id} 的原文范围为空或与其它观点重复")
+        start = (float(ranges[0]["segment"]["start_seconds"]), ranges[0]["start_char"])
+        if start <= previous_unit_start:
+            fail("content_units 必须按原文顺序排列")
+        previous_unit_start = start
+        content_unit_characters[unit_id] = characters
+        selected_characters.update(characters)
         content_unit_index[unit_id] = unit
     canvas = spec.get("canvas")
     if not isinstance(canvas, dict):
         fail("canvas 必须是对象")
     canvas_keys = {"width", "height", "background", "margin", "gap", "hero_source_top", "hero_source_bottom", "strip_source_center_y"}
-    expect_keys(canvas, canvas_keys, canvas_keys, "canvas")
+    expect_keys(canvas, canvas_keys, canvas_keys | {"strip_background"}, "canvas")
+    if canvas.get("strip_background", "shared-frame") not in {"shared-frame", "black"}:
+        fail("canvas.strip_background 必须是 shared-frame 或 black")
     if not isinstance(canvas.get("width"), int) or not 720 <= canvas["width"] <= 2160:
         fail("canvas.width 必须在 720–2160 之间")
-    if canvas.get("height") != "auto":
-        fail("canvas.height 必须为 auto；成品高度只能由主画面和各条实际文字高度累加得出")
+    if canvas.get("height") != "auto" and (type(canvas.get("height")) is not int or canvas["height"] <= 0):
+        fail("canvas.height 必须是 auto 或正整数页面高度；默认宽 1440、按内容取自然高度")
     for key, minimum, maximum in (("margin", 0, 0), ("gap", 0, 0)):
         value = canvas.get(key)
         if not isinstance(value, int) or not minimum <= value <= maximum:
@@ -381,47 +440,40 @@ def validate_spec(project: Path, spec_path: Path, ffprobe: str) -> dict[str, Any
     if not isinstance(items, list) or len(items) < 2:
         fail("字幕拼图至少需要一个 hero 和一个 strip；显示行数由真实内容决定")
     ids: set[str] = set()
-    used_segment_ids: set[str] = set()
+    pages = spec_pages(spec)
+    hero_ids = {page["item_ids"][0] for page in pages}
+    used_characters: set[tuple[str, int]] = set()
     translation_needed = False
-    previous_item_start = -1.0
+    previous_item_end = (-1.0, -1)
     for index, item in enumerate(items):
         if not isinstance(item, dict):
             fail(f"items[{index}] 必须是对象")
         item_keys = {"id", "role", "content_unit_id", "transcript_segment_ids", "primary_text", "secondary_text"}
-        expect_keys(item, item_keys, item_keys, f"items[{index}]")
+        expect_keys(item, item_keys, item_keys | {"transcript_spans"}, f"items[{index}]")
         item_id = item.get("id")
         if not isinstance(item_id, str) or not ID_RE.fullmatch(item_id) or item_id in ids:
             fail(f"items[{index}].id 无效或重复")
         ids.add(item_id)
-        expected_role = "hero" if index == 0 else "strip"
+        expected_role = "hero" if item_id in hero_ids else "strip"
         if item.get("role") != expected_role:
-            fail("第一项必须是 hero，后续项必须全部是 strip")
+            fail("每页第一项必须是 hero，后续项必须全部是 strip")
         content_unit_id = item.get("content_unit_id")
         content_unit = content_unit_index.get(content_unit_id)
         if not content_unit:
             fail(f"{item_id}.content_unit_id 引用了不存在的完整观点单元：{content_unit_id}")
-        allowed_unit_segments = set(content_unit["transcript_segment_ids"])
-        segment_ids = item.get("transcript_segment_ids")
-        if not isinstance(segment_ids, list) or not segment_ids or len(segment_ids) != len(set(segment_ids)):
-            fail(f"{item_id} 必须引用至少一个且不重复的 transcript segment")
-        referenced = []
-        for segment_id in segment_ids:
-            segment = contracts["segment_index"].get(segment_id)
-            if not segment:
-                fail(f"{item_id} 引用了不存在的转写段：{segment_id}")
-            if segment_id not in allowed_unit_segments:
-                fail(f"{item_id} 的转写段 {segment_id} 不属于观点单元 {content_unit_id}")
-            if segment_id in used_segment_ids:
-                fail(f"转写段 {segment_id} 已被其它 item 使用；不能把同一小段重复拆开来增加格数")
-            used_segment_ids.add(segment_id)
-            referenced.append(segment)
-        starts = [float(segment["start_seconds"]) for segment in referenced]
-        if starts != sorted(starts):
-            fail(f"{item_id}.transcript_segment_ids 必须按原片时间排列")
-        item_start = min(starts)
-        if item_start <= previous_item_start:
-            fail("items 必须按转写时间严格递增，不能打乱论述顺序")
-        previous_item_start = item_start
+        ranges = transcript_ranges(item, contracts, item_id)
+        characters = range_characters(ranges)
+        if not characters or not characters <= content_unit_characters[content_unit_id]:
+            fail(f"{item_id} 的原文字符不属于对应观点")
+        if characters & used_characters:
+            fail(f"{item_id} 重复使用了已经显示的原文字符")
+        used_characters.update(characters)
+        start_position = (float(ranges[0]["segment"]["start_seconds"]), ranges[0]["start_char"])
+        if start_position < previous_item_end:
+            fail("items 必须按原文顺序排列，不能交叉或重复")
+        previous_item_end = (float(ranges[-1]["segment"]["start_seconds"]), ranges[-1]["end_char"])
+        referenced = [span["segment"] for span in ranges]
+        item_start = float(referenced[0]["start_seconds"])
         if index == 0:
             lower = item_start - 0.25
             upper = max(float(segment["end_seconds"]) for segment in referenced) + 0.25
@@ -431,7 +483,7 @@ def validate_spec(project: Path, spec_path: Path, ffprobe: str) -> dict[str, Any
             fail(f"{item_id}.primary_text 不能为空")
         if not str(item.get("secondary_text") or "").strip():
             fail(f"{item_id}.secondary_text 不能为空；参考版式要求中文主字幕下方保留小号英文副字幕")
-        transcript_text = " ".join(str(segment["text"]).strip() for segment in referenced)
+        transcript_text = " ".join(span["text"].strip() for span in ranges)
         transcript_text = re.sub(
             r"^(?:[A-Z][A-Za-z.'-]*(?:\s+[A-Z][A-Za-z.'-]*){0,3}|Speaker\s+\d+):\s*",
             "",
@@ -440,11 +492,10 @@ def validate_spec(project: Path, spec_path: Path, ffprobe: str) -> dict[str, Any
         normalized_secondary = re.sub(r"\s+", " ", str(item["secondary_text"])).strip()
         normalized_transcript = re.sub(r"\s+", " ", transcript_text).strip()
         if normalized_secondary != normalized_transcript:
-            fail(f"{item_id}.secondary_text 必须完整保留所引用转写原文（可去掉开头说话人标签），不能只摘半句")
+            fail(f"{item_id}.secondary_text 必须等于绑定的原文字符范围（可去掉开头说话人标签）")
         translation_needed = True
-    if used_segment_ids != set(content_unit_segment_owner):
-        missing = sorted(set(content_unit_segment_owner) - used_segment_ids)
-        fail(f"content_units 中存在未进入任何显示行的转写段：{', '.join(missing)}")
+    if used_characters != selected_characters:
+        fail("content_units 中存在未进入显示行的原文字符；请完整保留所选论述")
     used_content_units = {item["content_unit_id"] for item in items}
     if used_content_units != set(content_unit_index):
         missing = sorted(set(content_unit_index) - used_content_units)
@@ -508,7 +559,7 @@ def split_token(token: str, draw: ImageDraw.ImageDraw, font: ImageFont.FreeTypeF
     return parts
 
 
-def wrap_text(text: str, draw: ImageDraw.ImageDraw, font: ImageFont.FreeTypeFont, width: int, max_lines: int, label: str) -> list[str]:
+def wrap_text(text: str, draw: ImageDraw.ImageDraw, font: ImageFont.FreeTypeFont, width: int, max_lines: int | None, label: str) -> list[str]:
     paragraphs = str(text).strip().splitlines() or [""]
     lines: list[str] = []
     for paragraph in paragraphs:
@@ -527,7 +578,7 @@ def wrap_text(text: str, draw: ImageDraw.ImageDraw, font: ImageFont.FreeTypeFont
                     current = candidate
         if current.strip():
             lines.append(current.rstrip())
-    if len(lines) > max_lines:
+    if max_lines is not None and len(lines) > max_lines:
         fail(f"{label} 在当前字号下需要 {len(lines)} 行，超过允许的 {max_lines} 行；请压缩展示文本或调整规格")
     return lines
 
@@ -560,22 +611,22 @@ def measure_item_text(
         fail("字幕水平内边距超过当前输出宽度")
     probe = Image.new("RGB", (width, 1), "#000000")
     draw = ImageDraw.Draw(probe)
-    primary_lines = wrap_text(item["primary_text"], draw, primary_font, max_width, 2, f"{item['id']} primary_text")
-    secondary_lines = wrap_text(item["secondary_text"], draw, secondary_font, max_width, 2, f"{item['id']} secondary_text")
-    primary_height = text_line_height(primary_font)
-    secondary_height = text_line_height(secondary_font)
+    primary_lines = wrap_text(item["primary_text"], draw, primary_font, max_width, None, f"{item['id']} primary_text")
+    secondary_lines = wrap_text(item["secondary_text"], draw, secondary_font, max_width, None, f"{item['id']} secondary_text")
+    primary_boxes = [primary_font.getbbox(line, stroke_width=2) for line in primary_lines]
+    secondary_boxes = [secondary_font.getbbox(line, stroke_width=1) for line in secondary_lines]
     primary_gap = 5
     secondary_gap = 3
     language_gap = 8
-    group_height = len(primary_lines) * (primary_height + primary_gap) - primary_gap
-    group_height += language_gap + len(secondary_lines) * (secondary_height + secondary_gap) - secondary_gap
+    group_height = sum(box[3] - box[1] for box in primary_boxes) + (len(primary_lines) - 1) * primary_gap
+    group_height += language_gap + sum(box[3] - box[1] for box in secondary_boxes) + (len(secondary_lines) - 1) * secondary_gap
     return {
         "primary_font": primary_font,
         "secondary_font": secondary_font,
         "primary_lines": primary_lines,
         "secondary_lines": secondary_lines,
-        "primary_height": primary_height,
-        "secondary_height": secondary_height,
+        "primary_boxes": primary_boxes,
+        "secondary_boxes": secondary_boxes,
         "primary_gap": primary_gap,
         "secondary_gap": secondary_gap,
         "language_gap": language_gap,
@@ -596,24 +647,29 @@ def render_item(
     source_y1: int,
     focus_x: float,
     focus_y: float,
+    background_mode: str = "shared-frame",
 ) -> Image.Image:
     hero = item["role"] == "hero"
-    source_y0 = max(0, min(frame.height - 1, source_y0))
-    source_y1 = max(source_y0 + 1, min(frame.height, source_y1))
-    source = frame.crop((0, source_y0, frame.width, source_y1))
-    image = ImageOps.fit(
-        source.convert("RGB"),
-        size,
-        method=Image.Resampling.LANCZOS,
-        centering=(focus_x, focus_y),
-    ).convert("RGBA")
+    solid_black = not hero and background_mode == "black"
+    if solid_black:
+        image = Image.new("RGBA", size, (0, 0, 0, 255))
+    else:
+        source_y0 = max(0, min(frame.height - 1, source_y0))
+        source_y1 = max(source_y0 + 1, min(frame.height, source_y1))
+        source = frame.crop((0, source_y0, frame.width, source_y1))
+        image = ImageOps.fit(
+            source.convert("RGB"),
+            size,
+            method=Image.Resampling.LANCZOS,
+            centering=(focus_x, focus_y),
+        ).convert("RGBA")
     layout = measure_item_text(item, size[0], typography, font_path)
     primary_font = layout["primary_font"]
     secondary_font = layout["secondary_font"]
     primary_lines = layout["primary_lines"]
     secondary_lines = layout["secondary_lines"]
-    primary_height = layout["primary_height"]
-    secondary_height = layout["secondary_height"]
+    primary_boxes = layout["primary_boxes"]
+    secondary_boxes = layout["secondary_boxes"]
     primary_gap = layout["primary_gap"]
     secondary_gap = layout["secondary_gap"]
     language_gap = layout["language_gap"]
@@ -622,28 +678,29 @@ def render_item(
     band_height = group_height + pad_y * 2
     if band_height > size[1]:
         fail(f"{item['id']} 的双语字幕超过当前画面条")
-    overlay = Image.new("RGBA", size, (0, 0, 0, 0))
-    overlay_draw = ImageDraw.Draw(overlay)
-    rgba = ImageColor.getcolor(typography["overlay_color"], "RGBA")
-    top = size[1] - band_height
-    if cover_existing_text:
-        cover_top = top if hero else round(size[1] * 0.38)
-        overlay_draw.rectangle((0, cover_top, size[0], size[1]), fill=(0, 0, 0, 255))
-    overlay_draw.rectangle((0, top, size[0], size[1]), fill=rgba)
-    image = Image.alpha_composite(image, overlay)
+    top = size[1] - band_height if hero else (size[1] - band_height) // 2
+    if not solid_black:
+        overlay = Image.new("RGBA", size, (0, 0, 0, 0))
+        overlay_draw = ImageDraw.Draw(overlay)
+        rgba = ImageColor.getcolor(typography["overlay_color"], "RGBA")
+        if cover_existing_text:
+            cover_top = top if hero else round(size[1] * 0.38)
+            overlay_draw.rectangle((0, cover_top, size[0], size[1]), fill=(0, 0, 0, 255))
+        overlay_draw.rectangle((0, top, size[0], size[1]), fill=rgba)
+        image = Image.alpha_composite(image, overlay)
     draw = ImageDraw.Draw(image)
     y = top + (band_height - group_height) // 2
     primary_color = ImageColor.getrgb(typography["primary_color"])
     secondary_color = ImageColor.getrgb(typography["secondary_color"])
-    for line in primary_lines:
+    for line, box in zip(primary_lines, primary_boxes):
         line_width = draw.textlength(line, font=primary_font)
-        draw.text(((size[0] - line_width) / 2, y), line, font=primary_font, fill=primary_color, stroke_width=2, stroke_fill=(0, 0, 0))
-        y += primary_height + primary_gap
+        draw.text(((size[0] - line_width) / 2, y - box[1]), line, font=primary_font, fill=primary_color, stroke_width=2, stroke_fill=(0, 0, 0))
+        y += box[3] - box[1] + primary_gap
     y += language_gap - primary_gap
-    for line in secondary_lines:
+    for line, box in zip(secondary_lines, secondary_boxes):
         line_width = draw.textlength(line, font=secondary_font)
-        draw.text(((size[0] - line_width) / 2, y), line, font=secondary_font, fill=secondary_color, stroke_width=1, stroke_fill=(0, 0, 0))
-        y += secondary_height + secondary_gap
+        draw.text(((size[0] - line_width) / 2, y - box[1]), line, font=secondary_font, fill=secondary_color, stroke_width=1, stroke_fill=(0, 0, 0))
+        y += box[3] - box[1] + secondary_gap
     return image.convert("RGB")
 
 
@@ -761,26 +818,61 @@ def candidates_command(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
-def review_sheet(final_image: Image.Image, spec: dict[str, Any], output: Path, font_path: Path) -> Path:
-    sheet = Image.new("RGB", (1120, 1020), "#101010")
+def review_sheet(final_image: Image.Image, spec: dict[str, Any], output: Path, font_path: Path, filename: str = "review-contact-sheet.jpg") -> Path:
+    text_font = load_font(font_path, 18)
+    probe = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+    item_lines = [wrap_text(item["primary_text"], probe, text_font, 320, None, item["id"]) for item in spec["items"]]
+    sheet_height = max(1020, 100 + sum(46 + 24 * len(lines) for lines in item_lines))
+    sheet = Image.new("RGB", (1120, sheet_height), "#101010")
     preview = ImageOps.contain(final_image, (720, 960), Image.Resampling.LANCZOS)
     sheet.paste(preview, (20, 30))
     draw = ImageDraw.Draw(sheet)
     title_font = load_font(font_path, 24)
-    text_font = load_font(font_path, 18)
     draw.text((770, 32), f"共享首帧字幕拼图 · {timecode(float(spec['source_frame']['seconds']))}", font=title_font, fill="#ffffff")
     y = 78
-    for item in spec["items"]:
+    for item, lines in zip(spec["items"], item_lines):
         draw.text((770, y), item["id"], font=text_font, fill="#ffffff")
         y += 28
-        lines = wrap_text(item["primary_text"], draw, text_font, 320, 4, item["id"])
         for line in lines:
             draw.text((770, y), line, font=text_font, fill="#cfcfcf")
             y += 24
         y += 18
-    path = output / "review-contact-sheet.jpg"
+    path = output / filename
     save_image_new(sheet, path, quality=92)
     return path
+
+
+def measure_pages(validation: dict[str, Any], project: Path) -> list[dict[str, Any]]:
+    spec = validation["spec"]
+    canvas = spec["canvas"]
+    width = canvas["width"]
+    source_width = validation["video_probe"]["width"]
+    source_height = validation["video_probe"]["height"]
+    hero_y0 = max(0, min(source_height - 1, round(source_height * canvas["hero_source_top"])))
+    hero_y1 = max(hero_y0 + 1, min(source_height, round(source_height * canvas["hero_source_bottom"])))
+    hero_height = max(1, round(width * (hero_y1 - hero_y0) / source_width))
+    font_path = resolve_font(project, spec["typography"].get("font_file"))
+    item_index = {item["id"]: item for item in spec["items"]}
+    measured = []
+    for page in spec_pages(spec):
+        items = [item_index[key] for key in page["item_ids"]]
+        layouts = [measure_item_text(item, width, spec["typography"], font_path) for item in items]
+        if layouts[0]["group_height"] + 2 * layouts[0]["vertical_padding"] > hero_height:
+            fail(f"{page['id']} 的首条字幕超过主画面高度；请按句意拆行")
+        strip_heights = [layout["group_height"] + 2 * layout["vertical_padding"] for layout in layouts[1:]]
+        content_height = hero_height + sum(strip_heights)
+        height = content_height if canvas["height"] == "auto" else canvas["height"]
+        if content_height > height:
+            fail(f"{page['id']} 的实际内容需要 {content_height}px，页面只有 {height}px；请重新分行或分页，勿缩小字号塞入")
+        extra = height - content_height
+        measured.append({
+            "id": page["id"], "item_ids": page["item_ids"], "width": width, "height": height,
+            "content_height": content_height, "extra_caption_space": extra,
+            "hero_height": hero_height, "strip_heights": strip_heights,
+            "hero_y0": hero_y0, "hero_y1": hero_y1,
+            "_items": items, "_text_layouts": layouts,
+        })
+    return measured
 
 
 def render_command(args: argparse.Namespace) -> dict[str, Any]:
@@ -791,84 +883,87 @@ def render_command(args: argparse.Namespace) -> dict[str, Any]:
     validation = validate_spec(project, spec_path, ffprobe)
     if args.require_production_reviewed and not validation["production_ready"]:
         fail("共享背景、原声或译文尚未核对，不能使用 --require-production-reviewed")
-    output = new_output_directory(project, args.output)
     spec = validation["spec"]
     contracts = validation["contracts"]
     canvas = spec["canvas"]
+    strip_background = canvas.get("strip_background", "shared-frame")
     typography = spec["typography"]
     font_path = resolve_font(project, typography.get("font_file"))
     width = int(canvas["width"])
-    margin, gap = int(canvas["margin"]), int(canvas["gap"])
-    cell_width = width - margin * 2
     source_width = int(validation["video_probe"]["width"])
     source_height = int(validation["video_probe"]["height"])
     source_frame_spec = spec["source_frame"]
-    hero_y0 = max(0, min(source_height - 1, round(source_height * float(canvas["hero_source_top"]))))
-    hero_y1 = max(hero_y0 + 1, min(source_height, round(source_height * float(canvas["hero_source_bottom"]))))
-    hero_height = max(1, round(cell_width * (hero_y1 - hero_y0) / source_width))
-    text_layouts = [measure_item_text(item, cell_width, typography, font_path) for item in spec["items"]]
-    strip_heights = [layout["group_height"] + layout["vertical_padding"] * 2 for layout in text_layouts[1:]]
-    height = margin * 2 + hero_height + sum(strip_heights) + gap * (len(spec["items"]) - 1)
-    final_image = Image.new("RGB", (width, height), canvas["background"])
+    measured_pages = measure_pages(validation, project)
+    output = new_output_directory(project, args.output)
     item_records: list[dict[str, Any]] = []
     raw_frame = output / "frames" / "shared-background.png"
     grab_frame(ffmpeg, contracts["source_file"], float(source_frame_spec["seconds"]), raw_frame)
     raw_frame_sha256 = sha256_file(raw_frame)
     with Image.open(raw_frame) as opened_frame:
         shared_frame = opened_frame.convert("RGB")
-    y = margin
-    for index, item in enumerate(spec["items"]):
-        cell_height = hero_height if index == 0 else strip_heights[index - 1]
-        if index == 0:
-            source_y0, source_y1 = hero_y0, hero_y1
-        else:
-            desired_source_height = max(1, round(source_width * cell_height / cell_width))
-            if desired_source_height > source_height:
-                fail(f"{item['id']} 的文字高度超过原片可裁切高度")
-            source_center = round(source_height * float(canvas["strip_source_center_y"]))
-            source_y0 = source_center - desired_source_height // 2
-            source_y0 = max(0, min(source_height - desired_source_height, source_y0))
-            source_y1 = source_y0 + desired_source_height
-        rendered = render_item(
-            shared_frame,
-            item,
-            (cell_width, cell_height),
-            typography,
-            font_path,
-            bool(spec["source_text"]["baked_subtitles_observed"]),
-            source_y0,
-            source_y1,
-            float(source_frame_spec["focus_x"]),
-            float(source_frame_spec["focus_y"]),
-        )
-        item_image = output / "items" / f"{index + 1:02d}-{item['id']}.jpg"
-        save_image_new(rendered, item_image, quality=int(spec["output"]["jpeg_quality"]))
-        final_image.paste(rendered, (margin, y))
-        item_records.append({
+    outputs = []
+    page_records = []
+    final_paths = []
+    explicit_pages = "pages" in spec
+    for page_number, page in enumerate(measured_pages, 1):
+        final_image = Image.new("RGB", (width, page["height"]), canvas["background"])
+        y = 0
+        for index, (item, text_layout) in enumerate(zip(page["_items"], page["_text_layouts"])):
+            cell_height = page["hero_height"] if index == 0 else page["strip_heights"][index - 1]
+            if index == 0:
+                source_y0, source_y1 = page["hero_y0"], page["hero_y1"]
+            elif strip_background == "black":
+                source_y0, source_y1 = 0, 0
+            else:
+                desired_source_height = max(1, round(source_width * cell_height / width))
+                if desired_source_height > source_height:
+                    fail(f"{item['id']} 的字幕带超过原片可裁切高度")
+                source_center = round(source_height * float(canvas["strip_source_center_y"]))
+                source_y0 = max(0, min(source_height - desired_source_height, source_center - desired_source_height // 2))
+                source_y1 = source_y0 + desired_source_height
+            rendered = render_item(
+                shared_frame, item, (width, cell_height), typography, font_path,
+                bool(spec["source_text"]["baked_subtitles_observed"]), source_y0, source_y1,
+                float(source_frame_spec["focus_x"]), float(source_frame_spec["focus_y"]), strip_background,
+            )
+            item_image = output / "items" / f"{len(item_records) + 1:02d}-{item['id']}.jpg"
+            save_image_new(rendered, item_image, quality=int(spec["output"]["jpeg_quality"]))
+            final_image.paste(rendered, (0, y))
+            item_records.append({
             "id": item["id"],
             "role": item["role"],
             "content_unit_id": item["content_unit_id"],
             "transcript_segment_ids": item["transcript_segment_ids"],
-            "background_frame": raw_frame.relative_to(output).as_posix(),
-            "background_frame_sha256": raw_frame_sha256,
-            "background_frame_reused": True,
+            "background_mode": "shared-frame" if index == 0 else strip_background,
+            "background_frame": raw_frame.relative_to(output).as_posix() if index == 0 or strip_background == "shared-frame" else None,
+            "background_frame_sha256": raw_frame_sha256 if index == 0 or strip_background == "shared-frame" else None,
+            "background_frame_reused": index == 0 or strip_background == "shared-frame",
             "rendered_item": item_image.relative_to(output).as_posix(),
             "rendered_item_sha256": sha256_file(item_image),
-            "source_crop": {"top": source_y0, "bottom": source_y1},
+            "source_crop": {"top": source_y0, "bottom": source_y1} if index == 0 or strip_background == "shared-frame" else None,
             "text_layout": {
-                "primary_lines": len(text_layouts[index]["primary_lines"]),
-                "secondary_lines": len(text_layouts[index]["secondary_lines"]),
-                "group_height": text_layouts[index]["group_height"],
-                "vertical_padding": text_layouts[index]["vertical_padding"],
-                "caption_band_height": text_layouts[index]["group_height"] + text_layouts[index]["vertical_padding"] * 2,
+                "primary_lines": len(text_layout["primary_lines"]),
+                "secondary_lines": len(text_layout["secondary_lines"]),
+                "primary_text_lines": text_layout["primary_lines"],
+                "secondary_text_lines": text_layout["secondary_lines"],
+                "group_height": text_layout["group_height"],
+                "vertical_padding": text_layout["vertical_padding"],
+                "caption_band_height": text_layout["group_height"] + text_layout["vertical_padding"] * 2,
             },
-            "bounds": {"x": margin, "y": y, "width": cell_width, "height": cell_height},
-        })
-        y += cell_height + (gap if index < len(spec["items"]) - 1 else 0)
-    extension = spec["output"]["format"]
-    final_path = output / f"subtitle-quote-collage.{extension}"
-    save_image_new(final_image, final_path, quality=int(spec["output"]["jpeg_quality"]))
-    review_path = review_sheet(final_image, spec, output, font_path)
+            "bounds": {"x": 0, "y": y, "width": width, "height": cell_height},
+            **({"page_id": page["id"]} if explicit_pages else {}),
+            **({"transcript_spans": item["transcript_spans"]} if "transcript_spans" in item else {}),
+            })
+            y += cell_height
+        suffix = f"-page-{page_number:02d}" if explicit_pages else ""
+        final_path = output / f"subtitle-quote-collage{suffix}.{spec['output']['format']}"
+        save_image_new(final_image, final_path, quality=int(spec["output"]["jpeg_quality"]))
+        review_path = review_sheet(final_image, {**spec, "items": page["_items"]}, output, font_path, f"review-contact-sheet{suffix}.jpg")
+        final_paths.append(str(final_path))
+        for role, path in (("final", final_path), ("review-contact-sheet", review_path)):
+            outputs.append({"role": role, "page_id": page["id"], "file": path.relative_to(output).as_posix(), "sha256": sha256_file(path), "bytes": path.stat().st_size})
+        page_records.append({key: value for key, value in page.items() if not key.startswith("_")})
+    first_page = measured_pages[0]
     report = {
         "protocol": "visual-multimedia-subtitle-quote-image-render",
         "version": 1,
@@ -890,7 +985,7 @@ def render_command(args: argparse.Namespace) -> dict[str, Any]:
                 "focus_y": float(source_frame_spec["focus_y"]),
                 "file": raw_frame.relative_to(output).as_posix(),
                 "sha256": raw_frame_sha256,
-                "reuse": "all-items",
+                "reuse": "all-items" if strip_background == "shared-frame" else "hero-only",
                 "review_status": source_frame_spec["review_status"],
             },
         },
@@ -904,6 +999,7 @@ def render_command(args: argparse.Namespace) -> dict[str, Any]:
             {
                 "id": unit["id"],
                 "transcript_segment_ids": unit["transcript_segment_ids"],
+                **({"transcript_spans": unit["transcript_spans"]} if "transcript_spans" in unit else {}),
                 "item_ids": [item["id"] for item in spec["items"] if item["content_unit_id"] == unit["id"]],
             }
             for unit in spec["content_units"]
@@ -919,17 +1015,18 @@ def render_command(args: argparse.Namespace) -> dict[str, Any]:
         },
         "layout": {
             "width": width,
-            "height": height,
-            "height_mode": "auto",
-            "hero_height": hero_height,
+            "height": first_page["height"],
+            "height_mode": "auto" if canvas["height"] == "auto" else "page",
+            "hero_height": first_page["hero_height"],
             "strip_height_mode": "content",
-            "strip_heights": strip_heights,
+            "strip_heights": first_page["strip_heights"],
             "item_count": len(spec["items"]),
             "background_frame_mode": "shared-first-item",
+            "strip_background": strip_background,
             "source_crop": {
-                "hero_top": hero_y0,
-                "hero_bottom": hero_y1,
-                "strip_center_y": float(canvas["strip_source_center_y"]),
+                "hero_top": first_page["hero_y0"],
+                "hero_bottom": first_page["hero_y1"],
+                "strip_center_y": float(canvas["strip_source_center_y"]) if strip_background == "shared-frame" else None,
                 "source_width": source_width,
                 "source_height": source_height,
             },
@@ -940,13 +1037,11 @@ def render_command(args: argparse.Namespace) -> dict[str, Any]:
             },
         },
         "items": item_records,
-        "outputs": [
-            {"role": "final", "file": final_path.relative_to(output).as_posix(), "sha256": sha256_file(final_path), "bytes": final_path.stat().st_size},
-            {"role": "review-contact-sheet", "file": review_path.relative_to(output).as_posix(), "sha256": sha256_file(review_path), "bytes": review_path.stat().st_size},
-        ],
+        "pages": page_records,
+        "outputs": outputs,
     }
     write_json_new(output / "render-report.json", report)
-    return {"output": str(output), "final": str(final_path), "review": str(review_path), "status": "rendered"}
+    return {"output": str(output), "finals": final_paths, **({"final": final_paths[0]} if not explicit_pages else {}), "status": "rendered"}
 
 
 def finalize_command(args: argparse.Namespace) -> dict[str, Any]:
@@ -965,25 +1060,39 @@ def finalize_command(args: argparse.Namespace) -> dict[str, Any]:
     if review.get("protocol") != "visual-multimedia-subtitle-quote-image-review" or review.get("version") != 1:
         fail("--review 不是字幕金句拼图 review v1")
     review_keys = {
-        "protocol", "version", "render_report", "render_report_sha256", "final", "final_sha256",
+        "protocol", "version", "render_report", "render_report_sha256",
         "reviewed_at", "agent_review", "content_review", "user_confirmation",
     }
-    expect_keys(review, review_keys, review_keys, "最终复核")
+    expect_keys(review, review_keys, review_keys | {"final", "final_sha256", "finals"}, "最终复核")
     expected_render_relative = render_report_path.relative_to(project).as_posix()
     if review.get("render_report") != expected_render_relative:
         fail("复核文件没有引用当前 render report")
     render_report_sha256 = sha256_file(render_report_path)
     if review.get("render_report_sha256") != render_report_sha256:
         fail("复核文件绑定的 render report 哈希不一致")
-    final_path = project_relative(project, str(review.get("final") or ""), "review.final")
-    if not final_path.is_file() or review.get("final_sha256") != sha256_file(final_path):
-        fail("复核文件绑定的最终图片不存在或哈希不一致")
-    final_output = next((item for item in render_report.get("outputs", []) if item.get("role") == "final"), None)
-    if not final_output:
-        fail("render report 缺少最终图片记录")
-    reported_final = (render_report_path.parent / str(final_output.get("file") or "")).resolve()
-    if reported_final != final_path or final_output.get("sha256") != review.get("final_sha256"):
-        fail("render report 与最终复核没有绑定同一张图片")
+    if "finals" in review:
+        if "final" in review or "final_sha256" in review:
+            fail("复核文件只能使用 finals 或旧单图 final/final_sha256 中的一种")
+        finals = review["finals"]
+    else:
+        finals = [{"file": review.get("final"), "sha256": review.get("final_sha256")}]
+    final_outputs = [item for item in render_report.get("outputs", []) if item.get("role") == "final"]
+    if not isinstance(finals, list) or not finals or len(finals) != len(final_outputs):
+        fail("最终复核必须绑定全部页面，不能遗漏、重复或增加图片")
+    final_records = []
+    seen_paths = set()
+    for entry, final_output in zip(finals, final_outputs):
+        if not isinstance(entry, dict):
+            fail("finals 中每项必须是对象")
+        expect_keys(entry, {"file", "sha256"}, {"file", "sha256"}, "finals")
+        final_path = project_relative(project, str(entry.get("file") or ""), "review.finals.file")
+        if final_path in seen_paths or not final_path.is_file() or entry.get("sha256") != sha256_file(final_path):
+            fail("复核绑定的图片重复、不存在或哈希不一致")
+        seen_paths.add(final_path)
+        reported_final = (render_report_path.parent / str(final_output.get("file") or "")).resolve()
+        if reported_final != final_path or final_output.get("sha256") != entry.get("sha256"):
+            fail("render report 与复核没有按相同顺序绑定全部页面")
+        final_records.append({"file": final_path.relative_to(project).as_posix(), "sha256": entry["sha256"], "bytes": final_path.stat().st_size})
     agent_review = review.get("agent_review")
     content_review = review.get("content_review")
     user_confirmation = review.get("user_confirmation")
@@ -1051,11 +1160,7 @@ def finalize_command(args: argparse.Namespace) -> dict[str, Any]:
             "sha256": sha256_file(review_path),
             "schema": REVIEW_SCHEMA_PATH.relative_to(SKILL_ROOT).as_posix(),
         },
-        "final": {
-            "file": final_path.relative_to(project).as_posix(),
-            "sha256": review["final_sha256"],
-            "bytes": final_path.stat().st_size,
-        },
+        **({"finals": final_records} if "finals" in review else {"final": final_records[0]}),
         "source": {
             "id": source_id,
             "sha256": contracts["source_sha256"],
@@ -1082,6 +1187,7 @@ def validate_command(args: argparse.Namespace) -> dict[str, Any]:
     spec_path = project_relative(project, args.spec, "--spec")
     ffprobe = command_path("ffprobe", args.ffprobe)
     validation = validate_spec(project, spec_path, ffprobe)
+    pages = measure_pages(validation, project)
     return {
         "valid": True,
         "schema": str(SCHEMA_PATH),
@@ -1090,6 +1196,10 @@ def validate_command(args: argparse.Namespace) -> dict[str, Any]:
         "source_id": validation["spec"]["source_id"],
         "items": len(validation["spec"]["items"]),
         "content_units": len(validation["spec"]["content_units"]),
+        "pages": [{
+            **{key: value for key, value in page.items() if not key.startswith("_")},
+            "text_layouts": [{"id": item["id"], "primary_lines": layout["primary_lines"], "secondary_lines": layout["secondary_lines"], "caption_band_height": layout["group_height"] + 2 * layout["vertical_padding"]} for item, layout in zip(page["_items"], page["_text_layouts"])],
+        } for page in pages],
         "production_ready": validation["production_ready"],
         "video_probe": validation["video_probe"],
     }
@@ -1108,12 +1218,12 @@ def build_parser() -> argparse.ArgumentParser:
     candidates.add_argument("--ffmpeg")
     candidates.add_argument("--ffprobe")
 
-    validate = subparsers.add_parser("validate", help="验证规格、素材、转写和时间绑定")
+    validate = subparsers.add_parser("validate", help="验证原文范围与分页，返回各页真实换行和内容高度")
     validate.add_argument("--project", required=True)
     validate.add_argument("--spec", required=True, help="项目内规格路径")
     validate.add_argument("--ffprobe")
 
-    render = subparsers.add_parser("render", help="取帧、统一字号，并按每条实际文字高度生成紧凑拼图")
+    render = subparsers.add_parser("render", help="保留原画面，按实测字幕布局渲染一张或多张竖版拼图")
     render.add_argument("--project", required=True)
     render.add_argument("--spec", required=True, help="项目内规格路径")
     render.add_argument("--output", required=True, help="项目内全新输出目录")
@@ -1121,7 +1231,7 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--ffmpeg")
     render.add_argument("--ffprobe")
 
-    finalize = subparsers.add_parser("finalize", help="把最终图片复核、用户确认和素材权利汇总为交付报告")
+    finalize = subparsers.add_parser("finalize", help="核对全部页面的图片哈希、复核与素材权利，生成交付报告")
     finalize.add_argument("--project", required=True)
     finalize.add_argument("--render-report", required=True, help="项目内 render-report.json")
     finalize.add_argument("--review", required=True, help="项目内 subtitle quote image review v1")
