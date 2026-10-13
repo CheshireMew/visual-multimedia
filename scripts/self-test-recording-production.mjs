@@ -11,7 +11,7 @@ import {assertMediaFlowProVideoCapabilities,ensureMediaFlowProVideoProject,expor
 import {measureMix} from "./timeline-audio-mix.mjs";
 import {ensureTaskWorkspace,finalizeTaskWorkspace} from "./media-task-workspace.mjs";
 import {readRecordingAnalysis,locateRecordingTarget} from "./recording-guidance.mjs";
-import {suspiciousWordSegments} from "./recording-tools.mjs";
+import {suspiciousWordSegments,sameRecognitionText} from "./recording-tools.mjs";
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const require=createRequire(import.meta.url);
@@ -110,6 +110,9 @@ async function main(){
   run(local.ffmpeg,["-v","error","-ss","2","-i",output,"-frames:v","1",path.join(project,"output","guide-frame.png")],"decode-final-guide-frame");
   // A heuristic only nominates a window; actual re-recognition uses the public ASR below.
   assert.equal(suspiciousWordSegments([{words:[{text:"啊",start_seconds:1,end_seconds:3}]}]).length,1);
+  assert(sameRecognitionText("Click Export video.","click export video"));
+  assert(!sameRecognitionText("12","1.2"),"A decimal point must not be removed when matching rechecks");
+  assert(!sameRecognitionText("1,200","1200"),"Numeric separators require listening instead of guessing");
   let transcription=null, native=null;
   if(process.argv.includes("--mediaflow")){
     nativeUsed=true;

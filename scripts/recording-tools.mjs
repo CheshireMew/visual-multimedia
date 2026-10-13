@@ -14,7 +14,11 @@ import {measureMix} from "./timeline-audio-mix.mjs";
 const SCRIPT = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(SCRIPT), "..");
 const sha = file => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
-const norm = text => text.toLocaleLowerCase().replace(/[\s，。！？、,.!?「」“”"']/gu, "");
+const norm = text => text.toLocaleLowerCase()
+  .replace(/[,.]/gu,(mark,index,value)=>/\d/u.test(value[index-1]||"") && /\d/u.test(value[index+1]||"") ? mark : "")
+  .replace(/[\s，。！？、!?「」“”"']/gu, "");
+
+export function sameRecognitionText(original,candidate) {return norm(original)===norm(candidate);}
 
 function parse(argv) {
   const args = {command:argv[0]};
@@ -95,7 +99,7 @@ function transcribe(environment,project,args) {
     const matches=[];
     for (let i=0;i<check.segments.length;i++) for (let j=i;j<check.segments.length;j++) {
       const run=check.segments.slice(i,j+1);
-      if (norm(run.map(item=>item.text).join(""))===norm(segment.text)) matches.push(run);
+      if (sameRecognitionText(run.map(item=>item.text).join(""),segment.text)) matches.push(run);
     }
     const replacement=matches.length===1 && !suspiciousWordSegments(matches[0]).length ? matches[0] : null;
     const previous=result.segments[index-1]?.end_seconds||0, next=result.segments[index+1]?.start_seconds||Infinity;

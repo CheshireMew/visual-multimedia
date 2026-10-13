@@ -18,6 +18,8 @@ node scripts/recording-tools.mjs analyze --project <项目目录> --source-id re
 
 ## 选择同一讲述音轨
 
+本地混音的 `voice-anchor` cue 必须引用音频 source。人声仍封装在录屏里时，先用现有媒体工具提取同一音轨并统一入账，再让转写和混音引用这份选定来源；只做事实转写、尚未装配声音档案时，可以直接识别录屏 source。
+
 用户提供同一次讲述的外置麦克风录音时，先运行：
 
 ```powershell
@@ -32,7 +34,7 @@ node scripts/recording-tools.mjs align-audio --project <项目目录> --source-i
 node scripts/recording-tools.mjs transcribe --project <项目目录> --source-id aligned-voice --analysis reports/screen.json --language zh
 ```
 
-没有独立录音时使用录屏的 source id。入口将屏幕词表作为本轮公开 `speech.transcribe` 的提示，保留实际句级与逐词结果、输入输出哈希和 SRT。短词持续数秒等异常只触发附近真实声音的重识别；只有文本匹配且不覆盖相邻句子的真实边界才采用候选时间，其它情况保留原结果并标记需要核听。原始回执与每次局部回执都保留。
+没有独立录音时使用录屏的 source id。入口将屏幕词表作为本轮公开 `speech.transcribe` 的提示，保留实际句级与逐词结果、输入输出哈希和 SRT。短词持续数秒等异常只触发附近真实声音的重识别；只有文本唯一匹配、候选不再异常且不覆盖相邻句子的真实边界才采用候选时间，其它情况保留原结果并标记需要核听。匹配保留数字内部的小数点与分隔符，不把 `12` 和 `1.2` 当作同一句。原始回执与每次局部回执都保留。
 
 返回的 transcript 文件是当前事实转写入口，默认为 `pending`。Agent 完成实际听音与专名、数字校正后，继续现有主字幕确认、双语派生和 `production-captions.mjs`；重识别不会改写已确认主字幕，不按文字长度估计词时间。
 
