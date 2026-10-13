@@ -55,6 +55,8 @@ node scripts/sound-production-profile.mjs set-ducking `
 
 语义同步使用 `link-motion`。`semantic-event` 写可读事件名，例如“证据出现”或“结论落定”；最终网页步骤或视频时间线消费档案时再把事件解析到活动时间边界，档案不保存一份易漂移的绝对毫秒表。
 
+本地 `media-timeline.mjs render` 读取同目录的活动 `sound-profile.json`，或显式传入 `--sound-profile`。它用实际 source id 把已采用音轨归入声音职责，执行人声驱动的音乐避让，先测完整混音再以固定增益和峰值限制整理响度，并在 AAC 编码后复测；目标来自当前档案。渲染回执绑定档案哈希和实际混音测量，未采用的驱动或目标不能冒充已经避让。已迁移为 MediaFlow Pro 工程时，Agent 从公开 `audio.inspect` 取得实际总线 id，以 `recording-tools.mjs apply-sound` 写入片段范围驱动的避让，并根据当前原生混音实测写回主总线增益和限幅；两次测量与回执保留，实际成片仍需复测与试听。
+
 ### 强节拍音乐的条件分支
 
 只有当前视频已经确认由音乐强驱动剪辑时，才为真实入账音乐生成 `music-beat-analysis.v1` 派生记录：

@@ -1,6 +1,6 @@
 ---
 name: visual-multimedia
-description: 把确认内容制作成可编辑、可预览、可导出的技术图解、GIF、HTML 动画、Live Photo、产品功能宣传片、其它视频、音频或播客，并处理媒体文案。Use when the user asks to 制作网页视觉、剪辑或对齐实拍/访谈/录屏、为视频查找或添加免费可商用且不要求公开署名的 BGM、从本地视频或链接提取金句并制作字幕拼图、建立无需 Live2D 的二次元口播角色，或编辑音频与播客；不用于独立静态设计、PPTX、研究核查、长文、拍摄规划、账号运营或发布。
+description: 将确认内容制成可编辑、预览、导出的技术图解、GIF、HTML 动画、Live Photo、产品功能宣传片、其它视频、音频或播客，并处理文案。Use when the user asks to 制作网页视觉、剪辑或对齐实拍/访谈/录屏、为视频查找或添加免费可商用且不要求公开署名的 BGM、从本地视频或链接提取金句并制作字幕拼图、建立无需 Live2D 的二次元口播角色，或编辑音频与播客；不用于独立静态设计、PPTX、研究核查、长文、拍摄规划、账号运营或发布。
 ---
 
 # Visual Multimedia
@@ -170,7 +170,7 @@ description: 把确认内容制作成可编辑、可预览、可导出的技术�
 | 从视频文件或链接制作字幕金句拼图 | `references/media-project-contracts.md`、`references/subtitle-quote-image-production.md`、`references/structured-media-editor-cli.md` | 默认原片无烧录字幕；链接直接下载、转录；选完整论述，双语尽量各一行、紧凑排列；连续内容按行数分页，远隔金句分开成图；保留原画面，交付全部图片与完整 SRT |
 | MediaFlow Pro 下载、网页精调、混剪、配音、字幕、转写和导出 | `references/structured-media-editor-cli.md` | 按本机配置调用实际声明的下载、网页、透明输出、转录和语音合成操作 |
 | 用户明确选择 HyperFrames，把独立的代码网页动画直接渲染成无声视频 | `references/hyperframes-rendering.md` | 从同一 editable-media v6 网页包建立渲染副本，探测实际 adapter，经动态样片门禁后渲染并核对真实成片 |
-| 剪辑已有实拍、讲课、访谈、录屏或混合视频 | `references/video-post-production.md` | 先建立产品无关时间线；MediaFlow Pro 对应能力就绪时优先迁移为原生工程，否则本地完成；像素界面只承担受限操作 |
+| 实拍、访谈、讲课、录屏及混合视频后期 | `references/video-post-production.md`；录屏读 `references/screen-recording-production.md` | 通用时间线；MediaFlow Pro 就绪时迁移原生工程，否则本地；界面受限 |
 | 为时间型媒体查找、下载或添加免费可商用且无需公开署名的 BGM | `references/background-music-production.md` | 检查内容与原音轨；只自动采用重新核验为精确 CC0 的候选，入账后合成试听预览 |
 | 从电影片段、纪录素材、游戏录像、课程、产品实拍、活动记录或录屏制作视频解说，包括只有一条未经处理的源视频时 | `references/source-video-commentary-production.md` | 使用 `source-video-commentary@1.0.0`；从 `prepare` 完成获准源片入账、镜头分析、联系表和可用转写，Agent 先写并展示 authoring 中的完整主语言字幕，确认后再沿 `synthesize → confirm-narration → materialize → validate → confirm-content → plan → confirm-plan → sample → confirm-sample → render → review → confirm-preview → finalize` 制作 |
 | 建立或使用无需 Live2D 的二次元口播角色 | `references/anime-avatar-production.md`、`references/anime-avatar-rendering.md` | Agent 建库并从真实语音生成口播轨 |

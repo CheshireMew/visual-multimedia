@@ -209,6 +209,8 @@ export function loadLocalMediaEnvironment(configOverride = null) {
   const localDocument = document.providers.local || {};
   if (typeof localDocument !== "object") fail("providers.local 必须是对象");
   const local = {
+    python: optionalFile(localDocument.python, "providers.local.python")
+      || discoverCommand("python"),
     ffmpeg: optionalFile(localDocument.ffmpeg, "providers.local.ffmpeg")
       || discoverCommand("ffmpeg"),
     ffprobe: optionalFile(localDocument.ffprobe, "providers.local.ffprobe")

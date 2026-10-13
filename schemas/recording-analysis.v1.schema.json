@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["protocol", "version", "source_id", "source", "producer_sha256", "duration_seconds", "sample_fps", "ocr", "width", "height", "vocabulary", "frames"],
+  "properties": {
+    "protocol": {"const": "visual-multimedia-recording-analysis"}, "version": {"const": 1},
+    "source_id": {"type": "string", "minLength": 1}, "source": {"$ref": "#/$defs/binding"},
+    "producer_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+    "sample_fps": {"type": "number", "exclusiveMinimum": 0, "maximum": 5},
+    "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1},
+    "ocr": {"type": "object", "additionalProperties": false, "required": ["engine", "language"], "properties": {
+      "engine": {"const": "windows-media-ocr"}, "language": {"type": "string", "minLength": 1}
+    }},
+    "vocabulary": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "frames": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false,
+      "required": ["t", "image", "motion", "stable", "items"], "properties": {
+        "t": {"type": "number", "minimum": 0}, "image": {"$ref": "#/$defs/binding"},
+        "motion": {"oneOf": [{"type": "null"}, {"type": "object", "additionalProperties": false,
+          "required": ["scale", "dx", "dy"], "properties": {"scale": {"type": "number"}, "dx": {"type": "number"}, "dy": {"type": "number"}}}]},
+        "stable": {"type": "boolean"}, "items": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["text", "box"], "properties": {
+            "text": {"type": "string"}, "box": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number", "minimum": 0, "maximum": 1}}
+          }
+        }}
+      }
+    }}
+  },
+  "$defs": {"binding": {"type": "object", "additionalProperties": false, "required": ["file", "sha256"], "properties": {
+    "file": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }}}
+}

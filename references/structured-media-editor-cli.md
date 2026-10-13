@@ -123,6 +123,8 @@ MediaFlow Pro 可以在一次 `speech.synthesize` 请求内部启动和关闭官
 
 两个操作都不要求 `project`，也不把外部引擎路径写进媒体项目。组件路径只由 MediaFlow Pro 设置和运行组件目录管理；Skill 不把本机路径、下载地址或第三方参数表复制进项目合同。
 
+录屏转写的词表提示和逐词结果仍以本轮 `speech.transcribe` 合同为准。`recording-tools.mjs transcribe` 把真实屏幕词表交给公开入口，保存原始回执，对异常词区间再次调用同一入口，并把最终 JSON 回执交给现有 transcript 导入器。它不直接启动 XXL、不伪造逐词时间，也不替听音审核。主入口同时提供录屏制作说明。
+
 ## 六、参考视频比较
 
 `quality.reference.compare` 是通用文件比较操作，不是 editable-media 字段，也不把参考素材写进 `project.mfp`。调用前先从 `describe` 确认 `reference-video-comparison`、`ffmpeg` 和 `ffprobe` 能力可用，再严格按返回的参数 schema 提交参考文件、候选文件、各自起始帧、可选比较帧数、邻帧搜索半径、边界帧数量、联系表行数、输出目录、可选验收条件和显式覆盖选择。

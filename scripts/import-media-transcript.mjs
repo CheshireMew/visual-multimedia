@@ -12,7 +12,7 @@ import { assertSkillTaskPath } from "./media-task-workspace.mjs";
 function usage() {
   console.log(`用法：
 node scripts/import-media-transcript.mjs --project <项目目录> --source-id <原片 id>
-  --input <SRT 文件> --language <语言> --kind user-subtitles|asr
+  --input <SRT 或公开 ASR JSON 回执> --language <语言> --kind user-subtitles|asr
   [--output transcript.json] [--reviewed --review-notes <说明>]
 
 脚本把 SRT 输入保存到项目内的内容寻址目录，生成绑定原片哈希的转写合同。
@@ -104,8 +104,9 @@ function main() {
   if (!["user-subtitles", "asr"].includes(kind)) {
     throw new Error("--kind 必须是 user-subtitles 或 asr");
   }
-  if (path.extname(inputPath).toLowerCase() !== ".srt") {
-    throw new Error("当前导入器只接受带真实时间码的 SRT");
+  const extension = path.extname(inputPath).toLowerCase();
+  if (extension !== ".srt" && !(kind === "asr" && extension === ".json")) {
+    throw new Error("导入器接受真实时间码 SRT；asr 还可使用公开转写 JSON 回执");
   }
   if (!fs.existsSync(inputPath) || !fs.statSync(inputPath).isFile()) {
     throw new Error(`输入字幕不存在：${inputPath}`);
@@ -124,11 +125,32 @@ function main() {
     throw new Error("转写只能绑定 video 或 audio");
   }
   const inputSha = sha256File(inputPath);
+  let importedSegments;
+  if (extension === ".json") {
+    const receipt = JSON.parse(fs.readFileSync(inputPath, "utf8"));
+    if (receipt.input_sha256 !== source.integrity.sha256 || !Array.isArray(receipt.segments)) {
+      throw new Error("ASR 回执必须绑定所选原始音轨，且包含真实 segments");
+    }
+    if (!receipt.output_path || !fs.existsSync(receipt.output_path)
+        || sha256File(receipt.output_path) !== receipt.output_sha256) {
+      throw new Error("ASR 回执的实际 SRT 输出缺失或哈希不一致");
+    }
+    importedSegments = receipt.segments.map((segment, index) => ({
+      id: `segment-${String(index + 1).padStart(4, "0")}`,
+      start_seconds: segment.start_seconds,
+      end_seconds: segment.end_seconds,
+      text: segment.text,
+      words: (segment.words || []).map((word) => ({
+        text: word.text, start_seconds: word.start_seconds, end_seconds: word.end_seconds,
+      })),
+      uncertain_terms: [],
+    }));
+  } else importedSegments = parseSrt(fs.readFileSync(inputPath, "utf8"));
   const inputDestination = path.join(
     projectRoot,
     "transcript",
     "by-sha256",
-    `${inputSha}.srt`
+    `${inputSha}${extension}`
   );
   fs.mkdirSync(path.dirname(inputDestination), { recursive: true });
   if (!fs.existsSync(inputDestination)) {
@@ -175,7 +197,7 @@ function main() {
         : null,
       notes: reviewNotes,
     },
-    segments: parseSrt(fs.readFileSync(inputDestination, "utf8")),
+    segments: importedSegments,
   };
   if (outputExisted) {
     const existing = fs.readFileSync(outputPath, "utf8");

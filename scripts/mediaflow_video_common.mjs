@@ -125,6 +125,7 @@ export function exportEditableWebScene({
   background,
   requestKey,
   trackName,
+  format = "video",
 }) {
   const imported = mediaFlowProExecute(
     environment,
@@ -171,7 +172,7 @@ export function exportEditableWebScene({
     sequence_id: sequenceId,
     clip_id: clip.id,
     output_path: outputPath,
-    format: "video",
+    format,
     background,
     overwrite: true,
     timeout: 1800,

@@ -166,6 +166,10 @@ function outputArguments(format, output, fps, width, height) {
       "-y", output,
     ];
   }
+  if (format === "mov") {
+    return [...common, "-an", "-c:v", "prores_ks", "-profile:v", "4",
+      "-pix_fmt", "yuva444p10le", "-s", `${width}x${height}`, "-y", output];
+  }
   fail(`不支持的输出格式：${format}`);
 }
 
@@ -181,7 +185,7 @@ async function render(args) {
   const source = path.resolve(required(args, "package"));
   const output = assertSkillTaskPath(path.resolve(required(args, "output")), "--output");
   const format = String(args.format || path.extname(output).slice(1)).toLowerCase();
-  if (!new Set(["mp4", "gif"]).has(format)) fail("输出格式必须是 mp4 或 gif");
+  if (!new Set(["mp4", "gif", "mov"]).has(format)) fail("输出格式必须是 mp4、gif 或保留透明通道的 mov");
   if (fs.existsSync(output) && !args.overwrite) {
     fail(`输出已经存在；明确传入 --overwrite 才会覆盖：${output}`);
   }
@@ -295,7 +299,7 @@ async function render(args) {
 function printHelp() {
   process.stdout.write(`用法：
 node scripts/render-web-media-local.mjs render --package <网页包目录或清单>
-  --output <文件.mp4|文件.gif> [--variant <id>] [--fps <数字>]
+  --output <文件.mp4|文件.gif|文件.mov> [--variant <id>] [--fps <数字>]
   [--ffmpeg <路径>] [--browser <Chromium路径>] [--report <路径>] [--overwrite]
 
 直接读取 editable-media v6 网页真源，以 window.__hf.seek(seconds) 确定性逐帧渲染。

@@ -7,6 +7,7 @@ import process from "node:process";
 import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {assertSkillTaskPath} from "./media-task-workspace.mjs";
+import {readTimelineSoundProfile, appendAudioMix, normalizeMix} from "./timeline-audio-mix.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SKILL_ROOT = path.resolve(path.dirname(SCRIPT_PATH), "..");
@@ -463,7 +464,7 @@ function ffmpegFilterPath(filePath) {
     .replaceAll("'", "\\'");
 }
 
-function compileTimeline(validation, ffprobe, outputPath) {
+function compileTimeline(validation, ffprobe, outputPath, sound = null) {
   const {document, project_root: root, duration_seconds: duration} = validation;
   const profile = document.profile;
   const sources = new Map((document.sources || []).map((source) => [source.id, {
@@ -589,7 +590,7 @@ function compileTimeline(validation, ffprobe, outputPath) {
       ...atempoFilters(speed),
       `aresample=${profile.sample_rate}`,
     ];
-    const gain = Number(clip.gain_db || 0);
+    const gain = Number(clip.gain_db ?? sound?.cues.get(clip.source_id)?.default_gain_db ?? 0);
     if (Math.abs(gain) > 1e-6) chain.push(`volume=${number(gain)}dB`);
     const fadeIn = fadeDuration(clip, "fade_in");
     const fadeOut = fadeDuration(clip, "fade_out");
@@ -602,14 +603,7 @@ function compileTimeline(validation, ffprobe, outputPath) {
     const label = `ac${index}`;
     filters.push(`[${sourceIndex}:a]${chain.join(",")}[${label}]`);
   });
-  if (audioClips.length === 1) {
-    filters.push(`[ac0]atrim=duration=${number(duration)}[aout]`);
-    audioOutput = "aout";
-  } else if (audioClips.length > 1) {
-    const inputs = audioClips.map((_, index) => `[ac${index}]`).join("");
-    filters.push(`${inputs}amix=inputs=${audioClips.length}:duration=longest:normalize=0,atrim=duration=${number(duration)}[aout]`);
-    audioOutput = "aout";
-  }
+  audioOutput = appendAudioMix(filters, audioClips, number(duration), sound);
 
   const filterPath = `${outputPath}.filter.txt`;
   fs.writeFileSync(filterPath, `${filters.join(";\n")}\n`, "utf8");
@@ -649,8 +643,13 @@ function render(args) {
   if (!validation.ok) fail(`时间线未通过验证：\n- ${validation.errors.join("\n- ")}`);
   const ffmpeg = findCommand("ffmpeg", args.ffmpeg);
   const ffprobe = findCommand("ffprobe", args.ffprobe);
-  const compiled = compileTimeline(validation, ffprobe, outputPath);
+  const sound = readTimelineSoundProfile(validation, args["sound-profile"]);
+  const premaster = sound ? `${outputPath}.premaster.mp4` : outputPath;
+  const compiled = compileTimeline(validation, ffprobe, premaster, sound);
   run(ffmpeg, compiled.args, "渲染时间线", {cwd: validation.project_root});
+  const audioMix = sound && compiled.audioClips.length
+    ? normalizeMix(ffmpeg, premaster, outputPath, run, sound.profile.mix.loudness) : null;
+  if (sound && !compiled.audioClips.length) fs.copyFileSync(premaster, outputPath);
   if (!fs.existsSync(outputPath) || fs.statSync(outputPath).size === 0) {
     fail(`时间线没有生成输出：${outputPath}`);
   }
@@ -668,6 +667,8 @@ function render(args) {
     duration_seconds: compiled.duration,
     video_clip_count: compiled.visualClips.length,
     audio_clip_count: compiled.audioClips.length,
+    sound_profile: sound ? {file: sound.file, sha256: sha256File(sound.file)} : null,
+    audio_mix: audioMix,
     caption_file: compiled.assPath,
     filter_graph: compiled.filterPath,
     rendered_at: new Date().toISOString(),
@@ -681,7 +682,8 @@ function printHelp() {
 node scripts/media-timeline.mjs validate --timeline <media-timeline.json>
 node scripts/media-timeline.mjs inspect --timeline <media-timeline.json>
 node scripts/media-timeline.mjs render --timeline <media-timeline.json> --output <final.mp4>
-  [--ffmpeg <路径>] [--ffprobe <路径>] [--report <路径>] [--overwrite]
+  [--ffmpeg <路径>] [--ffprobe <路径>] [--sound-profile <sound-profile.json>]
+  [--report <路径>] [--overwrite]
 
 时间线中的素材路径必须相对于时间线文件，不能引用工程目录外的文件。
 `);

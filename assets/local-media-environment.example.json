@@ -3,6 +3,7 @@
   "version": 2,
   "providers": {
     "local": {
+      "python": "D:/Tools/Python310/python.exe",
       "ffmpeg": "D:/Tools/ffmpeg/bin/ffmpeg.exe",
       "ffprobe": "D:/Tools/ffmpeg/bin/ffprobe.exe",
       "browser": "D:/Tools/Chromium/chrome.exe",

@@ -808,6 +808,7 @@ for (const writer of [
   "media-project.mjs",
   "media-resource-library.mjs",
   "media-timeline.mjs",
+  "recording-tools.mjs",
   "hyperframes-provider.mjs",
   "prepare-hyperframes-render.mjs",
   "product-promo.mjs",
@@ -2718,6 +2719,11 @@ if (runFullChecks && failures.length === 0) {
     ],
     "无烧录字幕视频—首条背景候选—原文范围与显示行—竖版分页与自动高度—全部图片复核与交付链路",
   );
+}
+
+if (runFullChecks && process.platform === "win32" && failures.length === 0) {
+  runChecked(process.execPath, [path.join(scriptDir, "self-test-recording-production.mjs")],
+    "真实录屏 OCR、目标稳定性、外置录音、代码配乐与本地混音生产链路");
 }
 
 if (failures.length > 0) {
